@@ -1,7 +1,7 @@
 <!-- General project links -->
-[open-issues]: https://github.com/it-at-m/refarch-templates/issues
-[new-issue]: https://github.com/it-at-m/refarch-templates/issues/new/choose
-[milestones]: https://github.com/it-at-m/refarch-templates/milestones
+[open-issues]: https://github.com/it-at-m/raumreservierung/issues
+[new-issue]: https://github.com/it-at-m/raumreservierung/issues/new/choose
+[milestones]: https://github.com/it-at-m/raumreservierung/milestones
 [project-board]: https://github.com/orgs/it-at-m/projects/16
 [documentation]: https://refarch.oss.muenchen.de/templates
 [contribution-documentation]: https://refarch.oss.muenchen.de/contribute
@@ -23,9 +23,9 @@
 [documentation-shield]: https://img.shields.io/badge/documentation-blue?style=for-the-badge
 [new-issue-shield]: https://img.shields.io/badge/new%20issue-blue?style=for-the-badge
 [made-with-love-shield]: https://img.shields.io/badge/made%20with%20%E2%9D%A4%20by-it%40M-yellow?style=for-the-badge
-[license-shield]: https://img.shields.io/github/license/it-at-m/refarch-templates?style=for-the-badge
+[license-shield]: https://img.shields.io/github/license/it-at-m/raumreservierung?style=for-the-badge
 
-# RefArch Templates
+# Raumreservierung Templates
 
 [![Documentation][documentation-shield]][documentation]
 [![New issue][new-issue-shield]][new-issue]
