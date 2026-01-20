@@ -49,10 +49,10 @@ logging:
 sso:
   url: http://keycloak:8100
   realm: local_realm
-  client: local
+  clientid: local
 
 raumreservierung:
   security:
-    client-id: ${sso.client}
+    client-id: ${sso.clientid}
     user-info-uri: ${sso.url}/auth/realms/${sso.realm}/protocol/openid-connect/userinfo
     logging-mode: all
