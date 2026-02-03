@@ -91,3 +91,9 @@ info:
   build:
     java.version: "@java.version@"
     spring-cloud.version: "@spring-cloud-dependencies.version@"
+
+raumreservierung:
+  security:
+    client-id: ${sso.clientid}
+    user-info-uri: ${sso.url}/auth/realms/${sso.realm}/protocol/openid-connect/userinfo
+    logging-mode: all
