@@ -1,15 +1,21 @@
 <template>
   <v-app>
-    <the-snackbar />
+    <the-snackbar-queue />
     <v-app-bar color="primary">
       <v-row align="center">
         <v-col
           cols="3"
           class="d-flex align-center justify-start"
         >
-          <v-app-bar-nav-icon @click.stop="toggleDrawer()" />
+          <v-app-bar-nav-icon
+            v-if="isSmallScreen"
+            @click.stop="toggleDrawer()"
+          />
           <router-link to="/">
-            <v-toolbar-title class="font-weight-bold">
+            <v-toolbar-title
+              class="font-weight-bold"
+              :class="{ 'ml-4': !isSmallScreen }"
+            >
               <span class="text-white">{{ t("app.name.part1") }}</span>
               <span class="text-secondary">{{ t("app.name.part2") }}</span>
               <span class="text-white">{{ t("app.name.part3") }}</span>
@@ -20,18 +26,7 @@
           cols="6"
           class="d-flex align-center justify-center"
         >
-          <v-text-field
-            id="searchField"
-            v-model="query"
-            flat
-            variant="solo-inverted"
-            hide-details
-            :label="t('app.search')"
-            clearable
-            :prepend-inner-icon="mdiMagnify"
-            theme="dark"
-            @keyup.enter="search"
-          />
+          <v-spacer />
         </v-col>
         <v-col
           cols="3"
@@ -43,26 +38,13 @@
             :tags="['global']"
             :icon="mdiApps"
           />
-          <v-btn
-            variant="text"
-            icon
-          >
-            <ad2-image-avatar
-              v-if="userStore.getUser !== null"
-              :username="userStore.getUser.username"
-            />
-          </v-btn>
         </v-col>
       </v-row>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer">
-      <v-list>
-        <v-list-item :to="{ name: ROUTES_GETSTARTED }">
-          <v-list-item-title>
-            {{ t("views.getStarted.navText") }}
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
+      <avatar-card />
+      <v-divider />
+      <navigation-drawer-items />
     </v-navigation-drawer>
     <v-main>
       <v-container fluid>
@@ -95,7 +77,6 @@ import { UserLocalDevelopment } from "@/types/User";
 
 const { t } = useI18n();
 
-const query = ref<string>("");
 const appswitcherBaseUrl = APPSWITCHER_URL;
 
 const snackbarStore = useSnackbarStore();
