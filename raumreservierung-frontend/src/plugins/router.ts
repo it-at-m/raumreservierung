@@ -6,6 +6,7 @@ import { createRouter, createWebHistory } from "vue-router";
 import { ROUTES_GETSTARTED, ROUTES_HOME } from "@/constants";
 import pinia from "@/plugins/pinia";
 import { useUserStore } from "@/stores/user.ts";
+import { hasPrivileges } from "@/util/privilegesCalculator.ts";
 import GetStartedView from "@/views/GetStartedView.vue";
 import HomeView from "@/views/HomeView.vue";
 
@@ -49,7 +50,7 @@ router.beforeEach((to) => {
     ? to.meta.requiredPrivileges
     : [to.meta.requiredPrivileges];
 
-  return convertedPriviledes.every((e) => userStore.priviledges.includes(e));
+  return hasPrivileges(userStore.privileges, convertedPriviledes);
 });
 
 export default router;
