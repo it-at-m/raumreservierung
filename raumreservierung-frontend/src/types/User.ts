@@ -21,12 +21,8 @@ export function UserLocalDevelopment(): User {
   const u = new User();
   u.username = "Local Development User";
   u.displayName = "Local Development User";
-  u.authorities = [
-    // todo add authorities
-  ];
-  u.user_roles = [
-    // todo add user roles
-  ];
+  u.authorities = ["do not use me"];
+  u.user_roles = ["normal user or admin"];
   return u;
 }
 
