@@ -1,11 +1,15 @@
 // Composables
+import type { RouteRecordRaw } from "vue-router";
+
 import { createRouter, createWebHistory } from "vue-router";
 
 import { ROUTES_GETSTARTED, ROUTES_HOME } from "@/constants";
+import pinia from "@/plugins/pinia";
+import { useUserStore } from "@/stores/user.ts";
 import GetStartedView from "@/views/GetStartedView.vue";
 import HomeView from "@/views/HomeView.vue";
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   {
     path: "/",
     name: ROUTES_HOME,
@@ -16,6 +20,9 @@ const routes = [
     path: "/getstarted",
     name: ROUTES_GETSTARTED,
     component: GetStartedView,
+    meta: {
+      requiredPrivileges: ["rooms:write"],
+    },
   },
   { path: "/:catchAll(.*)*", redirect: "/" }, // CatchAll route
 ];
@@ -29,6 +36,20 @@ const router = createRouter({
       left: 0,
     };
   },
+});
+
+/**
+ * Navigation guard checking priviledges
+ */
+router.beforeEach((to) => {
+  const userStore = useUserStore(pinia);
+  if (!to.meta.requiredPrivileges) return;
+
+  const convertedPriviledes = Array.isArray(to.meta.requiredPrivileges)
+    ? to.meta.requiredPrivileges
+    : [to.meta.requiredPrivileges];
+
+  return convertedPriviledes.every((e) => userStore.priviledges.includes(e));
 });
 
 export default router;
