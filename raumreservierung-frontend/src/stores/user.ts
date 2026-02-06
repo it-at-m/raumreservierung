@@ -14,8 +14,12 @@ export const useUserStore = defineStore("user", () => {
     return user.value;
   });
 
+  const priviledges = computed(() => {
+    return user.value?.user_roles || [];
+  });
+
   function setUser(payload: User | null): void {
     user.value = payload;
   }
-  return { getUser, setUser };
+  return { getUser, setUser, priviledges };
 });
