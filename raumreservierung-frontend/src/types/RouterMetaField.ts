@@ -12,7 +12,7 @@ interface ActionMap {
   calendar: Extract<Action, "read">;
 }
 
-export type RequiredPrivileges = {
+export type Privilege = {
   [R in keyof ActionMap]: `${R}:${ActionMap[R]}`;
 }[keyof ActionMap];
 
@@ -20,6 +20,6 @@ export {};
 
 declare module "vue-router" {
   interface RouteMeta {
-    requiredPrivileges?: RequiredPrivileges | RequiredPrivileges[];
+    requiredPrivileges?: Privilege | Privilege[];
   }
 }
