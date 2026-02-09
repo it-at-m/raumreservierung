@@ -1,28 +1,51 @@
 import { shallowMount } from "@vue/test-utils";
 import { createPinia } from "pinia";
 import { describe, expect, test } from "vitest";
-import { createVuetify } from "vuetify";
-import * as components from "vuetify/components";
-import * as directives from "vuetify/directives";
+import { defineComponent, nextTick } from "vue";
 
-import TheSnackbar from "@/components/TheSnackbar.vue";
-import i18n from "@/plugins/i18n";
+import TheSnackbarQueue from "../../src/components/TheSnackbarQueue.vue";
+import { useSnackbarStore } from "../../src/stores/snackbar";
 
-const pinia = createPinia();
-const vuetify = createVuetify({
-  components,
-  directives,
-});
+describe("TheSnackbarQueue.vue", () => {
+  test("renders message from pinia snackbar store queue", async () => {
+    const pinia = createPinia();
 
-describe("TheSnackbar.vue", () => {
-  test("renders props.message when passed", () => {
-    const message = "Hello_World";
-    const wrapper = shallowMount(TheSnackbar, {
-      global: {
-        plugins: [pinia, vuetify, i18n],
+    const VSnackbarQueueStub = defineComponent({
+      name: "VSnackbarQueueStub",
+      props: {
+        modelValue: {
+          type: Array,
+          default: () => [],
+        },
       },
-      props: { message: message },
+      emits: ["update:modelValue"],
+      template: `
+        <div>
+          <div v-for="(item, idx) in modelValue" :key="idx">
+            <slot name="text" :item="item" />
+          </div>
+        </div>
+      `,
     });
-    expect(wrapper.html()).toContain(message);
+
+    const wrapper = shallowMount(TheSnackbarQueue, {
+      global: {
+        plugins: [pinia],
+        stubs: {
+          "v-snackbar-queue": VSnackbarQueueStub,
+          "v-layout": { template: "<div><slot /></div>" },
+          "v-icon": { template: "<i />" },
+        },
+      },
+    });
+
+    const store = useSnackbarStore(pinia);
+
+    const message = "Hello_World";
+    store.add({ message }); // level/timeout/icon optional -> Defaults greifen
+
+    await nextTick();
+
+    expect(wrapper.text()).toContain(message);
   });
 });
