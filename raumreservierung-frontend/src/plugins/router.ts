@@ -1,6 +1,7 @@
 // Composables
 import type { RouteRecordRaw } from "vue-router";
 
+import { unref } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 
 import { ROUTES_GETSTARTED, ROUTES_HOME } from "@/constants";
@@ -50,7 +51,7 @@ router.beforeEach((to) => {
     ? to.meta.requiredPrivileges
     : [to.meta.requiredPrivileges];
 
-  return hasPrivileges(userStore.privileges, convertedPriviledes);
+  return hasPrivileges(unref(userStore.getPrivileges()), convertedPriviledes);
 });
 
 export default router;

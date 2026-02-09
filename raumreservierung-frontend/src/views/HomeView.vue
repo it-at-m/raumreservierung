@@ -43,7 +43,7 @@ const { t } = useI18n();
 const snackbarStore = useSnackbarStore();
 const status = ref("DOWN");
 
-const isPrivileged = useIsPrivileged("rooms:write");
+const isPrivileged = useIsPrivileged("rooms:read");
 
 onMounted(() => {
   checkHealth()
