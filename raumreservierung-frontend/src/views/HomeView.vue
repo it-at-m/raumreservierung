@@ -17,13 +17,9 @@
           {{ t("views.home.apiGatewayStatus") }}
           <span :class="status">{{ status }}</span>
         </p>
-      </v-col>
-
-      <v-col class="mb-4">
-        <h1 class="text-h3 font-weight-bold mb-3">
-          Wer das liesst hat die notwendigen Berechtigungen
-        </h1>
-        <p>Das hier aus dem Composable: {{ isPrivileged }}</p>
+        <p v-if="isPrivileged">
+          {{ t("views.home.privilegeTest") }}
+        </p>
       </v-col>
     </v-row>
   </v-container>
