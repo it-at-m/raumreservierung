@@ -1,4 +1,4 @@
-export type Action = "read" | "write" | "manage" | "self:read";
+export type Action = "read" | "write" | "manage" | "self";
 
 interface ActionMap {
   rooms: Extract<Action, "read" | "write">;
@@ -6,7 +6,7 @@ interface ActionMap {
   seating: Extract<Action, "write">;
   days: Extract<Action, "write">;
   users: Extract<Action, "write">;
-  bookings: Extract<Action, "read" | "write" | "manage" | "self:read">;
+  bookings: Extract<Action, "read" | "write" | "manage" | "self">;
   calendar: Extract<Action, "read">;
 }
 

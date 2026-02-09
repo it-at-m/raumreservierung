@@ -6,7 +6,7 @@ import type { Role } from "@/types/Role.ts";
  */
 const rolePrivilegeMapping = {
   fachadmin: ["rooms:write", "bookings:manage"],
-  anwender: ["rooms:read", "bookings:self:read"],
+  anwender: ["rooms:read", "bookings:self"],
 } satisfies Record<Role, readonly Privilege[]>;
 
 const roleKeys = Object.keys(rolePrivilegeMapping) as Role[];
