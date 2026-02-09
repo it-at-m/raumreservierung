@@ -22,7 +22,6 @@
       "header": "Willkommen beim @:app.name.full von it{'@'}M",
       "apiGatewayStatus": "Das API-Gateway ist:",
       "privilegeTest": "Wer das liesst hat die notwendigen Berechtigungen"
-
     },
     "getStarted": {
       "navText": "Erste Schritte",
