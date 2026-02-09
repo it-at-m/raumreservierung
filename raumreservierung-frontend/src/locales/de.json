@@ -2,9 +2,6 @@
   "common": {
     "yes": "Ja",
     "no": "Nein",
-    "actions": {
-      "close": "Schließen"
-    },
     "messages": {}
   },
   "app": {
@@ -13,8 +10,7 @@
       "part2": "Raum",
       "part3": "reservierung",
       "full": "@:app.name.part2@:app.name.part3"
-    },
-    "search": "Suche"
+    }
   },
   "components": {},
   "views": {
@@ -23,7 +19,6 @@
       "apiGatewayStatus": "Das API-Gateway ist:"
     },
     "getStarted": {
-      "navText": "Erste Schritte",
       "docsHeader": "Dokumentation",
       "docsSubtext": "Weiterführende Links sind hier zu finden:",
       "docsLinks": {

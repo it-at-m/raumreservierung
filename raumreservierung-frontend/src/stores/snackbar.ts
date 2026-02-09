@@ -53,7 +53,6 @@ export const useSnackbarStore = defineStore("snackbar", () => {
    */
   function add(message: SnackbarMessage) {
     queue.value.push(normalizeSnackbar(message));
-    console.log(normalizeSnackbar(message));
   }
 
   return { queue, add };
