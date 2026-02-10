@@ -47,11 +47,11 @@ router.beforeEach((to) => {
   const userStore = useUserStore(pinia);
   if (!to.meta.requiredPrivileges) return;
 
-  const convertedPriviledes = Array.isArray(to.meta.requiredPrivileges)
+  const convertedPrivileges = Array.isArray(to.meta.requiredPrivileges)
     ? to.meta.requiredPrivileges
     : [to.meta.requiredPrivileges];
 
-  return hasPrivileges(unref(userStore.getPrivileges()), convertedPriviledes);
+  return hasPrivileges(unref(userStore.getPrivileges()), convertedPrivileges);
 });
 
 export default router;

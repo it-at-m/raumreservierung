@@ -18,7 +18,7 @@ const roleKeys = Object.keys(rolePrivilegeMapping) as Role[];
  */
 export const hasPrivileges = (
   givenPrivileges: Readonly<Privilege | Privilege[]>,
-  requiredPrivileges: Privilege | Privilege[]
+  requiredPrivileges: Readonly<Privilege | Privilege[]>
 ): boolean => {
   const requiredPrivilegesList = Array.isArray(requiredPrivileges)
     ? requiredPrivileges
