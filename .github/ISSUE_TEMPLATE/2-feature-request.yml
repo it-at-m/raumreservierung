@@ -32,6 +32,13 @@ body:
         e.g. I'm always frustrated when ...
     validations:
       required: true
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Considered alternatives (optional)
+      description: A clear and concise description of any alternative solutions or features you've considered
+    validations:
+      required: false
   - type: markdown
     attributes:
       value: "## Confirmations"

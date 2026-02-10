@@ -37,7 +37,7 @@ body:
         3. Go to...
         4. See error
     validations:
-      required: false
+      required: true
   - type: markdown
     attributes:
       value: "## Version and environment information"
