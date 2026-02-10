@@ -18,3 +18,4 @@
 "Template: Frontend":
   - changed-files:
     - any-glob-to-any-file: ['raumreservierung-frontend/**']
+
