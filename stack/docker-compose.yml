@@ -53,8 +53,6 @@ services:
       - KC_HTTP_RELATIVE_PATH=/auth
     ports:
       - "8100:8100"
-    volumes:
-      - ./keycloak/plugins:/opt/keycloak/providers/
     networks:
       - keycloak
     healthcheck:
@@ -104,7 +102,7 @@ services:
     - SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUERURI=http://keycloak:8100/auth/realms/local_realm
     - SPRING_SECURITY_OAUTH2_CLIENT_PROVIDER_SSO_ISSUERURI=$${spring.security.oauth2.resourceserver.jwt.issuer-uri}
     - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_SSO_PROVIDER=sso
-    - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_SSO_CLIENTID=local
+    - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_SSO_CLIENTID=raumreservierung
     - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_SSO_CLIENTSECRET=client_secret
     - SPRING_SECURITY_OAUTH2_CLIENT_REGISTRATION_SSO_SCOPE=profile, openid, roles
     networks:

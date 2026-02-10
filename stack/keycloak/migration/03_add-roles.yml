@@ -3,15 +3,15 @@ author: Default
 realm: local_realm
 changes:
   - addRole:
-      name: reader
-      description: Example role with read access to application data
+      name: anwender
+      description: Role to view and write only the own bookings
       clientRole: true
-      clientId: local
+      clientId: raumreservierung
       composite: false
 
   - addRole:
-      name: writer
-      description: Example role with write access to application data
+      name: fachadmin
+      description: Role to view and write all bookings and access to other administrative areas
       clientRole: true
-      clientId: local
+      clientId: raumreservierung
       composite: false
