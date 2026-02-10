@@ -21,8 +21,6 @@ body:
       options:
         - raumreservierung-frontend
         - raumreservierung-backend
-        - raumreservierung-eai
-        - raumreservierung-webcomponent
         - Other
     validations:
       required: true

@@ -17,8 +17,6 @@ jobs:
         include: # hier müssen die Pfade angegeben werden
           - app-path: raumreservierung-backend
           - app-path: raumreservierung-frontend
-          - app-path: raumreservierung-eai
-          - app-path: raumreservierung-webcomponent
 
     steps:
       - uses: it-at-m/lhm_actions/action-templates/actions/action-checkout@12966547963631f8429d42bab860485b413003c2 # v1.0.22

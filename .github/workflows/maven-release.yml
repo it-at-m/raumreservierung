@@ -17,7 +17,6 @@ on:
         required: true
         options:
           - raumreservierung-backend
-          - raumreservierung-eai
 
 jobs:
   release-maven:
