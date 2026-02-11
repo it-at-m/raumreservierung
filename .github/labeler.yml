@@ -15,12 +15,7 @@
 "Template: Backend":
   - changed-files:
     - any-glob-to-any-file: ['raumreservierung-backend/**']
-"Template: EAI":
-  - changed-files:
-      - any-glob-to-any-file: ['raumreservierung-eai/**']
 "Template: Frontend":
   - changed-files:
-      - any-glob-to-any-file: ['raumreservierung-frontend/**']
-"Template: Webcomponent":
-  - changed-files:
-      - any-glob-to-any-file: ['raumreservierung-webcomponent/**']
+    - any-glob-to-any-file: ['raumreservierung-frontend/**']
+

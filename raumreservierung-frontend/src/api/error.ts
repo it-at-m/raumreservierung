@@ -1,9 +1,14 @@
-import { STATUS_INDICATORS } from "@/constants";
+export const enum Levels {
+  SUCCESS = "success",
+  INFO = "info",
+  WARNING = "warning",
+  ERROR = "error",
+}
 
 export class ApiError extends Error {
   level: string;
   constructor({
-    level = STATUS_INDICATORS.ERROR,
+    level = Levels.ERROR,
     message = "Ein unbekannter Fehler ist aufgetreten, bitte den Administrator informieren.",
   }: {
     level?: string;

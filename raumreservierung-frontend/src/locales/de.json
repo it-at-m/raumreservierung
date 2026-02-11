@@ -2,29 +2,24 @@
   "common": {
     "yes": "Ja",
     "no": "Nein",
-    "actions": {
-      "close": "Schließen"
-    },
     "messages": {}
   },
   "app": {
     "name": {
-      "part1": "RefArch-",
-      "part2": "Kick",
-      "part3": "Starter",
-      "full": "@:app.name.part1@:app.name.part2@:app.name.part3"
-    },
-    "search": "Suche"
+      "part1": "DIR - ",
+      "part2": "Raum",
+      "part3": "reservierung",
+      "full": "@:app.name.part2@:app.name.part3"
+    }
   },
   "components": {},
   "views": {
     "home": {
-      "header": "Willkommen beim @:app.name.full von it{'@'}M",
+      "header": "Willkommen bei der @:app.name.full von it{'@'}M",
       "apiGatewayStatus": "Das API-Gateway ist:",
       "privilegeTest": "Wer das liesst hat die notwendigen Berechtigungen"
     },
     "getStarted": {
-      "navText": "Erste Schritte",
       "docsHeader": "Dokumentation",
       "docsSubtext": "Weiterführende Links sind hier zu finden:",
       "docsLinks": {
@@ -36,6 +31,11 @@
         "text": "Wollen Sie wirklich nicht die Dokumentation anschauen?"
       }
     }
+  },
+  "navigationDrawer": {
+    "myBookings": "Meine Buchungen einsehen",
+    "viewRoomsAndDetails": "Räume und Details ansehen",
+    "help": "Hilfe"
   },
   "domain": {}
 }

@@ -4,7 +4,7 @@
   "generator-cli": {
     "version": "7.19.0",
     "generators": {
-      "refarch-backend": {
+      "raumreservierung-backend": {
         "generatorName": "typescript-fetch",
         "glob": "../raumreservierung-backend/target/*.yaml",
         "output": "#{cwd}/src/api/#{name}",

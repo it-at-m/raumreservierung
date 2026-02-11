@@ -19,14 +19,28 @@ export default createVuetify({
     },
   },
   theme: {
+    variations: {
+      colors: ["primary", "secondary", "accent"],
+      lighten: 3,
+      darken: 3,
+    },
     themes: {
       light: {
         colors: {
           primary: "#333333",
           secondary: "#FFCC00",
+          tertiary: "#1A3DA5",
           accent: "#7BA4D9",
-          success: "#69BE28",
-          error: "#FF0000",
+          // snackbar colors
+          success: "#4caf50",
+          error: "#ef5350",
+          info: "#03a9f4",
+          warning: "#ff9800",
+          // Status colors
+          blocked: "#7290D3",
+          reserved: "#809C00",
+          requested: "#af64d4", //#af64d4
+          canceled: "#D54234",
         },
       },
     },
