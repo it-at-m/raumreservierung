@@ -16,7 +16,7 @@
   "views": {
     "home": {
       "header": "Willkommen bei der @:app.name.full von it{'@'}M",
-      "apiGatewayStatus": "Das API-Gateway ist:"
+      "apiGatewayStatus": "Das API-Gateway ist:",
       "privilegeTest": "Wer das liesst hat die notwendigen Berechtigungen"
     },
     "getStarted": {
