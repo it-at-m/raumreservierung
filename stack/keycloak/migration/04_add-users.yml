@@ -8,7 +8,7 @@ changes:
       firstName: anwender
       enabled: true
       emailVerified: true
-      email: user@muenchen.de
+      email: anwender@anwender.de
   - updateUserPassword:
       name: anwender
       password: "anwender"
@@ -18,7 +18,7 @@ changes:
       firstName: fachadmin
       enabled: true
       emailVerified: true
-      email: fachadmin@muenchen.de
+      email: fachadmin@fachadmin.de
   - updateUserPassword:
       name: fachadmin
       password: "fachadmin"

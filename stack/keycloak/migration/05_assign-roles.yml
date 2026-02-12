@@ -5,8 +5,8 @@ changes:
   - assignRole:
       user: anwender
       role: anwender
-      clientId: raumreservierung
+      clientId: local
   - assignRole:
       user: fachadmin
       role: fachadmin
-      clientId: raumreservierung
+      clientId: local

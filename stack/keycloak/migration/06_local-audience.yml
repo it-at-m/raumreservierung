@@ -16,5 +16,5 @@ changes:
             included.custom.audience: ""
 
   - assignDefaultClientScope:
-      clientId: raumreservierung
+      clientId: local
       clientScopeName: local_audience

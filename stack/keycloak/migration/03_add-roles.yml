@@ -6,12 +6,12 @@ changes:
       name: anwender
       description: Role to view and write only the own bookings
       clientRole: true
-      clientId: raumreservierung
+      clientId: local
       composite: false
 
   - addRole:
       name: fachadmin
       description: Role to view and write all bookings and access to other administrative areas
       clientRole: true
-      clientId: raumreservierung
+      clientId: local
       composite: false
