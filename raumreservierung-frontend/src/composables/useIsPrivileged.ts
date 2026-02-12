@@ -4,7 +4,7 @@ import type { ComputedRef } from "vue";
 import { computed, unref } from "vue";
 
 import { useUserStore } from "@/stores/user.ts";
-import { hasPrivileges } from "@/util/privilegesCalculator.ts";
+import { hasPrivileges } from "@/util/privilegeUtility.ts";
 
 /**
  * Calculates a computed boolean if user is privileged
