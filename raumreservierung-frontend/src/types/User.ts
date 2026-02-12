@@ -1,5 +1,6 @@
 class User {
   sub = "";
+  name = "";
 
   // LHM
   displayName = "";

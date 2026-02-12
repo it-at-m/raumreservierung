@@ -25,7 +25,10 @@ export function getUser(): Promise<User> {
     })
     .then((json: Partial<User>) => {
       const u = new User();
+      console.log(json);
+
       u.sub = json.sub || "";
+      u.name = json.name || "";
 
       // LHM
       u.displayName = json.displayName || "";
