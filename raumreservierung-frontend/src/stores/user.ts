@@ -4,7 +4,7 @@ import { defineStore } from "pinia";
 import { computed, readonly, ref } from "vue";
 
 import User from "@/types/User";
-import { mapSimpleRolesToPrivileges } from "@/util/privilegesCalculator.ts";
+import { mapSimpleRolesToPrivileges } from "@/util/privilegeUtility.ts";
 
 export interface UserState {
   user: User | null;
