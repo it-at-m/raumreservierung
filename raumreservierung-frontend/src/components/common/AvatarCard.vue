@@ -6,9 +6,15 @@
     <template #prepend>
       <ad2-image-avatar username="" />
     </template>
-    <template #title> {{ userStore.getUser?.username }} </template>
+    <template #title>
+      <span class="text-capitalize">
+        {{ userStore.getUser?.name }}
+      </span>
+    </template>
     <template #subtitle>
-      {{ userStore.getUser?.user_roles.toString() }}
+      <span class="text-capitalize">
+        {{ userStore.getUser?.user_roles.toString() }}</span
+      >
     </template>
   </v-card>
 </template>
@@ -24,4 +30,8 @@ const userStore = useUserStore();
 const isLoading = computed(() => userStore.getUser == null);
 </script>
 
-<style scoped></style>
+<style scoped>
+.text-capitalize {
+  text-transform: capitalize;
+}
+</style>
