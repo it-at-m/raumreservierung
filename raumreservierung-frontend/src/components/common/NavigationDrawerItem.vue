@@ -6,14 +6,14 @@
     :to="navEntry.to"
   >
     <v-list-item-title>
-      {{ navEntry.textKey }}
+      {{ t(navEntry.textKey) }}
     </v-list-item-title>
   </v-list-item>
   <v-list-group v-else>
     <template #activator="{ props }">
       <v-list-item
         v-bind="props"
-        :title="navEntry.textKey"
+        :title="t(navEntry.textKey)"
       />
     </template>
     <navigation-drawer-item
@@ -26,6 +26,10 @@
 
 <script setup lang="ts">
 import type { NavEntry } from "@/types/NavigationEntries.ts";
+
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 defineProps<{ navEntry: NavEntry }>();
 </script>

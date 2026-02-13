@@ -19,27 +19,27 @@ const NAV_ENTRIES: readonly NavEntry[] = [
   {
     kind: "item",
     id: "bookings:self",
-    textKey: "Meine Buchungen einsehen",
+    textKey: "navigationDrawer.myBookings",
     to: { name: ROUTES.HOME },
     requiredPrivilege: "bookings:self",
   },
   {
     kind: "group",
     id: "bookings:manage",
-    textKey: "Buchen",
+    textKey: "navigationDrawer.bookingGroup.groupTitle",
     requiredPrivilege: "bookings:manage",
     children: [
       {
         kind: "item",
         id: "roomBook",
-        textKey: "über Räume buchen",
+        textKey: "navigationDrawer.bookingGroup.bookRooms",
         to: { name: ROUTES.GETSTARTED },
         requiredPrivilege: "rooms:read",
       },
       {
         kind: "item",
         id: "calendarBook",
-        textKey: "über Kalendar buchen",
+        textKey: "navigationDrawer.bookingGroup.bookCalendar",
         to: { name: ROUTES.GETSTARTED },
         requiredPrivilege: "calendar:write",
       },
@@ -48,19 +48,19 @@ const NAV_ENTRIES: readonly NavEntry[] = [
   {
     kind: "group",
     id: "persons",
-    textKey: "Personen verwalten",
+    textKey: "navigationDrawer.personGroup.groupTitle",
     requiredPrivilege: "users:write",
     children: [
       {
         kind: "item",
         id: "internalPerson",
-        textKey: "Interne Personen verwalten",
+        textKey: "navigationDrawer.personGroup.internalPersons",
         to: { name: ROUTES.GETSTARTED },
       },
       {
         kind: "item",
         id: "externalPerson",
-        textKey: "Externe Personen verwalten",
+        textKey: "navigationDrawer.personGroup.externalPersons",
         to: { name: ROUTES.GETSTARTED },
       },
     ],
@@ -68,20 +68,20 @@ const NAV_ENTRIES: readonly NavEntry[] = [
   {
     kind: "group",
     id: "dayManage",
-    textKey: "Tage verwalten",
+    textKey: "navigationDrawer.holidayGroup.groupTitle",
     requiredPrivilege: "days:write",
     children: [
       {
         kind: "item",
         id: "feiertag",
-        textKey: "Feiertage verwalten",
+        textKey: "navigationDrawer.holidayGroup.publicHolidays",
         to: { name: ROUTES.GETSTARTED },
         requiredPrivilege: "days:write",
       },
       {
         kind: "item",
         id: "Ferientage",
-        textKey: "Ferien verwalten",
+        textKey: "navigationDrawer.holidayGroup.schoolHolidays",
         to: { name: ROUTES.GETSTARTED },
         requiredPrivilege: "days:write",
       },
@@ -90,34 +90,34 @@ const NAV_ENTRIES: readonly NavEntry[] = [
   {
     kind: "item",
     id: "roomsView",
-    textKey: "Räume und Details ansehen",
+    textKey: "navigationDrawer.viewRoomsAndDetails",
     to: { name: ROUTES.GETSTARTED },
     requiredPrivilege: "rooms:read",
   },
   {
     kind: "item",
     id: "rooms",
-    textKey: "Räume verwalten",
+    textKey: "navigationDrawer.manageRooms",
     to: { name: ROUTES.GETSTARTED },
     requiredPrivilege: "rooms:write",
   },
   {
     kind: "group",
     id: "equipment",
-    textKey: "Ressourcen verwalten",
+    textKey: "navigationDrawer.equipmentGroup.groupTitle",
     requiredPrivilege: "equipment:write",
     children: [
       {
         kind: "item",
         id: "ausstattung",
-        textKey: "Ausstattung verwalten",
+        textKey: "navigationDrawer.equipmentGroup.equipment",
         to: { name: ROUTES.GETSTARTED },
         requiredPrivilege: "equipment:write",
       },
       {
         kind: "item",
         id: "bestuhlung",
-        textKey: "Bestuhlung verwalten",
+        textKey: "navigationDrawer.equipmentGroup.seating",
         to: { name: ROUTES.GETSTARTED },
         requiredPrivilege: "equipment:write",
       },
@@ -126,7 +126,7 @@ const NAV_ENTRIES: readonly NavEntry[] = [
   {
     kind: "item",
     id: "help",
-    textKey: "Hilfe",
+    textKey: "navigationDrawer.help",
     to: { name: ROUTES.HELP },
   },
 ] as const;
