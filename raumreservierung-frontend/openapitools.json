@@ -10,7 +10,8 @@
         "output": "#{cwd}/src/api/#{name}",
         "additionalProperties": {
           "supportsES6": true,
-          "enumPropertyNaming": "UPPERCASE"
+          "enumPropertyNaming": "UPPERCASE",
+          "typescriptThreePlus": true
         }
       }
     }

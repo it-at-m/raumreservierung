@@ -9,7 +9,7 @@ import { useUserStore } from "@/stores/user.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { hasPrivileges } from "@/util/privilegeUtility.ts";
 import GetStartedView from "@/views/GetStartedView.vue";
-import Help from "@/views/Help.vue";
+import HelpView from "@/views/HelpView.vue";
 import HomeView from "@/views/HomeView.vue";
 
 const routes: RouteRecordRaw[] = [
@@ -22,7 +22,7 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/help",
     name: ROUTES.HELP,
-    component: Help,
+    component: HelpView,
     meta: {},
   },
   {

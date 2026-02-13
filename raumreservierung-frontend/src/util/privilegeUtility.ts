@@ -6,6 +6,8 @@ import type {
 } from "@/types/Privilege.ts";
 import type { Role } from "@/types/Role.ts";
 
+import { PRIVILEGE_DIVIDER } from "@/types/Privilege.ts";
+
 /**
  * Mapping table of roles and privileges
  */
@@ -65,7 +67,7 @@ export const mapSimpleRolesToPrivileges = (
  * Extracts the privilege key of a privilege
  */
 export const parsePrivilegeKey = (privilege: Privilege) => {
-  const [key] = privilege.split(":");
+  const [key] = privilege.split(PRIVILEGE_DIVIDER);
   return key as PrivilegeKey;
 };
 
@@ -73,7 +75,7 @@ export const parsePrivilegeKey = (privilege: Privilege) => {
  * Extracts the privilege action of a privilege
  */
 export const parsePrivilegeAction = (privilege: Privilege) => {
-  const [, action] = privilege.split(":");
+  const [, action] = privilege.split(PRIVILEGE_DIVIDER);
   return action as PrivilegeAction;
 };
 
