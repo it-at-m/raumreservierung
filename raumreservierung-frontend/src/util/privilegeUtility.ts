@@ -1,6 +1,5 @@
 import type {
   Action,
-  ActionMap,
   Privilege,
   PrivilegeAction,
   PrivilegeKey,
