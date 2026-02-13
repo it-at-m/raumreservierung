@@ -44,7 +44,7 @@
     <v-navigation-drawer v-model="drawer">
       <avatar-card />
       <v-divider />
-      <navigation-drawer-items />
+      <navigation-drawer-list />
     </v-navigation-drawer>
     <v-main>
       <v-container fluid>
@@ -67,7 +67,7 @@ import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
 import AvatarCard from "@/components/common/AvatarCard.vue";
-import NavigationDrawerItems from "@/components/common/NavigationDrawerItems.vue";
+import NavigationDrawerList from "@/components/common/NavigationDrawerList.vue";
 import TheSnackbarQueue from "@/components/TheSnackbarQueue.vue";
 import { useUserInfo } from "@/composables/api/useUserApi.ts";
 import { APPSWITCHER_URL } from "@/constants";
