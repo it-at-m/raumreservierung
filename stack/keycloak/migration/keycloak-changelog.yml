@@ -5,3 +5,4 @@ includes:
   - path: 04_add-users.yml
   - path: 05_assign-roles.yml
   - path: 06_local-audience.yml
+  - path: 07_add-client-scope-mapper.yml
