@@ -2,7 +2,7 @@
   <v-list-item
     v-if="navEntry.kind === 'item'"
     color="tertiary"
-    :value="navEntry.id"
+    :value="navEntry.textKey"
     :to="navEntry.to"
   >
     <v-list-item-title>
@@ -18,7 +18,7 @@
     </template>
     <navigation-drawer-item
       v-for="subEntry in navEntry.children"
-      :key="subEntry.id"
+      :key="subEntry.textKey"
       :nav-entry="subEntry"
     />
   </v-list-group>

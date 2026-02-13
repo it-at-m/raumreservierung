@@ -4,7 +4,6 @@ import type { RouteLocationRaw } from "vue-router";
 type NavKind = "item" | "group";
 
 interface NavBase {
-  id: string;
   textKey: string;
   icon?: string;
   requiredPrivilege?: Privilege;

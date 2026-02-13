@@ -2,7 +2,7 @@
   <v-list>
     <navigation-drawer-item
       v-for="navEntry in navEntries"
-      :key="navEntry.id"
+      :key="navEntry.textKey"
       :nav-entry="navEntry"
     />
   </v-list>
