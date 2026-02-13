@@ -4,23 +4,30 @@ import type { RouteRecordRaw } from "vue-router";
 import { unref } from "vue";
 import { createRouter, createWebHistory } from "vue-router";
 
-import { ROUTES_GETSTARTED, ROUTES_HOME } from "@/constants";
 import pinia from "@/plugins/pinia";
 import { useUserStore } from "@/stores/user.ts";
+import { ROUTES } from "@/types/Routes.ts";
 import { hasPrivileges } from "@/util/privilegeUtility.ts";
 import GetStartedView from "@/views/GetStartedView.vue";
+import Help from "@/views/Help.vue";
 import HomeView from "@/views/HomeView.vue";
 
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    name: ROUTES_HOME,
+    name: ROUTES.HOME,
     component: HomeView,
     meta: {},
   },
   {
+    path: "/help",
+    name: ROUTES.HELP,
+    component: Help,
+    meta: {},
+  },
+  {
     path: "/getstarted",
-    name: ROUTES_GETSTARTED,
+    name: ROUTES.GETSTARTED,
     component: GetStartedView,
     meta: {
       requiredPrivileges: ["rooms:write"],
