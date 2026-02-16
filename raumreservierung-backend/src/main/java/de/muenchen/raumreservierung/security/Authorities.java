@@ -10,11 +10,11 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 @SuppressWarnings("PMD.DataClass")
 public final class Authorities {
-    public static final String THEENTITY_GET = "hasAnyRole('reader', 'writer')";
-    public static final String THEENTITY_GET_ALL = "hasAnyRole('reader', 'writer')";
-    public static final String THEENTITY_CREATE = "hasAnyRole('writer')";
-    public static final String THEENTITY_UPDATE = "hasAnyRole('writer')";
-    public static final String THEENTITY_DELETE = "hasAnyRole('writer')";
+    public static final String THEENTITY_GET = "hasAnyRole('anwender', 'fachadmin')";
+    public static final String THEENTITY_GET_ALL = "hasAnyRole('anwender', 'fachadmin')";
+    public static final String THEENTITY_CREATE = "hasAnyRole('fachadmin')";
+    public static final String THEENTITY_UPDATE = "hasAnyRole('fachadmin')";
+    public static final String THEENTITY_DELETE = "hasAnyRole('fachadmin')";
 
     // Permissions based auth
     // public static final String THEENTITY_GET = "hasAuthority('REFARCH_THEENTITY_READ')";
