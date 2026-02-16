@@ -85,11 +85,10 @@ public class KeycloakPermissionsAuthoritiesConverter implements Converter<Jwt, C
             final List<Map<String, String>> permissions = this.fetchPermissions(this.securityProperties.getPermissionsUri(), jwt,
                     this.securityProperties.getClientId());
 
-            log.debug("Response from permissions endpoint: {}", permissions);
             if (permissions != null) {
                 authorities = asAuthorities(permissions);
             }
-            log.debug("Resolved authorities (from permissions endpoint): {}", authorities);
+            log.debug("Resolved authorities (from permissions endpoint), count={}: {}", authorities.size(), authorities);
             // store
             this.cache.put(jwt.getSubject(), authorities);
         } catch (final Exception e) {
