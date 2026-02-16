@@ -30,6 +30,9 @@
         "title": "Wirklich verlassen?",
         "text": "Wollen Sie wirklich nicht die Dokumentation anschauen?"
       }
+    },
+    "help": {
+      "header": "Hilfeseite"
     }
   },
   "navigationDrawer": {

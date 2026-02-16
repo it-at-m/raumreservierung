@@ -10,8 +10,10 @@ interface ActionMap {
   calendar: Extract<Action, "read" | "write">;
 }
 
+export const PRIVILEGE_DIVIDER = ":" as const;
+
 export type Privilege = {
-  [R in keyof ActionMap]: `${R}:${ActionMap[R]}`;
+  [R in keyof ActionMap]: `${R}${typeof PRIVILEGE_DIVIDER}${ActionMap[R]}`;
 }[keyof ActionMap];
 
 export type PrivilegeKey = Privilege extends `${infer K}:${string}` ? K : never;
