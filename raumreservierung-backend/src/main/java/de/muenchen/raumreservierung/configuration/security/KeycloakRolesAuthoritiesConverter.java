@@ -1,4 +1,5 @@
 package de.muenchen.raumreservierung.configuration.security;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
@@ -26,8 +27,8 @@ public class KeycloakRolesAuthoritiesConverter implements Converter<Jwt, Collect
             return Collections.emptySet();
         }
         return Stream.concat(
-                        Optional.of(defaultConverter.convert(jwt)).orElse(Collections.emptySet()).stream(),
-                        extractRoles(jwt).stream())
+                Optional.of(defaultConverter.convert(jwt)).orElse(Collections.emptySet()).stream(),
+                extractRoles(jwt).stream())
                 .collect(Collectors.toSet());
     }
 

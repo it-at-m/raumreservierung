@@ -5,12 +5,10 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import edu.umd.cs.findbugs.annotations.SuppressMatchType;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-
+import jakarta.validation.constraints.Positive;
 import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Profile;
@@ -45,8 +43,7 @@ public class SecurityProperties {
     /**
      * Max number of entries the permissions cache contains.
      */
-    @Positive
-    private long permissionsCacheMaxSize = 1000;
+    @Positive private long permissionsCacheMaxSize = 1000;
 
     /**
      * Logging mode for incoming HTTP requests, see also
