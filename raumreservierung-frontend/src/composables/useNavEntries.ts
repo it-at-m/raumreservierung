@@ -117,12 +117,11 @@ const calculateNavEntries = (
 ): NavEntry[] => {
   const normalizedUserPrivileges = normalizePrivileges(userPrivileges);
 
-  return entries.filter((entry) => {
-    return (
+  return entries.filter(
+    (entry) =>
       !entry.requiredPrivilege ||
       normalizedUserPrivileges.some(
         (userPriv) => userPriv === entry.requiredPrivilege
       )
-    );
-  });
+  );
 };
