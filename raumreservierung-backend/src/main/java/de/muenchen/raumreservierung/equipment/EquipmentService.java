@@ -25,14 +25,12 @@ public class EquipmentService {
         return allEquipments;
     }
 
+    @PreAuthorize(Authorities.EQUIPMENT_MANAGE)
     public Equipment createEquipment(final Equipment equipment) {
         log.debug("Creating equipment {}", equipment);
         return equipmentRepository.save(equipment);
     }
-
-    public Equipment updateEquipment(final Equipment equipment) {
-        log.debug("Updating equipment {}", equipment);
-        return equipmentRepository.save(equipment);
+    @PreAuthorize(Authorities.EQUIPMENT_MANAGE)
     public Equipment updateEquipment(final Equipment equipment, UUID equipmentId) {
         final Equipment foundEquipment = equipmentRepository.findById(equipmentId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, equipmentId)));
         foundEquipment.updateFrom(equipment);
@@ -40,6 +38,7 @@ public class EquipmentService {
         return equipmentRepository.save(foundEquipment);
     }
 
+    @PreAuthorize(Authorities.EQUIPMENT_MANAGE)
     public void deleteEquipment(final UUID equipmentId) {
         log.debug("Deleting equipment {}", equipmentId);
         equipmentRepository.deleteById(equipmentId);
