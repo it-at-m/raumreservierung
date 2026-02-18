@@ -30,11 +30,35 @@
         "title": "Wirklich verlassen?",
         "text": "Wollen Sie wirklich nicht die Dokumentation anschauen?"
       }
+    },
+    "help": {
+      "header": "Hilfeseite"
     }
   },
   "navigationDrawer": {
     "myBookings": "Meine Buchungen einsehen",
+    "bookingGroup": {
+      "groupTitle": "Buchen",
+      "bookRooms": "über Räume buchen",
+      "bookCalendar": "über Kalendar buchen"
+    },
+    "personGroup": {
+      "groupTitle": "Personen verwalten",
+      "internalPersons": "Interne Personen verwalten",
+      "externalPersons": "Externe Personen verwalten"
+    },
+    "holidayGroup": {
+      "groupTitle": "Tage verwalten",
+      "publicHolidays": "Feiertrage verwalten",
+      "schoolHolidays": "Ferien verwalten"
+    },
     "viewRoomsAndDetails": "Räume und Details ansehen",
+    "manageRooms": "Räume verwalten",
+    "equipmentGroup": {
+      "groupTitle": "Ressourcen verwalten",
+      "equipment": "Ausstattung verwalten",
+      "seating": "Bestuhlung verwalten"
+    },
     "help": "Hilfe"
   },
   "domain": {}
