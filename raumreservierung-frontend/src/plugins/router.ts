@@ -11,6 +11,7 @@ import { hasPrivileges } from "@/util/privilegeUtility.ts";
 import GetStartedView from "@/views/GetStartedView.vue";
 import HelpView from "@/views/HelpView.vue";
 import HomeView from "@/views/HomeView.vue";
+import HolidaysView from "@/views/HolidaysView.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -31,6 +32,14 @@ const routes: RouteRecordRaw[] = [
     component: GetStartedView,
     meta: {
       requiredPrivileges: ["rooms:write"],
+    },
+  },
+  {
+    path: "/holidays/public",
+    name: ROUTES.PUBLICHOLIDAYS,
+    component: HolidaysView,
+    meta: {
+      requiredPrivileges: ["days:write"],
     },
   },
   { path: "/:catchAll(.*)*", redirect: "/" }, // CatchAll route

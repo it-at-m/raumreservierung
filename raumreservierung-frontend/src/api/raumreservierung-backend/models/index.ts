@@ -1,7 +1,5 @@
 /* tslint:disable */
 /* eslint-disable */
+export * from './HolidayRequestDTO';
+export * from './HolidayResponseDTO';
 export * from './Link';
-export * from './PageMetadata';
-export * from './PagedModelTheEntityResponseDTO';
-export * from './TheEntityRequestDTO';
-export * from './TheEntityResponseDTO';
