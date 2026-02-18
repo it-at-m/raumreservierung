@@ -1,8 +1,11 @@
-.openapi-generator-ignore
 apis/ActuatorApi.ts
+apis/EquipmentControllerApi.ts
 apis/TheEntityControllerApi.ts
 apis/index.ts
 docs/ActuatorApi.md
+docs/EquipmentControllerApi.md
+docs/EquipmentRequestDto.md
+docs/EquipmentResponseDto.md
 docs/Link.md
 docs/PageMetadata.md
 docs/PagedModelTheEntityResponseDTO.md
@@ -10,6 +13,8 @@ docs/TheEntityControllerApi.md
 docs/TheEntityRequestDTO.md
 docs/TheEntityResponseDTO.md
 index.ts
+models/EquipmentRequestDto.ts
+models/EquipmentResponseDto.ts
 models/Link.ts
 models/PageMetadata.ts
 models/PagedModelTheEntityResponseDTO.ts
