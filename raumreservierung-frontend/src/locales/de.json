@@ -31,6 +31,9 @@
         "text": "Wollen Sie wirklich nicht die Dokumentation anschauen?"
       }
     },
+    "equipment": {
+      "header": "Ausstattung verwalten"
+    },
     "help": {
       "header": "Hilfeseite"
     }
