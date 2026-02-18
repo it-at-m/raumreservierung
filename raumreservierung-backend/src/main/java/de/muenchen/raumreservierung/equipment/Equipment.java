@@ -18,4 +18,9 @@ public class Equipment extends BaseEntity {
     @Column
     String description;
 
+    public void updateFrom(Equipment equipment) {
+        this.name = equipment.getName();
+        this.description = equipment.getDescription();
+    }
+
 }
