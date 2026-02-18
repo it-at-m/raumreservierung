@@ -44,6 +44,14 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/holidays/public",
+    name: ROUTES.PUBLICHOLIDAYS,
+    component: HolidaysView,
+    meta: {
+      requiredPrivileges: ["days:write"],
+    },
+  },
+  {
     path: "/admin/seating",
     name: ROUTES.SEATING,
     component: SeatingTypeView,
