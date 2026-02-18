@@ -1,24 +1,26 @@
 
-# TheEntityResponseDTO
+# HolidayRequestDTO
 
 
 ## Properties
 
 Name | Type
 ------------ | -------------
-`id` | string
-`textAttribute` | string
+`name` | string
+`startDate` | Date
+`endDate` | Date
 
 ## Example
 
 ```typescript
-import type { TheEntityResponseDTO } from ''
+import type { HolidayRequestDTO } from ''
 
 // TODO: Update the object below with actual values
 const example = {
-  "id": null,
-  "textAttribute": null,
-} satisfies TheEntityResponseDTO
+  "name": null,
+  "startDate": null,
+  "endDate": null,
+} satisfies HolidayRequestDTO
 
 console.log(example)
 
@@ -27,7 +29,7 @@ const exampleJSON: string = JSON.stringify(example)
 console.log(exampleJSON)
 
 // Parse the JSON string back to an object
-const exampleParsed = JSON.parse(exampleJSON) as TheEntityResponseDTO
+const exampleParsed = JSON.parse(exampleJSON) as HolidayRequestDTO
 console.log(exampleParsed)
 ```
 

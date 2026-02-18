@@ -65,7 +65,7 @@ const NAV_ENTRIES: readonly NavEntry[] = [
       {
         kind: "item",
         textKey: "navigationDrawer.holidayGroup.publicHolidays",
-        to: { name: ROUTES.GETSTARTED },
+        to: { name: ROUTES.PUBLICHOLIDAYS },
       },
       {
         kind: "item",

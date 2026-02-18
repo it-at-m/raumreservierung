@@ -3,4 +3,5 @@ export const ROUTES = {
   GETSTARTED: "getstarted",
   EQUIPMENT: "equipment",
   HELP: "help",
+  PUBLICHOLIDAYS: "publicholidays"
 } as const;
