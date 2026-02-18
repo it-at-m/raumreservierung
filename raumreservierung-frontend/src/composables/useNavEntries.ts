@@ -31,7 +31,6 @@ const NAV_ENTRIES: readonly NavEntry[] = [
         kind: "item",
         textKey: "navigationDrawer.bookingGroup.bookRooms",
         to: { name: ROUTES.GETSTARTED },
-        requiredPrivilege: "rooms:read",
       },
       {
         kind: "item",
@@ -115,13 +114,22 @@ const calculateNavEntries = (
   entries: readonly NavEntry[],
   userPrivileges: readonly Privilege[]
 ): NavEntry[] => {
-  const normalizedUserPrivileges = normalizePrivileges(userPrivileges);
+  const normalizedUserPrivileges = new Set(normalizePrivileges(userPrivileges));
 
-  return entries.filter(
-    (entry) =>
-      !entry.requiredPrivilege ||
-      normalizedUserPrivileges.some(
-        (userPriv) => userPriv === entry.requiredPrivilege
-      )
-  );
+  const hasPrivilege = (required?: Privilege) =>
+    !required || normalizedUserPrivileges.has(required);
+
+  return entries
+    .filter((entry) => hasPrivilege(entry.requiredPrivilege))
+    .map((entry) =>
+      entry.kind === "item"
+        ? entry
+        : {
+            ...entry,
+            children: entry.children.filter((child) =>
+              hasPrivilege(child.requiredPrivilege)
+            ),
+          }
+    )
+    .filter((entry) => entry.kind === "item" || entry.children.length > 0);
 };
