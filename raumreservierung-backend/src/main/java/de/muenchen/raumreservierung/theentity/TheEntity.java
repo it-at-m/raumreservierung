@@ -11,6 +11,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import java.io.Serial;
+
 /**
  * This class represents a TheEntity.
  * <p>
@@ -26,6 +28,7 @@ import lombok.ToString;
 @NoArgsConstructor
 public class TheEntity extends BaseEntity {
 
+    @Serial
     private static final long serialVersionUID = 1L;
 
     // ========= //
