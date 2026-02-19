@@ -30,7 +30,7 @@ export interface CreateHolidayRequest {
 }
 
 export interface DeleteHolidayRequest {
-    body: string;
+    id: string;
 }
 
 export interface UpdateHolidayRequest {
@@ -82,10 +82,10 @@ export class HolidayControllerApi extends runtime.BaseAPI {
     /**
      */
     async deleteHolidayRaw(requestParameters: DeleteHolidayRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<void>> {
-        if (requestParameters['body'] == null) {
+        if (requestParameters['id'] == null) {
             throw new runtime.RequiredError(
-                'body',
-                'Required parameter "body" was null or undefined when calling deleteHoliday().'
+                'id',
+                'Required parameter "id" was null or undefined when calling deleteHoliday().'
             );
         }
 
@@ -93,17 +93,15 @@ export class HolidayControllerApi extends runtime.BaseAPI {
 
         const headerParameters: runtime.HTTPHeaders = {};
 
-        headerParameters['Content-Type'] = 'application/json';
 
-
-        let urlPath = `/holidays`;
+        let urlPath = `/holidays/{id}`;
+        urlPath = urlPath.replace(`{${"id"}}`, encodeURIComponent(String(requestParameters['id'])));
 
         const response = await this.request({
             path: urlPath,
             method: 'DELETE',
             headers: headerParameters,
             query: queryParameters,
-            body: requestParameters['body'] as any,
         }, initOverrides);
 
         return new runtime.VoidApiResponse(response);
