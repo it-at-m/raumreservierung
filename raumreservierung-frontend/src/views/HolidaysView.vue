@@ -7,11 +7,11 @@
       <v-card-title class="d-flex align-center justify-space-between py-4">
         <span>Feiertage</span>
         <v-btn
+          id="addHolidayBtn"
           :append-icon="mdiPlus"
           color="secondary"
-          @click="addHoliday"
-          >Hinzufügen</v-btn
-        >
+          >Hinzufügen
+        </v-btn>
       </v-card-title>
       <v-divider />
       <v-data-table
@@ -22,8 +22,8 @@
         no-data-text="Keine Feiertage gefunden"
         hide-default-footer
       >
-        <template v-slot:[`item.date`]="{ value }">
-          {{ formatDate(value) }}
+        <template #[`item.date`]="{ item }">
+          {{ formatDate(item.startDate) }}
         </template>
         <template #[`item.actions`]="{ item }">
           <div class="d-flex">
@@ -45,6 +45,38 @@
           </div>
         </template>
       </v-data-table>
+      <v-dialog
+        activator="#addHolidayBtn"
+        width="auto"
+      >
+        <template #default="{ isActive }">
+          <v-card title="Feiertag hinzufügen">
+            <v-card-text>
+              <v-text-field
+                v-model="formData.name"
+                label="Name des Feiertags"
+              ></v-text-field>
+              <v-date-input
+                v-model="formData.date"
+                label="Datum des Feiertags"
+                prepend-icon="mdi-calendar"
+              ></v-date-input>
+            </v-card-text>
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                text="Abbrechen"
+                @click="isActive.value = false"
+              ></v-btn>
+              <v-btn
+                color="secondary"
+                @click="addHoliday(formData, isActive)"
+                >Speichern</v-btn
+              >
+            </v-card-actions>
+          </v-card>
+        </template>
+      </v-dialog>
     </v-card>
   </v-container>
 </template>
@@ -57,10 +89,23 @@ import { mdiDelete, mdiPencilOutline, mdiPlus } from "@mdi/js";
 import { onMounted, ref } from "vue";
 
 import { Levels } from "@/api/error.ts";
-import { useGetPublicHolidays } from "@/composables/api/useHolidayApi.ts";
+import {
+  useAddHoliday,
+  useDeleteHoliday,
+  useGetPublicHolidays,
+} from "@/composables/api/useHolidayApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 
 onMounted(async () => await loadPublicHolidays());
+
+const formData = ref({
+  name: "",
+  date: new Date(),
+});
+
+const snackbarStore = useSnackbarStore();
+
+const publicHolidays: Ref<HolidayResponseDTO[]> = ref([]);
 
 const {
   call: getPublicHolidaysCall,
@@ -69,12 +114,6 @@ const {
   loading: getPublicHolidaysLoading,
 } = useGetPublicHolidays();
 
-const snackbarStore = useSnackbarStore();
-
-const publicHolidays: Ref<HolidayResponseDTO[]> = ref([]);
-/**
- * Loads public holidays from the backend and sets it in the public holiday store.
- */
 async function loadPublicHolidays() {
   await getPublicHolidaysCall();
   if (getPublicHolidaysError.value) {
@@ -90,11 +129,13 @@ async function loadPublicHolidays() {
 
 function formatDate(dateFromServer: Date | undefined): string | undefined {
   const date = dateFromServer ? new Date(dateFromServer) : undefined;
-  return date?.toLocaleDateString("de-DE", {
-    year: "2-digit",
-    day: "2-digit",
-    month: "2-digit",
-  });
+  return date
+    ? date.toLocaleDateString("de-DE", {
+        year: "2-digit",
+        day: "2-digit",
+        month: "2-digit",
+      })
+    : "kein Datum gefunden";
 }
 
 const editHoliday = (holiday: HolidayResponseDTO) => {
@@ -104,18 +145,51 @@ const editHoliday = (holiday: HolidayResponseDTO) => {
   });
 };
 
-const deleteHoliday = (holiday: HolidayResponseDTO) => {
-  snackbarStore.add({
-    level: Levels.INFO,
-    message: `Lösche den Feiertag: ${holiday.name}`,
-  });
+const { call: deleteHolidayCall, error: deleteHolidayError } =
+  useDeleteHoliday();
+
+const deleteHoliday = async (holiday: HolidayResponseDTO) => {
+  if (holiday.id) {
+    await deleteHolidayCall({ id: holiday.id });
+  }
+  if (!deleteHolidayError.value) {
+    await loadPublicHolidays();
+    snackbarStore.add({
+      level: Levels.SUCCESS,
+      message: `Feiertag ${holiday.name} wurde gelöscht.`,
+    });
+  }
 };
 
-const addHoliday = () => {
-  snackbarStore.add({
-    level: Levels.INFO,
-    message: `Füge einen Feiertag hinzu`,
+const {
+  call: addHolidayCall,
+  error: addHolidayError,
+} = useAddHoliday();
+
+const addHoliday = async (
+  formData: { name: string; date: Date },
+  isActive: Ref<boolean>
+) => {
+  await addHolidayCall({
+    holidayRequestDTO: {
+      name: formData.name,
+      startDate: formData.date,
+      endDate: formData.date,
+    },
   });
+  if (!addHolidayError.value) {
+    await loadPublicHolidays();
+    snackbarStore.add({
+      level: Levels.INFO,
+      message: `Feiertag ${formData.name} am ${formData.date} hinzugefügt`,
+    });
+  } else {
+    snackbarStore.add({
+      level: Levels.ERROR,
+      message: `Es gab einen Fehler beim Erstellen des Feiertages ${formData.name} am ${formData.date} !!!`,
+    });
+  }
+  isActive.value = false;
 };
 
 const headers = [

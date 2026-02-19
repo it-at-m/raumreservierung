@@ -1,3 +1,4 @@
+.openapi-generator-ignore
 apis/ActuatorApi.ts
 apis/HolidayControllerApi.ts
 apis/index.ts
