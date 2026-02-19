@@ -1,3 +1,7 @@
+import type {
+  CreateHolidayRequest,
+  DeleteHolidayRequest,
+} from "@/api/raumreservierung-backend/apis/HolidayControllerApi";
 import type { HolidayResponseDTO } from "@/api/raumreservierung-backend/models/HolidayResponseDTO.ts";
 
 import { HolidayControllerApi } from "@/api/raumreservierung-backend/apis/HolidayControllerApi";
@@ -13,9 +17,20 @@ export const useGetPublicHolidays = () => {
 export const useGetSchoolHolidays = () => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  return useApi<void, HolidayResponseDTO[]>(() =>
-    api.getPublicHolidays()
+  return useApi<void, HolidayResponseDTO[]>(() => api.getPublicHolidays());
+};
+
+export const useDeleteHoliday = () => {
+  const api = ApiFactory.getInstance(HolidayControllerApi);
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  return useApi<DeleteHolidayRequest, void>((params: DeleteHolidayRequest) =>
+    api.deleteHoliday(params)
   );
 };
 
-
+export const useAddHoliday = () => {
+  const api = ApiFactory.getInstance(HolidayControllerApi);
+  return useApi<CreateHolidayRequest, HolidayResponseDTO>(
+    (params: CreateHolidayRequest) => api.createHoliday(params)
+  );
+};

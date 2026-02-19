@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -47,8 +48,8 @@ public class HolidayController {
         return holidayMapper.toDTO(holidayService.updateHoliday(holidayMapper.toEntity(requestDTO)));
     }
 
-    @DeleteMapping()
-    public void deleteHoliday(@RequestBody UUID holidayId) {
+    @DeleteMapping("/{id}")
+    public void deleteHoliday(@PathVariable("id") final UUID holidayId) {
         holidayService.deleteHoliday(holidayId);
     }
 
