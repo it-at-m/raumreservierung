@@ -5,7 +5,7 @@ All URIs are relative to *http://localhost:39146*
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
 | [**createHoliday**](HolidayControllerApi.md#createholiday) | **POST** /holidays |  |
-| [**deleteHoliday**](HolidayControllerApi.md#deleteholiday) | **DELETE** /holidays |  |
+| [**deleteHoliday**](HolidayControllerApi.md#deleteholiday) | **DELETE** /holidays/{id} |  |
 | [**getPublicHolidays**](HolidayControllerApi.md#getpublicholidays) | **GET** /holidays/public |  |
 | [**getSchoolHolidays**](HolidayControllerApi.md#getschoolholidays) | **GET** /holidays/school |  |
 | [**updateHoliday**](HolidayControllerApi.md#updateholiday) | **PUT** /holidays |  |
@@ -79,7 +79,7 @@ No authorization required
 
 ## deleteHoliday
 
-> deleteHoliday(body)
+> deleteHoliday(id)
 
 
 
@@ -98,7 +98,7 @@ async function example() {
 
   const body = {
     // string
-    body: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
+    id: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
   } satisfies DeleteHolidayRequest;
 
   try {
@@ -118,7 +118,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
-| **body** | `string` |  | |
+| **id** | `string` |  | [Defaults to `undefined`] |
 
 ### Return type
 
@@ -130,7 +130,7 @@ No authorization required
 
 ### HTTP request headers
 
-- **Content-Type**: `application/json`
+- **Content-Type**: Not defined
 - **Accept**: Not defined
 
 
