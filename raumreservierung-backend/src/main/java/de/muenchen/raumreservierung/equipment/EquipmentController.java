@@ -62,7 +62,7 @@ public class EquipmentController {
      * @param equipment the updated equipment details
      * @return the updated equipment as response DTO
      */
-    @PutMapping
+    @PutMapping("/{equipmentId}")
     @ResponseStatus(HttpStatus.OK)
     public EquipmentResponseDto updateEquipment(@Valid @RequestBody final EquipmentRequestDto equipment, @PathVariable("equipmentId") final UUID equipmentId) {
         return equipmentMapper.toDto(equipmentService.updateEquipment(equipmentMapper.toEntity(equipment), equipmentId));

@@ -7,7 +7,7 @@ All URIs are relative to *http://localhost:39146*
 | [**deleteEquipment**](EquipmentControllerApi.md#deleteequipment) | **DELETE** /equipment | Delete an equipment entity. |
 | [**getAllEquipments**](EquipmentControllerApi.md#getallequipments) | **GET** /equipment | Retrieve all equipment entities. |
 | [**saveEquipment**](EquipmentControllerApi.md#saveequipment) | **POST** /equipment | Create a new equipment entity. |
-| [**updateEquipment**](EquipmentControllerApi.md#updateequipment) | **PUT** /equipment | Update an existing equipment entity. |
+| [**updateEquipment**](EquipmentControllerApi.md#updateequipment) | **PUT** /equipment/{equipmentId} | Update an existing equipment entity. |
 
 
 
@@ -206,7 +206,7 @@ No authorization required
 
 ## updateEquipment
 
-> EquipmentResponseDto updateEquipment(equipmentRequestDto)
+> EquipmentResponseDto updateEquipment(equipmentId, equipmentRequestDto)
 
 Update an existing equipment entity.
 
@@ -226,6 +226,8 @@ async function example() {
   const api = new EquipmentControllerApi();
 
   const body = {
+    // string
+    equipmentId: 38400000-8cf0-11bd-b23e-10b96e4ef00d,
     // EquipmentRequestDto | the updated equipment details
     equipmentRequestDto: ...,
   } satisfies UpdateEquipmentRequest;
@@ -247,6 +249,7 @@ example().catch(console.error);
 
 | Name | Type | Description  | Notes |
 |------------- | ------------- | ------------- | -------------|
+| **equipmentId** | `string` |  | [Defaults to `undefined`] |
 | **equipmentRequestDto** | [EquipmentRequestDto](EquipmentRequestDto.md) | the updated equipment details | |
 
 ### Return type

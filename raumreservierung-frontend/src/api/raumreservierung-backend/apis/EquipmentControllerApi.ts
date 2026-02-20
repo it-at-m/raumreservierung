@@ -34,6 +34,7 @@ export interface SaveEquipmentRequest {
 }
 
 export interface UpdateEquipmentRequest {
+    equipmentId: string;
     equipmentRequestDto: EquipmentRequestDto;
 }
 
@@ -159,6 +160,13 @@ export class EquipmentControllerApi extends runtime.BaseAPI {
      * Update an existing equipment entity.
      */
     async updateEquipmentRaw(requestParameters: UpdateEquipmentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EquipmentResponseDto>> {
+        if (requestParameters['equipmentId'] == null) {
+            throw new runtime.RequiredError(
+                'equipmentId',
+                'Required parameter "equipmentId" was null or undefined when calling updateEquipment().'
+            );
+        }
+
         if (requestParameters['equipmentRequestDto'] == null) {
             throw new runtime.RequiredError(
                 'equipmentRequestDto',
@@ -173,7 +181,8 @@ export class EquipmentControllerApi extends runtime.BaseAPI {
         headerParameters['Content-Type'] = 'application/json';
 
 
-        let urlPath = `/equipment`;
+        let urlPath = `/equipment/{equipmentId}`;
+        urlPath = urlPath.replace(`{${"equipmentId"}}`, encodeURIComponent(String(requestParameters['equipmentId'])));
 
         const response = await this.request({
             path: urlPath,
