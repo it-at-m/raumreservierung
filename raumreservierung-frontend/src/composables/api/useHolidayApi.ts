@@ -1,6 +1,7 @@
 import type {
   CreateHolidayRequest,
   DeleteHolidayRequest,
+  UpdateHolidayRequest,
 } from "@/api/raumreservierung-backend/apis/HolidayControllerApi";
 import type { HolidayResponseDTO } from "@/api/raumreservierung-backend/models/HolidayResponseDTO.ts";
 
@@ -32,5 +33,12 @@ export const useAddHoliday = () => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
   return useApi<CreateHolidayRequest, HolidayResponseDTO>(
     (params: CreateHolidayRequest) => api.createHoliday(params)
+  );
+};
+
+export const useEditHoliday = () => {
+  const api = ApiFactory.getInstance(HolidayControllerApi);
+  return useApi<UpdateHolidayRequest, HolidayResponseDTO>(
+    (params: UpdateHolidayRequest) => api.updateHoliday(params)
   );
 };

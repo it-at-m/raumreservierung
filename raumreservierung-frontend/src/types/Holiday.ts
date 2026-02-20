@@ -1,12 +1,13 @@
 class Holiday {
   name = "";
+  id = "";
 }
 
 export class PublicHoliday extends Holiday {
-  date = "";
+  date = new Date();
 }
 
 export class SchoolHoliday extends Holiday {
-  start = "";
-  end = "";
+  start = new Date();
+  end = new Date();
 }
