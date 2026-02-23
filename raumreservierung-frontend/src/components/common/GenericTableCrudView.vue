@@ -4,7 +4,6 @@
 
     <v-dialog
       :model-value="showDialog"
-      @update:model-value="(val) => !val && closeDialog()"
       width="90%"
       max-width="800px"
       persistent
@@ -159,7 +158,6 @@ const executeDelete = () => {
 };
 
 const closeDialog = () => {
-  console.log("CLOSE DIALOG CALLED");
   dialogMode.value = null;
   activeItem.value = { ...emptyItemTemplate } as T;
 };

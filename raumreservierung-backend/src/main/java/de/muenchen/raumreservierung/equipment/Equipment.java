@@ -6,19 +6,23 @@ import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
 
 @Entity
 @Setter
 @Getter
 public class Equipment extends BaseEntity {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Column(length = 100, nullable = false)
-    String name;
+    private String name;
 
     @Column
-    String description;
+    private String description;
 
-    public void updateFrom(Equipment equipment) {
+    public void updateFrom(final Equipment equipment) {
         this.name = equipment.getName();
         this.description = equipment.getDescription();
     }
