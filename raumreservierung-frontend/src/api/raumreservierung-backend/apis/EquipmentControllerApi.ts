@@ -25,12 +25,12 @@ import {
     EquipmentResponseDtoToJSON,
 } from '../models/index';
 
-export interface DeleteEquipmentRequest {
-    body: string;
+export interface CreateEquipmentRequest {
+    equipmentRequestDto: EquipmentRequestDto;
 }
 
-export interface SaveEquipmentRequest {
-    equipmentRequestDto: EquipmentRequestDto;
+export interface DeleteEquipmentRequest {
+    body: string;
 }
 
 export interface UpdateEquipmentRequest {
@@ -42,6 +42,47 @@ export interface UpdateEquipmentRequest {
  * 
  */
 export class EquipmentControllerApi extends runtime.BaseAPI {
+
+    /**
+     * Create a new equipment entity.  Creates a new equipment resource using the provided details.
+     * Create a new equipment entity.
+     */
+    async createEquipmentRaw(requestParameters: CreateEquipmentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EquipmentResponseDto>> {
+        if (requestParameters['equipmentRequestDto'] == null) {
+            throw new runtime.RequiredError(
+                'equipmentRequestDto',
+                'Required parameter "equipmentRequestDto" was null or undefined when calling createEquipment().'
+            );
+        }
+
+        const queryParameters: any = {};
+
+        const headerParameters: runtime.HTTPHeaders = {};
+
+        headerParameters['Content-Type'] = 'application/json';
+
+
+        let urlPath = `/equipment`;
+
+        const response = await this.request({
+            path: urlPath,
+            method: 'POST',
+            headers: headerParameters,
+            query: queryParameters,
+            body: EquipmentRequestDtoToJSON(requestParameters['equipmentRequestDto']),
+        }, initOverrides);
+
+        return new runtime.JSONApiResponse(response, (jsonValue) => EquipmentResponseDtoFromJSON(jsonValue));
+    }
+
+    /**
+     * Create a new equipment entity.  Creates a new equipment resource using the provided details.
+     * Create a new equipment entity.
+     */
+    async createEquipment(requestParameters: CreateEquipmentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EquipmentResponseDto> {
+        const response = await this.createEquipmentRaw(requestParameters, initOverrides);
+        return await response.value();
+    }
 
     /**
      * Delete an equipment entity.  Deletes the equipment resource identified by the given UUID.
@@ -111,47 +152,6 @@ export class EquipmentControllerApi extends runtime.BaseAPI {
      */
     async getAllEquipments(initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<Array<EquipmentResponseDto>> {
         const response = await this.getAllEquipmentsRaw(initOverrides);
-        return await response.value();
-    }
-
-    /**
-     * Create a new equipment entity.  Creates a new equipment resource using the provided details.
-     * Create a new equipment entity.
-     */
-    async saveEquipmentRaw(requestParameters: SaveEquipmentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<runtime.ApiResponse<EquipmentResponseDto>> {
-        if (requestParameters['equipmentRequestDto'] == null) {
-            throw new runtime.RequiredError(
-                'equipmentRequestDto',
-                'Required parameter "equipmentRequestDto" was null or undefined when calling saveEquipment().'
-            );
-        }
-
-        const queryParameters: any = {};
-
-        const headerParameters: runtime.HTTPHeaders = {};
-
-        headerParameters['Content-Type'] = 'application/json';
-
-
-        let urlPath = `/equipment`;
-
-        const response = await this.request({
-            path: urlPath,
-            method: 'POST',
-            headers: headerParameters,
-            query: queryParameters,
-            body: EquipmentRequestDtoToJSON(requestParameters['equipmentRequestDto']),
-        }, initOverrides);
-
-        return new runtime.JSONApiResponse(response, (jsonValue) => EquipmentResponseDtoFromJSON(jsonValue));
-    }
-
-    /**
-     * Create a new equipment entity.  Creates a new equipment resource using the provided details.
-     * Create a new equipment entity.
-     */
-    async saveEquipment(requestParameters: SaveEquipmentRequest, initOverrides?: RequestInit | runtime.InitOverrideFunction): Promise<EquipmentResponseDto> {
-        const response = await this.saveEquipmentRaw(requestParameters, initOverrides);
         return await response.value();
     }
 

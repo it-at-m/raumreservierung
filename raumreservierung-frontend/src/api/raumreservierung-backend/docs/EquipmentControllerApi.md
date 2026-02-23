@@ -1,14 +1,81 @@
 # EquipmentControllerApi
 
-All URIs are relative to *http://localhost:39146*
+All URIs are relative to *http://localhost:8087*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
+| [**createEquipment**](EquipmentControllerApi.md#createequipment) | **POST** /equipment | Create a new equipment entity. |
 | [**deleteEquipment**](EquipmentControllerApi.md#deleteequipment) | **DELETE** /equipment | Delete an equipment entity. |
 | [**getAllEquipments**](EquipmentControllerApi.md#getallequipments) | **GET** /equipment | Retrieve all equipment entities. |
-| [**saveEquipment**](EquipmentControllerApi.md#saveequipment) | **POST** /equipment | Create a new equipment entity. |
 | [**updateEquipment**](EquipmentControllerApi.md#updateequipment) | **PUT** /equipment/{equipmentId} | Update an existing equipment entity. |
 
+
+
+## createEquipment
+
+> EquipmentResponseDto createEquipment(equipmentRequestDto)
+
+Create a new equipment entity.
+
+Create a new equipment entity.  Creates a new equipment resource using the provided details.
+
+### Example
+
+```ts
+import {
+  Configuration,
+  EquipmentControllerApi,
+} from '';
+import type { CreateEquipmentRequest } from '';
+
+async function example() {
+  console.log("🚀 Testing  SDK...");
+  const api = new EquipmentControllerApi();
+
+  const body = {
+    // EquipmentRequestDto | the details of the equipment to create
+    equipmentRequestDto: ...,
+  } satisfies CreateEquipmentRequest;
+
+  try {
+    const data = await api.createEquipment(body);
+    console.log(data);
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+// Run the test
+example().catch(console.error);
+```
+
+### Parameters
+
+
+| Name | Type | Description  | Notes |
+|------------- | ------------- | ------------- | -------------|
+| **equipmentRequestDto** | [EquipmentRequestDto](EquipmentRequestDto.md) | the details of the equipment to create | |
+
+### Return type
+
+[**EquipmentResponseDto**](EquipmentResponseDto.md)
+
+### Authorization
+
+No authorization required
+
+### HTTP request headers
+
+- **Content-Type**: `application/json`
+- **Accept**: `*/*`
+
+
+### HTTP response details
+| Status code | Description | Response headers |
+|-------------|-------------|------------------|
+| **201** | the created equipment as response DTO |  -  |
+
+[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 
 
 ## deleteEquipment
@@ -133,73 +200,6 @@ No authorization required
 | Status code | Description | Response headers |
 |-------------|-------------|------------------|
 | **200** | list of equipment as response DTOs |  -  |
-
-[[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
-
-
-## saveEquipment
-
-> EquipmentResponseDto saveEquipment(equipmentRequestDto)
-
-Create a new equipment entity.
-
-Create a new equipment entity.  Creates a new equipment resource using the provided details.
-
-### Example
-
-```ts
-import {
-  Configuration,
-  EquipmentControllerApi,
-} from '';
-import type { SaveEquipmentRequest } from '';
-
-async function example() {
-  console.log("🚀 Testing  SDK...");
-  const api = new EquipmentControllerApi();
-
-  const body = {
-    // EquipmentRequestDto | the details of the equipment to create
-    equipmentRequestDto: ...,
-  } satisfies SaveEquipmentRequest;
-
-  try {
-    const data = await api.saveEquipment(body);
-    console.log(data);
-  } catch (error) {
-    console.error(error);
-  }
-}
-
-// Run the test
-example().catch(console.error);
-```
-
-### Parameters
-
-
-| Name | Type | Description  | Notes |
-|------------- | ------------- | ------------- | -------------|
-| **equipmentRequestDto** | [EquipmentRequestDto](EquipmentRequestDto.md) | the details of the equipment to create | |
-
-### Return type
-
-[**EquipmentResponseDto**](EquipmentResponseDto.md)
-
-### Authorization
-
-No authorization required
-
-### HTTP request headers
-
-- **Content-Type**: `application/json`
-- **Accept**: `*/*`
-
-
-### HTTP response details
-| Status code | Description | Response headers |
-|-------------|-------------|------------------|
-| **201** | the created equipment as response DTO |  -  |
 
 [[Back to top]](#) [[Back to API list]](../README.md#api-endpoints) [[Back to Model list]](../README.md#models) [[Back to README]](../README.md)
 

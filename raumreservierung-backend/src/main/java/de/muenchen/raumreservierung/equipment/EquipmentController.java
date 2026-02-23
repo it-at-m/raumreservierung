@@ -51,7 +51,7 @@ public class EquipmentController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public EquipmentResponseDto saveEquipment(@Valid @RequestBody final EquipmentRequestDto equipment) {
+    public EquipmentResponseDto createEquipment(@Valid @RequestBody final EquipmentRequestDto equipment) {
         return equipmentMapper.toDto(equipmentService.createEquipment(equipmentMapper.toEntity(equipment)));
     }
 

@@ -1,6 +1,6 @@
 # ActuatorApi
 
-All URIs are relative to *http://localhost:39146*
+All URIs are relative to *http://localhost:8087*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|

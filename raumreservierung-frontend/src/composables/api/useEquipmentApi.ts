@@ -1,7 +1,7 @@
 import type {
+  CreateEquipmentRequest,
   DeleteEquipmentRequest,
   EquipmentResponseDto,
-  SaveEquipmentRequest,
   UpdateEquipmentRequest,
 } from "@/api/raumreservierung-backend";
 
@@ -19,8 +19,8 @@ export const useGetAllEquipments = () => {
 export const useCreateEquipment = () => {
   const api = ApiFactory.getInstance(EquipmentControllerApi);
 
-  return useApi<SaveEquipmentRequest, EquipmentResponseDto>((params) =>
-    api.saveEquipment(params)
+  return useApi<CreateEquipmentRequest, EquipmentResponseDto>((params) =>
+    api.createEquipment(params)
   );
 };
 
