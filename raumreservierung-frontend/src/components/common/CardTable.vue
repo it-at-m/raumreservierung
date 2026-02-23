@@ -5,9 +5,6 @@
   >
     <template #title>
       <v-row align-content="center">
-        <v-col class="d-flex align-center justify-start">
-          <div class="text-h6 pl-2">Überschrift</div>
-        </v-col>
         <v-col class="d-flex align-center justify-end">
           <slot name="action" />
         </v-col>
@@ -27,6 +24,7 @@
       >
         <template
           v-for="(_, slotName) in $slots"
+          :key="slotName"
           v-slot:[slotName]="slotProps"
         >
           <slot

@@ -2,6 +2,11 @@
   "common": {
     "yes": "Ja",
     "no": "Nein",
+    "cancel": "Abbrechen",
+    "delete": "löschen",
+    "save": "Speichern",
+    "add": "Hinzufügen",
+    "action": "Aktion | Aktionen",
     "messages": {}
   },
   "app": {
@@ -12,7 +17,14 @@
       "full": "@:app.name.part2@:app.name.part3"
     }
   },
-  "components": {},
+  "components": {
+    "equipmentForm": {
+      "rules": {
+        "minCharsError": "Name benötigt mindestens {num} Zeichen.",
+        "maxDescriptionError": "Die Beschreibung darf maximal {num} Zeichen beinhalten."
+      }
+    }
+  },
   "views": {
     "home": {
       "header": "Willkommen bei der @:app.name.full von it{'@'}M",
@@ -31,12 +43,16 @@
         "text": "Wollen Sie wirklich nicht die Dokumentation anschauen?"
       }
     },
-    "equipment": {
-      "header": "Ausstattung verwalten"
-    },
     "help": {
       "header": "Hilfeseite"
     }
+  },
+  "generics": {
+    "manage": "{domain} verwalten",
+    "delete": "{domain} löschen",
+    "edit": "{domain} bearbeiten",
+    "create": "{domain} erstellen",
+    "confirmDelete": "Möchten Sie die {domain} endgültig löschen"
   },
   "navigationDrawer": {
     "myBookings": "Meine Buchungen einsehen",
@@ -64,5 +80,11 @@
     },
     "help": "Hilfe"
   },
-  "domain": {}
+  "domain": {
+    "equipment": {
+      "header": "Ausstattung",
+      "name": "Name",
+      "description": "Beschreibung"
+    }
+  }
 }
