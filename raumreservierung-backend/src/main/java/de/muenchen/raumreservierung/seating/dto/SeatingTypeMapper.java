@@ -7,8 +7,8 @@ import org.mapstruct.Mapping;
 @Mapper
 public interface SeatingTypeMapper {
 
-    SeatingResponseDto toDto(SeatingType seatingType);
+    SeatingTypeResponseDto toDto(SeatingType seatingType);
 
     @Mapping(target = "id", ignore = true)
-    SeatingType toEntity(SeatingRequestDto seatingRequestDto);
+    SeatingType toEntity(SeatingTypeRequestDto seatingTypeRequestDto);
 }

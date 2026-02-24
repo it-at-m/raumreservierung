@@ -1,8 +1,8 @@
 package de.muenchen.raumreservierung.seating;
 
 import de.muenchen.raumreservierung.seating.dto.SeatingTypeMapper;
-import de.muenchen.raumreservierung.seating.dto.SeatingRequestDto;
-import de.muenchen.raumreservierung.seating.dto.SeatingResponseDto;
+import de.muenchen.raumreservierung.seating.dto.SeatingTypeRequestDto;
+import de.muenchen.raumreservierung.seating.dto.SeatingTypeResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,7 +38,7 @@ public class SeatingController {
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<SeatingResponseDto> getAllSeatingTypes() {
+    public List<SeatingTypeResponseDto> getAllSeatingTypes() {
         return SeatingService.findAll().stream().map(seatingTypeMapper::toDto).toList();
     }
 
@@ -51,7 +51,7 @@ public class SeatingController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SeatingResponseDto createSeatingType(@Valid @RequestBody final SeatingRequestDto seating) {
+    public SeatingTypeResponseDto createSeatingType(@Valid @RequestBody final SeatingTypeRequestDto seating) {
         return seatingTypeMapper.toDto(SeatingService.createSeating(seatingTypeMapper.toEntity(seating)));
     }
 
@@ -64,7 +64,7 @@ public class SeatingController {
      */
     @PutMapping("/{seatingId}")
     @ResponseStatus(HttpStatus.OK)
-    public SeatingResponseDto updateSeatingType(@Valid @RequestBody final SeatingRequestDto seating, @PathVariable("seatingId") final UUID seatingId) {
+    public SeatingTypeResponseDto updateSeatingType(@Valid @RequestBody final SeatingTypeRequestDto seating, @PathVariable("seatingId") final UUID seatingId) {
         return seatingTypeMapper.toDto(SeatingService.updateSeating(seatingTypeMapper.toEntity(seating), seatingId));
     }
 
