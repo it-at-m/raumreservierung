@@ -5,7 +5,7 @@
     <v-dialog
       :model-value="showDialog"
       width="90%"
-      max-width="800px"
+      :max-width="maxDialogWidth"
       persistent
       close-on-back
     >
@@ -100,7 +100,12 @@ import CardTable from "@/components/common/CardTable.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import ViewSimpleHeader from "@/components/common/ViewSimpleHeader.vue";
 
-const { loading = false, emptyItemTemplate } = defineProps<{
+const {
+  loading = false,
+  emptyItemTemplate,
+  maxDialogWidth = "800px",
+} = defineProps<{
+  maxDialogWidth?: string;
   domain: string;
   items: readonly T[];
   headers: TableHeader<T>[];
