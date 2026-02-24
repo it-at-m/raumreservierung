@@ -9,14 +9,14 @@
         <base-button
           secondary
           class="mr-4"
-          @click="emit('no')"
+          @click="emit('cancel')"
         >
           <template #default> {{ t("common.cancel") }} </template>
           <template #prepend>
             <v-icon :icon="mdiClose" />
           </template>
         </base-button>
-        <base-button @click="emit('yes')">
+        <base-button @click="emit('confirm')">
           <template #default> {{ t("common.delete") }} </template>
           <template #append>
             <v-icon :icon="mdiContentSaveOutline" />
@@ -44,8 +44,8 @@ defineProps<{
 }>();
 
 const emit = defineEmits<{
-  yes: [];
-  no: [];
+  confirm: [];
+  cancel: [];
 }>();
 </script>
 

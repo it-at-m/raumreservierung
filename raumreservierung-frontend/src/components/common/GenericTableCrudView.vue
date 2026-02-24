@@ -24,8 +24,8 @@
         :title="t('generics.delete', { domain })"
         :text="t('generics.confirmDelete', { domain })"
         :loading="loading"
-        @no="closeDialog"
-        @yes="executeDelete"
+        @cancel="closeDialog"
+        @confirm="executeDelete"
       />
     </v-dialog>
 
