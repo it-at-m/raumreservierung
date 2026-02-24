@@ -8,13 +8,14 @@ import org.springframework.security.access.prepost.PreAuthorize;
  * {@link org.springframework.stereotype.Service} classes in the method security annotations
  * (e.g. {@link PreAuthorize}).
  */
-@SuppressWarnings("PMD.DataClass")
+@SuppressWarnings({ "PMD.DataClass", "PMD.AvoidDuplicateLiterals" })
 public final class Authorities {
     public static final String THEENTITY_GET = "hasAnyRole('anwender', 'fachadmin')";
     public static final String THEENTITY_GET_ALL = "hasAnyRole('anwender', 'fachadmin')";
     public static final String THEENTITY_CREATE = "hasAnyRole('fachadmin')";
     public static final String THEENTITY_UPDATE = "hasAnyRole('fachadmin')";
     public static final String THEENTITY_DELETE = "hasAnyRole('fachadmin')";
+    public static final String EQUIPMENT_MANAGE = "hasAnyRole('fachadmin')";
 
     // Permissions based auth
     // public static final String THEENTITY_GET = "hasAuthority('REFARCH_THEENTITY_READ')";
