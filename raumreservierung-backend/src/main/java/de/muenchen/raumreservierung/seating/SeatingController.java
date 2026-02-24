@@ -38,7 +38,7 @@ public class SeatingController {
      */
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<SeatingResponseDto> getAllSeatings() {
+    public List<SeatingResponseDto> getAllSeatingTypes() {
         return SeatingService.findAll().stream().map(seatingTypeMapper::toDto).toList();
     }
 
@@ -51,7 +51,7 @@ public class SeatingController {
      */
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public SeatingResponseDto createSeating(@Valid @RequestBody final SeatingRequestDto seating) {
+    public SeatingResponseDto createSeatingType(@Valid @RequestBody final SeatingRequestDto seating) {
         return seatingTypeMapper.toDto(SeatingService.createSeating(seatingTypeMapper.toEntity(seating)));
     }
 
@@ -64,7 +64,7 @@ public class SeatingController {
      */
     @PutMapping("/{seatingId}")
     @ResponseStatus(HttpStatus.OK)
-    public SeatingResponseDto updateSeating(@Valid @RequestBody final SeatingRequestDto seating, @PathVariable("seatingId") final UUID seatingId) {
+    public SeatingResponseDto updateSeatingType(@Valid @RequestBody final SeatingRequestDto seating, @PathVariable("seatingId") final UUID seatingId) {
         return seatingTypeMapper.toDto(SeatingService.updateSeating(seatingTypeMapper.toEntity(seating), seatingId));
     }
 
@@ -76,7 +76,7 @@ public class SeatingController {
      */
     @DeleteMapping
     @ResponseStatus(HttpStatus.OK)
-    public void deleteSeating(@Valid @RequestBody final UUID seatingId) {
+    public void deleteSeatingType(@Valid @RequestBody final UUID seatingId) {
         SeatingService.deleteSeating(seatingId);
     }
 
