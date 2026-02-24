@@ -23,7 +23,6 @@
 </template>
 
 <script setup lang="ts">
-// TODO LOADING PROPS überarbeiten - nur eines
 import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/components/common/CardTable.vue";
 
