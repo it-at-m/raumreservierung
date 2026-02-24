@@ -45,6 +45,7 @@ public class HolidayController {
 
     @PutMapping()
     public HolidayResponseDTO updateHoliday(@RequestBody HolidayRequestDTO requestDTO) {
+        System.out.println(requestDTO);
         return holidayMapper.toDTO(holidayService.updateHoliday(holidayMapper.toEntity(requestDTO)));
     }
 
