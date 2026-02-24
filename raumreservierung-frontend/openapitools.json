@@ -6,7 +6,7 @@
     "generators": {
       "raumreservierung-backend": {
         "generatorName": "typescript-fetch",
-        "glob": "../raumreservierung-backend/target/*.yaml",
+        "glob": "../raumreservierung-backend/src/api-spec/*.yaml",
         "output": "#{cwd}/src/api/#{name}",
         "additionalProperties": {
           "supportsES6": true,

@@ -105,6 +105,9 @@ cache/
 # vuepress build output
 .vuepress/dist
 
+# generated apis
+raumreservierung-frontend/src/api/*/
+
 # ================ Other =============
 # macOS
 .DS_Store
