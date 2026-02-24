@@ -1,6 +1,6 @@
 # TheEntityControllerApi
 
-All URIs are relative to *http://localhost:8087*
+All URIs are relative to *http://localhost:39146*
 
 | Method | HTTP request | Description |
 |------------- | ------------- | -------------|
