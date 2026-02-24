@@ -1,7 +1,7 @@
 import type {
   CreateSeatingTypeRequest,
   DeleteSeatingTypeRequest,
-  SeatingResponseDto,
+  SeatingTypeResponseDto,
   UpdateSeatingTypeRequest,
 } from "@/api/raumreservierung-backend";
 
@@ -13,19 +13,19 @@ export const useGetAllSeatingTypes = () => {
   const api = ApiFactory.getInstance(SeatingControllerApi);
 
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  return useApi<void, SeatingResponseDto[]>(() => api.getAllSeatingTypes());
+  return useApi<void, SeatingTypeResponseDto[]>(() => api.getAllSeatingTypes());
 };
 export const useCreateSeatingType = () => {
   const api = ApiFactory.getInstance(SeatingControllerApi);
 
-  return useApi<CreateSeatingTypeRequest, SeatingResponseDto>((params) =>
+  return useApi<CreateSeatingTypeRequest, SeatingTypeResponseDto>((params) =>
     api.createSeatingType(params)
   );
 };
 export const useUpdateSeatingType = () => {
   const api = ApiFactory.getInstance(SeatingControllerApi);
 
-  return useApi<UpdateSeatingTypeRequest, SeatingResponseDto>((params) =>
+  return useApi<UpdateSeatingTypeRequest, SeatingTypeResponseDto>((params) =>
     api.updateSeatingType(params)
   );
 };
