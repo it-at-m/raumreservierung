@@ -29,7 +29,7 @@ export const useUpdateSeatingType = () => {
     api.updateSeatingType(params)
   );
 };
-export const usedeleteSeatingType = () => {
+export const useDeleteSeatingType = () => {
   const api = ApiFactory.getInstance(SeatingControllerApi);
 
   // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
