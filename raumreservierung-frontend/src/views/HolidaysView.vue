@@ -6,14 +6,11 @@
           <div class="text-h6 pl-2">Feiertage</div>
         </v-col>
         <v-col class="d-flex align-center justify-end">
-          <slot name="action" >
-            <v-btn
-              id="addHolidayBtn"
-              :append-icon="mdiPlus"
-              color="secondary"
-              @click="openAddDialog"
-            >Hinzufügen
-            </v-btn>
+          <slot name="action">
+            <base-button @click="openAddDialog">
+              <template #append> <v-icon :icon="mdiPlus" /></template>
+              Hinzufügen
+            </base-button>
           </slot>
         </v-col>
       </v-row>
@@ -33,7 +30,7 @@
       hide-default-footer
     >
       <template #[`item.date`]="{ item }">
-        {{ formatDate(item.startDate) }}
+        {{ useDateFormat(item.startDate, "DD.MM.YY") }}
       </template>
       <template #[`item.actions`]="{ item }">
         <div>
@@ -56,69 +53,29 @@
       </template>
     </v-data-table>
     <v-dialog
-      v-model="isAddDialogOpen"
-      max-width="500"
-      min-width="250"
+      :model-value="isAddDialogOpen"
+      width="90%"
+      max-width="800px"
     >
       <template #default>
-        <v-card title="Feiertag hinzufügen">
-          <v-card-text>
-            <v-text-field
-              v-model="formData.name"
-              label="Name des Feiertags"
-            ></v-text-field>
-            <v-date-input
-              v-model="formData.startDate"
-              label="Datum des Feiertags"
-              :prepend-icon="mdiCalendar"
-            ></v-date-input>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              text="Abbrechen"
-              @click="isAddDialogOpen = false"
-            ></v-btn>
-            <v-btn
-              color="secondary"
-              @click="addHoliday(formData)"
-              >Speichern</v-btn
-            >
-          </v-card-actions>
-        </v-card>
+        <dialog-form
+          v-model="formData"
+          @addHoliday="addHoliday"
+          @close="isAddDialogOpen = false"
+        />
       </template>
     </v-dialog>
     <v-dialog
-      v-model="isEditDialogOpen"
-      max-width="500"
-      min-width="250"
+      :model-value="isEditDialogOpen"
+      width="90%"
+      max-width="800px"
     >
       <template #default>
-        <v-card title="Feiertag ändern">
-          <v-card-text>
-            <v-text-field
-              v-model="formData.name"
-              label="Name des Feiertags"
-            ></v-text-field>
-            <v-date-input
-              v-model="formData.startDate"
-              label="Datum des Feiertags"
-              :prepend-icon="mdiCalendar"
-            ></v-date-input>
-          </v-card-text>
-          <v-card-actions>
-            <v-spacer></v-spacer>
-            <v-btn
-              text="Abbrechen"
-              @click="isEditDialogOpen = false"
-            ></v-btn>
-            <v-btn
-              color="secondary"
-              @click="editHoliday(formData)"
-              >Speichern</v-btn
-            >
-          </v-card-actions>
-        </v-card>
+        <dialog-form
+          v-model="formData"
+          @addHoliday="editHoliday"
+          @close="isEditDialogOpen = false"
+        />
       </template>
     </v-dialog>
   </v-card>
@@ -131,10 +88,13 @@ import type {
 } from "@/api/raumreservierung-backend";
 import type { Ref } from "vue";
 
-import { mdiCalendar, mdiDelete, mdiPencilOutline, mdiPlus } from "@mdi/js";
+import { mdiDelete, mdiPencilOutline, mdiPlus } from "@mdi/js";
+import { useDateFormat } from "@vueuse/core";
 import { onMounted, ref } from "vue";
 
 import { Levels } from "@/api/error.ts";
+import BaseButton from "@/components/common/BaseButton.vue";
+import DialogForm from "@/components/DialogForm.vue";
 import {
   useAddHoliday,
   useDeleteHoliday,
@@ -147,7 +107,9 @@ onMounted(async () => await loadPublicHolidays());
 
 const isAddDialogOpen = ref(false);
 
-const openAddDialog = () => { isAddDialogOpen.value = true;}
+const openAddDialog = () => {
+  isAddDialogOpen.value = true;
+};
 
 const isEditDialogOpen = ref(false);
 
@@ -184,17 +146,6 @@ async function loadPublicHolidays() {
       JSON.stringify(getPublicHolidaysData.value)
     );
   }
-}
-
-function formatDate(dateFromServer: Date | undefined): string | undefined {
-  const date = dateFromServer ? new Date(dateFromServer) : undefined;
-  return date
-    ? date.toLocaleDateString("de-DE", {
-        year: "2-digit",
-        day: "2-digit",
-        month: "2-digit",
-      })
-    : "kein Datum gefunden";
 }
 
 const { call: editHolidayCall, error: editHolidayError } = useEditHoliday();
@@ -246,30 +197,27 @@ const deleteHoliday = async (holidayId: string | undefined) => {
 
 const { call: addHolidayCall, error: addHolidayError } = useAddHoliday();
 
-const addHoliday = async (
-  formData: HolidayRequestDTO
-) => {
+const addHoliday = async (holiday: HolidayRequestDTO) => {
   await addHolidayCall({
     holidayRequestDTO: {
-      name: formData.name,
-      startDate: formData.startDate,
-      endDate: formData.startDate,
+      name: holiday.name,
+      startDate: holiday.startDate,
+      endDate: holiday.startDate,
     },
   });
   if (!addHolidayError.value) {
     await loadPublicHolidays();
     snackbarStore.add({
       level: Levels.INFO,
-      message: `Feiertag ${formData.name} am ${formData.startDate} hinzugefügt`,
+      message: `Feiertag ${holiday.name} am ${holiday.startDate} hinzugefügt`,
     });
   } else {
     snackbarStore.add({
       level: Levels.ERROR,
-      message: `Es gab einen Fehler beim Erstellen des Feiertages ${formData.name} am ${formData.startDate} !!!`,
+      message: `Es gab einen Fehler beim Erstellen des Feiertages ${holiday.name} am ${holiday.startDate} !!!`,
     });
   }
   isAddDialogOpen.value = false;
-  formData = { name: "", startDate: undefined, endDate: undefined, id: "" };
 };
 
 const headers = [
