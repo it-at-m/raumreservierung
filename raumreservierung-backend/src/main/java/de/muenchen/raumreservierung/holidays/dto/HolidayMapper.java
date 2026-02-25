@@ -4,7 +4,6 @@ import de.muenchen.raumreservierung.holidays.Holiday;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.mapstruct.NullValuePropertyMappingStrategy;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -15,7 +14,7 @@ public interface HolidayMapper {
 
     HolidayResponseDTO toDTO(Holiday h);
 
-    @Mapping(target = "id", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+    @Mapping(target = "id", ignore = true)
     @Mapping(target = "startDate", source = "startDate", qualifiedByName = "dateMapper")
     @Mapping(target = "endDate", source = "endDate", qualifiedByName = "dateMapper")
     Holiday toEntity(HolidayRequestDTO dto);
