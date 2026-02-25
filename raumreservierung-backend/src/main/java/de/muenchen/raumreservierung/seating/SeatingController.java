@@ -4,6 +4,8 @@ import de.muenchen.raumreservierung.seating.dto.SeatingTypeMapper;
 import de.muenchen.raumreservierung.seating.dto.SeatingTypeRequestDto;
 import de.muenchen.raumreservierung.seating.dto.SeatingTypeResponseDto;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -17,16 +19,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.List;
-import java.util.UUID;
-
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/seating")
 public class SeatingController {
 
-    private final SeatingService SeatingService;
+    private final SeatingService seatingService;
 
     private final SeatingTypeMapper seatingTypeMapper;
 
@@ -39,7 +38,7 @@ public class SeatingController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<SeatingTypeResponseDto> getAllSeatingTypes() {
-        return SeatingService.findAll().stream().map(seatingTypeMapper::toDto).toList();
+        return seatingService.findAll().stream().map(seatingTypeMapper::toDto).toList();
     }
 
     /**
@@ -52,7 +51,7 @@ public class SeatingController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public SeatingTypeResponseDto createSeatingType(@Valid @RequestBody final SeatingTypeRequestDto seating) {
-        return seatingTypeMapper.toDto(SeatingService.createSeating(seatingTypeMapper.toEntity(seating)));
+        return seatingTypeMapper.toDto(seatingService.createSeating(seatingTypeMapper.toEntity(seating)));
     }
 
     /**
@@ -64,8 +63,9 @@ public class SeatingController {
      */
     @PutMapping("/{seatingTypeId}")
     @ResponseStatus(HttpStatus.OK)
-    public SeatingTypeResponseDto updateSeatingType(@Valid @RequestBody final SeatingTypeRequestDto seating, @PathVariable("seatingTypeId") final UUID seatingTypeId) {
-        return seatingTypeMapper.toDto(SeatingService.updateSeating(seatingTypeMapper.toEntity(seating), seatingTypeId));
+    public SeatingTypeResponseDto updateSeatingType(@Valid @RequestBody final SeatingTypeRequestDto seating,
+            @PathVariable("seatingTypeId") final UUID seatingTypeId) {
+        return seatingTypeMapper.toDto(seatingService.updateSeating(seatingTypeMapper.toEntity(seating), seatingTypeId));
     }
 
     /**
@@ -77,7 +77,7 @@ public class SeatingController {
     @DeleteMapping("/{seatingTypeId}")
     @ResponseStatus(HttpStatus.OK)
     public void deleteSeatingType(@Valid @PathVariable("seatingTypeId") final UUID seatingId) {
-        SeatingService.deleteSeating(seatingId);
+        seatingService.deleteSeating(seatingId);
     }
 
 }
