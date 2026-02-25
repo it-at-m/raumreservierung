@@ -26,7 +26,15 @@
         :loading="loading"
         @cancel="closeDialog"
         @confirm="executeDelete"
-      />
+      >
+        <template #confirm="{ props }">
+          <base-button
+            :text="t('common.delete')"
+            :append-icon="mdiTrashCanOutline"
+            v-bind="props"
+          />
+        </template>
+      </confirm-card>
     </v-dialog>
 
     <card-table
@@ -35,12 +43,11 @@
       :loading="loading"
     >
       <template #action>
-        <base-button @click="openCreate">
-          <template #append><v-icon :icon="mdiPlus" /></template>
-          <template #default>
-            {{ t("common.add") }}
-          </template>
-        </base-button>
+        <base-button
+          @click="openCreate"
+          :append-icon="mdiPlus"
+          :text="t('common.add')"
+        />
       </template>
 
       <template v-slot:[`item.actions`]="{ item }">
@@ -90,7 +97,12 @@
 <script setup lang="ts" generic="T extends { id?: string }">
 import type { TableHeader } from "@/components/common/CardTable.vue";
 
-import { mdiPlus } from "@mdi/js";
+import {
+  mdiClose,
+  mdiContentSaveOutline,
+  mdiPlus,
+  mdiTrashCanOutline,
+} from "@mdi/js";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
