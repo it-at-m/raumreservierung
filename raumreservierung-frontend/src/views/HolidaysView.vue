@@ -1,99 +1,43 @@
 <template>
-  <v-card class="mt-4 pt-2">
-    <template #title>
-      <v-row align-content="center">
-        <v-col class="d-flex align-center justify-start">
-          <div class="text-h6 pl-2">Feiertage</div>
-        </v-col>
-        <v-col class="d-flex align-center justify-end">
-          <slot name="action">
-            <base-button @click="openAddDialog">
-              <template #append> <v-icon :icon="mdiPlus" /></template>
-              Hinzufügen
-            </base-button>
-          </slot>
-        </v-col>
-      </v-row>
-      <v-row class="mt-2">
-        <v-col>
-          <v-divider />
-        </v-col>
-      </v-row>
+  <generic-table-crud-view
+    ref="tableRef"
+    :domain="t('domain.holidays.public.header', { count: 2 })"
+    :items="getPublicHolidaysData ?? []"
+    :headers="headers"
+    :empty-item-template="EMPTY_HOLIDAY"
+    :loading="getPublicHolidaysLoading || addHolidayLoading"
+    @create="createHoliday"
+    @delete="deleteHoliday"
+    @update="updateHoliday"
+  >
+    <template #form="{ item, updateItem, save, cancel }">
+      <dialog-form
+        :model-value="item"
+        @update:model-value="updateItem"
+        @close="cancel"
+        @addHoliday="save"
+        :loading="
+          deleteHolidayLoading || editHolidayLoading || addHolidayLoading
+        "
+      />
     </template>
-    <v-divider />
-    <v-data-table
-      :headers="headers"
-      :items="holidayResponseDTOs"
-      :loading="getPublicHolidaysLoading"
-      loading-text="Lade Daten..."
-      no-data-text="Keine Feiertage gefunden"
-      hide-default-footer
-    >
-      <template #[`item.date`]="{ item }">
-        {{ useDateFormat(item.startDate, "DD.MM.YY") }}
-      </template>
-      <template #[`item.actions`]="{ item }">
-        <div>
-          <v-btn
-            :icon="mdiPencilOutline"
-            variant="text"
-            color="primary"
-            density="compact"
-            class="me-1"
-            @click="openEditDialog(item)"
-          ></v-btn>
-          <v-btn
-            :icon="mdiDelete"
-            variant="text"
-            color="black"
-            density="compact"
-            @click="deleteHoliday(item.id)"
-          ></v-btn>
-        </div>
-      </template>
-    </v-data-table>
-    <v-dialog
-      :model-value="isAddDialogOpen"
-      width="90%"
-      max-width="800px"
-    >
-      <template #default>
-        <dialog-form
-          v-model="formData"
-          @addHoliday="addHoliday"
-          @close="isAddDialogOpen = false"
-        />
-      </template>
-    </v-dialog>
-    <v-dialog
-      :model-value="isEditDialogOpen"
-      width="90%"
-      max-width="800px"
-    >
-      <template #default>
-        <dialog-form
-          v-model="formData"
-          @addHoliday="editHoliday"
-          @close="isEditDialogOpen = false"
-        />
-      </template>
-    </v-dialog>
-  </v-card>
+    <template #[`item.date`]="{ item }">
+      {{ useDateFormat(item.startDate, "DD.MM.YY") }}
+    </template>
+  </generic-table-crud-view>
 </template>
 
 <script setup lang="ts">
-import type {
-  HolidayRequestDTO,
-  HolidayResponseDTO,
-} from "@/api/raumreservierung-backend";
+import type { HolidayResponseDTO } from "@/api/raumreservierung-backend";
+import type { TableHeader } from "@/components/common/CardTable.vue";
 import type { Ref } from "vue";
 
-import { mdiDelete, mdiPencilOutline, mdiPlus } from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
-import { onMounted, ref } from "vue";
+import { onMounted, useTemplateRef } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
-import BaseButton from "@/components/common/BaseButton.vue";
+import GenericTableCrudView from "@/components/common/GenericTableCrudView.vue";
 import DialogForm from "@/components/DialogForm.vue";
 import {
   useAddHoliday,
@@ -103,128 +47,112 @@ import {
 } from "@/composables/api/useHolidayApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 
-onMounted(async () => await loadPublicHolidays());
+onMounted(async () => await getPublicHolidaysCall({ isPublic: true }));
 
-const isAddDialogOpen = ref(false);
+const { t } = useI18n();
 
-const openAddDialog = () => {
-  isAddDialogOpen.value = true;
-};
-
-const isEditDialogOpen = ref(false);
-
-const openEditDialog = (item: HolidayRequestDTO) => {
-  formData.value.id = item.id;
-  formData.value.name = item.name;
-  formData.value.startDate = item.startDate;
-  formData.value.endDate = item.endDate;
-  isEditDialogOpen.value = true;
-};
-
-const formData: Ref<HolidayRequestDTO> = ref({});
-
-const snackbarStore = useSnackbarStore();
-
-const holidayResponseDTOs: Ref<HolidayResponseDTO[]> = ref([]);
-
+const snackbar = useSnackbarStore();
+const tableRef = useTemplateRef("tableRef");
 const {
   call: getPublicHolidaysCall,
   data: getPublicHolidaysData,
-  error: getPublicHolidaysError,
   loading: getPublicHolidaysLoading,
 } = useGetPublicHolidays();
 
-async function loadPublicHolidays() {
-  await getPublicHolidaysCall();
-  if (getPublicHolidaysError.value) {
-    snackbarStore.add({
-      level: Levels.WARNING,
-      message: "There was an error loading the public holidays",
+const {
+  call: addHolidayCall,
+  loading: addHolidayLoading,
+  error: addHolidayError,
+} = useAddHoliday();
+
+const {
+  call: editHolidayCall,
+  loading: editHolidayLoading,
+  error: editHolidayError,
+} = useEditHoliday();
+
+const {
+  call: deleteHolidayCall,
+  loading: deleteHolidayLoading,
+  error: deleteHolidayError,
+} = useDeleteHoliday();
+
+const createHoliday = async (holiday: HolidayResponseDTO) => {
+  await addHolidayCall({
+    holidayRequestDTO: { ...holiday, endDate: holiday.startDate },
+  });
+  await fetchAndClose(
+    addHolidayError,
+    t("generics.snackbar.created", {
+      domain: t("domain.holidays.public.header", { count: 1 }),
+    })
+  );
+};
+
+const updateHoliday = async (holiday: HolidayResponseDTO) => {
+  if (holiday.id) {
+    await editHolidayCall({
+      id: holiday.id,
+      holidayRequestDTO: {
+        ...holiday,
+        startDate: toDate(holiday.startDate),
+        endDate: toDate(holiday.startDate),
+      },
     });
-  } else {
-    holidayResponseDTOs.value = JSON.parse(
-      JSON.stringify(getPublicHolidaysData.value)
+    await fetchAndClose(
+      editHolidayError,
+      t("generics.snackbar.edited", {
+        domain: t("domain.holidays.public.header", { count: 1 }),
+      })
     );
   }
-}
-
-const { call: editHolidayCall, error: editHolidayError } = useEditHoliday();
-
-const editHoliday = async (holiday: HolidayRequestDTO) => {
-  await editHolidayCall({
-    holidayRequestDTO: {
-      ...holiday,
-      startDate: holiday.startDate ? new Date(holiday.startDate) : undefined,
-      endDate: holiday.startDate ? new Date(holiday.startDate) : undefined,
-    },
-  });
-  if (!editHolidayError.value) {
-    snackbarStore.add({
-      level: Levels.SUCCESS,
-      message: `Feiertag: ${holiday.name} bearbeitet.`,
-    });
-  } else {
-    snackbarStore.add({
-      level: Levels.ERROR,
-      message: `Feiertag: ${holiday.name} konnte nicht bearbeitet werden.`,
-    });
-  }
-  await loadPublicHolidays();
-  isEditDialogOpen.value = false;
-  formData.value = {
-    name: "",
-    startDate: undefined,
-    endDate: undefined,
-    id: "",
-  };
 };
 
-const { call: deleteHolidayCall, error: deleteHolidayError } =
-  useDeleteHoliday();
-
-const deleteHoliday = async (holidayId: string | undefined) => {
-  if (holidayId) {
-    await deleteHolidayCall({ id: holidayId });
-  }
-  if (!deleteHolidayError.value) {
-    await loadPublicHolidays();
-    snackbarStore.add({
-      level: Levels.SUCCESS,
-      message: `Feiertag wurde gelöscht.`,
-    });
-  }
+const toDate = (date: Date | undefined) => {
+  return date ? new Date(date) : undefined;
 };
 
-const { call: addHolidayCall, error: addHolidayError } = useAddHoliday();
-
-const addHoliday = async (holiday: HolidayRequestDTO) => {
-  await addHolidayCall({
-    holidayRequestDTO: {
-      name: holiday.name,
-      startDate: holiday.startDate,
-      endDate: holiday.startDate,
-    },
-  });
-  if (!addHolidayError.value) {
-    await loadPublicHolidays();
-    snackbarStore.add({
-      level: Levels.INFO,
-      message: `Feiertag ${holiday.name} am ${holiday.startDate} hinzugefügt`,
-    });
-  } else {
-    snackbarStore.add({
-      level: Levels.ERROR,
-      message: `Es gab einen Fehler beim Erstellen des Feiertages ${holiday.name} am ${holiday.startDate} !!!`,
-    });
-  }
-  isAddDialogOpen.value = false;
+const deleteHoliday = async (id: string) => {
+  await deleteHolidayCall({ id: id });
+  await fetchAndClose(
+    deleteHolidayError,
+    t("generics.snackbar.deleted", {
+      domain: t("domain.holidays.public.header", { count: 1 }),
+    })
+  );
 };
 
-const headers = [
-  { title: "Feiertag", key: "name", sortable: true },
-  { title: "Datum", key: "date", sortable: true },
-  { title: "Aktionen", key: "actions", align: "end", sortable: false },
-] as const;
+const fetchAndClose = async (errorRef: Ref<boolean>, msg: string) => {
+  if (tableRef.value) {
+    tableRef.value.closeDialog();
+  }
+  if (!errorRef.value) {
+    snackbar.add({ level: Levels.SUCCESS, message: msg });
+  }
+  await getPublicHolidaysCall({ isPublic: true });
+};
+
+const headers: TableHeader<HolidayResponseDTO>[] = [
+  {
+    title: t("domain.holidays.public.header", { count: 1 }),
+    value: "name",
+    sortable: true,
+  },
+  { title: t("domain.holidays.public.date"), value: "date", sortable: false },
+  {
+    title: t("common.action", { count: 2 }),
+    value: "actions",
+    align: "end",
+    sortable: false,
+  },
+];
+
+const EMPTY_HOLIDAY: HolidayResponseDTO = {
+  name: "",
+  id: "",
+  startDate: undefined,
+  endDate: undefined,
+};
 </script>
 
 <style scoped></style>

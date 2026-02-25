@@ -70,7 +70,7 @@ const NAV_ENTRIES: readonly NavEntry[] = [
       {
         kind: "item",
         textKey: "navigationDrawer.holidayGroup.schoolHolidays",
-        to: { name: ROUTES.GETSTARTED },
+        to: { name: ROUTES.SCHOOLHOLIDAYS },
       },
     ],
   },

@@ -52,7 +52,12 @@
     "delete": "{domain} löschen",
     "edit": "{domain} bearbeiten",
     "create": "{domain} erstellen",
-    "confirmDelete": "Möchten Sie die {domain} endgültig löschen"
+    "confirmDelete": "Möchten Sie die {domain} endgültig löschen",
+    "snackbar" : {
+      "deleted": "{domain} wurde gelöscht.",
+      "created": "{domain} wurde erstellt.",
+      "edited": "{domain} wurde bearbeitet."
+    }
   },
   "navigationDrawer": {
     "myBookings": "Meine Buchungen einsehen",
@@ -68,7 +73,7 @@
     },
     "holidayGroup": {
       "groupTitle": "Tage verwalten",
-      "publicHolidays": "Feiertrage verwalten",
+      "publicHolidays": "Feiertage verwalten",
       "schoolHolidays": "Ferien verwalten"
     },
     "viewRoomsAndDetails": "Räume und Details ansehen",
@@ -85,6 +90,13 @@
       "header": "Ausstattung",
       "name": "Name",
       "description": "Beschreibung"
+    },
+    "holidays": {
+      "public": {
+        "header": "Feiertag | Feiertage",
+        "name": "Name",
+        "date": "Datum"
+      }
     }
   }
 }
