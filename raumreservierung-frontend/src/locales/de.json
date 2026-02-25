@@ -7,7 +7,9 @@
     "save": "Speichern",
     "add": "Hinzufügen",
     "action": "Aktion | Aktionen",
-    "messages": {}
+    "messages": {
+      "formInvalid": "Bitte korrigieren Sie ihre Eingaben."
+    }
   },
   "app": {
     "name": {
@@ -19,6 +21,12 @@
   },
   "components": {
     "equipmentForm": {
+      "rules": {
+        "minCharsError": "Name benötigt mindestens {num} Zeichen.",
+        "maxDescriptionError": "Die Beschreibung darf maximal {num} Zeichen beinhalten."
+      }
+    },
+    "seatingTypeForm":{
       "rules": {
         "minCharsError": "Name benötigt mindestens {num} Zeichen.",
         "maxDescriptionError": "Die Beschreibung darf maximal {num} Zeichen beinhalten."
@@ -81,6 +89,11 @@
     "help": "Hilfe"
   },
   "domain": {
+    "seatingType": {
+      "header": "Bestuhlung",
+      "name": "Name",
+      "description": "Beschreibung"
+    },
     "equipment": {
       "header": "Ausstattung",
       "name": "Name",
