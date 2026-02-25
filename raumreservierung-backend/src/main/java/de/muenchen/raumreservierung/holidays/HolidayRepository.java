@@ -15,5 +15,4 @@ public interface HolidayRepository extends CrudRepository<Holiday, UUID> {
 
     @Query("SELECT h FROM Holiday h WHERE h.startDate != h.endDate")
     List<Holiday> findSchoolHolidays();
-
 }
