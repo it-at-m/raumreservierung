@@ -52,10 +52,7 @@ const emit = defineEmits<{
   cancel: [];
 }>();
 
-const confirm = () => {
-  emit("confirm");
-};
-
+const confirm = () => emit("confirm");
 const cancel = () => emit("cancel");
 </script>
 
