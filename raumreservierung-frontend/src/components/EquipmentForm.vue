@@ -1,7 +1,9 @@
 <template>
   <v-form
     v-model="isValid"
+    @update:model-value="updatedValidity"
     :disabled="disabled"
+    validate-on="eager"
   >
     <v-text-field
       variant="outlined"
@@ -29,7 +31,7 @@ import { useI18n } from "vue-i18n";
 const MIN_NAME_LENGTH = 2;
 const MAX_DESCRIPTION_LENGTH = 255;
 
-const isValid = ref(false);
+const isValid = ref<boolean | null>(false);
 
 const modelValue = defineModel<EquipmentResponseDto>({ required: true });
 
@@ -37,6 +39,10 @@ const { t } = useI18n();
 
 defineProps<{
   disabled?: boolean;
+}>();
+
+const emit = defineEmits<{
+  isValid: [value: boolean | null];
 }>();
 
 const minTwoChars = (value: string) =>
@@ -48,6 +54,11 @@ const maxCharLength = (value: string) =>
   t("components.equipmentForm.rules.maxDescriptionError", {
     num: MAX_DESCRIPTION_LENGTH,
   });
+
+const updatedValidity = (newIsValid: boolean | null) => {
+  isValid.value = newIsValid;
+  emit("isValid", newIsValid);
+};
 </script>
 
 <style scoped></style>

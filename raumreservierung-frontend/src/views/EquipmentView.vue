@@ -10,31 +10,13 @@
     @update="handleUpdate"
     @delete="handleDelete"
   >
-    <template #form="{ item, save, cancel, updateItem }">
-      <confirm-card
-        :loading="updateEquipmentLoading || saveEquipmentLoading"
-        :title="
-          item.id
-            ? t('generics.edit', { domain: t('domain.equipment.header') })
-            : t('generics.create', { domain: t('domain.equipment.header') })
-        "
-        @confirm="save"
-        @cancel="cancel"
-      >
-        <template #text>
-          <equipment-form
-            :model-value="item"
-            @update:model-value="updateItem"
-            :disabled="updateEquipmentLoading || saveEquipmentLoading"
-          />
-        </template>
-        <template #confirm>
-          <base-button
-            :text="t('common.save')"
-            :append-icon="mdiContentSaveOutline"
-          />
-        </template>
-      </confirm-card>
+    <template #form="{ item, updateItem, updateValidity }">
+      <equipment-form
+        :model-value="item"
+        @update:model-value="updateItem"
+        @is-valid="updateValidity"
+        :disabled="updateEquipmentLoading || saveEquipmentLoading"
+      />
     </template>
   </generic-table-crud-view>
 </template>
@@ -43,13 +25,10 @@
 import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/components/common/CardTable.vue";
 
-import { mdiContentSaveOutline } from "@mdi/js";
 import { onMounted, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
-import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import GenericTableCrudView from "@/components/common/GenericTableCrudView.vue";
 import EquipmentForm from "@/components/EquipmentForm.vue";
 import {
