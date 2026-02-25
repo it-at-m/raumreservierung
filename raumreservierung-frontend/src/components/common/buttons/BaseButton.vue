@@ -33,7 +33,7 @@
 import { VBtn } from "vuetify/components";
 
 type VBtnProps = InstanceType<typeof VBtn>["$props"];
-type VuetifyIcon = VBtnProps["icon"];
+type VuetifyIcon = VBtnProps["prependIcon"];
 
 const { secondary = false } = defineProps<{
   text?: string;
