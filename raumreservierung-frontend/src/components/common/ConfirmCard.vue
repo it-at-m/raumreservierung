@@ -53,7 +53,6 @@ const emit = defineEmits<{
 }>();
 
 const confirm = () => {
-  console.log("confirmed");
   emit("confirm");
 };
 

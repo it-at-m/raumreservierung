@@ -85,7 +85,9 @@ const headers: TableHeader<EquipmentResponseDto>[] = [
 const handleCreate = async (newItem: EquipmentResponseDto) => {
   await saveEquipmentCall({ equipmentRequestDto: newItem });
   if (!saveEquipmentError.value) {
-    await onSuccess("Ausstattung erstellt");
+    await onSuccess(
+      t("generics.created", { domain: t("domain.equipment.header") })
+    );
   }
 };
 
@@ -96,7 +98,9 @@ const handleUpdate = async (updatedItem: EquipmentResponseDto) => {
       equipmentId: updatedItem.id,
     });
     if (!updateEquipmentError.value) {
-      await onSuccess("Ausstattung aktualisiert");
+      await onSuccess(
+        t("generics.updated", { domain: t("domain.equipment.header") })
+      );
     }
   }
 };
@@ -104,7 +108,9 @@ const handleUpdate = async (updatedItem: EquipmentResponseDto) => {
 const handleDelete = async (id: string) => {
   await deleteEquipmentCall({ equipmentId: id });
   if (!deleteEquipmentError.value) {
-    await onSuccess("Ausstattung gelöscht");
+    await onSuccess(
+      t("generics.deleted", { domain: t("domain.equipment.header") })
+    );
   }
 };
 

@@ -85,7 +85,9 @@ const EMPTY_ITEM_TEMPLATE = {
 const handleCreate = async (newItem: SeatingTypeResponseDto) => {
   await createSeatingTypeCall({ seatingTypeRequestDto: newItem });
   if (!createSeatingTypeError.value) {
-    await onSuccess("Ausstattung erstellt");
+    await onSuccess(
+      t("generics.created", { domain: t("domain.seatingType.header") })
+    );
   }
 };
 
@@ -96,7 +98,9 @@ const handleUpdate = async (updatedItem: SeatingTypeResponseDto) => {
       seatingTypeId: updatedItem.id,
     });
     if (!updateSeatingTypeError.value) {
-      await onSuccess("Ausstattung aktualisiert");
+      await onSuccess(
+        t("generics.updated", { domain: t("domain.seatingType.header") })
+      );
     }
   }
 };
@@ -104,7 +108,9 @@ const handleUpdate = async (updatedItem: SeatingTypeResponseDto) => {
 const handleDelete = async (id: string) => {
   await deleteSeatingTypeCall({ seatingTypeId: id });
   if (!deleteSeatingTypeError.value) {
-    await onSuccess("Ausstattung gelöscht");
+    await onSuccess(
+      t("generics.deleted", { domain: t("domain.seatingType.header") })
+    );
   }
 };
 

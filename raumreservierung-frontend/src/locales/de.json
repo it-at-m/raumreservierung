@@ -7,9 +7,7 @@
     "save": "Speichern",
     "add": "Hinzufügen",
     "action": "Aktion | Aktionen",
-    "messages": {
-      "formInvalid": "Bitte korrigieren Sie ihre Eingaben."
-    }
+    "messages": {}
   },
   "app": {
     "name": {
@@ -26,7 +24,7 @@
         "maxDescriptionError": "Die Beschreibung darf maximal {num} Zeichen beinhalten."
       }
     },
-    "seatingTypeForm":{
+    "seatingTypeForm": {
       "rules": {
         "minCharsError": "Name benötigt mindestens {num} Zeichen.",
         "maxDescriptionError": "Die Beschreibung darf maximal {num} Zeichen beinhalten."
@@ -60,7 +58,10 @@
     "delete": "{domain} löschen",
     "edit": "{domain} bearbeiten",
     "create": "{domain} erstellen",
-    "confirmDelete": "Möchten Sie die {domain} endgültig löschen"
+    "confirmDelete": "Möchten Sie die {domain} endgültig löschen",
+    "deleted": "{domain} wurde gelöscht.",
+    "updated": "{domain} wurde aktualisiert.",
+    "created": "{domain} wurde erstellt."
   },
   "navigationDrawer": {
     "myBookings": "Meine Buchungen einsehen",
