@@ -125,7 +125,7 @@ const handleUpdate = async (updatedItem: SeatingTypeResponseDto) => {
 };
 
 const handleDelete = async (id: string) => {
-  await deleteSeatingTypeCall({ body: id });
+  await deleteSeatingTypeCall({ seatingTypeId: id });
   if (!deleteSeatingTypeError.value) {
     await onSuccess("Ausstattung gelöscht");
   }

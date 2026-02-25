@@ -62,10 +62,10 @@ public class SeatingController {
      * @param seating the updated Seating details
      * @return the updated Seating as response DTO
      */
-    @PutMapping("/{seatingId}")
+    @PutMapping("/{seatingTypeId}")
     @ResponseStatus(HttpStatus.OK)
-    public SeatingTypeResponseDto updateSeatingType(@Valid @RequestBody final SeatingTypeRequestDto seating, @PathVariable("seatingId") final UUID seatingId) {
-        return seatingTypeMapper.toDto(SeatingService.updateSeating(seatingTypeMapper.toEntity(seating), seatingId));
+    public SeatingTypeResponseDto updateSeatingType(@Valid @RequestBody final SeatingTypeRequestDto seating, @PathVariable("seatingTypeId") final UUID seatingTypeId) {
+        return seatingTypeMapper.toDto(SeatingService.updateSeating(seatingTypeMapper.toEntity(seating), seatingTypeId));
     }
 
     /**
@@ -74,9 +74,9 @@ public class SeatingController {
      *
      * @param seatingId the UUID of the Seating to delete
      */
-    @DeleteMapping
+    @DeleteMapping("/{seatingTypeId}")
     @ResponseStatus(HttpStatus.OK)
-    public void deleteSeatingType(@Valid @RequestBody final UUID seatingId) {
+    public void deleteSeatingType(@Valid @PathVariable("seatingTypeId") final UUID seatingId) {
         SeatingService.deleteSeating(seatingId);
     }
 

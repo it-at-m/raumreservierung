@@ -123,7 +123,7 @@ const handleUpdate = async (updatedItem: EquipmentResponseDto) => {
 };
 
 const handleDelete = async (id: string) => {
-  await deleteEquipmentCall({ body: id });
+  await deleteEquipmentCall({ equipmentId: id });
   if (!deleteEquipmentError.value) {
     await onSuccess("Ausstattung gelöscht");
   }
