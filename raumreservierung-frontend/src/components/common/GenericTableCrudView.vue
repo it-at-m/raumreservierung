@@ -9,15 +9,35 @@
       persistent
       close-on-back
     >
-      <template v-if="dialogMode === 'form'">
-        <slot
-          name="form"
-          :item="activeItem"
-          :updateItem="updateActiveItem"
-          :save="handleSave"
-          :cancel="closeDialog"
-        />
-      </template>
+      <confirm-card
+        v-if="dialogMode === 'form'"
+        :loading="loading"
+        :title="
+          activeItem.id
+            ? t('generics.edit', { domain: t('domain.equipment.header') })
+            : t('generics.create', { domain: t('domain.equipment.header') })
+        "
+        @confirm="handleSave"
+        @cancel="closeDialog"
+      >
+        <template #text>
+          <slot
+            name="form"
+            :item="activeItem"
+            :updateItem="updateActiveItem"
+            :updateValidity="updateFormValidity"
+          />
+        </template>
+        <template #confirm="{ props }">
+          <base-button
+            id="save-button"
+            :text="t('common.save')"
+            :append-icon="mdiContentSaveOutline"
+            :disabled="!isFormSlotValid"
+            v-bind="props"
+          />
+        </template>
+      </confirm-card>
 
       <confirm-card
         v-else-if="dialogMode === 'delete'"
@@ -97,12 +117,7 @@
 <script setup lang="ts" generic="T extends { id?: string }">
 import type { TableHeader } from "@/components/common/CardTable.vue";
 
-import {
-  mdiClose,
-  mdiContentSaveOutline,
-  mdiPlus,
-  mdiTrashCanOutline,
-} from "@mdi/js";
+import { mdiContentSaveOutline, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -137,10 +152,15 @@ const { t } = useI18n();
 type DialogMode = "form" | "delete" | null;
 const dialogMode = ref<DialogMode>(null);
 const showDialog = computed(() => dialogMode.value !== null);
+const isFormSlotValid = ref(false);
 
 const activeItem = ref<T>({ ...emptyItemTemplate } as T);
 
 // --- Functions ---
+const updateFormValidity = (valid: boolean | null) => {
+  isFormSlotValid.value = !!valid;
+};
+
 const updateActiveItem = (newValue: T) => {
   activeItem.value = newValue;
 };
