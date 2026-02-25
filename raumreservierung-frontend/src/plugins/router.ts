@@ -13,6 +13,8 @@ import GetStartedView from "@/views/GetStartedView.vue";
 import HelpView from "@/views/HelpView.vue";
 import HomeView from "@/views/HomeView.vue";
 import SeatingTypeView from "@/views/SeatingTypeView.vue";
+import HolidaysView from "@/views/HolidaysView.vue";
+import HomeView from "@/views/HomeView.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -46,6 +48,14 @@ const routes: RouteRecordRaw[] = [
   {
     path: "/holidays/public",
     name: ROUTES.PUBLICHOLIDAYS,
+    component: HolidaysView,
+    meta: {
+      requiredPrivileges: ["days:write"],
+    },
+  },
+  {
+    path: "/holidays/school",
+    name: ROUTES.SCHOOLHOLIDAYS,
     component: HolidaysView,
     meta: {
       requiredPrivileges: ["days:write"],

@@ -68,7 +68,7 @@
     },
     "holidayGroup": {
       "groupTitle": "Tage verwalten",
-      "publicHolidays": "Feiertrage verwalten",
+      "publicHolidays": "Feiertage verwalten",
       "schoolHolidays": "Ferien verwalten"
     },
     "viewRoomsAndDetails": "Räume und Details ansehen",
@@ -90,6 +90,13 @@
       "header": "Ausstattung",
       "name": "Name",
       "description": "Beschreibung"
+    },
+    "holidays": {
+      "public": {
+        "header": "Feiertag | Feiertage",
+        "name": "Name",
+        "date": "Datum"
+      }
     }
   }
 }
