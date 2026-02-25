@@ -30,7 +30,6 @@
         </template>
         <template #confirm="{ props }">
           <base-button
-            id="save-button"
             :text="t('common.save')"
             :append-icon="mdiContentSaveOutline"
             :disabled="!isFormSlotValid"
