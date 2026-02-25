@@ -1,7 +1,9 @@
 <template>
   <v-form
-    v-model="isValid"
+    :model-value="isValid"
+    @update:model-value="updatedValidity"
     :disabled="disabled"
+    validate-on="eager"
   >
     <v-text-field
       variant="outlined"
@@ -29,7 +31,7 @@ import { useI18n } from "vue-i18n";
 const MIN_NAME_LENGTH = 2;
 const MAX_DESCRIPTION_LENGTH = 255;
 
-const isValid = ref(false);
+const isValid = ref<boolean | null>(false);
 
 const modelValue = defineModel<SeatingTypeResponseDto>({ required: true });
 
@@ -39,15 +41,24 @@ defineProps<{
   disabled?: boolean;
 }>();
 
+const emit = defineEmits<{
+  isValid: [value: boolean | null];
+}>();
+
 const minTwoChars = (value: string) =>
   (!!value && value.length >= MIN_NAME_LENGTH) ||
-  t("components.equipmentForm.rules.minCharsError", { num: MIN_NAME_LENGTH });
+  t("components.seatingTypeForm.rules.minCharsError", { num: MIN_NAME_LENGTH });
 
 const maxCharLength = (value: string) =>
   value.length <= MAX_DESCRIPTION_LENGTH ||
-  t("components.equipmentForm.rules.maxDescriptionError", {
+  t("components.seatingTypeForm.rules.maxDescriptionError", {
     num: MAX_DESCRIPTION_LENGTH,
   });
+
+const updatedValidity = (newIsValid: boolean | null) => {
+  isValid.value = newIsValid;
+  emit("isValid", newIsValid);
+};
 </script>
 
 <style scoped></style>
