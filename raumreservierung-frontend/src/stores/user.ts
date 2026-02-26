@@ -1,8 +1,9 @@
-import type { Privilege } from "@/types/Privilege.ts";
-
 import { defineStore } from "pinia";
-import { computed, readonly, ref } from "vue";
+import { computed } from "vue";
 
+import { Levels } from "@/api/error.ts";
+import { useUserInfo } from "@/composables/api/useUserApi.ts";
+import { useSnackbarStore } from "@/stores/snackbar.ts";
 import User from "@/types/User";
 import { mapSimpleRolesToPrivileges } from "@/util/privilegeUtility.ts";
 
@@ -11,18 +12,27 @@ export interface UserState {
 }
 
 export const useUserStore = defineStore("user", () => {
-  const user = ref<User | null>(null);
-  const privileges = ref<Privilege[]>([]);
+  const { call, data, loading, error } = useUserInfo();
+  const snackbarStore = useSnackbarStore();
 
-  const getUser = computed((): User | null => {
-    return user.value;
-  });
+  const user = computed(() => data.value as User);
+  const privileges = computed(() =>
+    mapSimpleRolesToPrivileges((data.value as User)?.user_roles || [])
+  );
 
-  const getPrivileges = () => readonly(privileges);
+  const fetchUser = async () => {
+    if (loading.value) {
+      return;
+    }
 
-  function setUser(payload: User | null): void {
-    privileges.value = mapSimpleRolesToPrivileges(payload?.user_roles || []);
-    user.value = payload;
-  }
-  return { getUser, setUser, getPrivileges };
+    await call();
+    if (error.value) {
+      snackbarStore.add({
+        level: Levels.WARNING,
+        message: "Nutzer konnte nicht geladen werden.",
+      });
+    }
+  };
+
+  return { user, privileges, fetchUser };
 });
