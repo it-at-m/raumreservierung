@@ -125,6 +125,9 @@ pnpm-debug.log*
 lerna-debug.log*
 logs
 
+# generated apis
+raumreservierung-frontend/src/api/*/
+
 # ============== IDE specific settings ================
 
 ### Eclipse
