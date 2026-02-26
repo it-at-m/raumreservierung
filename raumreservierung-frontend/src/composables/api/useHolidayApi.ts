@@ -10,14 +10,7 @@ import { HolidayControllerApi } from "@/api/raumreservierung-backend/apis/Holida
 import { useApi } from "@/composables/api/useApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
 
-export const useGetPublicHolidays = () => {
-  const api = ApiFactory.getInstance(HolidayControllerApi);
-  return useApi<GetHolidaysRequest, HolidayResponseDTO[]>(
-    (params: GetHolidaysRequest) => api.getHolidays(params)
-  );
-};
-
-export const useGetSchoolHolidays = () => {
+export const useGetHolidays = () => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
   return useApi<GetHolidaysRequest, HolidayResponseDTO[]>(
     (params: GetHolidaysRequest) => api.getHolidays(params)
