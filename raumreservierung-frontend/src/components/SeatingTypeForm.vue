@@ -3,7 +3,6 @@
     :model-value="isValid"
     @update:model-value="updatedValidity"
     :disabled="disabled"
-    validate-on="eager"
   >
     <v-text-field
       variant="outlined"
