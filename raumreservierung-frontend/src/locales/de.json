@@ -96,6 +96,12 @@
         "header": "Feiertag | Feiertage",
         "name": "Name",
         "date": "Datum"
+      },
+      "school": {
+        "header": "Ferien",
+        "name": "Name",
+        "startDate": "Beginn",
+        "endDate": "Ende"
       }
     }
   }
