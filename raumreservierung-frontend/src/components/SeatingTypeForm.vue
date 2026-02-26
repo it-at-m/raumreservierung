@@ -11,6 +11,7 @@
       :rules="[minTwoChars]"
       class="mb-2"
       v-model="modelValue.name"
+      autofocus
     />
     <v-text-field
       variant="outlined"
