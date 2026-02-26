@@ -16,6 +16,7 @@ public final class Authorities {
     public static final String THEENTITY_UPDATE = "hasAnyRole('fachadmin')";
     public static final String THEENTITY_DELETE = "hasAnyRole('fachadmin')";
     public static final String EQUIPMENT_MANAGE = "hasAnyRole('fachadmin')";
+    public static final String HOLIDAYS_MANAGE =  "hasAnyRole('fachadmin')";
     public static final String SEATING_MANAGE = "hasAnyRole('fachadmin')";
 
     // Permissions based auth
