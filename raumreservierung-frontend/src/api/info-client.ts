@@ -10,7 +10,7 @@ export interface Application {
 }
 
 export function getInfo(): Promise<Info> {
-  return fetch("actuator/info", getConfig())
+  return fetch("/actuator/info", getConfig())
     .then((response) => {
       defaultResponseHandler(response);
       return response.json();
