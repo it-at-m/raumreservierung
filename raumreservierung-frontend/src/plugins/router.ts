@@ -57,17 +57,25 @@ const router = createRouter({
 });
 
 /**
- * Navigation guard checking priviledges
+ * Navigation guard checking privileges
  */
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   const userStore = useUserStore(pinia);
+  if (!userStore.user) {
+    await userStore.fetchUser();
+  }
+
   if (!to.meta.requiredPrivileges) return;
 
   const convertedPrivileges = Array.isArray(to.meta.requiredPrivileges)
     ? to.meta.requiredPrivileges
     : [to.meta.requiredPrivileges];
 
-  return hasPrivileges(unref(userStore.getPrivileges()), convertedPrivileges);
+  if (hasPrivileges(unref(userStore.privileges), convertedPrivileges)) {
+    return;
+  }
+
+  return { name: ROUTES.HOME };
 });
 
 export default router;

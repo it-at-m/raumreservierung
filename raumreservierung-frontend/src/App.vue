@@ -62,60 +62,19 @@
 import { mdiApps } from "@mdi/js";
 import { AppSwitcher } from "@muenchen/appswitcher-vue";
 import { useMediaQuery, useToggle } from "@vueuse/core";
-import { onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { Levels } from "@/api/error.ts";
 import AvatarCard from "@/components/common/AvatarCard.vue";
 import NavigationDrawerList from "@/components/common/NavigationDrawerList.vue";
 import TheSnackbarQueue from "@/components/TheSnackbarQueue.vue";
-import { useUserInfo } from "@/composables/api/useUserApi.ts";
 import { APPSWITCHER_URL } from "@/constants";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { useUserStore } from "@/stores/user";
-import { UserLocalDevelopment } from "@/types/User";
 
 const { t } = useI18n();
 
 const appswitcherBaseUrl = APPSWITCHER_URL;
 
-const snackbarStore = useSnackbarStore();
-const userStore = useUserStore();
 const [drawer, toggleDrawer] = useToggle(true);
 const isSmallScreen = useMediaQuery("(max-width: 1280px)");
-
-onMounted(() => {
-  loadUser();
-});
-
-const {
-  call: userInfoCall,
-  data: userInfoData,
-  error: userInfoError,
-} = useUserInfo();
-
-/**
- * Loads UserInfo from the backend and sets it in the store.
- */
-async function loadUser() {
-  // userinfo call
-  await userInfoCall();
-  if (userInfoError.value) {
-    if (import.meta.env.DEV) {
-      userStore.setUser(UserLocalDevelopment());
-      snackbarStore.add({
-        level: Levels.INFO,
-        message: "Local Development User is used.",
-      });
-    } else {
-      snackbarStore.add({
-        level: Levels.WARNING,
-        message: "Nutzer konnte nicht geladen werden.",
-      });
-    }
-    return;
-  }
-  // save into store
-  userStore.setUser(JSON.parse(JSON.stringify(userInfoData.value)));
-}
 </script>
