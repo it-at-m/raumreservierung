@@ -11,7 +11,7 @@ export const useNavEntries = () => {
   const userStore = useUserStore();
 
   return computed(() =>
-    calculateNavEntries(NAV_ENTRIES, unref(userStore.getPrivileges()))
+    calculateNavEntries(NAV_ENTRIES, unref(userStore.privileges))
   );
 };
 

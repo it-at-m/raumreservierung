@@ -8,12 +8,12 @@
     </template>
     <template #title>
       <span class="text-capitalize">
-        {{ userStore.getUser?.name }}
+        {{ userStore.user?.name }}
       </span>
     </template>
     <template #subtitle>
       <span class="text-capitalize">
-        {{ userStore.getUser?.user_roles.toString() }}</span
+        {{ userStore.user?.user_roles.toString() }}</span
       >
     </template>
   </v-card>
@@ -27,7 +27,7 @@ import { useUserStore } from "@/stores/user.ts";
 
 const userStore = useUserStore();
 
-const isLoading = computed(() => userStore.getUser == null);
+const isLoading = computed(() => userStore.user == null);
 </script>
 
 <style scoped>
