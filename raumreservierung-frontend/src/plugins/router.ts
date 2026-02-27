@@ -14,7 +14,6 @@ import HelpView from "@/views/HelpView.vue";
 import HomeView from "@/views/HomeView.vue";
 import SeatingTypeView from "@/views/SeatingTypeView.vue";
 import HolidaysView from "@/views/HolidaysView.vue";
-import HomeView from "@/views/HomeView.vue";
 
 const routes: RouteRecordRaw[] = [
   {

@@ -68,7 +68,7 @@
     },
     "holidayGroup": {
       "groupTitle": "Tage verwalten",
-      "publicHolidays": "Feiertage verwalten",
+      "publicHolidays": "Feiertrage verwalten",
       "schoolHolidays": "Ferien verwalten"
     },
     "viewRoomsAndDetails": "Räume und Details ansehen",
@@ -81,28 +81,10 @@
     "help": "Hilfe"
   },
   "domain": {
-    "seatingType": {
-      "header": "Bestuhlung",
-      "name": "Name",
-      "description": "Beschreibung"
-    },
     "equipment": {
       "header": "Ausstattung",
       "name": "Name",
       "description": "Beschreibung"
-    },
-    "holidays": {
-      "public": {
-        "header": "Feiertag | Feiertage",
-        "name": "Name",
-        "date": "Datum"
-      },
-      "school": {
-        "header": "Ferien",
-        "name": "Name",
-        "startDate": "Beginn",
-        "endDate": "Ende"
-      }
     }
   }
 }
