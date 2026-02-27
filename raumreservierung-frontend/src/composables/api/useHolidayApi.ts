@@ -4,6 +4,7 @@ import type {
   GetHolidaysRequest,
   UpdateHolidayRequest,
 } from "@/api/raumreservierung-backend/apis/HolidayControllerApi";
+import type { HolidayRequestDTO } from "@/api/raumreservierung-backend/models/HolidayRequestDTO.ts";
 import type { HolidayResponseDTO } from "@/api/raumreservierung-backend/models/HolidayResponseDTO.ts";
 
 import { HolidayControllerApi } from "@/api/raumreservierung-backend/apis/HolidayControllerApi";
@@ -28,13 +29,28 @@ export const useDeleteHoliday = () => {
 export const useAddHoliday = () => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
   return useApi<CreateHolidayRequest, HolidayResponseDTO>(
-    (params: CreateHolidayRequest) => api.createHoliday(params)
+    (params: CreateHolidayRequest) =>
+      api.createHoliday({
+        holidayRequestDTO: formatRequestDTO(params.holidayRequestDTO),
+      })
   );
 };
 
 export const useEditHoliday = () => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
   return useApi<UpdateHolidayRequest, HolidayResponseDTO>(
-    (params: UpdateHolidayRequest) => api.updateHoliday(params)
+    (params: UpdateHolidayRequest) =>
+      api.updateHoliday({
+        id: params.id,
+        holidayRequestDTO: formatRequestDTO(params.holidayRequestDTO),
+      })
   );
+};
+
+const formatRequestDTO = (requestDTO: HolidayRequestDTO): HolidayRequestDTO => {
+  const endDate = requestDTO.endDate;
+  if (!endDate) {
+    requestDTO.endDate = requestDTO.startDate;
+  }
+  return requestDTO;
 };

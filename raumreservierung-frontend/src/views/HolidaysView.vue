@@ -10,9 +10,9 @@
     :headers="headers"
     :empty-item-template="EMPTY_HOLIDAY"
     :loading="getHolidaysLoading || addHolidayLoading"
-    @create="createHoliday($event, isPublic)"
+    @create="createHoliday"
     @delete="deleteHoliday"
-    @update="updateHoliday($event, isPublic)"
+    @update="updateHoliday"
   >
     <template #form="{ item, updateItem, save, cancel }">
       <dialog-form
@@ -64,6 +64,7 @@ onMounted(async () => {
 });
 
 const route = useRoute();
+
 const isPublic = computed(() => {
   return route.path.includes("/holidays/public");
 });
@@ -97,52 +98,33 @@ const {
   error: deleteHolidayError,
 } = useDeleteHoliday();
 
-const createHoliday = async (
-  holiday: HolidayResponseDTO,
-  isPublic: boolean
-) => {
-  await addHolidayCall({
-    holidayRequestDTO: {
-      ...holiday,
-      endDate: isPublic ? holiday.startDate : holiday.endDate,
-    },
-  });
+const createHoliday = async (holiday: HolidayResponseDTO) => {
+  await addHolidayCall({ holidayRequestDTO: holiday });
   await fetchAndClose(
     addHolidayError,
     t("generics.snackbar.created", {
-      domain: isPublic
+      domain: isPublic.value
         ? t("domain.holidays.public.header", { count: 1 })
         : t("domain.holidays.school.header"),
     })
   );
 };
 
-const updateHoliday = async (
-  holiday: HolidayResponseDTO,
-  isPublic: boolean
-) => {
+const updateHoliday = async (holiday: HolidayResponseDTO) => {
   if (holiday.id) {
     await editHolidayCall({
       id: holiday.id,
-      holidayRequestDTO: {
-        ...holiday,
-        startDate: toDate(holiday.startDate),
-        endDate: isPublic ? toDate(holiday.startDate) : toDate(holiday.endDate),
-      },
+      holidayRequestDTO: holiday,
     });
     await fetchAndClose(
       editHolidayError,
       t("generics.snackbar.edited", {
-        domain: isPublic
+        domain: isPublic.value
           ? t("domain.holidays.public.header", { count: 1 })
           : t("domain.holidays.school.header"),
       })
     );
   }
-};
-
-const toDate = (date: Date | undefined) => {
-  return date ? new Date(date) : undefined;
 };
 
 const deleteHoliday = async (id: string) => {
