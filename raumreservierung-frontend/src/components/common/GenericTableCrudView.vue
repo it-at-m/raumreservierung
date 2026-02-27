@@ -170,7 +170,7 @@ const openCreate = () => {
 };
 
 const openEdit = (item: T) => {
-  activeItem.value = JSON.parse(JSON.stringify(item)) as T;
+  activeItem.value = { ...item } as T;
   dialogMode.value = "form";
 };
 
