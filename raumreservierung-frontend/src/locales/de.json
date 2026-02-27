@@ -7,7 +7,11 @@
     "save": "Speichern",
     "add": "Hinzufügen",
     "action": "Aktion | Aktionen",
-    "messages": {}
+    "messages": {},
+    "rules": {
+      "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
+      "maxLengthError": "{field} darf maximal {num} Zeichen beinhalten."
+    }
   },
   "app": {
     "name": {
@@ -17,20 +21,7 @@
       "full": "@:app.name.part2@:app.name.part3"
     }
   },
-  "components": {
-    "equipmentForm": {
-      "rules": {
-        "minCharsError": "Name benötigt mindestens {num} Zeichen.",
-        "maxDescriptionError": "Die Beschreibung darf maximal {num} Zeichen beinhalten."
-      }
-    },
-    "seatingTypeForm": {
-      "rules": {
-        "minCharsError": "Name benötigt mindestens {num} Zeichen.",
-        "maxDescriptionError": "Die Beschreibung darf maximal {num} Zeichen beinhalten."
-      }
-    }
-  },
+  "components": {},
   "views": {
     "home": {
       "header": "Willkommen bei der @:app.name.full von it{'@'}M",
