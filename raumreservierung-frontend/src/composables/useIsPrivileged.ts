@@ -23,7 +23,7 @@ export function useIsPrivileged(requiredPrivileges?: Privilege | Privilege[]) {
   const userStore = useUserStore();
 
   const check = (reqPriv: Privilege | Privilege[]) =>
-    hasPrivileges(unref(userStore.getPrivileges()), reqPriv);
+    hasPrivileges(unref(userStore.privileges), reqPriv);
 
   if (requiredPrivileges !== undefined) {
     return computed(() => check(requiredPrivileges));
