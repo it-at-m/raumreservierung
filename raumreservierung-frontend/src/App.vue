@@ -68,8 +68,6 @@ import AvatarCard from "@/components/common/AvatarCard.vue";
 import NavigationDrawerList from "@/components/common/NavigationDrawerList.vue";
 import TheSnackbarQueue from "@/components/TheSnackbarQueue.vue";
 import { APPSWITCHER_URL } from "@/constants";
-import { useSnackbarStore } from "@/stores/snackbar.ts";
-import { useUserStore } from "@/stores/user";
 
 const { t } = useI18n();
 
