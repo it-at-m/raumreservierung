@@ -99,7 +99,7 @@ const NAV_ENTRIES: readonly NavEntry[] = [
       {
         kind: "item",
         textKey: "navigationDrawer.equipmentGroup.seating",
-        to: { name: ROUTES.GETSTARTED },
+        to: { name: ROUTES.SEATING },
       },
     ],
   },

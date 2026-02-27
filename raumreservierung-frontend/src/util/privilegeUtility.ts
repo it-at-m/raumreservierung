@@ -20,6 +20,7 @@ const rolePrivilegeMapping = {
     "calendar:write",
     "days:write",
     "equipment:write",
+    "seating:write",
     "users:write",
   ],
   anwender: ["bookings:self", "rooms:read"],

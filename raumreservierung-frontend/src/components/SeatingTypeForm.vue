@@ -1,6 +1,6 @@
 <template>
   <v-form
-    v-model="isValid"
+    :model-value="isValid"
     @update:model-value="updatedValidity"
     :disabled="disabled"
   >
@@ -23,7 +23,7 @@
 </template>
 
 <script setup lang="ts">
-import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
+import type { SeatingTypeResponseDto } from "@/api/raumreservierung-backend";
 
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
@@ -34,7 +34,7 @@ const MAX_NAME_LENGTH = 100;
 
 const isValid = ref<boolean | null>(false);
 
-const modelValue = defineModel<EquipmentResponseDto>({ required: true });
+const modelValue = defineModel<SeatingTypeResponseDto>({ required: true });
 
 const { t } = useI18n();
 
@@ -49,23 +49,24 @@ const emit = defineEmits<{
 const minTwoChars = (value: string) =>
   (!!value && value.length >= MIN_NAME_LENGTH) ||
   t("common.rules.minLengthError", {
-    field: t("domain.equipment.name"),
+    field: t("domain.seatingType.name"),
     num: MIN_NAME_LENGTH,
   });
 
 const maxDescriptionLength = (value: string) =>
   value.length <= MAX_DESCRIPTION_LENGTH ||
   t("common.rules.maxLengthError", {
-    field: t("domain.equipment.description"),
+    field: t("domain.seatingType.description"),
     num: MAX_DESCRIPTION_LENGTH,
   });
 
 const maxNameLength = (value: string) =>
   value.length <= MAX_NAME_LENGTH ||
   t("common.rules.maxLengthError", {
-    field: t("domain.equipment.name"),
+    field: t("domain.seatingType.name"),
     num: MAX_NAME_LENGTH,
   });
+
 const updatedValidity = (newIsValid: boolean | null) => {
   isValid.value = newIsValid;
   emit("isValid", newIsValid);

@@ -7,7 +7,11 @@
     "save": "Speichern",
     "add": "Hinzufügen",
     "action": "Aktion | Aktionen",
-    "messages": {}
+    "messages": {},
+    "rules": {
+      "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
+      "maxLengthError": "{field} darf maximal {num} Zeichen beinhalten."
+    }
   },
   "app": {
     "name": {
@@ -17,14 +21,7 @@
       "full": "@:app.name.part2@:app.name.part3"
     }
   },
-  "components": {
-    "equipmentForm": {
-      "rules": {
-        "minCharsError": "Name benötigt mindestens {num} Zeichen.",
-        "maxDescriptionError": "Die Beschreibung darf maximal {num} Zeichen beinhalten."
-      }
-    }
-  },
+  "components": {},
   "views": {
     "home": {
       "header": "Willkommen bei der @:app.name.full von it{'@'}M",
@@ -52,7 +49,10 @@
     "delete": "{domain} löschen",
     "edit": "{domain} bearbeiten",
     "create": "{domain} erstellen",
-    "confirmDelete": "Möchten Sie die {domain} endgültig löschen"
+    "confirmDelete": "Möchten Sie die {domain} endgültig löschen",
+    "deleted": "{domain} wurde gelöscht.",
+    "updated": "{domain} wurde aktualisiert.",
+    "created": "{domain} wurde erstellt."
   },
   "navigationDrawer": {
     "myBookings": "Meine Buchungen einsehen",
@@ -81,6 +81,11 @@
     "help": "Hilfe"
   },
   "domain": {
+    "seatingType": {
+      "header": "Bestuhlung",
+      "name": "Name",
+      "description": "Beschreibung"
+    },
     "equipment": {
       "header": "Ausstattung",
       "name": "Name",

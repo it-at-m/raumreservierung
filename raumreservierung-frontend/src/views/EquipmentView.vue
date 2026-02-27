@@ -10,13 +10,12 @@
     @update="handleUpdate"
     @delete="handleDelete"
   >
-    <template #form="{ item, save, cancel, updateItem }">
+    <template #form="{ item, updateItem, updateValidity }">
       <equipment-form
         :model-value="item"
         @update:model-value="updateItem"
-        @cancel="cancel"
-        @save="save"
-        :loading="updateEquipmentLoading || saveEquipmentLoading"
+        @is-valid="updateValidity"
+        :disabled="updateEquipmentLoading || saveEquipmentLoading"
       />
     </template>
   </generic-table-crud-view>
@@ -86,7 +85,9 @@ const headers: TableHeader<EquipmentResponseDto>[] = [
 const handleCreate = async (newItem: EquipmentResponseDto) => {
   await saveEquipmentCall({ equipmentRequestDto: newItem });
   if (!saveEquipmentError.value) {
-    await onSuccess("Ausstattung erstellt");
+    await onSuccess(
+      t("generics.created", { domain: t("domain.equipment.header") })
+    );
   }
 };
 
@@ -97,15 +98,19 @@ const handleUpdate = async (updatedItem: EquipmentResponseDto) => {
       equipmentId: updatedItem.id,
     });
     if (!updateEquipmentError.value) {
-      await onSuccess("Ausstattung aktualisiert");
+      await onSuccess(
+        t("generics.updated", { domain: t("domain.equipment.header") })
+      );
     }
   }
 };
 
 const handleDelete = async (id: string) => {
-  await deleteEquipmentCall({ body: id });
+  await deleteEquipmentCall({ equipmentId: id });
   if (!deleteEquipmentError.value) {
-    await onSuccess("Ausstattung gelöscht");
+    await onSuccess(
+      t("generics.deleted", { domain: t("domain.equipment.header") })
+    );
   }
 };
 

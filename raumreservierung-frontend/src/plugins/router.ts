@@ -12,6 +12,7 @@ import EquipmentView from "@/views/EquipmentView.vue";
 import GetStartedView from "@/views/GetStartedView.vue";
 import HelpView from "@/views/HelpView.vue";
 import HomeView from "@/views/HomeView.vue";
+import SeatingTypeView from "@/views/SeatingTypeView.vue";
 
 const routes: RouteRecordRaw[] = [
   {
@@ -40,6 +41,14 @@ const routes: RouteRecordRaw[] = [
     component: EquipmentView,
     meta: {
       requiredPrivileges: ["equipment:write"],
+    },
+  },
+  {
+    path: "/admin/seating",
+    name: ROUTES.SEATING,
+    component: SeatingTypeView,
+    meta: {
+      requiredPrivileges: ["seating:write"],
     },
   },
   { path: "/:catchAll(.*)*", redirect: "/" }, // CatchAll route
