@@ -1,29 +1,29 @@
 <template>
   <generic-table-crud-view
     ref="tableRef"
-    :domain="
-      isPublic
-        ? t('domain.holidays.public.header', { count: 2 })
-        : t('domain.holidays.school.header')
-    "
+    :domain="computedDomain"
     :items="getHolidaysData ?? []"
     :headers="headers"
     :empty-item-template="EMPTY_HOLIDAY"
-    :loading="getHolidaysLoading || addHolidayLoading"
+    :loading="getHolidaysLoading || deleteHolidayLoading"
     @create="createHoliday"
     @delete="deleteHoliday"
     @update="updateHoliday"
   >
-    <template #form="{ item, updateItem, save, cancel }">
+    <template #title>
+      {{
+        isPublic
+          ? t("domain.holidays.public.header", { count: 2 })
+          : t("domain.holidays.school.header")
+      }}
+    </template>
+    <template #form="{ item, updateItem, updateValidity }">
       <dialog-form
         :isPublic="isPublic"
         :model-value="item"
         @update:model-value="updateItem"
-        @close="cancel"
-        @addHoliday="save"
-        :loading="
-          deleteHolidayLoading || editHolidayLoading || addHolidayLoading
-        "
+        @is-valid="updateValidity"
+        :disabled="editHolidayLoading || addHolidayLoading"
       />
     </template>
     <template #[`item.date`]="{ item }">
@@ -58,6 +58,7 @@ import {
   useGetHolidays,
 } from "@/composables/api/useHolidayApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
+import { ROUTES } from "@/types/Routes.ts";
 
 onMounted(async () => {
   await getHolidaysCall({ isPublic: isPublic.value });
@@ -66,8 +67,14 @@ onMounted(async () => {
 const route = useRoute();
 
 const isPublic = computed(() => {
-  return route.path.includes("/holidays/public");
+  return route.name === ROUTES.PUBLICHOLIDAYS;
 });
+
+const computedDomain = computed(() =>
+  isPublic.value
+    ? t("domain.holidays.public.header", { count: 1 })
+    : t("domain.holidays.school.header")
+);
 
 const { t } = useI18n();
 
@@ -102,10 +109,8 @@ const createHoliday = async (holiday: HolidayResponseDTO) => {
   await addHolidayCall({ holidayRequestDTO: holiday });
   await fetchAndClose(
     addHolidayError,
-    t("generics.snackbar.created", {
-      domain: isPublic.value
-        ? t("domain.holidays.public.header", { count: 1 })
-        : t("domain.holidays.school.header"),
+    t("generics.created", {
+      domain: computedDomain.value,
     })
   );
 };
@@ -118,10 +123,8 @@ const updateHoliday = async (holiday: HolidayResponseDTO) => {
     });
     await fetchAndClose(
       editHolidayError,
-      t("generics.snackbar.edited", {
-        domain: isPublic.value
-          ? t("domain.holidays.public.header", { count: 1 })
-          : t("domain.holidays.school.header"),
+      t("generics.updated", {
+        domain: computedDomain.value,
       })
     );
   }
@@ -131,7 +134,7 @@ const deleteHoliday = async (id: string) => {
   await deleteHolidayCall({ id: id });
   await fetchAndClose(
     deleteHolidayError,
-    t("generics.snackbar.deleted", {
+    t("generics.deleted", {
       domain: t("domain.holidays.public.header", { count: 1 }),
     })
   );
@@ -149,9 +152,7 @@ const fetchAndClose = async (errorRef: Ref<boolean>, msg: string) => {
 
 const headers: TableHeader<HolidayResponseDTO>[] = [
   {
-    title: isPublic.value
-      ? t("domain.holidays.public.header", { count: 1 })
-      : t("domain.holidays.school.header"),
+    title: computedDomain.value,
     value: "name",
     sortable: true,
   },
@@ -159,8 +160,8 @@ const headers: TableHeader<HolidayResponseDTO>[] = [
   {
     title: t("common.action", { count: 2 }),
     value: "actions",
-    align: "end",
     sortable: false,
+    width: "12%",
   },
 ];
 const headerSchoolStart = {

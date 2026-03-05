@@ -1,6 +1,10 @@
 <template>
   <div>
-    <view-simple-header :header-text="t('generics.manage', { domain })" />
+    <view-simple-header>
+      <template #header>
+        <slot name="title"> {{ t("generics.manage", { domain }) }} </slot>
+      </template>
+    </view-simple-header>
 
     <v-dialog
       :model-value="showDialog"
@@ -14,8 +18,8 @@
         :loading="loading"
         :title="
           activeItem.id
-            ? t('generics.edit', { domain: t('domain.equipment.header') })
-            : t('generics.create', { domain: t('domain.equipment.header') })
+            ? t('generics.edit', { domain })
+            : t('generics.create', { domain })
         "
         @confirm="handleSave"
         @cancel="closeDialog"
