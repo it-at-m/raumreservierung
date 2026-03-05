@@ -43,7 +43,7 @@ const NAV_ENTRIES: readonly NavEntry[] = [
   {
     kind: "group",
     textKey: "navigationDrawer.personGroup.groupTitle",
-    requiredPrivilege: "users:write",
+    requiredPrivilege: "users:manage",
     children: [
       {
         kind: "item",
