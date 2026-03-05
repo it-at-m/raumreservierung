@@ -100,7 +100,6 @@
       },
       "school": {
         "header": "Ferien",
-        "name": "Name",
         "startDate": "Beginn",
         "endDate": "Ende"
       }
