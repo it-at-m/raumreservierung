@@ -48,12 +48,12 @@ const NAV_ENTRIES: readonly NavEntry[] = [
       {
         kind: "item",
         textKey: "navigationDrawer.personGroup.internalPersons",
-        to: { name: ROUTES.GETSTARTED },
+        to: { name: ROUTES.INTERNAL_PERSON },
       },
       {
         kind: "item",
         textKey: "navigationDrawer.personGroup.externalPersons",
-        to: { name: ROUTES.GETSTARTED },
+        to: { name: ROUTES.EXTERNAL_PERSON },
       },
     ],
   },
