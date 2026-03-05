@@ -1,16 +1,15 @@
 package de.muenchen.raumreservierung.holidays;
 
-import java.util.List;
-import java.util.UUID;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -28,13 +27,13 @@ public class HolidayService {
         return holidayRepository.findSchoolHolidays();
     }
 
-    @PreAuthorize(Authorities.EQUIPMENT_MANAGE)
+    @PreAuthorize(Authorities.HOLIDAYS_MANAGE)
     public Holiday createHoliday(final Holiday holiday) {
         log.info("Creating holiday {}", holiday);
         return holidayRepository.save(holiday);
     }
 
-    @PreAuthorize(Authorities.EQUIPMENT_MANAGE)
+    @PreAuthorize(Authorities.HOLIDAYS_MANAGE)
     public Holiday updateHoliday(final Holiday holiday, final UUID holidayId) {
         final Holiday foundHoliday = getEntityOrThrowException(holidayId);
         foundHoliday.updateHoliday(holiday);
@@ -42,7 +41,7 @@ public class HolidayService {
         return holidayRepository.save(foundHoliday);
     }
 
-    @PreAuthorize(Authorities.EQUIPMENT_MANAGE)
+    @PreAuthorize(Authorities.HOLIDAYS_MANAGE)
     public void deleteHoliday(final UUID holidayId) {
         log.info("Deleting holiday {}", holidayId);
         holidayRepository.deleteById(holidayId);

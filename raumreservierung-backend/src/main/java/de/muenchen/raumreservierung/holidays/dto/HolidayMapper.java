@@ -1,13 +1,12 @@
 package de.muenchen.raumreservierung.holidays.dto;
 
 import de.muenchen.raumreservierung.holidays.Holiday;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
 
 @Mapper
 public interface HolidayMapper {
@@ -20,7 +19,7 @@ public interface HolidayMapper {
     Holiday toEntity(HolidayRequestDTO dto);
 
     @Named("dateMapper")
-    default LocalDate toLocalDate(LocalDateTime localDateTime) {
+    default LocalDate toLocalDate(final LocalDateTime localDateTime) {
         return localDateTime.atZone(ZoneId.of("UTC")).withZoneSameInstant(ZoneId.of("Europe/Berlin")).toLocalDate();
     }
 }

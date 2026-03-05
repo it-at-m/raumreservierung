@@ -38,7 +38,7 @@ public class Holiday {
     @Column(name = "end_date", nullable = false)
     private LocalDate endDate;
 
-    public void updateHoliday(Holiday holiday) {
+    public void updateHoliday(final Holiday holiday) {
         this.name = holiday.getName();
         this.startDate = holiday.getStartDate();
         this.endDate = holiday.getEndDate();

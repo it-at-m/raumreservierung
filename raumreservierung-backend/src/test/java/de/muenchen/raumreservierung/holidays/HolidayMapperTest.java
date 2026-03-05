@@ -47,7 +47,8 @@ public class HolidayMapperTest {
         void givenRequestDTO_thenReturnsCorrectEntity() {
             // Given
             final UUID uuid = UUID.randomUUID();
-            final HolidayRequestDTO requestDTO = new HolidayRequestDTO("Weihnachten", LocalDateTime.of(2026, 12, 24, 0,0), LocalDateTime.of(2026, 12, 24, 0, 0));
+            final HolidayRequestDTO requestDTO = new HolidayRequestDTO("Weihnachten", LocalDateTime.of(2026, 12, 24, 0, 0),
+                    LocalDateTime.of(2026, 12, 24, 0, 0));
 
             final Holiday holiday = new Holiday();
             holiday.setId(uuid);

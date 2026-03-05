@@ -3,11 +3,9 @@ package de.muenchen.raumreservierung.holidays;
 import de.muenchen.raumreservierung.holidays.dto.HolidayMapper;
 import de.muenchen.raumreservierung.holidays.dto.HolidayRequestDTO;
 import de.muenchen.raumreservierung.holidays.dto.HolidayResponseDTO;
-
+import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
-
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -32,23 +30,20 @@ public class HolidayController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public List<HolidayResponseDTO> getHolidays(@RequestParam boolean isPublic) {
-        final List<Holiday> holidays = isPublic ?
-                holidayService.getPublicHolidays() :
-                holidayService.getSchoolHolidays();
+    public List<HolidayResponseDTO> getHolidays(@RequestParam final boolean isPublic) {
+        final List<Holiday> holidays = isPublic ? holidayService.getPublicHolidays() : holidayService.getSchoolHolidays();
         return holidays.stream().map(holidayMapper::toDTO).toList();
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public HolidayResponseDTO createHoliday(@Valid @RequestBody HolidayRequestDTO requestDTO) {
+    public HolidayResponseDTO createHoliday(@Valid @RequestBody final HolidayRequestDTO requestDTO) {
         return holidayMapper.toDTO(holidayService.createHoliday(holidayMapper.toEntity(requestDTO)));
     }
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.OK)
-    public HolidayResponseDTO updateHoliday(@PathVariable("id") final UUID holidayId, @Valid @RequestBody HolidayRequestDTO requestDTO) {
-        System.out.println(requestDTO);
+    public HolidayResponseDTO updateHoliday(@PathVariable("id") final UUID holidayId, @Valid @RequestBody final HolidayRequestDTO requestDTO) {
         return holidayMapper.toDTO(holidayService.updateHoliday(holidayMapper.toEntity(requestDTO), holidayId));
     }
 
@@ -57,6 +52,5 @@ public class HolidayController {
     public void deleteHoliday(@PathVariable("id") final UUID holidayId) {
         holidayService.deleteHoliday(holidayId);
     }
-
 
 }
