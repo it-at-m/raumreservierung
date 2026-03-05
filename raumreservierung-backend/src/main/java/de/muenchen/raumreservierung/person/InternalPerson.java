@@ -1,4 +1,36 @@
 package de.muenchen.raumreservierung.person;
 
-public class InternalPerson {
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import lombok.Getter;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+public class InternalPerson extends Person {
+
+    @Column(nullable = false, unique = true)
+    private String organisationId;
+
+    @Column(nullable = false)
+    private String organisationUnit;
+
+    /**
+     * Role in this application
+     */
+    @Column(nullable = false)
+    private String function;
+
+    @Override
+    public void updateFrom(final Person person) {
+        if (!(person instanceof InternalPerson internalPerson)) {
+            throw new IllegalArgumentException();
+        }
+        super.updateBaseFields(internalPerson);
+        this.organisationId = internalPerson.getOrganisationId();
+        this.organisationUnit = internalPerson.getOrganisationUnit();
+        this.function = internalPerson.getFunction();
+    }
+
 }
