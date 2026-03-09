@@ -14,7 +14,7 @@
       {{ t("generics.manage", { domain: computedTitle }) }}
     </template>
     <template #form="{ item, updateItem, updateValidity }">
-      <dialog-form
+      <holiday-form
         :isPublic="isPublic"
         :model-value="item"
         @update:model-value="updateItem"
@@ -44,7 +44,7 @@ import { useRoute } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
 import GenericTableCrudView from "@/components/common/GenericTableCrudView.vue";
-import DialogForm from "@/components/DialogForm.vue";
+import HolidayForm from "@/components/HolidayForm.vue";
 import {
   useAddHoliday,
   useDeleteHoliday,
@@ -177,7 +177,9 @@ const fetchAndClose = async (msg: string) => {
   snackbar.add({ level: Levels.SUCCESS, message: msg });
 };
 
-const EMPTY_HOLIDAY: HolidayResponseDTO = {
+type HolidayForm = Partial<HolidayResponseDTO>;
+
+const EMPTY_HOLIDAY: HolidayForm = {
   name: "",
   id: "",
   startDate: undefined,

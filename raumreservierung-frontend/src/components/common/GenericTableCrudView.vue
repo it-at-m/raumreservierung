@@ -140,7 +140,7 @@ const {
   items: readonly T[];
   headers: TableHeader<T>[];
   loading?: boolean;
-  emptyItemTemplate: T;
+  emptyItemTemplate: Partial<T>;
 }>();
 
 const emit = defineEmits<{
