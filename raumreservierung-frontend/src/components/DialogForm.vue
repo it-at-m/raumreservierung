@@ -127,10 +127,17 @@ const isStartDateAllowed = (date: unknown) => {
   return !modelValue.value.endDate || date < modelValue.value.endDate;
 };
 
-const isStartDateBeforeEndDate = (startDate: Date) =>
-  !modelValue.value.endDate ||
-  startDate < modelValue.value.endDate ||
-  "Beginn liegt nach Ende.";
+const isStartDateBeforeEndDate = (startDate: Date) => {
+  if (isPublic) {
+    return true;
+  } else {
+    return (
+      !modelValue.value.endDate ||
+      startDate < modelValue.value.endDate ||
+      "Beginn liegt nach Ende."
+    );
+  }
+};
 
 const isEndDateAfterStartDate = (endDate: Date) =>
   !modelValue.value.startDate ||
