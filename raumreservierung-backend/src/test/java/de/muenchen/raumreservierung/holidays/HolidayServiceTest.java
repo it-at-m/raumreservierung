@@ -1,19 +1,15 @@
 package de.muenchen.raumreservierung.holidays;
 
+import static org.mockito.Mockito.when;
 
-import de.muenchen.raumreservierung.holidays.dto.HolidayMapper;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class HolidayServiceTest {
@@ -28,12 +24,12 @@ public class HolidayServiceTest {
     void getHolidays_shouldReturnOnlyPublicHolidays_whenIsPublicIsTrue() {
         Holiday publicHoliday = new Holiday();
         publicHoliday.setName("Public Holiday");
-        publicHoliday.setStartDate(LocalDate.of(2026,1,1));
-        publicHoliday.setEndDate(LocalDate.of(2026,1,1));
+        publicHoliday.setStartDate(LocalDate.of(2026, 1, 1));
+        publicHoliday.setEndDate(LocalDate.of(2026, 1, 1));
         Holiday schoolHoliday = new Holiday();
         schoolHoliday.setName("School Holiday");
-        schoolHoliday.setStartDate(LocalDate.of(2026,1,1));
-        schoolHoliday.setEndDate(LocalDate.of(2026,2,22));
+        schoolHoliday.setStartDate(LocalDate.of(2026, 1, 1));
+        schoolHoliday.setEndDate(LocalDate.of(2026, 2, 22));
 
         when(holidayRepository.findAll()).thenReturn(List.of(publicHoliday, schoolHoliday));
 
@@ -47,12 +43,12 @@ public class HolidayServiceTest {
     void getHolidays_shouldReturnOnlySchoolHolidays_whenIsPublicIsFalse() {
         Holiday publicHoliday = new Holiday();
         publicHoliday.setName("Public Holiday");
-        publicHoliday.setStartDate(LocalDate.of(2026,1,1));
-        publicHoliday.setEndDate(LocalDate.of(2026,1,1));
+        publicHoliday.setStartDate(LocalDate.of(2026, 1, 1));
+        publicHoliday.setEndDate(LocalDate.of(2026, 1, 1));
         Holiday schoolHoliday = new Holiday();
         schoolHoliday.setName("School Holiday");
-        schoolHoliday.setStartDate(LocalDate.of(2026,1,1));
-        schoolHoliday.setEndDate(LocalDate.of(2026,2,22));
+        schoolHoliday.setStartDate(LocalDate.of(2026, 1, 1));
+        schoolHoliday.setEndDate(LocalDate.of(2026, 2, 22));
 
         when(holidayRepository.findAll()).thenReturn(List.of(publicHoliday, schoolHoliday));
 

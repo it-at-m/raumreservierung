@@ -6,8 +6,6 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
-
-import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +20,13 @@ public class HolidayService {
     private final HolidayRepository holidayRepository;
 
     public List<Holiday> getHolidays(final boolean isPublic) {
-        List<Holiday> holidays = holidayRepository.findAll();
+        final List<Holiday> holidays = holidayRepository.findAll();
         if (isPublic) {
             log.debug("Getting all public holidays");
         } else {
             log.debug("Getting all school holidays");
         }
-        return holidays.stream().filter(h -> isPublic == (h.getStartDate().isEqual(h.getEndDate()))).toList();
+        return holidays.stream().filter(h -> isPublic == h.getStartDate().isEqual(h.getEndDate())).toList();
     }
 
     @PreAuthorize(Authorities.HOLIDAYS_MANAGE)

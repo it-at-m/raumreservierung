@@ -3,14 +3,10 @@ package de.muenchen.raumreservierung.holidays;
 import de.muenchen.raumreservierung.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import java.time.LocalDate;
-import java.util.UUID;
-
 import jakarta.validation.constraints.Size;
+import java.io.Serial;
+import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -29,9 +25,11 @@ import lombok.ToString;
 @Table
 public class Holiday extends BaseEntity {
 
+    @Serial
+    private static final long serialVersionUID = 1L;
+
     @Column(length = 100, nullable = false)
-    @Size(min = 2, max = 100)
-    private String name;
+    @Size(min = 2, max = 100) private String name;
 
     @Column(nullable = false)
     private LocalDate startDate;
