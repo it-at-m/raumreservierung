@@ -48,10 +48,7 @@
     </v-navigation-drawer>
     <v-main>
       <v-container fluid>
-        <router-view
-          v-slot="{ Component }"
-          :key="$route.name"
-        >
+        <router-view v-slot="{ Component }">
           <v-fade-transition mode="out-in">
             <component :is="Component" />
           </v-fade-transition>

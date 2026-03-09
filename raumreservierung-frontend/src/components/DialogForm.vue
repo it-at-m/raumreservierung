@@ -1,20 +1,83 @@
+<template>
+  <v-form
+    v-model="isValid"
+    @update:model-value="updatedValidity"
+    :disabled="disabled"
+  >
+    <v-text-field
+      v-model="modelValue.name"
+      :label="t('domain.holidays.public.name')"
+      :rules="[maxNameLength, minTwoChars]"
+      variant="outlined"
+      autofocus
+    />
+    <v-card
+      flat
+      border
+      class="border-opacity-25"
+    >
+      <v-card-title class="v-label font-weight-regular">
+        {{ t("domain.holidays.public.date") }}
+      </v-card-title>
+      <v-row
+        justify="start"
+        class="px-4"
+      >
+        <v-col
+          cols="12"
+          sm="6"
+          class="pr-10"
+        >
+          <v-date-input
+            ref="startDateInput"
+            v-model="modelValue.startDate"
+            :label="
+              isPublic ? undefined : t('domain.holidays.school.startDate')
+            "
+            :rules="[datePicked, isStartDateBeforeEndDate]"
+            :allowed-dates="isStartDateAllowed"
+            :prepend-icon="mdiCalendar"
+            variant="underlined"
+            @update:model-value="updateAndValidateEndDate"
+          />
+        </v-col>
+        <v-col
+          cols="12"
+          sm="6"
+          class="pr-10"
+          v-if="!isPublic"
+        >
+          <v-date-input
+            ref="endDateInput"
+            v-model="modelValue.endDate"
+            :label="t('domain.holidays.school.endDate')"
+            :rules="[datePicked, isEndDateAfterStartDate]"
+            :allowed-dates="isEndDateAllowed"
+            :prepend-icon="mdiCalendar"
+            variant="underlined"
+            @update:model-value="validateStartDate"
+          ></v-date-input>
+        </v-col>
+      </v-row>
+    </v-card>
+  </v-form>
+</template>
+
 <script setup lang="ts">
 import type { HolidayRequestDTO } from "@/api/raumreservierung-backend";
 import type { VDateInput } from "vuetify/labs/VDateInput";
 
 import { mdiCalendar } from "@mdi/js";
-import { ref } from "vue";
+import { ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 100;
 
-const COL_SIZE = 12;
-const SM_SIZE = 6;
-const MD_SIZE = 3;
-
 const modelValue = defineModel<HolidayRequestDTO>({ required: true });
 const isValid = ref<boolean | null>(false);
+
+const { t } = useI18n();
 
 const { isPublic, disabled } = defineProps<{
   isPublic: boolean;
@@ -24,8 +87,6 @@ const { isPublic, disabled } = defineProps<{
 const emit = defineEmits<{
   isValid: [value: boolean | null];
 }>();
-
-const { t } = useI18n();
 
 const minTwoChars = (value: string) =>
   (!!value && value.length >= MIN_NAME_LENGTH) ||
@@ -50,92 +111,52 @@ const updatedValidity = (newIsValid: boolean | null) => {
 };
 
 const isEndDateAllowed = (date: unknown) => {
-  if (!(date instanceof Date)) return false;
-  return modelValue.value.startDate ? date > modelValue.value.startDate : false;
+  if (!(date instanceof Date)) {
+    return false;
+  }
+  return !modelValue.value.startDate || date > modelValue.value.startDate;
 };
 
 const isStartDateAllowed = (date: unknown) => {
-  if (isPublic) return true;
-  if (!(date instanceof Date)) return false;
-  return modelValue.value.endDate ? date < modelValue.value.endDate : true;
+  if (isPublic) {
+    return true;
+  }
+  if (!(date instanceof Date)) {
+    return false;
+  }
+  return !modelValue.value.endDate || date < modelValue.value.endDate;
 };
+
+const isStartDateBeforeEndDate = (startDate: Date) =>
+  !modelValue.value.endDate ||
+  startDate < modelValue.value.endDate ||
+  "Beginn liegt nach Ende.";
+
+const isEndDateAfterStartDate = (endDate: Date) =>
+  !modelValue.value.startDate ||
+  endDate > modelValue.value.startDate ||
+  "Ende liegt vor Beginn.";
+
+const startDateInput =
+  useTemplateRef<InstanceType<typeof VDateInput>>("startDateInput");
+
+const validateStartDate = () => startDateInput.value?.validate();
+
+const endDateInput =
+  useTemplateRef<InstanceType<typeof VDateInput>>("endDateInput");
+
+const validateEndDate = () => endDateInput.value?.validate();
 
 const updateEndDateIfPublic = () => {
-  if (isPublic) modelValue.value.endDate = modelValue.value.startDate;
+  if (isPublic) {
+    modelValue.value.endDate = modelValue.value.startDate;
+  }
+};
+
+const updateAndValidateEndDate = () => {
+  updateEndDateIfPublic();
+  validateEndDate();
 };
 </script>
-
-<template>
-  <v-form
-    v-model="isValid"
-    @update:model-value="updatedValidity"
-    :disabled="disabled"
-  >
-    <v-text-field
-      v-model="modelValue.name"
-      :label="t('domain.holidays.public.name')"
-      :rules="[maxNameLength, minTwoChars]"
-      variant="outlined"
-      autofocus
-    ></v-text-field>
-    <v-card
-      variant="outlined"
-      style="border: 1px solid #ababab"
-    >
-      <v-card-title class="v-label font-weight-regular">
-        {{ t("domain.holidays.public.date") }}
-      </v-card-title>
-      <v-row class="px-2">
-        <v-col
-          :cols="COL_SIZE"
-          :sm="SM_SIZE"
-          :md="MD_SIZE"
-          class="py-0 my-0"
-        >
-          <v-date-input
-            v-model="modelValue.startDate"
-            :label="
-              isPublic ? undefined : t('domain.holidays.school.startDate')
-            "
-            :rules="[datePicked]"
-            :allowed-dates="isStartDateAllowed"
-            :prepend-icon="mdiCalendar"
-            variant="underlined"
-            @update:model-value="updateEndDateIfPublic"
-          ></v-date-input>
-        </v-col>
-        <v-col
-          :cols="COL_SIZE"
-          :sm="SM_SIZE"
-          :md="MD_SIZE"
-          class="hidden-xs"
-        ></v-col>
-        <v-col
-          :cols="COL_SIZE"
-          :sm="SM_SIZE"
-          :md="MD_SIZE"
-          class="py-0 my-0"
-          v-if="!isPublic"
-        >
-          <v-date-input
-            v-model="modelValue.endDate"
-            ref="endDateInput"
-            :label="t('domain.holidays.school.endDate')"
-            :rules="[datePicked]"
-            :allowed-dates="isEndDateAllowed"
-            :prepend-icon="mdiCalendar"
-            variant="underlined"
-          ></v-date-input>
-        </v-col>
-        <v-col
-          :cols="COL_SIZE"
-          :sm="SM_SIZE"
-          :md="MD_SIZE"
-          class="hidden-xs"
-        ></v-col>
-      </v-row>
-    </v-card>
-  </v-form>
-</template>
 
 <style scoped></style>

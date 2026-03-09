@@ -65,12 +65,12 @@ const NAV_ENTRIES: readonly NavEntry[] = [
       {
         kind: "item",
         textKey: "navigationDrawer.holidayGroup.publicHolidays",
-        to: { name: ROUTES.PUBLICHOLIDAYS },
+        to: { name: ROUTES.PUBLIC_HOLIDAYS },
       },
       {
         kind: "item",
         textKey: "navigationDrawer.holidayGroup.schoolHolidays",
-        to: { name: ROUTES.SCHOOLHOLIDAYS },
+        to: { name: ROUTES.SCHOOL_HOLIDAYS },
       },
     ],
   },

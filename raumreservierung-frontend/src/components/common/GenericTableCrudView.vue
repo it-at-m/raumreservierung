@@ -1,8 +1,8 @@
 <template>
   <div>
-    <view-simple-header>
+    <view-simple-header :header-text="t('generics.manage', { domain })">
       <template #header>
-        <slot name="title"> {{ t("generics.manage", { domain }) }} </slot>
+        <slot name="header" />
       </template>
     </view-simple-header>
 

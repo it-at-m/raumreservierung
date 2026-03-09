@@ -46,7 +46,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/holidays/public",
-    name: ROUTES.PUBLICHOLIDAYS,
+    name: ROUTES.PUBLIC_HOLIDAYS,
     component: HolidaysView,
     meta: {
       requiredPrivileges: ["days:write"],
@@ -54,7 +54,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: "/holidays/school",
-    name: ROUTES.SCHOOLHOLIDAYS,
+    name: ROUTES.SCHOOL_HOLIDAYS,
     component: HolidaysView,
     meta: {
       requiredPrivileges: ["days:write"],
