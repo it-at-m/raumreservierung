@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.holidays;
 
+import de.muenchen.raumreservierung.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -8,8 +9,11 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.LocalDate;
 import java.util.UUID;
+
+import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 /**
  * This class represents a holiday.
@@ -21,21 +25,18 @@ import lombok.Setter;
 @Entity
 @Getter
 @Setter
-@Table(name = "holidays")
-public class Holiday {
+@ToString
+@Table
+public class Holiday extends BaseEntity {
 
-    @Id
-    @Column(name = "holiday_id")
-    @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
-
-    @Column(name = "holiday_name", nullable = false)
+    @Column(length = 100, nullable = false)
+    @Size(min = 2, max = 100)
     private String name;
 
-    @Column(name = "start_date", nullable = false)
+    @Column(nullable = false)
     private LocalDate startDate;
 
-    @Column(name = "end_date", nullable = false)
+    @Column(nullable = false)
     private LocalDate endDate;
 
     public void updateHoliday(final Holiday holiday) {

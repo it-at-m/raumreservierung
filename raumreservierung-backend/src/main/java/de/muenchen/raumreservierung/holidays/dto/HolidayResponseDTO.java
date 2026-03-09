@@ -5,5 +5,5 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.UUID;
 
-public record HolidayResponseDTO(@NotNull @Size(min = 2, max = 30) String name, LocalDate startDate, LocalDate endDate, UUID id) {
+public record HolidayResponseDTO(@NotNull @Size(min = 2, max = 30) String name, @NotNull LocalDate startDate, @NotNull LocalDate endDate, UUID id) {
 }

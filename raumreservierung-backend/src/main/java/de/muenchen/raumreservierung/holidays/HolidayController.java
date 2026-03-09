@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -31,13 +32,13 @@ public class HolidayController {
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
     public List<HolidayResponseDTO> getHolidays(@RequestParam final boolean isPublic) {
-        final List<Holiday> holidays = isPublic ? holidayService.getPublicHolidays() : holidayService.getSchoolHolidays();
+        final List<Holiday> holidays = holidayService.getHolidays(isPublic);
         return holidays.stream().map(holidayMapper::toDTO).toList();
     }
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public HolidayResponseDTO createHoliday(@Valid @RequestBody final HolidayRequestDTO requestDTO) {
+    public HolidayResponseDTO createHoliday(@Valid @RequestBody final HolidayRequestDTO requestDTO) throws BadRequestException {
         return holidayMapper.toDTO(holidayService.createHoliday(holidayMapper.toEntity(requestDTO)));
     }
 
