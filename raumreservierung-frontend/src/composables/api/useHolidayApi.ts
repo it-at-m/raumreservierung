@@ -25,14 +25,14 @@ export const useDeleteHoliday = () => {
   );
 };
 
-export const useAddHoliday = () => {
+export const useCreateHoliday = () => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
   return useApi<CreateHolidayRequest, HolidayResponseDTO>((params) =>
     api.createHoliday(params)
   );
 };
 
-export const useEditHoliday = () => {
+export const useUpdateHoliday = () => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
   return useApi<UpdateHolidayRequest, HolidayResponseDTO>((params) =>
     api.updateHoliday(params)

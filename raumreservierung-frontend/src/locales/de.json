@@ -11,7 +11,9 @@
     "rules": {
       "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
       "maxLengthError": "{field} darf maximal {num} Zeichen beinhalten.",
-      "noDateSelected": "Bitte wählen Sie ein Datum"
+      "noDateSelected": "Bitte wählen Sie ein Datum.",
+      "startAfterEnd": "Beginn liegt nach Ende.",
+      "endBeforeStart": "Ende liegt vor Beginn."
     }
   },
   "app": {

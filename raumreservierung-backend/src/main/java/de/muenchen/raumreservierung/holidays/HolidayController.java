@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.coyote.BadRequestException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,7 +37,7 @@ public class HolidayController {
 
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public HolidayResponseDTO createHoliday(@Valid @RequestBody final HolidayRequestDTO requestDTO) throws BadRequestException {
+    public HolidayResponseDTO createHoliday(@Valid @RequestBody final HolidayRequestDTO requestDTO) {
         return holidayMapper.toDTO(holidayService.createHoliday(holidayMapper.toEntity(requestDTO)));
     }
 

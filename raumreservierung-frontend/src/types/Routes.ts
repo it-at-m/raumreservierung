@@ -4,6 +4,6 @@ export const ROUTES = {
   EQUIPMENT: "equipment",
   SEATING: "seating",
   HELP: "help",
-  PUBLIC_HOLIDAYS: "publicholidays",
-  SCHOOL_HOLIDAYS: "schoolholidays",
+  PUBLIC_HOLIDAYS: "public_holidays",
+  SCHOOL_HOLIDAYS: "school_holidays",
 } as const;

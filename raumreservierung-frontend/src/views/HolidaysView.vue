@@ -19,17 +19,14 @@
         :model-value="item"
         @update:model-value="updateItem"
         @is-valid="updateValidity"
-        :disabled="editHolidayLoading || addHolidayLoading"
+        :disabled="updateHolidayLoading || createHolidayLoading"
       />
     </template>
-    <template #[`item.date`]="{ item }">
-      {{ useFormatDate(item.startDate) }}
-    </template>
     <template #[`item.startDate`]="{ item }">
-      {{ useFormatDate(item.startDate) }}
+      {{ useDateFormat(item.startDate, DATE_FORMAT_DDMMYY) }}
     </template>
     <template #[`item.endDate`]="{ item }">
-      {{ useFormatDate(item.endDate) }}
+      {{ useDateFormat(item.endDate, DATE_FORMAT_DDMMYY) }}
     </template>
   </generic-table-crud-view>
 </template>
@@ -38,6 +35,7 @@
 import type { HolidayResponseDTO } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/components/common/CardTable.vue";
 
+import { useDateFormat } from "@vueuse/core";
 import { computed, onMounted, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
@@ -46,12 +44,12 @@ import { Levels } from "@/api/error.ts";
 import GenericTableCrudView from "@/components/common/GenericTableCrudView.vue";
 import HolidayForm from "@/components/HolidayForm.vue";
 import {
-  useAddHoliday,
+  useCreateHoliday,
   useDeleteHoliday,
-  useEditHoliday,
   useGetHolidays,
+  useUpdateHoliday,
 } from "@/composables/api/useHolidayApi.ts";
-import { useFormatDate } from "@/composables/useFormatDate.ts";
+import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
@@ -71,16 +69,16 @@ const {
 } = useGetHolidays();
 
 const {
-  call: addHolidayCall,
-  loading: addHolidayLoading,
-  error: addHolidayError,
-} = useAddHoliday();
+  call: createHolidayCall,
+  loading: createHolidayLoading,
+  error: createHolidayError,
+} = useCreateHoliday();
 
 const {
-  call: editHolidayCall,
-  loading: editHolidayLoading,
-  error: editHolidayError,
-} = useEditHoliday();
+  call: updateHolidayCall,
+  loading: updateHolidayLoading,
+  error: updateHolidayError,
+} = useUpdateHoliday();
 
 const {
   call: deleteHolidayCall,
@@ -107,24 +105,16 @@ const computedDomain = computed(() =>
 const headers = computed((): TableHeader<HolidayResponseDTO>[] => {
   return [
     { title: computedDomain.value, value: "name", sortable: true },
-
+    {
+      title: isPublic.value
+        ? t("domain.holidays.public.date")
+        : t("domain.holidays.school.startDate"),
+      value: "startDate",
+      sortable: true,
+    },
     ...(isPublic.value
-      ? [
-          {
-            title: t("domain.holidays.public.date"),
-            value: "date",
-            sortable: true,
-          },
-        ]
-      : [
-          {
-            title: t("domain.holidays.school.startDate"),
-            value: "startDate",
-            sortable: true,
-          },
-          { title: t("domain.holidays.school.endDate"), value: "endDate" },
-        ]),
-
+      ? []
+      : [{ title: t("domain.holidays.school.endDate"), value: "endDate" }]),
     { title: t("common.action", { count: 2 }), value: "actions", width: "12%" },
   ];
 });
@@ -132,9 +122,9 @@ const headers = computed((): TableHeader<HolidayResponseDTO>[] => {
 watch(isPublic, () => getHolidaysCall({ isPublic: isPublic.value }));
 
 const createHoliday = async (holiday: HolidayResponseDTO) => {
-  await addHolidayCall({ holidayRequestDTO: holiday });
-  if (!addHolidayError.value) {
-    await fetchAndClose(
+  await createHolidayCall({ holidayRequestDTO: holiday });
+  if (!createHolidayError.value) {
+    await onSuccess(
       t("generics.created", {
         domain: computedDomain.value,
       })
@@ -144,12 +134,12 @@ const createHoliday = async (holiday: HolidayResponseDTO) => {
 
 const updateHoliday = async (holiday: HolidayResponseDTO) => {
   if (holiday.id) {
-    await editHolidayCall({
+    await updateHolidayCall({
       id: holiday.id,
       holidayRequestDTO: holiday,
     });
-    if (!editHolidayError.value) {
-      await fetchAndClose(
+    if (!updateHolidayError.value) {
+      await onSuccess(
         t("generics.updated", {
           domain: computedDomain.value,
         })
@@ -161,7 +151,7 @@ const updateHoliday = async (holiday: HolidayResponseDTO) => {
 const deleteHoliday = async (id: string) => {
   await deleteHolidayCall({ id: id });
   if (!deleteHolidayError.value) {
-    await fetchAndClose(
+    await onSuccess(
       t("generics.deleted", {
         domain: t("domain.holidays.public.header"),
       })
@@ -169,7 +159,7 @@ const deleteHoliday = async (id: string) => {
   }
 };
 
-const fetchAndClose = async (msg: string) => {
+const onSuccess = async (msg: string) => {
   await getHolidaysCall({ isPublic: isPublic.value });
   if (tableRef.value) {
     tableRef.value.closeDialog();

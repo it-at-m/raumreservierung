@@ -31,21 +31,19 @@
           <v-date-input
             ref="startDateInput"
             v-model="modelValue.startDate"
-            :label="
-              isPublic ? undefined : t('domain.holidays.school.startDate')
-            "
+            :label="isPublic ? '' : t('domain.holidays.school.startDate')"
             :rules="[datePicked, isStartDateBeforeEndDate]"
             :allowed-dates="isStartDateAllowed"
             :prepend-icon="mdiCalendar"
             variant="underlined"
-            @update:model-value="updateAndValidateEndDate"
+            @update:model-value="validateDate('endDate')"
           />
         </v-col>
         <v-col
+          v-if="!isPublic"
           cols="12"
           sm="6"
           class="pr-10"
-          v-if="!isPublic"
         >
           <v-date-input
             ref="endDateInput"
@@ -55,7 +53,7 @@
             :allowed-dates="isEndDateAllowed"
             :prepend-icon="mdiCalendar"
             variant="underlined"
-            @update:model-value="validateStartDate"
+            @update:model-value="validateDate('startDate')"
           ></v-date-input>
         </v-col>
       </v-row>
@@ -76,6 +74,10 @@ const MAX_NAME_LENGTH = 100;
 
 const modelValue = defineModel<HolidayRequestDTO>({ required: true });
 const isValid = ref<boolean | null>(false);
+const startDateInput =
+  useTemplateRef<InstanceType<typeof VDateInput>>("startDateInput");
+const endDateInput =
+  useTemplateRef<InstanceType<typeof VDateInput>>("endDateInput");
 
 const { t } = useI18n();
 
@@ -110,59 +112,37 @@ const updatedValidity = (newIsValid: boolean | null) => {
   emit("isValid", newIsValid);
 };
 
-const isEndDateAllowed = (date: unknown) => {
-  if (!(date instanceof Date)) {
-    return false;
-  }
-  return !modelValue.value.startDate || date > modelValue.value.startDate;
-};
+const isEndDateAllowed = (endDate: unknown) =>
+  endDate instanceof Date &&
+  (!modelValue.value.startDate || endDate > modelValue.value.startDate);
 
-const isStartDateAllowed = (date: unknown) => {
-  if (isPublic) {
-    return true;
-  }
-  if (!(date instanceof Date)) {
-    return false;
-  }
-  return !modelValue.value.endDate || date < modelValue.value.endDate;
-};
+const isStartDateAllowed = (startDate: unknown) =>
+  startDate instanceof Date &&
+  (isPublic ||
+    !modelValue.value.endDate ||
+    startDate < modelValue.value.endDate);
 
-const isStartDateBeforeEndDate = (startDate: Date) => {
-  if (isPublic) {
-    return true;
-  } else {
-    return (
-      !modelValue.value.endDate ||
-      startDate < modelValue.value.endDate ||
-      "Beginn liegt nach Ende."
-    );
-  }
-};
+const isStartDateBeforeEndDate = (startDate: Date) =>
+  isPublic ||
+  !modelValue.value.endDate ||
+  startDate < modelValue.value.endDate ||
+  t("common.rules.startAfterEnd");
 
 const isEndDateAfterStartDate = (endDate: Date) =>
   !modelValue.value.startDate ||
   endDate > modelValue.value.startDate ||
-  "Ende liegt vor Beginn.";
+  t("common.rules.endBeforeStart");
 
-const startDateInput =
-  useTemplateRef<InstanceType<typeof VDateInput>>("startDateInput");
+type dateType = "startDate" | "endDate";
 
-const validateStartDate = () => startDateInput.value?.validate();
-
-const endDateInput =
-  useTemplateRef<InstanceType<typeof VDateInput>>("endDateInput");
-
-const validateEndDate = () => endDateInput.value?.validate();
-
-const updateEndDateIfPublic = () => {
-  if (isPublic) {
+const validateDate = (type: dateType) => {
+  const inputRef = type === "startDate" ? startDateInput : endDateInput;
+  if (type === "endDate" && isPublic) {
     modelValue.value.endDate = modelValue.value.startDate;
   }
-};
-
-const updateAndValidateEndDate = () => {
-  updateEndDateIfPublic();
-  validateEndDate();
+  if (modelValue.value[type]) {
+    inputRef.value?.validate();
+  }
 };
 </script>
 

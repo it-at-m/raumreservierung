@@ -140,6 +140,11 @@ const {
   items: readonly T[];
   headers: TableHeader<T>[];
   loading?: boolean;
+  /*
+   Partial is needed below,
+   because an empty holiday must have two undefined dates
+   to be correctly displayed in the form, but the type T can't be altered
+   */
   emptyItemTemplate: Partial<T>;
 }>();
 

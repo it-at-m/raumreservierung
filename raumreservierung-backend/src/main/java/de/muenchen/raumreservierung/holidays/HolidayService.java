@@ -21,12 +21,22 @@ public class HolidayService {
 
     public List<Holiday> getHolidays(final boolean isPublic) {
         final List<Holiday> holidays = holidayRepository.findAll();
-        if (isPublic) {
-            log.debug("Getting all public holidays");
-        } else {
-            log.debug("Getting all school holidays");
-        }
-        return holidays.stream().filter(h -> isPublic == h.getStartDate().isEqual(h.getEndDate())).toList();
+        log.debug("Getting holidays - isPublic: {}", isPublic);
+        return holidays.stream().filter(h -> startDateEqualsEndDateIfPublic(isPublic, h)).toList();
+    }
+
+    /**
+     * Predicate to check if dates in the specific holiday types are set correct.
+     *
+     * @param isPublic boolean to differentiate between desired holiday type
+     * @param h holiday to check
+     * @return true, if dates are set correct, i.e. start date equals end date for public holidays,
+     *         start date not equal end date for school holidays,
+     *         false otherwise.
+     */
+    private boolean startDateEqualsEndDateIfPublic(final boolean isPublic, final Holiday h) {
+        final boolean startDateEqualsEndDate = h.getStartDate().isEqual(h.getEndDate());
+        return isPublic == startDateEqualsEndDate;
     }
 
     @PreAuthorize(Authorities.HOLIDAYS_MANAGE)

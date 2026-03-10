@@ -9,3 +9,5 @@ export const enum STATUS_INDICATORS {
   WARNING = "warning",
   ERROR = "error",
 }
+
+export const DATE_FORMAT_DDMMYY = "DD.MM.YY";
