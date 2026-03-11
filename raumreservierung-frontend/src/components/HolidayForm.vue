@@ -32,8 +32,8 @@
             ref="startDateInput"
             v-model="modelValue.startDate"
             :label="isPublic ? '' : t('domain.holidays.school.startDate')"
-            :rules="[datePicked, isStartDateBeforeEndDate]"
-            :allowed-dates="isStartDateAllowed"
+            :rules="[datePicked, dateRules('startDate')]"
+            :allowed-dates="isDateAllowed('startDate')"
             :prepend-icon="mdiCalendar"
             variant="underlined"
             @update:model-value="validateDate('endDate')"
@@ -49,8 +49,8 @@
             ref="endDateInput"
             v-model="modelValue.endDate"
             :label="t('domain.holidays.school.endDate')"
-            :rules="[datePicked, isEndDateAfterStartDate]"
-            :allowed-dates="isEndDateAllowed"
+            :rules="[datePicked, dateRules('endDate')]"
+            :allowed-dates="isDateAllowed('endDate')"
             :prepend-icon="mdiCalendar"
             variant="underlined"
             @update:model-value="validateDate('startDate')"
@@ -112,26 +112,32 @@ const updatedValidity = (newIsValid: boolean | null) => {
   emit("isValid", newIsValid);
 };
 
-const isEndDateAllowed = (endDate: unknown) =>
-  endDate instanceof Date &&
-  (!modelValue.value.startDate || endDate > modelValue.value.startDate);
+const applyDateRule = (date: Date, type: dateType) => {
+  const isStartDate = type === "startDate";
+  const other = isStartDate ? "endDate" : "startDate";
+  const otherDate = modelValue.value[other];
 
-const isStartDateAllowed = (startDate: unknown) =>
-  startDate instanceof Date &&
-  (isPublic ||
-    !modelValue.value.endDate ||
-    startDate < modelValue.value.endDate);
+  return (
+    isPublic ||
+    !otherDate ||
+    (isStartDate ? date < otherDate : date > otherDate)
+  );
+};
 
-const isStartDateBeforeEndDate = (startDate: Date) =>
-  isPublic ||
-  !modelValue.value.endDate ||
-  startDate < modelValue.value.endDate ||
-  t("common.rules.startAfterEnd");
+const dateRules = (type: dateType) => {
+  return (date: Date) => {
+    return (
+      applyDateRule(date, type) ||
+      t(
+        `common.rules.${type === "startDate" ? "startAfterEnd" : "endBeforeStart"}`
+      )
+    );
+  };
+};
 
-const isEndDateAfterStartDate = (endDate: Date) =>
-  !modelValue.value.startDate ||
-  endDate > modelValue.value.startDate ||
-  t("common.rules.endBeforeStart");
+const isDateAllowed = (type: dateType) => (date: unknown) => {
+  return date instanceof Date && applyDateRule(date, type);
+};
 
 type dateType = "startDate" | "endDate";
 
