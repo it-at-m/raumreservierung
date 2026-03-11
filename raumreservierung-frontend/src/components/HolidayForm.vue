@@ -128,9 +128,9 @@ const dateRules = (type: dateType) => {
   return (date: Date) => {
     return (
       applyDateRule(date, type) ||
-      t(
-        `common.rules.${type === "startDate" ? "startAfterEnd" : "endBeforeStart"}`
-      )
+      (type === "startDate"
+        ? t("common.rules.startAfterEnd")
+        : t("common.rules.endBeforeStart"))
     );
   };
 };
