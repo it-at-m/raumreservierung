@@ -2,6 +2,7 @@ package de.muenchen.raumreservierung.person.dto;
 
 import de.muenchen.raumreservierung.person.PersonType;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.UUID;
 
 public record InternalPersonResponseDto(
@@ -11,5 +12,6 @@ public record InternalPersonResponseDto(
         String telefonNumber,
         @NotNull PersonType type,
         @NotNull String organisationId,
-        @NotNull String organisationUnit) implements PersonResponseDto {
+        @NotNull String organisationUnit,
+        @NotNull String function) implements PersonResponseDto {
 }
