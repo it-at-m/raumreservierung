@@ -1,11 +1,13 @@
-TRUNCATE holiday;
-INSERT INTO holiday (name, start_date, end_date, id) VALUES
-('Tag der deutschen Einheit', '2026-10-03', '2026-10-03', '123e4567-e89b-12d3-a456-426614174000'),
-('Weihnachten', '2026-12-24', '2026-12-24', '123e4567-e89b-12d3-a456-426614174001'),
-('Weihnachtsferien', '2026-12-24', '2027-01-08', '123e4567-e89b-12d3-a456-426614174002'),
-('Sommerferien', '2026-08-03', '2026-09-14', '123e4567-e89b-12d3-a456-426614174003');
+truncate the_entity;
+truncate equipment, seating_type, room, room_seating_type, room_equipment;
 
-truncate equipment;
+INSERT INTO the_entity (text_attribute, id) VALUES
+('Alpha', '123e4567-e89b-12d3-a456-426614174000'),
+('Bravo', '123e4567-e89b-12d3-a456-426614174001'),
+('Charlie', '123e4567-e89b-12d3-a456-426614174002'),
+('Delta', '123e4567-e89b-12d3-a456-426614174003'),
+('Echo', '123e4567-e89b-12d3-a456-426614174004');
+
 INSERT INTO equipment (name, description, id) VALUES
     ('Tisch', 'Ein stabiler Holzschreibtisch mit viel Platz für Arbeiten.', '123e4567-e89b-12d3-a456-426614174000'),
     ('Stuhl', 'Ein ergonomischer Bürostuhl mit verstellbarer Höhe.', '123e4567-e89b-12d3-a456-426614174001'),
@@ -17,9 +19,26 @@ INSERT INTO equipment (name, description, id) VALUES
     ('Kopierer', 'Ein Multifunktionsgerät zum Kopieren, Scannen und Drucken.', '123e4567-e89b-12d3-a456-426614174007');
 
 
-truncate seating_type;
 INSERT INTO seating_type (name, description, id) VALUES
     ('Reihenbestuhlung', 'Beschreibung von Reihenbestuhlung', '123e4567-e89b-12d3-a456-426614174000'),
     ('Stadtrats- / Ausschussbestuhlunq', 'Beschreibung von Stadtrats-Ausschussbestuhlung.', '123e4567-e89b-12d3-a456-426614174001'),
     ('Stehempfang', 'Beschreibung von Stehempfang.', '123e4567-e89b-12d3-a456-426614174002'),
     ('Parlamentarische Bestuhlung', 'Beschreibung von parlamentarische Bestuhlung', '123e4567-e89b-12d3-a456-426614174003');
+
+INSERT INTO room (name, number, address, capacity, information, note, availability, area, id) VALUES
+    ('Großer Saal', 100, 'Straße 1, 12345 Irgendwo, Deutschland', 1000, 'Ein großer Saal mit Stühlen und Tischen und Reihenbestuhlung und Stadtrats- / Ausschussbestuhlunq.', 'Kleiner Fleck rechts hinten im Eck.', true, 200, '123e4567-e89b-12d3-a456-426614175000'),
+    ('Kleiner Saal', 101, 'Weg 2, 56789 Woanders, Deutschland', 1000, 'Ein kleiner Saal mit Projektor und Whiteboard und Stehempfang und Parlamentarische Bestuhlung.', 'Großer Fleck links vorne im Eck.', false, 20, '123e4567-e89b-12d3-a456-426614175001');
+
+
+INSERT INTO room_seating_type (room_id, seating_type_id) VALUES
+    ('123e4567-e89b-12d3-a456-426614175000', '123e4567-e89b-12d3-a456-426614174000'),
+    ('123e4567-e89b-12d3-a456-426614175000', '123e4567-e89b-12d3-a456-426614174001'),
+    ('123e4567-e89b-12d3-a456-426614175001', '123e4567-e89b-12d3-a456-426614174002'),
+    ('123e4567-e89b-12d3-a456-426614175001', '123e4567-e89b-12d3-a456-426614174003');
+
+INSERT INTO room_equipment (room_id, equipment_id) VALUES
+    ('123e4567-e89b-12d3-a456-426614175000', '123e4567-e89b-12d3-a456-426614174000'),
+    ('123e4567-e89b-12d3-a456-426614175000', '123e4567-e89b-12d3-a456-426614174001'),
+    ('123e4567-e89b-12d3-a456-426614175001', '123e4567-e89b-12d3-a456-426614174002'),
+    ('123e4567-e89b-12d3-a456-426614175001', '123e4567-e89b-12d3-a456-426614174003');
+
