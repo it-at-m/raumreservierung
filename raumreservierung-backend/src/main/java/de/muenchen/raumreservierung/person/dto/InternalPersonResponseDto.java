@@ -13,5 +13,6 @@ public record InternalPersonResponseDto(
         @NotNull PersonType type,
         @NotNull String organisationId,
         @NotNull String organisationUnit,
-        @NotNull String function) implements PersonResponseDto {
+        @NotNull String roleFunction
+) implements PersonResponseDto {
 }

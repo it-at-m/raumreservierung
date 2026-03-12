@@ -10,7 +10,7 @@ create table internal_person (
     id uuid not null,
     organisation_id varchar(255) not null,
     organisation_unit varchar(255) not null,
-    function varchar(255) not null,
+    role_function varchar(255) not null,
     primary key (id),
     constraint fk_internal_person foreign key (id) references person (id),
     constraint uk_internal_person_org_id unique (organisation_id)

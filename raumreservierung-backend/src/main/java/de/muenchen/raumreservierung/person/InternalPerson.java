@@ -20,7 +20,7 @@ public class InternalPerson extends Person {
      * Role in this application
      */
     @Column(nullable = false)
-    private String function;
+    private String roleFunction;
 
     @Override
     public void updateFrom(final Person person) {
@@ -30,7 +30,7 @@ public class InternalPerson extends Person {
         super.updateBaseFields(internalPerson);
         this.organisationId = internalPerson.getOrganisationId();
         this.organisationUnit = internalPerson.getOrganisationUnit();
-        this.function = internalPerson.getFunction();
+        this.roleFunction = internalPerson.getRoleFunction();
     }
 
 }
