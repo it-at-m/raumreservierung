@@ -52,7 +52,7 @@
     "delete": "{domain} löschen",
     "edit": "{domain} bearbeiten",
     "create": "{domain} erstellen",
-    "confirmDelete": "Möchten Sie das Objekt \"{domain}\" endgültig löschen?",
+    "confirmDelete": "Möchten Sie den Eintrag aus \"{domain}\" endgültig löschen?",
     "deleted": "{domain} wurde gelöscht.",
     "updated": "{domain} wurde aktualisiert.",
     "created": "{domain} wurde erstellt."
