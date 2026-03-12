@@ -4,6 +4,7 @@ import de.muenchen.raumreservierung.person.ExternalPerson;
 import de.muenchen.raumreservierung.person.InternalPerson;
 import de.muenchen.raumreservierung.person.Person;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.SubclassExhaustiveStrategy;
 import org.mapstruct.SubclassMapping;
 
@@ -17,4 +18,11 @@ public interface PersonMapper {
     @SubclassMapping(source = InternalPerson.class, target = InternalPersonResponseDto.class)
     @SubclassMapping(source = ExternalPerson.class, target = ExternalPersonResponseDto.class)
     PersonResponseDto toDto(Person person);
+
+
+    @Mapping(target = "type", constant = "INTERNAL")
+    InternalPersonResponseDto toDto(InternalPerson person);
+
+    @Mapping(target = "type", constant = "EXTERNAL")
+    ExternalPersonResponseDto toDto(ExternalPerson person);
 }
