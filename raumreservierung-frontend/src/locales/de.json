@@ -9,8 +9,10 @@
     "action": "Aktion | Aktionen",
     "messages": {},
     "rules": {
+      "notEmpty": "{field} darf nicht leer sein.",
       "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
-      "maxLengthError": "{field} darf maximal {num} Zeichen beinhalten."
+      "maxLengthError": "{field} darf maximal {num} Zeichen beinhalten.",
+      "invalidEmail": "Die E-Mail Adresse ist nicht valide"
     }
   },
   "app": {
@@ -90,6 +92,16 @@
       "header": "Ausstattung",
       "name": "Name",
       "description": "Beschreibung"
+    },
+    "person": {
+      "name": "Name",
+      "email": "E-Mail",
+      "telefonNumber": "Telefonnummer"
+    },
+    "externalPerson": {
+      "company": "Firma",
+      "streetAddress": "Straße und Hausnummer",
+      "postalCodeCity": "Postleitzahl und Stadt"
     }
   }
 }
