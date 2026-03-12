@@ -10,6 +10,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -37,7 +38,7 @@ public class PersonController {
     }
 
     @GetMapping
-    @ResponseStatus
+    @ResponseStatus(HttpStatus.OK)
     public Page<PersonResponseDto> getPersonsByPageableAndFilter(@ParameterObject Pageable pageable,
                                                                  @ParameterObject PersonFilterDto personFilterDto) {
         final Page<Person> personPage = personService.getPersonsByPageableAndFilter(pageable, personFilterDto);
@@ -47,14 +48,19 @@ public class PersonController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public PersonResponseDto create(@RequestBody final PersonRequestDto personDto) {
+    public PersonResponseDto createPerson(@RequestBody final PersonRequestDto personDto) {
         return personMapper.toDto(personService.createPerson(personMapper.toEntity(personDto)));
     }
 
     @PutMapping("/{personId}")
     @ResponseStatus(HttpStatus.OK)
-    public PersonResponseDto update(@PathVariable final UUID personId, @RequestBody final PersonRequestDto personDto) {
+    public PersonResponseDto updatePerson(@PathVariable("personId") final UUID personId, @RequestBody final PersonRequestDto personDto) {
         return personMapper.toDto(personService.updatePerson(personId, personMapper.toEntity(personDto)));
     }
 
+    @DeleteMapping("/{personId}")
+    @ResponseStatus(HttpStatus.OK)
+    public void deletePerson(@PathVariable("personId") final UUID personId) {
+        personService.deletePerson(personId);
+    }
 }
