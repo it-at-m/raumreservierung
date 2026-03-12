@@ -141,9 +141,7 @@ const {
   headers: TableHeader<T>[];
   loading?: boolean;
   /*
-   Partial is needed below,
-   because an empty holiday must have two undefined dates
-   to be correctly displayed in the form, but the type T can't be altered
+   Partial is necessary for objects with complex attributes, which are set to be non-optional, with partial these can be set to undefined.
    */
   emptyItemTemplate: Partial<T>;
 }>();
