@@ -8,6 +8,7 @@ import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import java.util.List;
 import java.util.UUID;
+import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,21 +23,9 @@ public class HolidayService {
     public List<Holiday> getHolidays(final boolean isPublic) {
         final List<Holiday> holidays = holidayRepository.findAll();
         log.debug("Getting holidays - isPublic: {}", isPublic);
-        return holidays.stream().filter(h -> startDateEqualsEndDateIfPublic(isPublic, h)).toList();
-    }
-
-    /**
-     * Predicate to check if dates in the specific holiday types are set correct.
-     *
-     * @param isPublic boolean to differentiate between desired holiday type
-     * @param h holiday to check
-     * @return true, if dates are set correct, i.e. start date equals end date for public holidays,
-     *         start date not equal end date for school holidays,
-     *         false otherwise.
-     */
-    private boolean startDateEqualsEndDateIfPublic(final boolean isPublic, final Holiday h) {
-        final boolean startDateEqualsEndDate = h.getStartDate().isEqual(h.getEndDate());
-        return isPublic == startDateEqualsEndDate;
+        final Predicate<Holiday> startDateEqualsEndDate = h -> h.getStartDate().isEqual(h.getEndDate());
+        final Predicate<Holiday> holidayFilter = isPublic ? startDateEqualsEndDate : startDateEqualsEndDate.negate();
+        return holidays.stream().filter(holidayFilter).toList();
     }
 
     @PreAuthorize(Authorities.HOLIDAYS_MANAGE)
