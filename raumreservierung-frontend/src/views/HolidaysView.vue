@@ -36,7 +36,7 @@ import type { HolidayResponseDTO } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/components/common/CardTable.vue";
 
 import { useDateFormat } from "@vueuse/core";
-import { computed, onMounted, useTemplateRef, watch } from "vue";
+import { computed, onMounted, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
@@ -118,8 +118,6 @@ const headers = computed((): TableHeader<HolidayResponseDTO>[] => {
     { title: t("common.action", { count: 2 }), value: "actions", width: "12%" },
   ];
 });
-
-watch(isPublic, () => getHolidaysCall({ isPublic: isPublic.value }));
 
 const createHoliday = async (holiday: HolidayResponseDTO) => {
   await createHolidayCall({ holidayRequestDTO: holiday });
