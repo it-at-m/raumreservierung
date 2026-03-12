@@ -8,8 +8,10 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ClassUtils;
 
 import java.util.UUID;
 
@@ -20,14 +22,27 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 public class PersonService {
 
     private final PersonRepository personRepository;
+    private final InternalPersonRepository internalPersonRepository;
+    private final ExternalPersonRepository externalPersonRepository;
 
+    // TODO consider returning less information here
     public Person findById(final UUID personId) {
         return getPersonOrThrowException(personId);
     }
 
     @PreAuthorize(Authorities.USERS_MANAGE)
     public Page<Person> getPersonsByPageableAndFilter(final Pageable pageable, final PersonFilterDto personFilterDto) {
-        return personRepository.findAll(pageable);
+
+        // Persontype differentiation will be done without specs as this saves an inner join!
+        if (personFilterDto.personType().equals(PersonType.EXTERNAL)) {
+
+            Specification<ExternalPerson> internalSpecifications = PersonSpecificationBuilder.fromFilter(personFilterDto);
+            return externalPersonRepository.findAll(internalSpecifications, pageable).map(externalPerson -> (Person) externalPerson);
+        } else {
+
+            Specification<InternalPerson> externalSpecification = PersonSpecificationBuilder.fromFilter(personFilterDto);
+            return internalPersonRepository.findAll(externalSpecification, pageable).map(internalPerson -> (Person) internalPerson);
+        }
     }
 
     @Transactional
@@ -41,7 +56,10 @@ public class PersonService {
     public Person updatePerson(final UUID personId, final Person person) {
         Person foundPerson = getPersonOrThrowException(personId);
 
-        if (!(person instanceof InternalPerson && foundPerson instanceof InternalPerson)) {
+        Class<?> newPersonClass = ClassUtils.getUserClass(person);
+        Class<?> foundPersonClass = ClassUtils.getUserClass(foundPerson);
+
+        if (!newPersonClass.equals(foundPersonClass)) {
             throw new NotImplementedException("Changing a persons type is not yet implemented");
         }
 
