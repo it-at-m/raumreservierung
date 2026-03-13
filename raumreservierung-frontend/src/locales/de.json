@@ -6,6 +6,7 @@
     "delete": "löschen",
     "save": "Speichern",
     "add": "Hinzufügen",
+    "search": "Suche",
     "action": "Aktion | Aktionen",
     "messages": {},
     "rules": {
@@ -99,9 +100,15 @@
       "telefonNumber": "Telefonnummer"
     },
     "externalPerson": {
+      "header": "Externe Person | Externe Personen",
       "company": "Firma",
       "streetAddress": "Straße und Hausnummer",
       "postalCodeCity": "Postleitzahl und Stadt"
+    },
+    "internalPerson": {
+      "header": "Interne Person | Interne Personen",
+      "organisationUnit": "Organisationseinheit",
+      "roleFunction": "Rollenfunktion"
     }
   }
 }
