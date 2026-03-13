@@ -38,13 +38,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends Record<string, unknown>">
-export interface TableHeader<T> {
-  title: string;
-  value: Extract<keyof T, string> | (string & {});
-  align?: "start" | "center" | "end";
-  sortable?: boolean;
-  width?: string | number;
-}
+import type { TableHeader } from "@/types/TableHeader.ts";
 
 defineProps<{
   items: readonly T[];
