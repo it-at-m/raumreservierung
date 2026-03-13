@@ -1,11 +1,10 @@
 package de.muenchen.raumreservierung.person;
 
 import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.data.jpa.domain.Specification;
 
 public final class PersonSpecificationBuilder {
 
@@ -23,8 +22,7 @@ public final class PersonSpecificationBuilder {
     }
 
     private static <T extends Person> Specification<T> filterForName(final String searchName) {
-        return (root, query, cb) ->
-                cb.like(cb.lower(root.get(Person_.name)), "%" + searchName.toLowerCase(Locale.GERMAN) + "%");
+        return (root, query, cb) -> cb.like(cb.lower(root.get(Person_.name)), "%" + searchName.toLowerCase(Locale.GERMAN) + "%");
     }
 
 }

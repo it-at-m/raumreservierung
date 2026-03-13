@@ -5,10 +5,9 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+import java.io.Serial;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.Serial;
 
 @Entity
 @Getter
