@@ -20,8 +20,8 @@ public interface PersonMapper {
     PersonResponseDto toDto(Person person);
 
     @Mapping(target = "type", constant = "INTERNAL")
-    InternalPersonResponseDto toDto(InternalPerson person);
+    InternalPersonResponseDto toInternalDto(InternalPerson person);
 
     @Mapping(target = "type", constant = "EXTERNAL")
-    ExternalPersonResponseDto toDto(ExternalPerson person);
+    ExternalPersonResponseDto toExternalDto(ExternalPerson person);
 }
