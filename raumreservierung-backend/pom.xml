@@ -443,10 +443,6 @@
                     <printFailingErrors>true</printFailingErrors>
                     <linkXRef>false</linkXRef>
                     <includeTests>true</includeTests>
-                    <excludes>
-                        <exclude>**/generated/**</exclude>
-                        <exclude>**/*_.java</exclude>
-                    </excludes>
                     <excludeRoots>
                         <excludeRoot>target/generated-sources</excludeRoot>
                         <excludeRoot>target/generated-test-sources</excludeRoot>
