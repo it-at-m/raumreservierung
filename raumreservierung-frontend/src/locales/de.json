@@ -13,7 +13,8 @@
       "notEmpty": "{field} darf nicht leer sein.",
       "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
       "maxLengthError": "{field} darf maximal {num} Zeichen beinhalten.",
-      "invalidEmail": "Die E-Mail Adresse ist nicht valide"
+      "invalidEmail": "Die E-Mail Adresse ist nicht valide",
+      "invalidTelefonNumber": "Diese Telefonnummer ist nicht valide"
     }
   },
   "app": {

@@ -24,6 +24,7 @@
     <v-text-field
       v-model="modelValue.telefonNumber"
       variant="outlined"
+      :rules="[telefonNumberValidator]"
       :label="t('domain.person.telefonNumber')"
     />
     <v-row>
@@ -83,6 +84,11 @@ const emailValidator = (value: string) =>
     value
   ) ||
   t("common.rules.invalidEmail");
+
+const telefonNumberValidator = (value: string) =>
+  !value ||
+  /^\+?[0-9\s/()-]{7,20}$/.test(value) ||
+  t("common.rules.invalidTelefonNumber");
 
 const updatedValidity = (newIsValid: boolean | null) => {
   isValid.value = newIsValid;
