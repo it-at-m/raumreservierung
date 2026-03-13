@@ -23,6 +23,7 @@ import java.util.UUID;
         discriminatorProperty = "type",
         anyOf = {InternalPersonResponseDto.class, ExternalPersonResponseDto.class}
 )
+@SuppressWarnings("PMD.ShortMethodName")
 public interface PersonResponseDto {
     UUID id();
 

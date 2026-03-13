@@ -5,10 +5,15 @@ import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
+
 @Entity
 @Getter
 @Setter
 public class InternalPerson extends Person {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Column(nullable = false, unique = true)
     private String organisationId;

@@ -8,11 +8,16 @@ import jakarta.persistence.InheritanceType;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.io.Serial;
+
 @Entity
 @Getter
 @Setter
 @Inheritance(strategy = InheritanceType.JOINED)
 public abstract class Person extends BaseEntity {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Column(nullable = false)
     private String name;
@@ -23,7 +28,7 @@ public abstract class Person extends BaseEntity {
     @Column(nullable = false)
     private String email;
 
-    public abstract void updateFrom(final Person person);
+    public abstract void updateFrom(Person person);
 
     public void updateBaseFields(final Person person) {
         this.name = person.getName();

@@ -19,7 +19,6 @@ public interface PersonMapper {
     @SubclassMapping(source = ExternalPerson.class, target = ExternalPersonResponseDto.class)
     PersonResponseDto toDto(Person person);
 
-
     @Mapping(target = "type", constant = "INTERNAL")
     InternalPersonResponseDto toDto(InternalPerson person);
 

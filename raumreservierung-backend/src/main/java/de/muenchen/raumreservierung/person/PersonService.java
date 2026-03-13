@@ -36,11 +36,11 @@ public class PersonService {
         // Persontype differentiation will be done without specs as this saves an inner join!
         if (personFilterDto.personType().equals(PersonType.EXTERNAL)) {
 
-            Specification<ExternalPerson> externalPersonSpecification = PersonSpecificationBuilder.fromFilter(personFilterDto);
+            final Specification<ExternalPerson> externalPersonSpecification = PersonSpecificationBuilder.fromFilter(personFilterDto);
             return externalPersonRepository.findAll(externalPersonSpecification, pageable).map(externalPerson -> (Person) externalPerson);
         } else {
 
-            Specification<InternalPerson> internalPersonSpecification = PersonSpecificationBuilder.fromFilter(personFilterDto);
+            final Specification<InternalPerson> internalPersonSpecification = PersonSpecificationBuilder.fromFilter(personFilterDto);
             return internalPersonRepository.findAll(internalPersonSpecification, pageable).map(internalPerson -> (Person) internalPerson);
         }
     }
@@ -54,10 +54,10 @@ public class PersonService {
     @Transactional
     @PreAuthorize(Authorities.USERS_MANAGE)
     public Person updatePerson(final UUID personId, final Person person) {
-        Person foundPerson = getPersonOrThrowException(personId);
+        final Person foundPerson = getPersonOrThrowException(personId);
 
-        Class<?> newPersonClass = ClassUtils.getUserClass(person);
-        Class<?> foundPersonClass = ClassUtils.getUserClass(foundPerson);
+        final Class<?> newPersonClass = ClassUtils.getUserClass(person);
+        final Class<?> foundPersonClass = ClassUtils.getUserClass(foundPerson);
 
         if (!newPersonClass.equals(foundPersonClass)) {
             throw new NotImplementedException("Changing a persons type is not yet implemented");

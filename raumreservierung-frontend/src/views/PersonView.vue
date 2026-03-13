@@ -2,12 +2,9 @@
   <base-view
     :header-text="
       t('generics.manage', {
-        domain: t(
-          isInternalPath
-            ? 'domain.internalPerson.header'
-            : 'domain.externalPerson.header',
-          { count: 2 }
-        ),
+        domain: isInternalPath
+          ? t('domain.internalPerson.header', { count: 2 })
+          : t('domain.externalPerson.header', { count: 2 }),
       })
     "
   >
@@ -24,11 +21,11 @@
         ref="crudRef"
         :empty-item-template="EMPTY_ITEM_TEMPLATE"
         :domain="
-          t(
-            isInternalPath
-              ? 'domain.internalPerson.header'
-              : 'domain.externalPerson.header'
-          )
+          t('generics.manage', {
+            domain: isInternalPath
+              ? t('domain.internalPerson.header', { count: 2 })
+              : t('domain.externalPerson.header', { count: 2 }),
+          })
         "
         :loading="personPageLoading || deletePersonLoading"
         @update:options="updateOptionsAndLoadPage"

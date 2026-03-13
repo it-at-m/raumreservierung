@@ -39,8 +39,8 @@ public class PersonController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<PersonResponseDto> getPersonsByPageableAndFilter(@ParameterObject Pageable pageable,
-                                                                 @ParameterObject PersonFilterDto personFilterDto) {
+    public Page<PersonResponseDto> getPersonsByPageableAndFilter(@ParameterObject final Pageable pageable,
+                                                                 @ParameterObject final PersonFilterDto personFilterDto) {
         final Page<Person> personPage = personService.getPersonsByPageableAndFilter(pageable, personFilterDto);
 
         return personPage.map(personMapper::toDto);
