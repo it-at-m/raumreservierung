@@ -1,7 +1,9 @@
 package de.muenchen.raumreservierung.room;
 
+import de.muenchen.raumreservierung.room.dto.RoomMapper;
 import de.muenchen.raumreservierung.room.dto.RoomRequestDTO;
 import de.muenchen.raumreservierung.room.dto.RoomResponseDTO;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
@@ -22,15 +24,18 @@ public class RoomController {
 
     private final RoomService roomService;
 
+    private final RoomMapper roomMapper;
+
+    @Transactional
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<RoomResponseDTO> getAllRooms() {
-        return roomService.findAll();
+        return roomService.findAll().stream().map(roomMapper::toDTO).toList();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public RoomResponseDTO createRoom(@Valid @RequestBody final RoomRequestDTO roomRequestDTO) {
-        return roomService.createRoom(roomRequestDTO);
+        return roomMapper.toDTO(roomService.createRoom(roomMapper.toEntity(roomRequestDTO)));
     }
 }

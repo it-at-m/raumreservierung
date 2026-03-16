@@ -14,6 +14,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Entity
+@SuppressWarnings("PMD.ShortClassName")
 public class Room extends BaseEntity {
 
     @Serial
@@ -48,17 +49,4 @@ public class Room extends BaseEntity {
 
     @ManyToMany
     private Set<Equipment> equipment;
-
-    public void updateFrom(final Room room) {
-        this.name = room.getName();
-        this.number = room.getNumber();
-        this.address = room.getAddress();
-        this.capacity = room.getCapacity();
-        this.information = room.getInformation();
-        this.note = room.getNote();
-        this.availability = room.getAvailability();
-        this.area = room.getArea();
-        this.seatingType = room.getSeatingType();
-        this.equipment = room.getEquipment();
-    }
 }
