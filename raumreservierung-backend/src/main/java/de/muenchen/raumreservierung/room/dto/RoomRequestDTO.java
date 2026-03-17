@@ -10,7 +10,7 @@ public record RoomRequestDTO(@NotNull @Size(min = 2, max = 100) String name, @Si
         @Size(max = 1000) String note, Boolean availability, int area, Set<UUID> seatingTypeIds,
         Set<UUID> equipmentIds) {
     public RoomRequestDTO {
-        seatingTypeIds = Set.copyOf(seatingTypeIds);
-        equipmentIds = Set.copyOf(equipmentIds);
+        seatingTypeIds = seatingTypeIds == null ? Set.of() : Set.copyOf(seatingTypeIds);
+        equipmentIds = equipmentIds == null ? Set.of() : Set.copyOf(equipmentIds);
     }
 }
