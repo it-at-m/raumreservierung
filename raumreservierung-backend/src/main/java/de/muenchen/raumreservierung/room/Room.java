@@ -49,4 +49,17 @@ public class Room extends BaseEntity {
 
     @ManyToMany
     private Set<Equipment> equipment;
+
+    public void updateFrom(final Room room) {
+        this.name = room.getName();
+        this.information = room.getInformation();
+        this.number = room.getNumber();
+        this.address = room.getAddress();
+        this.capacity = room.getCapacity();
+        this.availability = room.getAvailability();
+        this.area = room.getArea();
+        this.note = room.getNote();
+        this.seatingType = room.getSeatingType();
+        this.equipment = room.getEquipment();
+    }
 }
