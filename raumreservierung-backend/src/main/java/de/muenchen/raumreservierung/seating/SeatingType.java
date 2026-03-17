@@ -3,9 +3,10 @@ package de.muenchen.raumreservierung.seating;
 import de.muenchen.raumreservierung.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import java.io.Serial;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serial;
 
 @Getter
 @Setter
@@ -20,6 +21,9 @@ public class SeatingType extends BaseEntity {
 
     @Column
     private String description;
+
+    @Column(nullable = false)
+    private boolean isActive;
 
     public void updateFrom(final SeatingType seatingType) {
         this.name = seatingType.getName();
