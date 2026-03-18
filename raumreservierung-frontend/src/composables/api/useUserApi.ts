@@ -1,7 +1,6 @@
-import type { GetTheEntityRequest } from "@/api/raumreservierung-backend";
 import type User from "@/types/User.ts";
 
-import { TheEntityControllerApi } from "@/api/raumreservierung-backend";
+import { ActuatorApi } from "@/api/raumreservierung-backend";
 import { getUser } from "@/api/user-client.ts";
 import { useApi } from "@/composables/api/useApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
@@ -12,9 +11,8 @@ export const useUserInfo = () => {
 };
 
 export const useGetActuatorInfo = () => {
-  const api = ApiFactory.getInstance(TheEntityControllerApi);
+  const api = ApiFactory.getInstance(ActuatorApi);
 
-  return useApi<GetTheEntityRequest, object>((params) =>
-    api.getTheEntity(params)
-  );
+  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
+  return useApi<void, object>(() => api.info());
 };

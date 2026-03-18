@@ -1,6 +1,10 @@
 <template>
   <div>
-    <view-simple-header :header-text="t('generics.manage', { domain })" />
+    <view-simple-header :header-text="t('generics.manage', { domain })">
+      <template #header>
+        <slot name="header" />
+      </template>
+    </view-simple-header>
 
     <v-dialog
       :model-value="showDialog"
@@ -14,8 +18,8 @@
         :loading="loading"
         :title="
           activeItem.id
-            ? t('generics.edit', { domain: t('domain.equipment.header') })
-            : t('generics.create', { domain: t('domain.equipment.header') })
+            ? t('generics.edit', { domain })
+            : t('generics.create', { domain })
         "
         @confirm="handleSave"
         @cancel="closeDialog"
@@ -136,7 +140,10 @@ const {
   items: readonly T[];
   headers: TableHeader<T>[];
   loading?: boolean;
-  emptyItemTemplate: T;
+  /*
+   Partial is necessary for objects with complex attributes, which are set to be non-optional, with partial these can be set to undefined.
+   */
+  emptyItemTemplate: Partial<T>;
 }>();
 
 const emit = defineEmits<{
@@ -170,7 +177,7 @@ const openCreate = () => {
 };
 
 const openEdit = (item: T) => {
-  activeItem.value = JSON.parse(JSON.stringify(item)) as T;
+  activeItem.value = { ...item } as T;
   dialogMode.value = "form";
 };
 

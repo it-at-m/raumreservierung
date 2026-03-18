@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import de.muenchen.raumreservierung.MicroServiceApplication;
 import de.muenchen.raumreservierung.TestConstants;
-import de.muenchen.raumreservierung.theentity.TheEntity;
-import de.muenchen.raumreservierung.theentity.TheEntityRepository;
-import de.muenchen.raumreservierung.theentity.dto.TheEntityRequestDTO;
-import de.muenchen.raumreservierung.theentity.dto.TheEntityResponseDTO;
+import de.muenchen.raumreservierung.equipment.Equipment;
+import de.muenchen.raumreservierung.equipment.EquipmentRepository;
+import de.muenchen.raumreservierung.equipment.dto.EquipmentRequestDto;
+import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
 import java.net.URI;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +37,7 @@ class UnicodeFilterConfigurationTest {
     private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>(
             DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
 
-    private static final String ENTITY_ENDPOINT_URL = "/theEntity";
+    private static final String ENTITY_ENDPOINT_URL = "/equipment";
 
     /**
      * Decomposed string:
@@ -55,29 +55,31 @@ class UnicodeFilterConfigurationTest {
     private TestRestTemplate testRestTemplate;
 
     @Autowired
-    private TheEntityRepository theEntityRepository;
+    private EquipmentRepository equipmentRepository;
 
     @Test
     void testForNfcNormalization() {
         // Given
         // Persist entity with decomposed string.
-        final TheEntityRequestDTO theEntityRequestDto = new TheEntityRequestDTO(TEXT_ATTRIBUTE_DECOMPOSED);
+        final EquipmentRequestDto equipmentRequestDto = new EquipmentRequestDto(TEXT_ATTRIBUTE_DECOMPOSED, TEXT_ATTRIBUTE_DECOMPOSED);
 
         // When
-        final TheEntityResponseDTO response = testRestTemplate.postForEntity(URI.create(ENTITY_ENDPOINT_URL), theEntityRequestDto, TheEntityResponseDTO.class)
+        final EquipmentResponseDto response = testRestTemplate.postForEntity(URI.create(ENTITY_ENDPOINT_URL), equipmentRequestDto, EquipmentResponseDto.class)
                 .getBody();
-        final TheEntity theEntity = theEntityRepository.findById(response.id()).orElse(null);
+        assertNotNull(response);
+        final Equipment equipment = equipmentRepository.findById(response.id()).orElse(null);
 
         // Then
         // Check whether response contains a composed string.
-        assertNotNull(response.textAttribute());
-        assertEquals(TEXT_ATTRIBUTE_COMPOSED, response.textAttribute());
-        assertEquals(TEXT_ATTRIBUTE_COMPOSED.length(), response.textAttribute().length());
+        assertNotNull(response.name());
+        assertEquals(TEXT_ATTRIBUTE_COMPOSED, response.name());
+        assertEquals(TEXT_ATTRIBUTE_COMPOSED.length(), response.name().length());
 
         // Check persisted entity contains a composed string via JPA repository.
-        assertNotNull(theEntity.getTextAttribute());
-        assertEquals(TEXT_ATTRIBUTE_COMPOSED, theEntity.getTextAttribute());
-        assertEquals(TEXT_ATTRIBUTE_COMPOSED.length(), theEntity.getTextAttribute().length());
+        assertNotNull(equipment);
+        assertNotNull(equipment.getName());
+        assertEquals(TEXT_ATTRIBUTE_COMPOSED, equipment.getName());
+        assertEquals(TEXT_ATTRIBUTE_COMPOSED.length(), equipment.getName().length());
     }
 
 }

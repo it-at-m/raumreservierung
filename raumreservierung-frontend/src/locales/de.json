@@ -10,7 +10,10 @@
     "messages": {},
     "rules": {
       "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
-      "maxLengthError": "{field} darf maximal {num} Zeichen beinhalten."
+      "maxLengthError": "{field} darf maximal {num} Zeichen beinhalten.",
+      "noDateSelected": "Bitte wählen Sie ein Datum.",
+      "startAfterEnd": "Beginn liegt nach Ende.",
+      "endBeforeStart": "Ende liegt vor Beginn."
     }
   },
   "app": {
@@ -49,7 +52,7 @@
     "delete": "{domain} löschen",
     "edit": "{domain} bearbeiten",
     "create": "{domain} erstellen",
-    "confirmDelete": "Möchten Sie die {domain} endgültig löschen",
+    "confirmDelete": "Möchten Sie den Eintrag aus \"{domain}\" endgültig löschen?",
     "deleted": "{domain} wurde gelöscht.",
     "updated": "{domain} wurde aktualisiert.",
     "created": "{domain} wurde erstellt."
@@ -68,7 +71,7 @@
     },
     "holidayGroup": {
       "groupTitle": "Tage verwalten",
-      "publicHolidays": "Feiertrage verwalten",
+      "publicHolidays": "Feiertage verwalten",
       "schoolHolidays": "Ferien verwalten"
     },
     "viewRoomsAndDetails": "Räume und Details ansehen",
@@ -90,6 +93,18 @@
       "header": "Ausstattung",
       "name": "Name",
       "description": "Beschreibung"
+    },
+    "holidays": {
+      "public": {
+        "header": "Feiertag | Feiertage",
+        "name": "Name",
+        "date": "Datum"
+      },
+      "school": {
+        "header": "Ferien",
+        "startDate": "Beginn",
+        "endDate": "Ende"
+      }
     }
   }
 }

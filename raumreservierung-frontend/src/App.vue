@@ -48,7 +48,10 @@
     </v-navigation-drawer>
     <v-main>
       <v-container fluid>
-        <router-view v-slot="{ Component }">
+        <router-view
+          v-slot="{ Component }"
+          :key="route.fullPath"
+        >
           <v-fade-transition mode="out-in">
             <component :is="Component" />
           </v-fade-transition>
@@ -63,6 +66,7 @@ import { mdiApps } from "@mdi/js";
 import { AppSwitcher } from "@muenchen/appswitcher-vue";
 import { useMediaQuery, useToggle } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
+import { useRoute } from "vue-router";
 
 import AvatarCard from "@/components/common/AvatarCard.vue";
 import NavigationDrawerList from "@/components/common/NavigationDrawerList.vue";
@@ -75,4 +79,6 @@ const appswitcherBaseUrl = APPSWITCHER_URL;
 
 const [drawer, toggleDrawer] = useToggle(true);
 const isSmallScreen = useMediaQuery("(max-width: 1280px)");
+
+const route = useRoute();
 </script>

@@ -1,0 +1,10 @@
+package de.muenchen.raumreservierung.holidays.dto;
+
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
+
+public record HolidayRequestDTO(@NotNull @Size(min = 2, max = 100) String name,
+        @NotNull LocalDate startDate,
+        @NotNull LocalDate endDate) {
+}
