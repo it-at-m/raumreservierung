@@ -1,15 +1,16 @@
 package de.muenchen.raumreservierung.seating;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -17,6 +18,10 @@ import org.springframework.stereotype.Service;
 public class SeatingService {
 
     private final SeatingRepository seatingRepository;
+
+    public final SeatingType getReferenceById(UUID seatingId) {
+        return seatingRepository.getReferenceById(seatingId);
+    }
 
     public List<SeatingType> findAll() {
         final List<SeatingType> allSeatingTypes = seatingRepository.findAll();

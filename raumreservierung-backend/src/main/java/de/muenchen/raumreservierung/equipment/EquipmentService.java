@@ -1,15 +1,16 @@
 package de.muenchen.raumreservierung.equipment;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -17,6 +18,10 @@ import org.springframework.stereotype.Service;
 public class EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
+
+    public final Equipment getReferenceById(UUID equipmentId) {
+        return equipmentRepository.getReferenceById(equipmentId);
+    }
 
     public List<Equipment> findAll() {
         final List<Equipment> allEquipments = equipmentRepository.findAll();
