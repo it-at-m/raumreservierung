@@ -1,12 +1,4 @@
-truncate the_entity;
 truncate equipment, seating_type, room, room_seating_type, room_equipment;
-
-INSERT INTO the_entity (text_attribute, id) VALUES
-('Alpha', '123e4567-e89b-12d3-a456-426614174000'),
-('Bravo', '123e4567-e89b-12d3-a456-426614174001'),
-('Charlie', '123e4567-e89b-12d3-a456-426614174002'),
-('Delta', '123e4567-e89b-12d3-a456-426614174003'),
-('Echo', '123e4567-e89b-12d3-a456-426614174004');
 
 INSERT INTO equipment (name, description, id) VALUES
     ('Tisch', 'Ein stabiler Holzschreibtisch mit viel Platz für Arbeiten.', '123e4567-e89b-12d3-a456-426614174000'),
