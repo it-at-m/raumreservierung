@@ -1,18 +1,18 @@
 package de.muenchen.raumreservierung.holidays;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 import de.muenchen.raumreservierung.holidays.dto.HolidayMapper;
 import de.muenchen.raumreservierung.holidays.dto.HolidayRequestDTO;
 import de.muenchen.raumreservierung.holidays.dto.HolidayResponseDTO;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
+
+import java.time.LocalDate;
+import java.util.UUID;
+
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @AllArgsConstructor
 public class HolidayMapperTest {
@@ -47,8 +47,8 @@ public class HolidayMapperTest {
         void givenRequestDTO_thenReturnsCorrectEntity() {
             // Given
             final UUID uuid = UUID.randomUUID();
-            final HolidayRequestDTO requestDTO = new HolidayRequestDTO("Weihnachten", LocalDateTime.of(2026, 12, 24, 0, 0),
-                    LocalDateTime.of(2026, 12, 24, 0, 0));
+            final HolidayRequestDTO requestDTO = new HolidayRequestDTO("Weihnachten", LocalDate.of(2026, 12, 24),
+                    LocalDate.of(2026, 12, 24));
 
             final Holiday holiday = new Holiday();
             holiday.setId(uuid);
