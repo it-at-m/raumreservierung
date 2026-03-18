@@ -1,18 +1,17 @@
 package de.muenchen.raumreservierung.holidays;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import de.muenchen.raumreservierung.holidays.dto.HolidayMapper;
 import de.muenchen.raumreservierung.holidays.dto.HolidayRequestDTO;
 import de.muenchen.raumreservierung.holidays.dto.HolidayResponseDTO;
+import java.time.LocalDate;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
-
-import java.time.LocalDate;
-import java.util.UUID;
-
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 @AllArgsConstructor
 public class HolidayMapperTest {
