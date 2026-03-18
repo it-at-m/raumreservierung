@@ -296,7 +296,7 @@ const headers = computed<
   ...(!isInternalPath.value
     ? [
         {
-          title: "domain.externalPerson.company",
+          title: t("domain.externalPerson.company"),
           value: "company",
           sortable: true,
         },
