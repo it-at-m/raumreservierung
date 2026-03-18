@@ -6,10 +6,11 @@ import de.muenchen.raumreservierung.seating.SeatingType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
-import java.io.Serial;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serial;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -59,7 +60,5 @@ public class Room extends BaseEntity {
         this.availability = room.getAvailability();
         this.area = room.getArea();
         this.note = room.getNote();
-        this.seatingType = room.getSeatingType();
-        this.equipment = room.getEquipment();
     }
 }
