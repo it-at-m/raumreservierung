@@ -32,7 +32,10 @@
 </template>
 
 <script setup lang="ts">
-import type { HolidayResponseDTO } from "@/api/raumreservierung-backend";
+import type {
+  HolidayRequestDTO,
+  HolidayResponseDTO,
+} from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/components/common/CardTable.vue";
 
 import { useDateFormat } from "@vueuse/core";
@@ -119,8 +122,22 @@ const headers = computed((): TableHeader<HolidayResponseDTO>[] => {
   ];
 });
 
+const toApiDate = (date: Date): Date => {
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+};
+
+const toApiHoliday = (holiday: HolidayResponseDTO): HolidayRequestDTO => {
+  return {
+    ...holiday,
+    startDate: toApiDate(holiday.startDate),
+    endDate: toApiDate(holiday.endDate),
+  };
+};
+
 const createHoliday = async (holiday: HolidayResponseDTO) => {
-  await createHolidayCall({ holidayRequestDTO: holiday });
+  await createHolidayCall({
+    holidayRequestDTO: toApiHoliday(holiday),
+  });
   if (!createHolidayError.value) {
     await onSuccess(
       t("generics.created", {
@@ -134,7 +151,7 @@ const updateHoliday = async (holiday: HolidayResponseDTO) => {
   if (holiday.id) {
     await updateHolidayCall({
       id: holiday.id,
-      holidayRequestDTO: holiday,
+      holidayRequestDTO: toApiHoliday(holiday),
     });
     if (!updateHolidayError.value) {
       await onSuccess(
