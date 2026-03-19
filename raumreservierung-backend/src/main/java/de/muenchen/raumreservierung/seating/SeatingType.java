@@ -28,5 +28,6 @@ public class SeatingType extends BaseEntity {
     public void updateFrom(final SeatingType seatingType) {
         this.name = seatingType.getName();
         this.description = seatingType.getDescription();
+        this.isActive = seatingType.isActive();
     }
 }

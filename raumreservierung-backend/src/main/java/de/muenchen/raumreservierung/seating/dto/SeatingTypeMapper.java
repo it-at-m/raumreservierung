@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 @Mapper
 public interface SeatingTypeMapper {
 
+    @Mapping(source = "active", target = "isActive")
     SeatingTypeResponseDto toDto(SeatingType seatingType);
 
     @Mapping(target = "id", ignore = true)

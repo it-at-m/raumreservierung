@@ -28,6 +28,7 @@ public class Equipment extends BaseEntity {
     public void updateFrom(final Equipment equipment) {
         this.name = equipment.getName();
         this.description = equipment.getDescription();
+        this.isActive = equipment.isActive();
     }
 
 }

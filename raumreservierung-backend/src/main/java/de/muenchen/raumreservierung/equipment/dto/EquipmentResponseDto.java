@@ -6,5 +6,5 @@ import jakarta.validation.constraints.Size;
 import java.util.UUID;
 
 public record EquipmentResponseDto(UUID id, @NotNull @Size(min = 2, max = 100) String name,
-                                   @NotNull @Size(max = 255) String description, boolean isActive) {
+                                   @NotNull @Size(max = 255) String description, @NotNull boolean isActive) {
 }
