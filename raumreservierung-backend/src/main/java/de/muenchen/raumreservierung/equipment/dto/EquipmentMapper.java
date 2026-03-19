@@ -6,7 +6,8 @@ import org.mapstruct.Mapping;
 
 @Mapper
 public interface EquipmentMapper {
-
+    
+    @Mapping(source = "active", target = "isActive")
     EquipmentResponseDto toDto(Equipment equipment);
 
     @Mapping(target = "id", ignore = true)
