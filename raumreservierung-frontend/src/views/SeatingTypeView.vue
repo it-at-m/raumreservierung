@@ -18,6 +18,14 @@
         :disabled="updateSeatingTypeLoading || createSeatingTypeLoading"
       />
     </template>
+    <template #[`item.isActive`]="{ item }">
+      <v-checkbox-btn
+        readonly
+        hide-details
+        :model-value="item.isActive"
+        class="pointer-events-none"
+      />
+    </template>
   </generic-table-crud-view>
 </template>
 
@@ -74,6 +82,11 @@ onMounted(() => getAllSeatingTypes());
 const headers: TableHeader<SeatingTypeResponseDto>[] = [
   { title: t("domain.seatingType.name"), value: "name", sortable: true },
   { title: t("domain.seatingType.description"), value: "description" },
+  {
+    title: t("domain.seatingType.isActive"),
+    value: "isActive",
+    sortable: true,
+  },
   { title: t("common.action", { count: 2 }), value: "actions" },
 ];
 

@@ -18,6 +18,14 @@
         :disabled="updateEquipmentLoading || saveEquipmentLoading"
       />
     </template>
+    <template #[`item.isActive`]="{ item }">
+      <v-checkbox-btn
+        readonly
+        hide-details
+        :model-value="item.isActive"
+        class="pointer-events-none"
+      />
+    </template>
   </generic-table-crud-view>
 </template>
 
@@ -79,6 +87,7 @@ onMounted(() => getAllEquipments());
 const headers: TableHeader<EquipmentResponseDto>[] = [
   { title: t("domain.equipment.name"), value: "name", sortable: true },
   { title: t("domain.equipment.description"), value: "description" },
+  { title: t("domain.equipment.isActive"), value: "isActive", sortable: true },
   { title: t("common.action", { count: 2 }), value: "actions" },
 ];
 
