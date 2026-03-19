@@ -1,34 +1,41 @@
 <template>
-  <generic-table-crud-view
-    ref="tableRef"
-    :domain="computedDomain"
-    :items="getHolidaysData || []"
-    :headers="headers"
-    :empty-item-template="EMPTY_HOLIDAY"
-    :loading="getHolidaysLoading || deleteHolidayLoading"
-    @create="createHoliday"
-    @delete="deleteHoliday"
-    @update="updateHoliday"
-  >
-    <template #header>
-      {{ t("generics.manage", { domain: computedTitle }) }}
-    </template>
-    <template #form="{ item, updateItem, updateValidity }">
-      <holiday-form
-        :isPublic="isPublic"
-        :model-value="item"
-        @update:model-value="updateItem"
-        @is-valid="updateValidity"
-        :disabled="updateHolidayLoading || createHolidayLoading"
-      />
-    </template>
-    <template #[`item.startDate`]="{ item }">
-      {{ useDateFormat(item.startDate, DATE_FORMAT_DDMMYY) }}
-    </template>
-    <template #[`item.endDate`]="{ item }">
-      {{ useDateFormat(item.endDate, DATE_FORMAT_DDMMYY) }}
-    </template>
-  </generic-table-crud-view>
+  <div>
+    <generic-table-crud-view
+      ref="tableRef"
+      :domain="computedDomain"
+      :items="filteredHolidays || []"
+      :headers="headers"
+      :empty-item-template="EMPTY_HOLIDAY"
+      :loading="getHolidaysLoading || deleteHolidayLoading"
+      @create="createHoliday"
+      @delete="deleteHoliday"
+      @update="updateHoliday"
+    >
+      <template #header>
+        {{ t("generics.manage", { domain: computedTitle }) }}
+      </template>
+      <template #form="{ item, updateItem, updateValidity }">
+        <holiday-form
+          :isPublic="isPublic"
+          :model-value="item"
+          @update:model-value="updateItem"
+          @is-valid="updateValidity"
+          :disabled="updateHolidayLoading || createHolidayLoading"
+        />
+      </template>
+      <template #[`item.startDate`]="{ item }">
+        {{ useDateFormat(item.startDate, DATE_FORMAT_DDMMYY) }}
+      </template>
+      <template #[`item.endDate`]="{ item }">
+        {{ useDateFormat(item.endDate, DATE_FORMAT_DDMMYY) }}
+      </template>
+    </generic-table-crud-view>
+    <year-slider
+      v-model="currentYear"
+      :start-year="2010"
+      :end-year="2030"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -39,12 +46,13 @@ import type {
 import type { TableHeader } from "@/components/common/CardTable.vue";
 
 import { useDateFormat } from "@vueuse/core";
-import { computed, onMounted, useTemplateRef } from "vue";
+import { computed, onMounted, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
 import GenericTableCrudView from "@/components/common/GenericTableCrudView.vue";
+import YearSlider from "@/components/common/YearSlider.vue";
 import HolidayForm from "@/components/HolidayForm.vue";
 import {
   useCreateHoliday,
@@ -59,6 +67,15 @@ import { ROUTES } from "@/types/Routes.ts";
 onMounted(async () => {
   await getHolidaysCall({ isPublic: isPublic.value });
 });
+
+const currentYear = ref(new Date().getFullYear());
+
+const filteredHolidays = computed(
+  () =>
+    getHolidaysData.value?.filter(
+      (holiday) => holiday.startDate.getFullYear() === currentYear.value
+    ) || []
+);
 
 const { t } = useI18n();
 const route = useRoute();
