@@ -74,7 +74,12 @@
       </template>
 
       <template v-slot:[`item.actions`]="{ item }">
-        <slot name="item.actions">
+        <slot
+          name="itemActions"
+          :item="item"
+          :openEdit="openEdit"
+          :promptDelete="promptDelete"
+        >
           <v-row align-content="center">
             <v-col
               class="pa-0"
