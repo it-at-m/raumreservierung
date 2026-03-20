@@ -25,6 +25,7 @@
         @cancel="closeDialog"
       >
         <template #text>
+          <!-- @vue-ignore -->
           <slot
             name="form"
             :item="activeItem"
@@ -74,7 +75,12 @@
       </template>
 
       <template v-slot:[`item.actions`]="{ item }">
-        <slot name="item.actions">
+        <slot
+          name="itemActions"
+          :item="item"
+          :openEdit="openEdit"
+          :promptDelete="promptDelete"
+        >
           <v-row align-content="center">
             <v-col
               class="pa-0"
@@ -119,6 +125,7 @@
 
 <script setup lang="ts" generic="T extends { id?: string }">
 import type { TableHeader } from "@/components/common/CardTable.vue";
+import type { Slot, VNode } from "vue";
 
 import { mdiContentSaveOutline, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
 import { computed, ref } from "vue";
@@ -208,6 +215,20 @@ const closeDialog = () => {
 defineExpose({
   closeDialog,
 });
+
+defineSlots<{
+  form(props: {
+    item: T;
+    updateItem: (item: T) => void;
+    updateValidity: (item: boolean | null) => void;
+  }): VNode[];
+  itemActions(props: {
+    item: T;
+    openEdit: (item: T) => void;
+    promptDelete: (item: T) => void;
+  }): VNode[];
+  [key: string]: Slot;
+}>();
 </script>
 
 <style scoped></style>

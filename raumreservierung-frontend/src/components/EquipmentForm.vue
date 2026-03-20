@@ -20,6 +20,20 @@
       v-model="modelValue.description"
     />
   </v-form>
+  <card-form :subtitle="t('domain.equipment.isActive')">
+    <template #text>
+      <v-checkbox
+        density="compact"
+        v-model="modelValue.isActive"
+        hide-details
+        :label="
+          t('generics.isActivated', {
+            domain: t('domain.equipment.header'),
+          })
+        "
+      />
+    </template>
+  </card-form>
 </template>
 
 <script setup lang="ts">
@@ -27,6 +41,8 @@ import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
 
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
+
+import CardForm from "@/components/common/CardForm.vue";
 
 const MIN_NAME_LENGTH = 2;
 const MAX_DESCRIPTION_LENGTH = 255;

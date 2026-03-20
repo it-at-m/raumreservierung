@@ -1,6 +1,7 @@
 <template>
   <v-btn
-    flat
+    variant="text"
+    :disabled="disabled"
     :icon="computedIcon"
     @click="emit('click')"
   />
@@ -12,7 +13,8 @@ import { computed } from "vue";
 
 type Type = "edit" | "delete";
 
-const { type } = defineProps<{
+const { type, disabled = false } = defineProps<{
+  disabled?: boolean;
   type?: Type;
 }>();
 
