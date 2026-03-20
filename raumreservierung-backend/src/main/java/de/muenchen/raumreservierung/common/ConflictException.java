@@ -5,7 +5,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 @SuppressWarnings("PMD.MissingSerialVersionUID")
 public class ConflictException extends ResponseStatusException {
-    public ConflictException(String message) {
+    public ConflictException(final String message) {
         super(HttpStatus.CONFLICT, message);
     }
 }
