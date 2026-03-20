@@ -11,5 +11,6 @@ public interface SeatingTypeMapper {
     SeatingTypeResponseDto toDto(SeatingType seatingType);
 
     @Mapping(target = "id", ignore = true)
+    @Mapping(source = "isActive", target = "active")
     SeatingType toEntity(SeatingTypeRequestDto seatingTypeRequestDto);
 }
