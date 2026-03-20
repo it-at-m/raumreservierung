@@ -11,53 +11,48 @@
       variant="outlined"
       autofocus
     />
-    <v-card
-      flat
-      border
-      class="border-opacity-25"
-    >
-      <v-card-title class="v-label font-weight-regular">
+    <card-form>
+      <template #subtitle>
         {{ t("domain.holidays.public.date") }}
-      </v-card-title>
-      <v-row
-        justify="start"
-        class="px-4"
-      >
-        <v-col
-          cols="12"
-          sm="6"
-          class="pr-10"
-        >
-          <v-date-input
-            ref="startDateInput"
-            v-model="modelValue.startDate"
-            :label="isPublic ? '' : t('domain.holidays.school.startDate')"
-            :rules="[datePicked, dateRules('startDate')]"
-            :allowed-dates="isDateAllowed('startDate')"
-            :prepend-icon="mdiCalendar"
-            variant="underlined"
-            @update:model-value="validateDate('endDate')"
-          />
-        </v-col>
-        <v-col
-          v-if="!isPublic"
-          cols="12"
-          sm="6"
-          class="pr-10"
-        >
-          <v-date-input
-            ref="endDateInput"
-            v-model="modelValue.endDate"
-            :label="t('domain.holidays.school.endDate')"
-            :rules="[datePicked, dateRules('endDate')]"
-            :allowed-dates="isDateAllowed('endDate')"
-            :prepend-icon="mdiCalendar"
-            variant="underlined"
-            @update:model-value="validateDate('startDate')"
-          ></v-date-input>
-        </v-col>
-      </v-row>
-    </v-card>
+      </template>
+      <template #text>
+        <v-row justify="start">
+          <v-col
+            cols="12"
+            sm="6"
+            class="pr-10 pb-0"
+          >
+            <v-date-input
+              ref="startDateInput"
+              v-model="modelValue.startDate"
+              :label="isPublic ? '' : t('domain.holidays.school.startDate')"
+              :rules="[datePicked, dateRules('startDate')]"
+              :allowed-dates="isDateAllowed('startDate')"
+              :prepend-icon="mdiCalendar"
+              variant="underlined"
+              @update:model-value="validateDate('endDate')"
+            />
+          </v-col>
+          <v-col
+            v-if="!isPublic"
+            cols="12"
+            sm="6"
+            class="pr-10 pb-0"
+          >
+            <v-date-input
+              ref="endDateInput"
+              v-model="modelValue.endDate"
+              :label="t('domain.holidays.school.endDate')"
+              :rules="[datePicked, dateRules('endDate')]"
+              :allowed-dates="isDateAllowed('endDate')"
+              :prepend-icon="mdiCalendar"
+              variant="underlined"
+              @update:model-value="validateDate('startDate')"
+            />
+          </v-col>
+        </v-row>
+      </template>
+    </card-form>
   </v-form>
 </template>
 
@@ -68,6 +63,8 @@ import type { VDateInput } from "vuetify/labs/VDateInput";
 import { mdiCalendar } from "@mdi/js";
 import { ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
+
+import CardForm from "@/components/common/CardForm.vue";
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 100;
