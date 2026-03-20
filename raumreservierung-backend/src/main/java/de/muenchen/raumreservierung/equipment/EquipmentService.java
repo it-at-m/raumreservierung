@@ -1,18 +1,17 @@
 package de.muenchen.raumreservierung.equipment;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
-
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -44,7 +43,7 @@ public class EquipmentService {
     @PreAuthorize(Authorities.EQUIPMENT_MANAGE)
     public void deleteEquipment(final UUID equipmentId) {
         final Equipment toDelete = getEntityOrThrowException(equipmentId);
-        
+
         if (toDelete.isActive()) {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, equipmentId));
         }
@@ -52,7 +51,6 @@ public class EquipmentService {
         log.debug("Deleting equipment {}", equipmentId);
         equipmentRepository.deleteById(equipmentId);
     }
-
 
     private Equipment getEntityOrThrowException(final UUID equipmentId) {
         return equipmentRepository
