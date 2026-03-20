@@ -31,9 +31,9 @@
       </template>
     </generic-table-crud-view>
     <year-slider
-      v-model="currentYear"
-      :start-year="2010"
-      :end-year="2030"
+      v-model="selectedYear"
+      :start-year="currentYear - PREVIOUS_YEARS"
+      :end-year="currentYear + NEXT_YEARS"
     />
   </div>
 </template>
@@ -64,16 +64,20 @@ import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
+const PREVIOUS_YEARS = 5;
+const NEXT_YEARS = 10;
+
 onMounted(async () => {
   await getHolidaysCall({ isPublic: isPublic.value });
 });
 
-const currentYear = ref(new Date().getFullYear());
+const selectedYear = ref(new Date().getFullYear());
+const currentYear = computed(() => new Date().getFullYear());
 
 const filteredHolidays = computed(
   () =>
     getHolidaysData.value?.filter(
-      (holiday) => holiday.startDate.getFullYear() === currentYear.value
+      (holiday) => holiday.startDate.getFullYear() === selectedYear.value
     ) || []
 );
 

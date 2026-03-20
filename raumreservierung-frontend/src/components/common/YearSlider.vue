@@ -1,27 +1,28 @@
 <template>
   <v-sheet
     class="mx-auto py-2"
-    max-width="400"
+    max-width="600"
   >
     <v-slide-group
       v-model="selectedYear"
+      color="tertiary"
       show-arrows
-      center-active
       mandatory
+      center-active
     >
       <v-slide-group-item
         v-for="year in years"
         :key="year"
         :value="year"
-        v-slot="{ isSelected, toggle }"
+        selectedClass="border-b-md border-tertiary text-tertiary"
+        v-slot="{ select, selectedClass }"
       >
         <v-btn
-          width="100"
-          variant="text"
-          :border="isSelected ? 'b-md tertiary opacity-75 ' : false"
+          class="px-8"
+          variant="flat"
+          :class="[selectedClass]"
           rounded="0"
-          :color="isSelected ? 'tertiary' : undefined"
-          @click="toggle"
+          @click="select"
         >
           {{ year }}
         </v-btn>
