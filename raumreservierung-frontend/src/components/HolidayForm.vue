@@ -11,10 +11,7 @@
       variant="outlined"
       autofocus
     />
-    <card-form>
-      <template #subtitle>
-        {{ t("domain.holidays.public.date") }}
-      </template>
+    <card-form :subtitle="t('domain.holidays.public.date')">
       <template #text>
         <v-row justify="start">
           <v-col
