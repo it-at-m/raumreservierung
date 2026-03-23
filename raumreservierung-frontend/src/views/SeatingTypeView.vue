@@ -18,6 +18,40 @@
         :disabled="updateSeatingTypeLoading || createSeatingTypeLoading"
       />
     </template>
+    <template #[`item.isActive`]="{ item }">
+      <v-checkbox-btn
+        readonly
+        hide-details
+        :model-value="item.isActive"
+        class="pointer-events-none"
+      />
+    </template>
+    <template #itemActions="{ openEdit, promptDelete, item }">
+      <v-row align-content="center">
+        <v-col
+          class="pa-0"
+          cols="12"
+          sm="6"
+        >
+          <action-button
+            type="edit"
+            class="mr-1"
+            @click="openEdit(item)"
+          />
+        </v-col>
+        <v-col
+          class="pa-0"
+          cols="12"
+          sm="6"
+        >
+          <action-button
+            :disabled="item.isActive"
+            type="delete"
+            @click="promptDelete(item)"
+          />
+        </v-col>
+      </v-row>
+    </template>
   </generic-table-crud-view>
 </template>
 
@@ -29,6 +63,7 @@ import { onMounted, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
+import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import GenericTableCrudView from "@/components/common/GenericTableCrudView.vue";
 import SeatingTypeForm from "@/components/SeatingTypeForm.vue";
 import {
@@ -74,6 +109,11 @@ onMounted(() => getAllSeatingTypes());
 const headers: TableHeader<SeatingTypeResponseDto>[] = [
   { title: t("domain.seatingType.name"), value: "name", sortable: true },
   { title: t("domain.seatingType.description"), value: "description" },
+  {
+    title: t("domain.seatingType.isActive"),
+    value: "isActive",
+    sortable: true,
+  },
   { title: t("common.action", { count: 2 }), value: "actions" },
 ];
 

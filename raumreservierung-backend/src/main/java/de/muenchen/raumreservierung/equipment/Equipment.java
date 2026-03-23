@@ -21,9 +21,13 @@ public class Equipment extends BaseEntity {
     @Column
     private String description;
 
+    @Column(nullable = false)
+    private boolean isActive;
+
     public void updateFrom(final Equipment equipment) {
         this.name = equipment.getName();
         this.description = equipment.getDescription();
+        this.isActive = equipment.isActive();
     }
 
 }

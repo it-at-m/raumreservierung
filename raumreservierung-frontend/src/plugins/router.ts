@@ -11,6 +11,7 @@ import { hasPrivileges } from "@/util/privilegeUtility.ts";
 import EquipmentView from "@/views/EquipmentView.vue";
 import GetStartedView from "@/views/GetStartedView.vue";
 import HelpView from "@/views/HelpView.vue";
+import HolidaysView from "@/views/HolidaysView.vue";
 import HomeView from "@/views/HomeView.vue";
 import PersonView from "@/views/PersonView.vue";
 import SeatingTypeView from "@/views/SeatingTypeView.vue";
@@ -58,6 +59,22 @@ const routes: RouteRecordRaw[] = [
     component: PersonView,
     meta: {
       requiredPrivileges: ["users:manage"],
+    },
+  },
+  {
+    path: "/holidays/public",
+    name: ROUTES.PUBLIC_HOLIDAYS,
+    component: HolidaysView,
+    meta: {
+      requiredPrivileges: ["days:write"],
+    },
+  },
+  {
+    path: "/holidays/school",
+    name: ROUTES.SCHOOL_HOLIDAYS,
+    component: HolidaysView,
+    meta: {
+      requiredPrivileges: ["days:write"],
     },
   },
   {

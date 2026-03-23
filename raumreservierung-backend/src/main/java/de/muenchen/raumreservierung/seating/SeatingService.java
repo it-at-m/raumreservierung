@@ -1,7 +1,9 @@
 package de.muenchen.raumreservierung.seating;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
+import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import java.util.List;
@@ -32,17 +34,27 @@ public class SeatingService {
 
     @PreAuthorize(Authorities.SEATING_MANAGE)
     public SeatingType updateSeating(final SeatingType seatingType, final UUID seatingId) {
-        final SeatingType foundSeatingType = seatingRepository.findById(seatingId)
-                .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, seatingId)));
+        final SeatingType foundSeatingType = getEntityOrThrowException(seatingId);
         foundSeatingType.updateFrom(seatingType);
         log.debug("Updating Seating to {}", foundSeatingType);
         return seatingRepository.save(foundSeatingType);
     }
 
     @PreAuthorize(Authorities.SEATING_MANAGE)
-    public void deleteSeating(final UUID seatingId) {
-        log.debug("Deleting Seating {}", seatingId);
-        seatingRepository.deleteById(seatingId);
+    public void deleteSeating(final UUID seatingTypeId) {
+        final SeatingType toDelete = getEntityOrThrowException(seatingTypeId);
+
+        if (toDelete.isActive()) {
+            throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, seatingTypeId));
+        }
+
+        log.debug("Deleting Seating {}", seatingTypeId);
+        seatingRepository.delete(toDelete);
     }
 
+    private SeatingType getEntityOrThrowException(final UUID seatingTypeId) {
+        return seatingRepository
+                .findById(seatingTypeId)
+                .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, seatingTypeId)));
+    }
 }

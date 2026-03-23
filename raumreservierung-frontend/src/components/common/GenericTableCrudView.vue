@@ -1,6 +1,10 @@
 <template>
   <div>
-    <view-simple-header :header-text="t('generics.manage', { domain })" />
+    <view-simple-header :header-text="t('generics.manage', { domain })">
+      <template #header>
+        <slot name="header" />
+      </template>
+    </view-simple-header>
 
     <v-dialog
       :model-value="showDialog"
@@ -14,13 +18,14 @@
         :loading="loading"
         :title="
           activeItem.id
-            ? t('generics.edit', { domain: t('domain.equipment.header') })
-            : t('generics.create', { domain: t('domain.equipment.header') })
+            ? t('generics.edit', { domain })
+            : t('generics.create', { domain })
         "
         @confirm="handleSave"
         @cancel="closeDialog"
       >
         <template #text>
+          <!-- @vue-ignore -->
           <slot
             name="form"
             :item="activeItem"
@@ -70,7 +75,12 @@
       </template>
 
       <template v-slot:[`item.actions`]="{ item }">
-        <slot name="item.actions">
+        <slot
+          name="itemActions"
+          :item="item"
+          :openEdit="openEdit"
+          :promptDelete="promptDelete"
+        >
           <v-row align-content="center">
             <v-col
               class="pa-0"
@@ -114,7 +124,8 @@
 </template>
 
 <script setup lang="ts" generic="T extends { id?: string }">
-import type { TableHeader } from "@/types/TableHeader.ts";
+import type { TableHeader } from "@/components/common/CardTable.vue";
+import type { Slot, VNode } from "vue";
 
 import { mdiContentSaveOutline, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
 import { computed, ref } from "vue";
@@ -136,7 +147,10 @@ const {
   items: readonly T[];
   headers: TableHeader<T>[];
   loading?: boolean;
-  emptyItemTemplate: T;
+  /*
+   Partial is necessary for objects with complex attributes, which are set to be non-optional, with partial these can be set to undefined.
+   */
+  emptyItemTemplate: Partial<T>;
 }>();
 
 const emit = defineEmits<{
@@ -170,7 +184,7 @@ const openCreate = () => {
 };
 
 const openEdit = (item: T) => {
-  activeItem.value = JSON.parse(JSON.stringify(item)) as T;
+  activeItem.value = { ...item } as T;
   dialogMode.value = "form";
 };
 
@@ -201,6 +215,20 @@ const closeDialog = () => {
 defineExpose({
   closeDialog,
 });
+
+defineSlots<{
+  form(props: {
+    item: T;
+    updateItem: (item: T) => void;
+    updateValidity: (item: boolean | null) => void;
+  }): VNode[];
+  itemActions(props: {
+    item: T;
+    openEdit: (item: T) => void;
+    promptDelete: (item: T) => void;
+  }): VNode[];
+  [key: string]: Slot;
+}>();
 </script>
 
 <style scoped></style>
