@@ -21,7 +21,7 @@ const rolePrivilegeMapping = {
     "days:write",
     "equipment:write",
     "seating:write",
-    "users:write",
+    "users:manage",
   ],
   anwender: ["bookings:self", "rooms:read"],
 } satisfies Record<Role, readonly Privilege[]>;

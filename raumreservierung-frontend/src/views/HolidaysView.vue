@@ -43,7 +43,7 @@ import type {
   HolidayRequestDTO,
   HolidayResponseDTO,
 } from "@/api/raumreservierung-backend";
-import type { TableHeader } from "@/components/common/CardTable.vue";
+import type { TableHeader } from "@/types/TableHeader.ts";
 
 import { useDateFormat } from "@vueuse/core";
 import { computed, onMounted, ref, useTemplateRef } from "vue";
