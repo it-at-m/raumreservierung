@@ -56,7 +56,8 @@
     "confirmDelete": "Möchten Sie die {domain} endgültig löschen",
     "deleted": "{domain} wurde gelöscht.",
     "updated": "{domain} wurde aktualisiert.",
-    "created": "{domain} wurde erstellt."
+    "created": "{domain} wurde erstellt.",
+    "isActivated": "{domain} ist aktiviert"
   },
   "navigationDrawer": {
     "myBookings": "Meine Buchungen einsehen",
@@ -88,11 +89,13 @@
     "seatingType": {
       "header": "Bestuhlung",
       "name": "Name",
+      "isActive": "Status",
       "description": "Beschreibung"
     },
     "equipment": {
       "header": "Ausstattung",
       "name": "Name",
+      "isActive": "Status",
       "description": "Beschreibung"
     },
     "person": {
