@@ -111,7 +111,8 @@
         "header": "Ferien",
         "startDate": "Beginn",
         "endDate": "Ende"
-      },
+      }
+    },
     "person": {
       "name": "Name",
       "email": "E-Mail",
