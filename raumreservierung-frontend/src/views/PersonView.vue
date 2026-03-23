@@ -13,7 +13,6 @@
         variant="outlined"
         :label="t('common.search')"
         clearable
-        @keyup.enter="fetchPage"
         @click:clear="fetchPage"
         @update:model-value="updateSearchNameAndLoadPage"
       />
