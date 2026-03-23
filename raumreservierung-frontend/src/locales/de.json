@@ -13,6 +13,9 @@
       "notEmpty": "{field} darf nicht leer sein.",
       "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
       "maxLengthError": "{field} darf maximal {num} Zeichen beinhalten.",
+      "noDateSelected": "Bitte wählen Sie ein Datum.",
+      "startAfterEnd": "Beginn liegt nach Ende.",
+      "endBeforeStart": "Ende liegt vor Beginn.",
       "invalidEmail": "Die E-Mail Adresse ist nicht valide",
       "invalidTelefonNumber": "Diese Telefonnummer ist nicht valide"
     }
@@ -53,7 +56,7 @@
     "delete": "{domain} löschen",
     "edit": "{domain} bearbeiten",
     "create": "{domain} erstellen",
-    "confirmDelete": "Möchten Sie die {domain} endgültig löschen",
+    "confirmDelete": "Möchten Sie den Eintrag aus \"{domain}\" endgültig löschen?",
     "deleted": "{domain} wurde gelöscht.",
     "updated": "{domain} wurde aktualisiert.",
     "created": "{domain} wurde erstellt.",
@@ -73,7 +76,7 @@
     },
     "holidayGroup": {
       "groupTitle": "Tage verwalten",
-      "publicHolidays": "Feiertrage verwalten",
+      "publicHolidays": "Feiertage verwalten",
       "schoolHolidays": "Ferien verwalten"
     },
     "viewRoomsAndDetails": "Räume und Details ansehen",
@@ -98,6 +101,17 @@
       "isActive": "Status",
       "description": "Beschreibung"
     },
+    "holidays": {
+      "public": {
+        "header": "Feiertag | Feiertage",
+        "name": "Name",
+        "date": "Datum"
+      },
+      "school": {
+        "header": "Ferien",
+        "startDate": "Beginn",
+        "endDate": "Ende"
+      },
     "person": {
       "name": "Name",
       "email": "E-Mail",
