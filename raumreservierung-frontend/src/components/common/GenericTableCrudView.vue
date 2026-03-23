@@ -124,7 +124,7 @@
 </template>
 
 <script setup lang="ts" generic="T extends { id?: string }">
-import type { TableHeader } from "@/components/common/CardTable.vue";
+import type { TableHeader } from "@/types/TableHeader.ts";
 import type { Slot, VNode } from "vue";
 
 import { mdiContentSaveOutline, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
