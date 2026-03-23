@@ -57,7 +57,7 @@
 
 <script setup lang="ts">
 import type { SeatingTypeResponseDto } from "@/api/raumreservierung-backend";
-import type { TableHeader } from "@/components/common/CardTable.vue";
+import type { TableHeader } from "@/types/TableHeader.ts";
 
 import { onMounted, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";

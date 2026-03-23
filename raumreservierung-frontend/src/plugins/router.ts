@@ -13,6 +13,7 @@ import GetStartedView from "@/views/GetStartedView.vue";
 import HelpView from "@/views/HelpView.vue";
 import HolidaysView from "@/views/HolidaysView.vue";
 import HomeView from "@/views/HomeView.vue";
+import PersonView from "@/views/PersonView.vue";
 import SeatingTypeView from "@/views/SeatingTypeView.vue";
 
 const routes: RouteRecordRaw[] = [
@@ -42,6 +43,22 @@ const routes: RouteRecordRaw[] = [
     component: EquipmentView,
     meta: {
       requiredPrivileges: ["equipment:write"],
+    },
+  },
+  {
+    path: "/admin/internalPerson",
+    name: ROUTES.INTERNAL_PERSON,
+    component: PersonView,
+    meta: {
+      requiredPrivileges: ["users:manage"],
+    },
+  },
+  {
+    path: "/admin/externalPerson",
+    name: ROUTES.EXTERNAL_PERSON,
+    component: PersonView,
+    meta: {
+      requiredPrivileges: ["users:manage"],
     },
   },
   {

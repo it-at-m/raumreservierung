@@ -1,11 +1,5 @@
 <template>
   <div>
-    <view-simple-header :header-text="t('generics.manage', { domain })">
-      <template #header>
-        <slot name="header" />
-      </template>
-    </view-simple-header>
-
     <v-dialog
       :model-value="showDialog"
       width="90%"
@@ -14,18 +8,17 @@
       close-on-back
     >
       <confirm-card
-        v-if="dialogMode === 'form'"
+        v-if="dialogMode == 'form'"
         :loading="loading"
         :title="
-          activeItem.id
-            ? t('generics.edit', { domain })
-            : t('generics.create', { domain })
+          t(activeItem.id ? 'generics.edit' : 'generics.create', {
+            domain: domain,
+          })
         "
         @confirm="handleSave"
         @cancel="closeDialog"
       >
         <template #text>
-          <!-- @vue-ignore -->
           <slot
             name="form"
             :item="activeItem"
@@ -61,113 +54,76 @@
       </confirm-card>
     </v-dialog>
 
-    <card-table
-      :items="items"
-      :headers="headers"
-      :loading="loading"
-    >
-      <template #action>
-        <base-button
-          @click="openCreate"
-          :append-icon="mdiPlus"
-          :text="t('common.add')"
+    <v-card>
+      <template #title>
+        <v-row align-content="center">
+          <v-col class="d-flex align-center justify-end">
+            <slot
+              name="tableActions"
+              :openCreate="openCreate"
+            >
+              <base-button
+                @click="openCreate"
+                :append-icon="mdiPlus"
+                :text="t('common.add')"
+              />
+            </slot>
+          </v-col>
+        </v-row>
+        <v-row class="mt-2">
+          <v-col>
+            <v-divider />
+          </v-col>
+        </v-row>
+      </template>
+      <template #text>
+        <slot
+          name="table"
+          :openEdit="openEdit"
+          :openDelete="promptDelete"
         />
       </template>
-
-      <template v-slot:[`item.actions`]="{ item }">
-        <slot
-          name="itemActions"
-          :item="item"
-          :openEdit="openEdit"
-          :promptDelete="promptDelete"
-        >
-          <v-row align-content="center">
-            <v-col
-              class="pa-0"
-              cols="12"
-              sm="6"
-            >
-              <action-button
-                type="edit"
-                class="mr-1"
-                @click="openEdit(item)"
-              />
-            </v-col>
-            <v-col
-              class="pa-0"
-              cols="12"
-              sm="6"
-            >
-              <action-button
-                type="delete"
-                @click="promptDelete(item)"
-              />
-            </v-col>
-          </v-row>
-        </slot>
-      </template>
-
-      <template
-        v-for="(_, slotName) in $slots"
-        :key="slotName"
-        v-slot:[slotName]="slotProps"
-      >
-        <slot
-          v-if="slotName !== 'form' && slotName !== 'item.actions'"
-          :name="slotName"
-          v-bind="slotProps || {}"
-        >
-        </slot>
-      </template>
-    </card-table>
+    </v-card>
   </div>
 </template>
 
 <script setup lang="ts" generic="T extends { id?: string }">
-import type { TableHeader } from "@/types/TableHeader.ts";
-import type { Slot, VNode } from "vue";
-
 import { mdiContentSaveOutline, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
-import CardTable from "@/components/common/CardTable.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
-import ViewSimpleHeader from "@/components/common/ViewSimpleHeader.vue";
+
+const { t } = useI18n();
+
+type DialogMode = "form" | "delete" | null;
+const dialogMode = ref<DialogMode>(null);
+const showDialog = computed(() => dialogMode.value !== null);
 
 const {
-  loading = false,
-  emptyItemTemplate,
   maxDialogWidth = "800px",
+  emptyItemTemplate,
+  loading = false,
 } = defineProps<{
   maxDialogWidth?: string;
+  emptyItemTemplate: T;
   domain: string;
-  items: readonly T[];
-  headers: TableHeader<T>[];
   loading?: boolean;
-  /*
-   Partial is necessary for objects with complex attributes, which are set to be non-optional, with partial these can be set to undefined.
-   */
-  emptyItemTemplate: Partial<T>;
 }>();
+
+const activeItem = ref<T>({ ...emptyItemTemplate } as T);
+
+const isFormSlotValid = ref(false);
 
 const emit = defineEmits<{
   create: [item: T];
   update: [item: T];
   delete: [id: string];
+  // Sadly there is no type for the emit of updatedOptions ...
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  "update:options": [options: any];
 }>();
-
-const { t } = useI18n();
-
-// --- State ---
-type DialogMode = "form" | "delete" | null;
-const dialogMode = ref<DialogMode>(null);
-const showDialog = computed(() => dialogMode.value !== null);
-const isFormSlotValid = ref(false);
-
-const activeItem = ref<T>({ ...emptyItemTemplate } as T);
 
 // --- Functions ---
 const updateFormValidity = (valid: boolean | null) => {
@@ -184,7 +140,7 @@ const openCreate = () => {
 };
 
 const openEdit = (item: T) => {
-  activeItem.value = { ...item } as T;
+  activeItem.value = JSON.parse(JSON.stringify(item)) as T;
   dialogMode.value = "form";
 };
 
@@ -215,20 +171,6 @@ const closeDialog = () => {
 defineExpose({
   closeDialog,
 });
-
-defineSlots<{
-  form(props: {
-    item: T;
-    updateItem: (item: T) => void;
-    updateValidity: (item: boolean | null) => void;
-  }): VNode[];
-  itemActions(props: {
-    item: T;
-    openEdit: (item: T) => void;
-    promptDelete: (item: T) => void;
-  }): VNode[];
-  [key: string]: Slot;
-}>();
 </script>
 
 <style scoped></style>
