@@ -1,99 +1,101 @@
 <template>
-  <base-view
-    :header-text="
-      t('generics.manage', {
-        domain: isInternalPath
-          ? t('domain.internalPerson.header', { count: 2 })
-          : t('domain.externalPerson.header', { count: 2 }),
-      })
-    "
-  >
-    <template #default>
-      <v-text-field
-        variant="outlined"
-        :label="t('common.search')"
-        clearable
-        @click:clear="fetchPage"
-        @update:model-value="updateSearchNameAndLoadPage"
-      />
-      <crud-card
-        ref="crudRef"
-        :empty-item-template="EMPTY_ITEM_TEMPLATE"
-        :domain="
-          t('generics.manage', {
-            domain: isInternalPath
-              ? t('domain.internalPerson.header', { count: 2 })
-              : t('domain.externalPerson.header', { count: 2 }),
-          })
-        "
-        :loading="personPageLoading || deletePersonLoading"
-        @update:options="updateOptionsAndLoadPage"
-        @create="handleCreate"
-        @update="handleUpdate"
-        @delete="handleDelete"
-      >
-        <template #form="{ item, updateItem, updateValidity }">
-          <external-person-form
-            :model-value="item"
-            @update:model-value="updateItem"
-            @is-valid="updateValidity"
-            :disabled="updatePersonLoading || createPersonLoading"
-          />
-        </template>
-        <template #tableActions="{ openCreate }">
-          <base-button
-            :disabled="isInternalPath"
-            @click="openCreate"
-            :append-icon="mdiPlus"
-            :text="t('common.add')"
-          />
-        </template>
-        <template #table="{ openEdit, openDelete }">
-          <v-data-table-server
-            must-sort
-            :sortBy="currentPageOptions.sortBy"
-            :items-length="personPageData?.page?.totalElements || 0"
-            :items="personPageData?.content || []"
-            :headers="headers"
-            :loading="personPageLoading"
-            :disable-sort="personPageLoading"
-            @update:options="updateOptionsAndLoadPage"
-          >
-            <template
-              v-if="!isInternalPath"
-              v-slot:[`item.actions`]="{ item }"
+  <div>
+    <base-view
+      :header-text="
+        t('generics.manage', {
+          domain: isInternalPath
+            ? t('domain.internalPerson.header', { count: 2 })
+            : t('domain.externalPerson.header', { count: 2 }),
+        })
+      "
+    >
+      <template #default>
+        <v-text-field
+          variant="outlined"
+          :label="t('common.search')"
+          clearable
+          @click:clear="fetchPage"
+          @update:model-value="updateSearchNameAndLoadPage"
+        />
+        <crud-card
+          ref="crudRef"
+          :empty-item-template="EMPTY_ITEM_TEMPLATE"
+          :domain="
+            t('generics.manage', {
+              domain: isInternalPath
+                ? t('domain.internalPerson.header', { count: 2 })
+                : t('domain.externalPerson.header', { count: 2 }),
+            })
+          "
+          :loading="personPageLoading || deletePersonLoading"
+          @update:options="updateOptionsAndLoadPage"
+          @create="handleCreate"
+          @update="handleUpdate"
+          @delete="handleDelete"
+        >
+          <template #form="{ item, updateItem, updateValidity }">
+            <external-person-form
+              :model-value="item"
+              @update:model-value="updateItem"
+              @is-valid="updateValidity"
+              :disabled="updatePersonLoading || createPersonLoading"
+            />
+          </template>
+          <template #tableActions="{ openCreate }">
+            <base-button
+              :disabled="isInternalPath"
+              @click="openCreate"
+              :append-icon="mdiPlus"
+              :text="t('common.add')"
+            />
+          </template>
+          <template #table="{ openEdit, openDelete }">
+            <v-data-table-server
+              must-sort
+              :sortBy="currentPageOptions.sortBy"
+              :items-length="personPageData?.page?.totalElements || 0"
+              :items="personPageData?.content || []"
+              :headers="headers"
+              :loading="personPageLoading"
+              :disable-sort="personPageLoading"
+              @update:options="updateOptionsAndLoadPage"
             >
-              <slot name="item.actions">
-                <v-row align-content="center">
-                  <v-col
-                    class="pa-0"
-                    cols="12"
-                    sm="6"
-                  >
-                    <action-button
-                      type="edit"
-                      class="mr-1"
-                      @click="openEdit(item)"
-                    />
-                  </v-col>
-                  <v-col
-                    class="pa-0"
-                    cols="12"
-                    sm="6"
-                  >
-                    <action-button
-                      type="delete"
-                      @click="openDelete(item)"
-                    />
-                  </v-col>
-                </v-row>
-              </slot>
-            </template>
-          </v-data-table-server>
-        </template>
-      </crud-card>
-    </template>
-  </base-view>
+              <template
+                v-if="!isInternalPath"
+                v-slot:[`item.actions`]="{ item }"
+              >
+                <slot name="item.actions">
+                  <v-row align-content="center">
+                    <v-col
+                      class="pa-0"
+                      cols="12"
+                      sm="6"
+                    >
+                      <action-button
+                        type="edit"
+                        class="mr-1"
+                        @click="openEdit(item)"
+                      />
+                    </v-col>
+                    <v-col
+                      class="pa-0"
+                      cols="12"
+                      sm="6"
+                    >
+                      <action-button
+                        type="delete"
+                        @click="openDelete(item)"
+                      />
+                    </v-col>
+                  </v-row>
+                </slot>
+              </template>
+            </v-data-table-server>
+          </template>
+        </crud-card>
+      </template>
+    </base-view>
+  </div>
 </template>
 
 <script setup lang="ts">
