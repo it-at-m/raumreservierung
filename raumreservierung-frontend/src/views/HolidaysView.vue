@@ -1,82 +1,80 @@
 <template>
-  <div>
-    <base-view :header-text="t('generics.manage', { domain: computedTitle })">
-      <template #default>
-        <year-slider
-          v-model="selectedYear"
-          :start-year="currentYear - PREVIOUS_YEARS"
-          :end-year="currentYear + NEXT_YEARS"
-          class="mb-4"
-        />
-        <crud-card
-          ref="tableRef"
-          :empty-item-template="EMPTY_HOLIDAY"
-          :domain="computedDomain"
-          :loading="getHolidaysLoading || deleteHolidayLoading"
-          @create="createHoliday"
-          @delete="deleteHoliday"
-          @update="updateHoliday"
-        >
-          <template #form="{ item, updateItem, updateValidity }">
-            <holiday-form
-              :isPublic="isPublic"
-              :model-value="item"
-              @update:model-value="updateItem"
-              @is-valid="updateValidity"
-              :disabled="updateHolidayLoading || createHolidayLoading"
-            />
-          </template>
-          <template #table="{ openEdit, openDelete }">
-            <v-data-table
-              :headers="headers"
-              :items="filteredHolidays || []"
-              hide-default-footer
-              items-per-page="-1"
-            >
-              <template #[`item.startDate`]="{ item }">
-                {{ useDateFormat(item.startDate, DATE_FORMAT_DDMMYY) }}
-              </template>
-              <template #[`item.endDate`]="{ item }">
-                {{ useDateFormat(item.endDate, DATE_FORMAT_DDMMYY) }}
-              </template>
-              <template v-slot:[`item.actions`]="{ item }">
-                <slot
-                  name="itemActions"
-                  :item="item"
-                  :openEdit="openEdit"
-                  :promptDelete="openDelete"
-                >
-                  <v-row align-content="center">
-                    <v-col
-                      class="pa-0"
-                      cols="12"
-                      sm="6"
-                    >
-                      <action-button
-                        type="edit"
-                        class="mr-1"
-                        @click="openEdit(item)"
-                      />
-                    </v-col>
-                    <v-col
-                      class="pa-0"
-                      cols="12"
-                      sm="6"
-                    >
-                      <action-button
-                        type="delete"
-                        @click="openDelete(item)"
-                      />
-                    </v-col>
-                  </v-row>
-                </slot>
-              </template>
-            </v-data-table>
-          </template>
-        </crud-card>
-      </template>
-    </base-view>
-  </div>
+  <base-view :header-text="t('generics.manage', { domain: computedTitle })">
+    <template #default>
+      <year-slider
+        v-model="selectedYear"
+        :start-year="currentYear - PREVIOUS_YEARS"
+        :end-year="currentYear + NEXT_YEARS"
+        class="mb-4"
+      />
+      <crud-card
+        ref="tableRef"
+        :empty-item-template="EMPTY_HOLIDAY"
+        :domain="computedDomain"
+        :loading="getHolidaysLoading || deleteHolidayLoading"
+        @create="createHoliday"
+        @delete="deleteHoliday"
+        @update="updateHoliday"
+      >
+        <template #form="{ item, updateItem, updateValidity }">
+          <holiday-form
+            :isPublic="isPublic"
+            :model-value="item"
+            @update:model-value="updateItem"
+            @is-valid="updateValidity"
+            :disabled="updateHolidayLoading || createHolidayLoading"
+          />
+        </template>
+        <template #table="{ openEdit, openDelete }">
+          <v-data-table
+            :headers="headers"
+            :items="filteredHolidays || []"
+            hide-default-footer
+            items-per-page="-1"
+          >
+            <template #[`item.startDate`]="{ item }">
+              {{ useDateFormat(item.startDate, DATE_FORMAT_DDMMYY) }}
+            </template>
+            <template #[`item.endDate`]="{ item }">
+              {{ useDateFormat(item.endDate, DATE_FORMAT_DDMMYY) }}
+            </template>
+            <template v-slot:[`item.actions`]="{ item }">
+              <slot
+                name="itemActions"
+                :item="item"
+                :openEdit="openEdit"
+                :promptDelete="openDelete"
+              >
+                <v-row align-content="center">
+                  <v-col
+                    class="pa-0"
+                    cols="12"
+                    sm="6"
+                  >
+                    <action-button
+                      type="edit"
+                      class="mr-1"
+                      @click="openEdit(item)"
+                    />
+                  </v-col>
+                  <v-col
+                    class="pa-0"
+                    cols="12"
+                    sm="6"
+                  >
+                    <action-button
+                      type="delete"
+                      @click="openDelete(item)"
+                    />
+                  </v-col>
+                </v-row>
+              </slot>
+            </template>
+          </v-data-table>
+        </template>
+      </crud-card>
+    </template>
+  </base-view>
 </template>
 
 <script setup lang="ts">
