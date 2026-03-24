@@ -1,18 +1,21 @@
 package de.muenchen.raumreservierung.holidays;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_START_DATE_AFTER_END_DATE;
-
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.common.NotFoundException;
+import de.muenchen.raumreservierung.holidays.dto.HolidayFilterDto;
 import de.muenchen.raumreservierung.security.Authorities;
-import java.util.List;
-import java.util.UUID;
-import java.util.function.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
+import java.util.function.Predicate;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_START_DATE_AFTER_END_DATE;
 
 @Service
 @Slf4j
@@ -20,11 +23,14 @@ import org.springframework.stereotype.Service;
 public class HolidayService {
     private final HolidayRepository holidayRepository;
 
-    public List<Holiday> getHolidays(final boolean isPublic) {
-        final List<Holiday> holidays = holidayRepository.findAll();
-        log.debug("Getting holidays - isPublic: {}", isPublic);
+    public List<Holiday> getHolidays(final HolidayFilterDto holidayFilterDto) {
+        LocalDate afterStartDate = LocalDate.ofYearDay(holidayFilterDto.year(), 1);
+        LocalDate beforeStartDate = LocalDate.ofYearDay(holidayFilterDto.year() + 1, 1);
+
+        final List<Holiday> holidays = holidayRepository.findAllByStartDateBetween(afterStartDate, beforeStartDate);
+        log.debug("Getting holidays - isPublic: {} and year: {}", holidayFilterDto.isPublic(), holidayFilterDto.year());
         final Predicate<Holiday> startDateEqualsEndDate = h -> h.getStartDate().isEqual(h.getEndDate());
-        final Predicate<Holiday> holidayFilter = isPublic ? startDateEqualsEndDate : startDateEqualsEndDate.negate();
+        final Predicate<Holiday> holidayFilter = holidayFilterDto.isPublic() ? startDateEqualsEndDate : startDateEqualsEndDate.negate();
         return holidays.stream().filter(holidayFilter).toList();
     }
 

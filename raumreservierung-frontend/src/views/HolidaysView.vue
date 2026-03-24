@@ -6,6 +6,7 @@
         :start-year="currentYear - PREVIOUS_YEARS"
         :end-year="currentYear + NEXT_YEARS"
         class="mb-4"
+        @update:model-value="updatedYearSelection"
       />
       <crud-card
         ref="tableRef"
@@ -28,7 +29,7 @@
         <template #table="{ openEdit, openDelete }">
           <v-data-table
             :headers="headers"
-            :items="filteredHolidays || []"
+            :items="getHolidaysData || []"
             hide-default-footer
             items-per-page="-1"
           >
@@ -108,19 +109,12 @@ import { ROUTES } from "@/types/Routes.ts";
 const PREVIOUS_YEARS = 5;
 const NEXT_YEARS = 10;
 
-onMounted(async () => {
-  await getHolidaysCall({ isPublic: isPublic.value });
-});
-
 const selectedYear = ref(new Date().getFullYear());
 const currentYear = computed(() => new Date().getFullYear());
 
-const filteredHolidays = computed(
-  () =>
-    getHolidaysData.value?.filter(
-      (holiday) => holiday.startDate.getFullYear() === selectedYear.value
-    ) || []
-);
+onMounted(async () => {
+  await getHolidaysCall({ isPublic: isPublic.value, year: currentYear.value });
+});
 
 const { t } = useI18n();
 const route = useRoute();
@@ -167,23 +161,6 @@ const computedDomain = computed(() =>
     : t("domain.holidays.school.header")
 );
 
-const headers = computed((): TableHeader<HolidayResponseDTO>[] => {
-  return [
-    { title: computedDomain.value, value: "name", sortable: true },
-    {
-      title: isPublic.value
-        ? t("domain.holidays.public.date")
-        : t("domain.holidays.school.startDate"),
-      value: "startDate",
-      sortable: true,
-    },
-    ...(isPublic.value
-      ? []
-      : [{ title: t("domain.holidays.school.endDate"), value: "endDate" }]),
-    { title: t("common.action", { count: 2 }), value: "actions", width: "12%" },
-  ];
-});
-
 const toApiDate = (date: Date): Date => {
   return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
 };
@@ -194,6 +171,11 @@ const toApiHoliday = (holiday: HolidayResponseDTO): HolidayRequestDTO => {
     startDate: toApiDate(holiday.startDate),
     endDate: toApiDate(holiday.endDate),
   };
+};
+
+const updatedYearSelection = (value: number) => {
+  selectedYear.value = value;
+  getHolidaysCall({ isPublic: isPublic.value, year: selectedYear.value });
 };
 
 const createHoliday = async (holiday: Partial<HolidayResponseDTO>) => {
@@ -237,12 +219,29 @@ const deleteHoliday = async (id: string) => {
 };
 
 const onSuccess = async (msg: string) => {
-  await getHolidaysCall({ isPublic: isPublic.value });
+  await getHolidaysCall({ isPublic: isPublic.value, year: selectedYear.value });
   if (tableRef.value) {
     tableRef.value.closeDialog();
   }
   snackbar.add({ level: Levels.SUCCESS, message: msg });
 };
+
+const headers = computed((): TableHeader<HolidayResponseDTO>[] => {
+  return [
+    { title: computedDomain.value, value: "name", sortable: true },
+    {
+      title: isPublic.value
+        ? t("domain.holidays.public.date")
+        : t("domain.holidays.school.startDate"),
+      value: "startDate",
+      sortable: true,
+    },
+    ...(isPublic.value
+      ? []
+      : [{ title: t("domain.holidays.school.endDate"), value: "endDate" }]),
+    { title: t("common.action", { count: 2 }), value: "actions", width: "12%" },
+  ];
+});
 
 const EMPTY_HOLIDAY: Partial<HolidayResponseDTO> = {
   name: "",
