@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
-import java.util.function.Predicate;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_START_DATE_AFTER_END_DATE;
@@ -28,10 +27,8 @@ public class HolidayService {
         LocalDate beforeStartDate = LocalDate.ofYearDay(holidayFilterDto.year() + 1, 1);
 
         final List<Holiday> holidays = holidayRepository.findAllByStartDateBetween(afterStartDate, beforeStartDate);
-        log.debug("Getting holidays - isPublic: {} and year: {}", holidayFilterDto.isPublic(), holidayFilterDto.year());
-        final Predicate<Holiday> startDateEqualsEndDate = h -> h.getStartDate().isEqual(h.getEndDate());
-        final Predicate<Holiday> holidayFilter = holidayFilterDto.isPublic() ? startDateEqualsEndDate : startDateEqualsEndDate.negate();
-        return holidays.stream().filter(holidayFilter).toList();
+        log.debug("Getting holidays - year: {}", holidayFilterDto.year());
+        return holidays;
     }
 
     @PreAuthorize(Authorities.HOLIDAYS_MANAGE)
