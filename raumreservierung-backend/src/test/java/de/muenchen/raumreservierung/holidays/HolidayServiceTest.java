@@ -1,17 +1,16 @@
 package de.muenchen.raumreservierung.holidays;
 
+import static org.mockito.Mockito.when;
+
 import de.muenchen.raumreservierung.holidays.dto.HolidayFilterDto;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDate;
-import java.util.List;
-
-import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class HolidayServiceTest {
