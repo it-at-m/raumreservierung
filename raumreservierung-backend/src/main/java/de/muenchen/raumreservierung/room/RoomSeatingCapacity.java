@@ -23,7 +23,7 @@ public class RoomSeatingCapacity extends BaseEntity {
     @OneToOne
     private SeatingType seatingType;
 
-    @Column
+    @Column(nullable = false)
     private int capacity;
 
     @ManyToOne

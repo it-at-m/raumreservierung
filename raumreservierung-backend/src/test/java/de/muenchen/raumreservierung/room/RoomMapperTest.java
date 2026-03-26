@@ -100,7 +100,7 @@ public class RoomMapperTest {
         room.setCapacity(500);
         room.setInformation("Ein mittelgroßer Saal mit Stühlen, Tischen und Reihenbestuhlung und Stehempfang.");
         room.setNote("Hier gibt es keine Flecken.");
-        room.setAvailability(true);
+        room.setIsActive(true);
         room.setArea(100);
         room.setRoomSeatingCapacities(roomSeatingCapacitySet);
         room.setEquipment(equipments);

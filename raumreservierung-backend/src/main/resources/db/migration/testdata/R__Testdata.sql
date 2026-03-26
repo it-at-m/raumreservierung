@@ -64,7 +64,7 @@ insert into internal_person (id, organisation_id, organisation_unit, role_functi
     ('123e4567-e89b-12d3-a456-426614174011', 'ORG-KVR-002', 'Kreisverwaltungsreferat', 'Sachbearbeiterin');
 
 truncate room cascade;
-INSERT INTO room (name, number, address, capacity, information, note, availability, area, id)
+INSERT INTO room (name, number, address, capacity, information, note, is_active, area, id)
 VALUES ('Großer Saal', 100, 'Straße 1, 12345 Irgendwo, Deutschland', 1000,
         'Ein großer Saal mit Stühlen und Tischen und Reihenbestuhlung und Stadtrats- / Ausschussbestuhlunq.',
         'Kleiner Fleck rechts hinten im Eck.', true, 200, '123e4567-e89b-12d3-a456-426614175000'),

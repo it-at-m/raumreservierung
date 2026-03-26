@@ -25,7 +25,7 @@ public class Room extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 10)
+    @Column(nullable = false, length = 100)
     private String number;
 
     @Column
@@ -40,8 +40,8 @@ public class Room extends BaseEntity {
     @Column(length = 1000)
     private String note;
 
-    @Column
-    private Boolean availability;
+    @Column(nullable = false)
+    private Boolean isActive;
 
     @Column
     private int area;
@@ -58,7 +58,7 @@ public class Room extends BaseEntity {
         this.number = room.getNumber();
         this.address = room.getAddress();
         this.capacity = room.getCapacity();
-        this.availability = room.getAvailability();
+        this.isActive = room.getIsActive();
         this.area = room.getArea();
         this.note = room.getNote();
     }

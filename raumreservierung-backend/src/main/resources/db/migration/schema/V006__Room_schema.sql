@@ -1,14 +1,14 @@
 CREATE TABLE room
 (
-    id           UUID         NOT NULL,
-    name         VARCHAR(100) NOT NULL,
-    number       VARCHAR(10),
-    address      VARCHAR(255),
-    capacity     INT,
-    information  VARCHAR(1000),
-    note         VARCHAR(1000),
-    availability BOOLEAN,
-    area         INT,
+    id          UUID         NOT NULL,
+    name        VARCHAR(100) NOT NULL,
+    number      VARCHAR(100) NOT NULL,
+    address     VARCHAR(255),
+    capacity    INT,
+    information VARCHAR(1000),
+    note        VARCHAR(1000),
+    is_active   BOOLEAN DEFAULT TRUE,
+    area        INT,
 
     PRIMARY KEY (id)
 );
@@ -25,10 +25,11 @@ CREATE TABLE room_equipment
 
 CREATE TABLE room_seating_capacity
 (
-    id                         UUID PRIMARY KEY,
-    seating_type_id            UUID,
-    capacity                   INTEGER,
-    room_id UUID,
+    id              UUID    NOT NULL,
+    seating_type_id UUID    NOT NULL,
+    capacity        INTEGER NOT NULL,
+    room_id         UUID    NOT NULL,
 
+    PRIMARY KEY (id),
     FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE CASCADE
 );

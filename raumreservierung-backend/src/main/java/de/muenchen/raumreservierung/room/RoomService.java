@@ -1,7 +1,9 @@
 package de.muenchen.raumreservierung.room;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
+import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.EquipmentService;
@@ -54,9 +56,7 @@ public class RoomService {
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
     public Room updateRoom(final Room room, final Set<UUID> equipmentIds, final UUID roomId) {
-        final Room foundRoom = roomRepository.findById(roomId)
-                .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, roomId)));
-
+        final Room foundRoom = getEntityOrThrowException(roomId);
         foundRoom.updateFrom(room);
         // Update to diff updater when sets get larger!
         foundRoom.setEquipment(equipmentIds.stream()
@@ -71,8 +71,20 @@ public class RoomService {
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
     public void deleteRoom(final UUID roomId) {
+        final Room toDelete = getEntityOrThrowException(roomId);
+
+        if (toDelete.getIsActive()) {
+            throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, roomId));
+        }
+
         log.debug("Deleted room to {}", roomId);
         roomRepository.deleteById(roomId);
+    }
+
+    private Room getEntityOrThrowException(final UUID roomId) {
+        return roomRepository
+                .findById(roomId)
+                .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, roomId)));
     }
 
 }

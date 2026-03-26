@@ -19,13 +19,12 @@ public class RoomSeatingCapacityService {
                 Optional.ofNullable(roomCapacities)
                         .orElse(Collections.emptyList()));
 
-        capacities
-                .forEach(seatingCapacity -> {
-                    seatingCapacity.setSeatingType(
-                            seatingService.getReferenceById(
-                                    seatingCapacity.getSeatingType().getId()));
-                    seatingCapacity.setRoom(room);
-                });
+        capacities.forEach(seatingCapacity -> {
+            seatingCapacity.setSeatingType(
+                    seatingService.getReferenceById(
+                            seatingCapacity.getSeatingType().getId()));
+            seatingCapacity.setRoom(room);
+        });
         return capacities;
     }
 }

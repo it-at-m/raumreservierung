@@ -12,9 +12,12 @@ public record RoomDetailsResponseDTO(
         @NotNull @Size(min = 2, max = 100) String name,
         @NotNull @Size(max = 10) String number,
         @NotNull @Size(max = 255) String address,
-        @NotNull int capacity, @NotNull @Size(max = 1000) String information,
-        @NotNull @Size(max = 1000) String note, @NotNull Boolean availability,
-        @NotNull int area, @NotNull List<SeatingCapacityResponseDTO> roomSeatingCapacities,
+        @NotNull int capacity,
+        @NotNull @Size(max = 1000) String information,
+        @NotNull @Size(max = 1000) String note,
+        @NotNull Boolean isActive,
+        @NotNull int area,
+        @NotNull List<SeatingCapacityResponseDTO> roomSeatingCapacities,
         @NotNull Set<EquipmentResponseDto> equipment) {
     public RoomDetailsResponseDTO {
         roomSeatingCapacities = roomSeatingCapacities == null ? List.of() : List.copyOf(roomSeatingCapacities);

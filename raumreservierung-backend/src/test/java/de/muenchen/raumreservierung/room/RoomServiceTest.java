@@ -95,7 +95,7 @@ public class RoomServiceTest {
         roomRequest.setCapacity(500);
         roomRequest.setInformation("Ein mittelgroßer Saal mit Stühlen, Tischen und Reihenbestuhlung und Stehempfang.");
         roomRequest.setNote("Hier gibt es keine Flecken.");
-        roomRequest.setAvailability(true);
+        roomRequest.setIsActive(true);
         roomRequest.setArea(100);
 
         return roomRequest;
