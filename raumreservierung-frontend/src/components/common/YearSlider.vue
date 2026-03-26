@@ -33,9 +33,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-const { startYear = 2000, endYear = 2100 } = defineProps<{
-  startYear?: number;
-  endYear?: number;
+const { startYear, endYear } = defineProps<{
+  startYear: number;
+  endYear: number;
 }>();
 
 const selectedYear = defineModel<number>({ default: new Date().getFullYear() });
