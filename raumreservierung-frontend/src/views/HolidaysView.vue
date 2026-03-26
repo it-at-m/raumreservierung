@@ -12,7 +12,7 @@
         ref="tableRef"
         :empty-item-template="EMPTY_HOLIDAY"
         :domain="computedDomain"
-        :loading="getHolidaysLoading || deleteHolidayLoading"
+        :loading="holidayStore.loading || deleteHolidayLoading"
         @create="createHoliday"
         @delete="deleteHoliday"
         @update="updateHoliday"
@@ -29,7 +29,7 @@
         <template #table="{ openEdit, openDelete }">
           <v-data-table
             :headers="headers"
-            :items="getHolidaysData || []"
+            :items="filteredHolidays || []"
             hide-default-footer
             items-per-page="-1"
           >
@@ -99,10 +99,10 @@ import HolidayForm from "@/components/HolidayForm.vue";
 import {
   useCreateHoliday,
   useDeleteHoliday,
-  useGetHolidays,
   useUpdateHoliday,
 } from "@/composables/api/useHolidayApi.ts";
 import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
+import { useHolidayStore } from "@/stores/holiday.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
@@ -113,7 +113,7 @@ const selectedYear = ref(new Date().getFullYear());
 const currentYear = computed(() => new Date().getFullYear());
 
 onMounted(async () => {
-  await getHolidaysCall({ isPublic: isPublic.value, year: currentYear.value });
+  await holidayStore.loadYear(currentYear.value);
 });
 
 const { t } = useI18n();
@@ -121,11 +121,19 @@ const route = useRoute();
 const snackbar = useSnackbarStore();
 const tableRef = useTemplateRef("tableRef");
 
-const {
-  call: getHolidaysCall,
-  data: getHolidaysData,
-  loading: getHolidaysLoading,
-} = useGetHolidays();
+const holidayStore = useHolidayStore();
+
+const isPublic = computed(() => {
+  return route.name === ROUTES.PUBLIC_HOLIDAYS;
+});
+
+const filteredHolidays = computed(() => {
+  return holidayStore.currentHolidays.filter(
+    (holiday) =>
+      (holiday.startDate.getTime() === holiday.endDate.getTime()) ===
+      isPublic.value
+  );
+});
 
 const {
   call: createHolidayCall,
@@ -144,10 +152,6 @@ const {
   loading: deleteHolidayLoading,
   error: deleteHolidayError,
 } = useDeleteHoliday();
-
-const isPublic = computed(() => {
-  return route.name === ROUTES.PUBLIC_HOLIDAYS;
-});
 
 const computedTitle = computed(() =>
   isPublic.value
@@ -175,7 +179,7 @@ const toApiHoliday = (holiday: HolidayResponseDTO): HolidayRequestDTO => {
 
 const updatedYearSelection = (value: number) => {
   selectedYear.value = value;
-  getHolidaysCall({ isPublic: isPublic.value, year: selectedYear.value });
+  holidayStore.loadYear(selectedYear.value);
 };
 
 const createHoliday = async (holiday: Partial<HolidayResponseDTO>) => {
@@ -219,7 +223,7 @@ const deleteHoliday = async (id: string) => {
 };
 
 const onSuccess = async (msg: string) => {
-  await getHolidaysCall({ isPublic: isPublic.value, year: selectedYear.value });
+  await holidayStore.loadYear(selectedYear.value, true);
   if (tableRef.value) {
     tableRef.value.closeDialog();
   }
