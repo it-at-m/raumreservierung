@@ -10,7 +10,7 @@ changes:
       composite: false
 
   - addRole:
-      name: fachadmin
+      name: raumadmin
       description: Role to view and write all bookings and access to other administrative areas
       clientRole: true
       clientId: local

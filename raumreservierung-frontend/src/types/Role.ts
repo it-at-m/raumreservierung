@@ -1,1 +1,6 @@
-export type Role = "fachadmin" | "anwender";
+export type Role =
+  | "raumadmin"
+  | "raumbuchung"
+  | "terminorganisator"
+  | "leseberechtigt"
+  | "anwender";
