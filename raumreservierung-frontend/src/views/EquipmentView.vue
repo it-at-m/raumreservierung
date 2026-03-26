@@ -79,7 +79,6 @@ import { Levels } from "@/api/error.ts";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
-import GenericTableCrudView from "@/components/common/GenericTableCrudView.vue";
 import EquipmentForm from "@/components/EquipmentForm.vue";
 import {
   useCreateEquipment,

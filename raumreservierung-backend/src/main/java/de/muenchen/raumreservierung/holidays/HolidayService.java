@@ -1,20 +1,19 @@
 package de.muenchen.raumreservierung.holidays;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_START_DATE_AFTER_END_DATE;
+
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.holidays.dto.HolidayFilterDto;
 import de.muenchen.raumreservierung.security.Authorities;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_START_DATE_AFTER_END_DATE;
 
 @Service
 @Slf4j
@@ -23,8 +22,8 @@ public class HolidayService {
     private final HolidayRepository holidayRepository;
 
     public List<Holiday> getHolidays(final HolidayFilterDto holidayFilterDto) {
-        LocalDate afterStartDate = LocalDate.ofYearDay(holidayFilterDto.year(), 1);
-        LocalDate beforeStartDate = LocalDate.ofYearDay(holidayFilterDto.year() + 1, 1);
+        final LocalDate afterStartDate = LocalDate.ofYearDay(holidayFilterDto.year(), 1);
+        final LocalDate beforeStartDate = LocalDate.ofYearDay(holidayFilterDto.year() + 1, 1);
 
         final List<Holiday> holidays = holidayRepository.findAllByStartDateBetween(afterStartDate, beforeStartDate);
         log.debug("Getting holidays - year: {}", holidayFilterDto.year());

@@ -5,6 +5,8 @@ import de.muenchen.raumreservierung.holidays.dto.HolidayMapper;
 import de.muenchen.raumreservierung.holidays.dto.HolidayRequestDTO;
 import de.muenchen.raumreservierung.holidays.dto.HolidayResponseDTO;
 import jakarta.validation.Valid;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -18,9 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
-import java.util.UUID;
 
 @RestController
 @Slf4j
