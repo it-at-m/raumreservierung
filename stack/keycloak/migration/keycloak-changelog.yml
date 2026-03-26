@@ -6,3 +6,7 @@ includes:
   - path: 05_assign-roles.yml
   - path: 06_local-audience.yml
   - path: 07_add-client-scope-mapper.yml
+  - path: 08_add-new-roles.yml
+  - path: 09_add-new-users.yml
+  - path: 10_assign-new-roles.yml
+  - path: 11_change-fachadmin-to-raumadmin.yml

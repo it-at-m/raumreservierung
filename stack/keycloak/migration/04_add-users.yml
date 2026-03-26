@@ -13,12 +13,12 @@ changes:
       name: anwender
       password: "anwender"
   - addUser:
-      name: raumadmin
-      lastName: raumadmin
-      firstName: raumadmin
+      name: fachadmin
+      lastName: fachadmin
+      firstName: fachadmin
       enabled: true
       emailVerified: true
-      email: raumadmin@raumadmin.de
+      email: fachadmin@fachadmin.de
   - updateUserPassword:
-      name: raumadmin
-      password: "raumadmin"
+      name: fachadmin
+      password: "fachadmin"

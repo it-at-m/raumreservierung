@@ -1,0 +1,36 @@
+id: add new users
+author: Default
+realm: local_realm
+changes:
+- addUser:
+    name: leseberechtigt
+    lastName: leseberechtigt
+    firstName: leseberechtigt
+    enabled: true
+    emailVerified: true
+    email: leseberechtigt@leseberechtigt.de
+- updateUserPassword:
+    name: leseberechtigt
+    password: "leseberechtigt"
+
+- addUser:
+    name: terminorganisator
+    lastName: terminorganisator
+    firstName: terminorganisator
+    enabled: true
+    emailVerified: true
+    email: terminorganisator@terminorganisator.de
+- updateUserPassword:
+    name: terminorganisator
+    password: "terminorganisator"
+
+- addUser:
+    name: raumbuchung
+    lastName: raumbuchung
+    firstName: raumbuchung
+    enabled: true
+    emailVerified: true
+    email: raumbuchung@raumbuchung.de
+- updateUserPassword:
+    name: raumbuchung
+    password: "raumbuchung"

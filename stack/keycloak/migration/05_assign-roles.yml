@@ -7,6 +7,6 @@ changes:
       role: anwender
       clientId: local
   - assignRole:
-      user: raumadmin
-      role: raumadmin
+      user: fachadmin
+      role: fachadmin
       clientId: local
