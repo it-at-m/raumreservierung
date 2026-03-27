@@ -1,21 +1,22 @@
 package de.muenchen.raumreservierung.room;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.EquipmentService;
 import de.muenchen.raumreservierung.security.Authorities;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -29,7 +30,7 @@ public class RoomService {
     private final RoomSeatingCapacityService roomSeatingCapacityService;
 
     public Room getById(final UUID roomId) {
-        return roomRepository.findById(roomId)
+        return roomRepository.findWithDetailsById(roomId)
                 .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, roomId)));
     }
 
@@ -37,6 +38,11 @@ public class RoomService {
         final List<Room> allRooms = roomRepository.findAll();
         log.debug("Found {} equipments", allRooms.size());
         return allRooms;
+    }
+
+    @PreAuthorize(Authorities.ROOM_MANAGE)
+    public Room createRoom(final Room room) {
+        return roomRepository.save(room);
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
@@ -52,6 +58,15 @@ public class RoomService {
         room.updateRoomSeatingCapacityFrom(roomSeatingCapacities);
 
         return roomRepository.save(room);
+    }
+
+    @PreAuthorize(Authorities.ROOM_MANAGE)
+    public Room updateRoom(final Room roomUpdates, final UUID roomId) {
+        final Room existingRoom = getEntityOrThrowException(roomId);
+
+        existingRoom.updateFrom(roomUpdates);
+
+        return roomRepository.save(existingRoom);
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
@@ -83,7 +98,7 @@ public class RoomService {
 
     private Room getEntityOrThrowException(final UUID roomId) {
         return roomRepository
-                .findById(roomId)
+                .findWithDetailsById(roomId)
                 .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, roomId)));
     }
 

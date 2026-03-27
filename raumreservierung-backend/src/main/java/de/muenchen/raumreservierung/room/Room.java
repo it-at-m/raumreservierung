@@ -7,11 +7,14 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
-import java.io.Serial;
-import java.util.List;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serial;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -47,20 +50,32 @@ public class Room extends BaseEntity {
     private int area;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "room")
-    private List<RoomSeatingCapacity> roomSeatingCapacities;
+    private List<RoomSeatingCapacity> roomSeatingCapacities = new ArrayList<>();
 
     @ManyToMany
-    private Set<Equipment> equipment;
+    private Set<Equipment> equipment = new HashSet<>();
 
-    public void updateFrom(final Room room) {
-        this.name = room.getName();
-        this.information = room.getInformation();
-        this.number = room.getNumber();
-        this.address = room.getAddress();
-        this.capacity = room.getCapacity();
-        this.isActive = room.getIsActive();
-        this.area = room.getArea();
-        this.note = room.getNote();
+    public void updateFrom(final Room roomChanges) {
+        this.name = roomChanges.getName();
+        this.information = roomChanges.getInformation();
+        this.number = roomChanges.getNumber();
+        this.address = roomChanges.getAddress();
+        this.capacity = roomChanges.getCapacity();
+        this.isActive = roomChanges.getIsActive();
+        this.area = roomChanges.getArea();
+        this.note = roomChanges.getNote();
+
+
+        this.equipment.clear();
+        if (roomChanges.getEquipment() != null) {
+            this.equipment.addAll(roomChanges.getEquipment());
+        }
+
+        this.roomSeatingCapacities.clear();
+        if (roomChanges.getRoomSeatingCapacities() != null) {
+            this.roomSeatingCapacities.addAll(roomChanges.getRoomSeatingCapacities());
+            this.roomSeatingCapacities.forEach(csc -> csc.setRoom(this));
+        }
     }
 
     public void updateRoomSeatingCapacityFrom(final List<RoomSeatingCapacity> roomSeatingCapacities) {
