@@ -6,14 +6,18 @@
     "delete": "löschen",
     "save": "Speichern",
     "add": "Hinzufügen",
+    "search": "Suche",
     "action": "Aktion | Aktionen",
     "messages": {},
     "rules": {
+      "notEmpty": "{field} darf nicht leer sein.",
       "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
       "maxLengthError": "{field} darf maximal {num} Zeichen beinhalten.",
       "noDateSelected": "Bitte wählen Sie ein Datum.",
       "startAfterEnd": "Beginn liegt nach Ende.",
-      "endBeforeStart": "Ende liegt vor Beginn."
+      "endBeforeStart": "Ende liegt vor Beginn.",
+      "invalidEmail": "Die E-Mail Adresse ist nicht valide",
+      "invalidTelefonNumber": "Diese Telefonnummer ist nicht valide"
     }
   },
   "app": {
@@ -55,7 +59,8 @@
     "confirmDelete": "Möchten Sie den Eintrag aus \"{domain}\" endgültig löschen?",
     "deleted": "{domain} wurde gelöscht.",
     "updated": "{domain} wurde aktualisiert.",
-    "created": "{domain} wurde erstellt."
+    "created": "{domain} wurde erstellt.",
+    "isActivated": "{domain} ist aktiviert"
   },
   "navigationDrawer": {
     "myBookings": "Meine Buchungen einsehen",
@@ -87,11 +92,13 @@
     "seatingType": {
       "header": "Bestuhlung",
       "name": "Name",
+      "isActive": "Status",
       "description": "Beschreibung"
     },
     "equipment": {
       "header": "Ausstattung",
       "name": "Name",
+      "isActive": "Status",
       "description": "Beschreibung"
     },
     "holidays": {
@@ -105,6 +112,22 @@
         "startDate": "Beginn",
         "endDate": "Ende"
       }
+    },
+    "person": {
+      "name": "Name",
+      "email": "E-Mail",
+      "telefonNumber": "Telefonnummer"
+    },
+    "externalPerson": {
+      "header": "Externe Person | Externe Personen",
+      "company": "Firma",
+      "streetAddress": "Straße und Hausnummer",
+      "postalCodeCity": "Postleitzahl und Stadt"
+    },
+    "internalPerson": {
+      "header": "Interne Person | Interne Personen",
+      "organisationUnit": "Organisationseinheit",
+      "roleFunction": "Rollenfunktion"
     }
   }
 }

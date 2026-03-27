@@ -18,17 +18,52 @@
         :disabled="updateEquipmentLoading || saveEquipmentLoading"
       />
     </template>
+    <template #[`item.isActive`]="{ item }">
+      <v-checkbox-btn
+        readonly
+        hide-details
+        :model-value="item.isActive"
+        class="pointer-events-none"
+      />
+    </template>
+    <template #itemActions="{ openEdit, promptDelete, item }">
+      <v-row align-content="center">
+        <v-col
+          class="pa-0"
+          cols="12"
+          sm="6"
+        >
+          <action-button
+            type="edit"
+            class="mr-1"
+            @click="openEdit(item)"
+          />
+        </v-col>
+        <v-col
+          class="pa-0"
+          cols="12"
+          sm="6"
+        >
+          <action-button
+            :disabled="item.isActive"
+            type="delete"
+            @click="promptDelete(item)"
+          />
+        </v-col>
+      </v-row>
+    </template>
   </generic-table-crud-view>
 </template>
 
 <script setup lang="ts">
 import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
-import type { TableHeader } from "@/components/common/CardTable.vue";
+import type { TableHeader } from "@/types/TableHeader.ts";
 
 import { onMounted, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
+import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import GenericTableCrudView from "@/components/common/GenericTableCrudView.vue";
 import EquipmentForm from "@/components/EquipmentForm.vue";
 import {
@@ -79,6 +114,7 @@ onMounted(() => getAllEquipments());
 const headers: TableHeader<EquipmentResponseDto>[] = [
   { title: t("domain.equipment.name"), value: "name", sortable: true },
   { title: t("domain.equipment.description"), value: "description" },
+  { title: t("domain.equipment.isActive"), value: "isActive", sortable: true },
   { title: t("common.action", { count: 2 }), value: "actions" },
 ];
 

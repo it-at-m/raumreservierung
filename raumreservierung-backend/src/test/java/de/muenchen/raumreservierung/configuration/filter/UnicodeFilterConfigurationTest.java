@@ -61,7 +61,7 @@ class UnicodeFilterConfigurationTest {
     void testForNfcNormalization() {
         // Given
         // Persist entity with decomposed string.
-        final EquipmentRequestDto equipmentRequestDto = new EquipmentRequestDto(TEXT_ATTRIBUTE_DECOMPOSED, TEXT_ATTRIBUTE_DECOMPOSED);
+        final EquipmentRequestDto equipmentRequestDto = new EquipmentRequestDto(TEXT_ATTRIBUTE_DECOMPOSED, TEXT_ATTRIBUTE_DECOMPOSED, true);
 
         // When
         final EquipmentResponseDto response = testRestTemplate.postForEntity(URI.create(ENTITY_ENDPOINT_URL), equipmentRequestDto, EquipmentResponseDto.class)

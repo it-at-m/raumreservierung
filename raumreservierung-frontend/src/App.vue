@@ -75,10 +75,10 @@ import { APPSWITCHER_URL } from "@/constants";
 
 const { t } = useI18n();
 
+const route = useRoute();
+
 const appswitcherBaseUrl = APPSWITCHER_URL;
 
 const [drawer, toggleDrawer] = useToggle(true);
 const isSmallScreen = useMediaQuery("(max-width: 1280px)");
-
-const route = useRoute();
 </script>

@@ -21,8 +21,12 @@ public class SeatingType extends BaseEntity {
     @Column
     private String description;
 
+    @Column(nullable = false)
+    private boolean isActive;
+
     public void updateFrom(final SeatingType seatingType) {
         this.name = seatingType.getName();
         this.description = seatingType.getDescription();
+        this.isActive = seatingType.isActive();
     }
 }

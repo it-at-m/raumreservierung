@@ -2,15 +2,16 @@ package de.muenchen.raumreservierung.room;
 
 import de.muenchen.raumreservierung.common.BaseEntity;
 import de.muenchen.raumreservierung.equipment.Equipment;
-import de.muenchen.raumreservierung.seating.SeatingType;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
+import java.io.Serial;
+import java.util.List;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.Serial;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -24,7 +25,7 @@ public class Room extends BaseEntity {
     @Column(nullable = false, length = 100)
     private String name;
 
-    @Column(length = 10)
+    @Column(nullable = false, length = 100)
     private String number;
 
     @Column
@@ -39,14 +40,14 @@ public class Room extends BaseEntity {
     @Column(length = 1000)
     private String note;
 
-    @Column
-    private Boolean availability;
+    @Column(nullable = false)
+    private Boolean isActive;
 
     @Column
     private int area;
 
-    @ManyToMany
-    private Set<SeatingType> seatingType;
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "room")
+    private List<RoomSeatingCapacity> roomSeatingCapacities;
 
     @ManyToMany
     private Set<Equipment> equipment;
@@ -57,8 +58,17 @@ public class Room extends BaseEntity {
         this.number = room.getNumber();
         this.address = room.getAddress();
         this.capacity = room.getCapacity();
-        this.availability = room.getAvailability();
+        this.isActive = room.getIsActive();
         this.area = room.getArea();
         this.note = room.getNote();
+    }
+
+    public void updateRoomSeatingCapacityFrom(final List<RoomSeatingCapacity> roomSeatingCapacities) {
+        if (this.roomSeatingCapacities != null) {
+            this.roomSeatingCapacities.clear();
+            this.roomSeatingCapacities.addAll(roomSeatingCapacities);
+        } else {
+            this.roomSeatingCapacities = roomSeatingCapacities;
+        }
     }
 }

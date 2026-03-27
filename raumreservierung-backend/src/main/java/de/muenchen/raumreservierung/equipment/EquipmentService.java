@@ -1,16 +1,17 @@
 package de.muenchen.raumreservierung.equipment;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+
+import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
-
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -19,7 +20,7 @@ public class EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
 
-    public final Equipment getReferenceById(UUID equipmentId) {
+    public final Equipment getReferenceById(final UUID equipmentId) {
         return equipmentRepository.getReferenceById(equipmentId);
     }
 
@@ -37,8 +38,7 @@ public class EquipmentService {
 
     @PreAuthorize(Authorities.EQUIPMENT_MANAGE)
     public Equipment updateEquipment(final Equipment equipment, final UUID equipmentId) {
-        final Equipment foundEquipment = equipmentRepository.findById(equipmentId)
-                .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, equipmentId)));
+        final Equipment foundEquipment = getEntityOrThrowException(equipmentId);
         foundEquipment.updateFrom(equipment);
         log.debug("Updating equipment to {}", foundEquipment);
         return equipmentRepository.save(foundEquipment);
@@ -46,8 +46,19 @@ public class EquipmentService {
 
     @PreAuthorize(Authorities.EQUIPMENT_MANAGE)
     public void deleteEquipment(final UUID equipmentId) {
+        final Equipment toDelete = getEntityOrThrowException(equipmentId);
+
+        if (toDelete.isActive()) {
+            throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, equipmentId));
+        }
+
         log.debug("Deleting equipment {}", equipmentId);
         equipmentRepository.deleteById(equipmentId);
     }
 
+    private Equipment getEntityOrThrowException(final UUID equipmentId) {
+        return equipmentRepository
+                .findById(equipmentId)
+                .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, equipmentId)));
+    }
 }
