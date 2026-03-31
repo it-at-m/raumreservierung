@@ -6,7 +6,8 @@ import java.util.UUID;
 
 public record InternalPersonResponseDto(
         UUID id,
-        @NotNull String name,
+        @NotNull String firstName,
+        @NotNull String lastName,
         @NotNull String email,
         String telefonNumber,
         @NotNull PersonType type,

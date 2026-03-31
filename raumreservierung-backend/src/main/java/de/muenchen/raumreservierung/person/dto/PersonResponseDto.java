@@ -26,7 +26,9 @@ import java.util.UUID;
 public interface PersonResponseDto {
     UUID id();
 
-    String name();
+    String firstName();
+
+    String lastName();
 
     String telefonNumber();
 

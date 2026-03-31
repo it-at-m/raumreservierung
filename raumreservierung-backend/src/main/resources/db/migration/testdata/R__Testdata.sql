@@ -25,23 +25,23 @@ INSERT INTO seating_type (is_active, name, description, id) VALUES
     (true, 'Parlamentarische Bestuhlung', 'Beschreibung von parlamentarische Bestuhlung', '123e4567-e89b-12d3-a456-426614174003');
 
 truncate person cascade;
-insert into person (id, name, telefon_number, email) values
+insert into person (id, first_name, last_name, telefon_number, email) values
     -- Deine bisherigen:
-    ('123e4567-e89b-12d3-a456-426614174010', 'Max Mustermann', '089-233-12345', 'max.mustermann@muenchen.de'),
-    ('123e4567-e89b-12d3-a456-426614174011', 'Anna Schmidt', '089-233-54321', 'anna.schmidt@muenchen.de'),
-    ('123e4567-e89b-12d3-a456-426614174012', 'Tom Exzellent', '0171-9876543', 'tom@beispiel-it-gmbh.de'),
-    ('123e4567-e89b-12d3-a456-426614174013', 'Lisa Meyer', null, 'lisa.meyer@externe-berater.de'),
+    ('123e4567-e89b-12d3-a456-426614174010', 'Max', 'Mustermann', '089-233-12345', 'max.mustermann@muenchen.de'),
+    ('123e4567-e89b-12d3-a456-426614174011', 'Anna', 'Schmidt', '089-233-54321', 'anna.schmidt@muenchen.de'),
+    ('123e4567-e89b-12d3-a456-426614174012', 'Tom', 'Exzellent', '0171-9876543', 'tom@beispiel-it-gmbh.de'),
+    ('123e4567-e89b-12d3-a456-426614174013', 'Lisa', 'Meyer', null, 'lisa.meyer@externe-berater.de'),
     -- Neue externe Personen:
-    ('123e4567-e89b-12d3-a456-426614174014', 'Felix Wagner', '0160-1122334', 'f.wagner@tech-muc.de'),
-    ('123e4567-e89b-12d3-a456-426614174015', 'Sarah Klein', '0151-9988776', 'sklein@agile-coaches.de'),
-    ('123e4567-e89b-12d3-a456-426614174016', 'Michael Bauer', null, 'mbauer@bauplanung-sued.de'),
-    ('123e4567-e89b-12d3-a456-426614174017', 'Julia Richter', '089-5551234', 'info@richter-legal.com'),
-    ('123e4567-e89b-12d3-a456-426614174018', 'David Becker', '0172-3344556', 'd.becker@cloud-architects.io'),
-    ('123e4567-e89b-12d3-a456-426614174019', 'Elena Weber', null, 'elena.weber@design-studio-muc.de'),
-    ('123e4567-e89b-12d3-a456-426614174020', 'Lukas Hoffmann', '0162-4455667', 'l.hoffmann@event-pro.de'),
-    ('123e4567-e89b-12d3-a456-426614174021', 'Sophie Neumann', '089-7778889', 's.neumann@audit-partners.de'),
-    ('123e4567-e89b-12d3-a456-426614174022', 'Tim Krüger', '0152-1122334', 'krueger@it-sec-consult.de'),
-    ('123e4567-e89b-12d3-a456-426614174023', 'Laura Zimmermann', null, 'lz@zimmermann-pr.de');
+    ('123e4567-e89b-12d3-a456-426614174014', 'Felix', 'Wagner', '0160-1122334', 'f.wagner@tech-muc.de'),
+    ('123e4567-e89b-12d3-a456-426614174015', 'Sarah', 'Klein', '0151-9988776', 'sklein@agile-coaches.de'),
+    ('123e4567-e89b-12d3-a456-426614174016', 'Michael', 'Bauer', null, 'mbauer@bauplanung-sued.de'),
+    ('123e4567-e89b-12d3-a456-426614174017', 'Julia', 'Richter', '089-5551234', 'info@richter-legal.com'),
+    ('123e4567-e89b-12d3-a456-426614174018', 'David', 'Becker', '0172-3344556', 'd.becker@cloud-architects.io'),
+    ('123e4567-e89b-12d3-a456-426614174019', 'Elena', 'Weber', null, 'elena.weber@design-studio-muc.de'),
+    ('123e4567-e89b-12d3-a456-426614174020', 'Lukas', 'Hoffmann', '0162-4455667', 'l.hoffmann@event-pro.de'),
+    ('123e4567-e89b-12d3-a456-426614174021', 'Sophie', 'Neumann', '089-7778889', 's.neumann@audit-partners.de'),
+    ('123e4567-e89b-12d3-a456-426614174022', 'Tim', 'Krüger', '0152-1122334', 'krueger@it-sec-consult.de'),
+    ('123e4567-e89b-12d3-a456-426614174023', 'Laura', 'Zimmermann', null, 'lz@zimmermann-pr.de');
 
 -- Hier kommen jetzt die spezifischen externen Daten (verknüpft über die gleiche ID):
 insert into external_person (id, company, street_address, postal_code_city) values

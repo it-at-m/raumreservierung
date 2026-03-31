@@ -16,7 +16,9 @@ import de.muenchen.raumreservierung.person.PersonType;
     }
 )
 public interface PersonRequestDto {
-    String name();
+    String firstName();
+
+    String lastName();
 
     String telefonNumber();
 

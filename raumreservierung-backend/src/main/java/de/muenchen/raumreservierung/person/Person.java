@@ -18,8 +18,11 @@ public abstract class Person extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Column(nullable = false)
-    private String name;
+    @Column
+    private String firstName;
+
+    @Column
+    private String lastName;
 
     @Column
     private String telefonNumber;
@@ -30,7 +33,8 @@ public abstract class Person extends BaseEntity {
     public abstract void updateFrom(Person person);
 
     public void updateBaseFields(final Person person) {
-        this.name = person.getName();
+        this.firstName = person.getFirstName();
+        this.lastName = person.getLastName();
         this.telefonNumber = person.getTelefonNumber();
         this.email = person.getEmail();
     }
