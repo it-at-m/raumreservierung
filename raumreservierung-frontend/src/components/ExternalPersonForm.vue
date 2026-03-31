@@ -8,7 +8,6 @@
       v-model="modelValue.name"
       variant="outlined"
       :label="t('domain.person.name')"
-      :rules="[nameNotEmpty]"
     />
     <v-text-field
       v-model="modelValue.company"
@@ -71,9 +70,6 @@ const emit = defineEmits<{
 }>();
 
 const isValid = ref<boolean | null>(false);
-
-const nameNotEmpty = (value: string) =>
-  !!value || t("common.rules.notEmpty", { field: t("domain.person.name") });
 
 const emailNotEmpty = (value: string) =>
   !!value || t("common.rules.notEmpty", { field: t("domain.person.email") });

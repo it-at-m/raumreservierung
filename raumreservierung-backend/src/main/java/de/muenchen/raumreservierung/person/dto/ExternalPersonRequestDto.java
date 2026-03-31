@@ -4,7 +4,7 @@ import de.muenchen.raumreservierung.person.PersonType;
 import jakarta.validation.constraints.NotNull;
 
 public record ExternalPersonRequestDto(
-        @NotNull String name,
+        String name,
         @NotNull String email,
         String telefonNumber,
         @NotNull PersonType type,
