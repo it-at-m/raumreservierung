@@ -114,7 +114,8 @@
       }
     },
     "person": {
-      "name": "Name",
+      "firstName": "Vorname",
+      "lastName": "Nachname",
       "email": "E-Mail",
       "telefonNumber": "Telefonnummer"
     },

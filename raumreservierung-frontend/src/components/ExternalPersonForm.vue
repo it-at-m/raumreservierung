@@ -5,9 +5,14 @@
     :disabled="disabled"
   >
     <v-text-field
-      v-model="modelValue.name"
+      v-model="modelValue.firstName"
       variant="outlined"
-      :label="t('domain.person.name')"
+      :label="t('domain.person.firstName')"
+    />
+    <v-text-field
+      v-model="modelValue.lastName"
+      variant="outlined"
+      :label="t('domain.person.lastName')"
     />
     <v-text-field
       v-model="modelValue.company"

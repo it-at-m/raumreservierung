@@ -145,7 +145,8 @@ interface LoadEntriesOptions {
 }
 
 const EMPTY_ITEM_TEMPLATE = {
-  name: "",
+  lastName: "",
+  firstName: "",
 } as ExternalPersonResponseDto | InternalPersonResponseDto;
 
 // --- State ---
@@ -153,7 +154,7 @@ const currentPageOptions = ref<LoadEntriesOptions>({
   page: 1,
   itemsPerPage: 10,
   searchName: undefined,
-  sortBy: [{ key: "name", order: "asc" }],
+  sortBy: [{ key: "lastName", order: "asc" }],
 });
 
 const snackbarStore = useSnackbarStore();
@@ -279,8 +280,13 @@ const headers = computed<
   TableHeader<ExternalPersonResponseDto | InternalPersonResponseDto>[]
 >(() => [
   {
-    title: "Name",
-    value: "name",
+    title: "Vorname",
+    value: "firstName",
+    sortable: true,
+  },
+  {
+    title: "Nachname",
+    value: "lastName",
     sortable: true,
   },
   {
