@@ -1,7 +1,7 @@
 package de.muenchen.raumreservierung.room;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
+import de.muenchen.raumreservierung.common.BaseEntity;
+import de.muenchen.raumreservierung.common.ReferenceMapper;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentMapperImpl;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
@@ -11,18 +11,24 @@ import de.muenchen.raumreservierung.room.dto.RoomRequestDTO;
 import de.muenchen.raumreservierung.room.dto.SeatingCapacityRequestDTO;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.seating.dto.SeatingTypeMapperImpl;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.context.annotation.Bean;
+
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(
         classes = {
                 EquipmentMapperImpl.class,
                 SeatingTypeMapperImpl.class,
-                RoomMapperImpl.class
+                RoomMapperImpl.class,
+                RoomMapperTest.TestConfig.class
         }
 )
 public class RoomMapperTest {
@@ -110,5 +116,19 @@ public class RoomMapperTest {
 
         // Then
         assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(room);
+    }
+
+    @TestConfiguration
+    static class TestConfig {
+
+        @Bean
+        public ReferenceMapper referenceMapper() {
+            return new ReferenceMapper() {
+                @Override
+                public <T extends BaseEntity> T resolve(java.util.UUID id, Class<T> entityClass) {
+                    return null;
+                }
+            };
+        }
     }
 }
