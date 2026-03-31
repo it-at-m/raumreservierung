@@ -1,20 +1,21 @@
 package de.muenchen.raumreservierung.room;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.EquipmentService;
 import de.muenchen.raumreservierung.seating.SeatingType;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class RoomServiceTest {
@@ -43,14 +44,10 @@ public class RoomServiceTest {
         final Equipment equipment1 = getEquipment1();
         final Equipment equipment2 = getEquipment2();
         final Set<Equipment> equipmentsFull = Set.of(equipment1, equipment2);
-        final Set<UUID> equipmentIds = Set.of(eId1, eId2);
         final Room roomFull = buildExampleRoomWithEquipmentAndSeating(getExampleRoom(), null, equipmentsFull);
 
-        when(equipmentService.getReferenceById(eId1)).thenReturn(equipment1);
-        when(equipmentService.getReferenceById(eId2)).thenReturn(equipment2);
-        when(roomSeatingCapacityService.fillSeatingCapacities(null, roomFull)).thenReturn(List.of());
         when(roomRepository.save(roomRequest)).thenReturn(roomFull);
-        final Room result = roomService.createRoom(roomRequest, equipmentIds);
+        final Room result = roomService.createRoom(roomRequest);
 
         // Then
         assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(roomFull);
@@ -67,15 +64,10 @@ public class RoomServiceTest {
 
         final List<RoomSeatingCapacity> seatingCapacitiesOnlyIds = new ArrayList<>(List.of(seatingCapacityOnlyId1, seatingCapacityOnlyId2));
 
-        final RoomSeatingCapacity seatingCapacity1 = getRoomSeatingCapacity1(roomRequest);
-        final RoomSeatingCapacity seatingCapacity2 = getRoomSeatingCapacity2(roomRequest);
-
-        final List<RoomSeatingCapacity> seatingCapacities = new ArrayList<>(List.of(seatingCapacity1, seatingCapacity2));
         final Room roomFull = buildExampleRoomWithEquipmentAndSeating(roomRequest, seatingCapacitiesOnlyIds, null);
 
-        when(roomSeatingCapacityService.fillSeatingCapacities(roomFull.getRoomSeatingCapacities(), roomFull)).thenReturn(seatingCapacities);
         when(roomRepository.save(roomRequest)).thenReturn(roomFull);
-        final Room result = roomService.createRoom(roomRequest, null);
+        final Room result = roomService.createRoom(roomRequest);
 
         // Then
         assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(roomFull);

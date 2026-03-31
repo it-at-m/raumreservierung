@@ -2,7 +2,6 @@ package de.muenchen.raumreservierung.room;
 
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
-import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.EquipmentService;
 import de.muenchen.raumreservierung.security.Authorities;
 import lombok.RequiredArgsConstructor;
@@ -11,9 +10,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
@@ -46,42 +43,12 @@ public class RoomService {
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
-    public Room createRoom(final Room room, final Set<UUID> equipmentIds) {
-        if (equipmentIds != null && !equipmentIds.isEmpty()) {
-            final Set<Equipment> equipmentSet = equipmentIds.stream()
-                    .map(equipmentService::getReferenceById)
-                    .collect(Collectors.toSet());
-            room.setEquipment(equipmentSet);
-        }
-
-        final List<RoomSeatingCapacity> roomSeatingCapacities = roomSeatingCapacityService.fillSeatingCapacities(room.getRoomSeatingCapacities(), room);
-        room.updateRoomSeatingCapacityFrom(roomSeatingCapacities);
-
-        return roomRepository.save(room);
-    }
-
-    @PreAuthorize(Authorities.ROOM_MANAGE)
     public Room updateRoom(final Room roomUpdates, final UUID roomId) {
         final Room existingRoom = getEntityOrThrowException(roomId);
 
         existingRoom.updateFrom(roomUpdates);
 
         return roomRepository.save(existingRoom);
-    }
-
-    @PreAuthorize(Authorities.ROOM_MANAGE)
-    public Room updateRoom(final Room room, final Set<UUID> equipmentIds, final UUID roomId) {
-        final Room foundRoom = getEntityOrThrowException(roomId);
-        foundRoom.updateFrom(room);
-        // Update to diff updater when sets get larger!
-        foundRoom.setEquipment(equipmentIds.stream()
-                .map(equipmentService::getReferenceById)
-                .collect(Collectors.toSet()));
-
-        final List<RoomSeatingCapacity> roomSeatingCapacities = roomSeatingCapacityService.fillSeatingCapacities(room.getRoomSeatingCapacities(), foundRoom);
-        foundRoom.updateRoomSeatingCapacityFrom(roomSeatingCapacities);
-
-        return roomRepository.save(foundRoom);
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
