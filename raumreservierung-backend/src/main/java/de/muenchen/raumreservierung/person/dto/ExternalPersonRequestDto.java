@@ -11,5 +11,6 @@ public record ExternalPersonRequestDto(
         @NotNull PersonType type,
         String company,
         String streetAddress,
-        String postalCodeCity) implements PersonRequestDto {
+        String postalCodeCity,
+        String note) implements PersonRequestDto {
 }

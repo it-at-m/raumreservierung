@@ -4,16 +4,30 @@
     @update:model-value="updatedValidity"
     :disabled="disabled"
   >
-    <v-text-field
-      v-model="modelValue.firstName"
-      variant="outlined"
-      :label="t('domain.person.firstName')"
-    />
-    <v-text-field
-      v-model="modelValue.lastName"
-      variant="outlined"
-      :label="t('domain.person.lastName')"
-    />
+    <v-row>
+      <v-col
+        cols="12"
+        md="6"
+        class="pb-0 pb-md-3"
+      >
+        <v-text-field
+          v-model="modelValue.firstName"
+          variant="outlined"
+          :label="t('domain.person.firstName')"
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="6"
+        class="pt-0 pt-md-3"
+      >
+        <v-text-field
+          v-model="modelValue.lastName"
+          variant="outlined"
+          :label="t('domain.person.lastName')"
+        />
+      </v-col>
+    </v-row>
     <v-text-field
       v-model="modelValue.company"
       variant="outlined"
@@ -53,6 +67,13 @@
         />
       </v-col>
     </v-row>
+    <v-text-field
+      v-model="modelValue.note"
+      variant="outlined"
+      :counter="MAX_NOTE_LENGTH"
+      :rules="[maxNoteLength]"
+      :label="t('domain.externalPerson.note')"
+    />
   </v-form>
 </template>
 
@@ -74,6 +95,8 @@ const emit = defineEmits<{
   isValid: [value: boolean | null];
 }>();
 
+const MAX_NOTE_LENGTH = 500;
+
 const isValid = ref<boolean | null>(false);
 
 const emailNotEmpty = (value: string) =>
@@ -90,6 +113,13 @@ const telefonNumberValidator = (value: string) =>
   !value ||
   /^\+?[0-9\s/()-]{7,20}$/.test(value) ||
   t("common.rules.invalidTelefonNumber");
+
+const maxNoteLength = (value: string) =>
+  value.length <= MAX_NOTE_LENGTH ||
+  t("common.rules.maxLengthError", {
+    field: t("domain.externalPerson.note"),
+    num: MAX_NOTE_LENGTH,
+  });
 
 const updatedValidity = (newIsValid: boolean | null) => {
   isValid.value = newIsValid;

@@ -13,5 +13,6 @@ public record ExternalPersonResponseDto(
         @NotNull PersonType type,
         String company,
         String streetAddress,
-        String postalCodeCity) implements PersonResponseDto {
+        String postalCodeCity,
+        String note) implements PersonResponseDto {
 }

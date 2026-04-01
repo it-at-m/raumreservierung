@@ -318,6 +318,10 @@ const headers = computed<
           sortable: true,
         },
         {
+          title: t("domain.externalPerson.note"),
+          value: "note",
+        },
+        {
           title: t("common.action", { count: 2 }),
           value: "actions",
         },

@@ -4,3 +4,6 @@ ALTER TABLE person
 
 ALTER TABLE person
     DROP COLUMN name;
+
+ALTER TABLE external_person
+    ADD COLUMN note VARCHAR(500);
