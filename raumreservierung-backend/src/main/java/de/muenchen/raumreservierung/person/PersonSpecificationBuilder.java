@@ -22,7 +22,13 @@ public final class PersonSpecificationBuilder {
     }
 
     private static <T extends Person> Specification<T> filterForName(final String searchName) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get(Person_.lastName)), "%" + searchName.toLowerCase(Locale.GERMAN) + "%");
+        return (root, query, cb) -> {
+            String searchString = "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
+            return cb.or(
+                    cb.like(cb.lower(root.get(Person_.lastName)), searchString),
+                    cb.like(cb.lower(root.get(Person_.firstName)), searchString),
+                    cb.like(cb.lower(root.get(Person_.email)), searchString));
+        };
     }
 
 }
