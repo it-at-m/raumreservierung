@@ -8,6 +8,32 @@
       close-on-back
     >
       <confirm-card
+        v-if="dialogMode == 'readOnly'"
+        :loading="loading"
+        :title="t(domain)"
+        @cancel="closeDialog"
+      >
+        <template #text>
+          <slot
+            name="form"
+            :item="activeItem"
+            :updateItem="updateActiveItem"
+            :updateValidity="updateFormValidity"
+            :readOnly="true"
+          />
+        </template>
+        <template #cancel="{ props }">
+          <base-button
+            v-bind="props"
+            secondary
+            class="mr-4"
+            text="Schließen"
+            :prepend-icon="mdiClose"
+          />
+        </template>
+        <template #confirm />
+      </confirm-card>
+      <confirm-card
         v-if="dialogMode == 'form'"
         :loading="loading"
         :title="
@@ -24,6 +50,7 @@
             :item="activeItem"
             :updateItem="updateActiveItem"
             :updateValidity="updateFormValidity"
+            :readOnly="false"
           />
         </template>
         <template #confirm="{ props }">
@@ -81,6 +108,7 @@
           name="table"
           :openEdit="openEdit"
           :openDelete="promptDelete"
+          :openReadOnly="openReadOnly"
         />
       </template>
     </v-card>
@@ -88,7 +116,12 @@
 </template>
 
 <script setup lang="ts" generic="T extends { id?: string }">
-import { mdiContentSaveOutline, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
+import {
+  mdiClose,
+  mdiContentSaveOutline,
+  mdiPlus,
+  mdiTrashCanOutline,
+} from "@mdi/js";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -97,7 +130,7 @@ import ConfirmCard from "@/components/common/ConfirmCard.vue";
 
 const { t } = useI18n();
 
-type DialogMode = "form" | "delete" | null;
+type DialogMode = "form" | "delete" | "readOnly" | null;
 const dialogMode = ref<DialogMode>(null);
 const showDialog = computed(() => dialogMode.value !== null);
 
@@ -142,6 +175,11 @@ const openCreate = () => {
 const openEdit = (item: T) => {
   activeItem.value = JSON.parse(JSON.stringify(item)) as T;
   dialogMode.value = "form";
+};
+
+const openReadOnly = (item: T) => {
+  activeItem.value = JSON.parse(JSON.stringify(item)) as T;
+  dialogMode.value = "readOnly";
 };
 
 const promptDelete = (item: T) => {

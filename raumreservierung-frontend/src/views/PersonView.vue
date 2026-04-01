@@ -33,12 +33,13 @@
           @update="handleUpdate"
           @delete="handleDelete"
         >
-          <template #form="{ item, updateItem, updateValidity }">
+          <template #form="{ item, updateItem, updateValidity, readOnly }">
             <external-person-form
               :model-value="item"
               @update:model-value="updateItem"
               @is-valid="updateValidity"
               :disabled="updatePersonLoading || createPersonLoading"
+              :readonly="readOnly"
             />
           </template>
           <template #tableActions="{ openCreate }">
@@ -49,7 +50,7 @@
               :text="t('common.add')"
             />
           </template>
-          <template #table="{ openEdit, openDelete }">
+          <template #table="{ openEdit, openDelete, openReadOnly }">
             <v-data-table-server
               must-sort
               :sortBy="currentPageOptions.sortBy"
@@ -60,6 +61,9 @@
               :disable-sort="personPageLoading"
               @update:options="updateOptionsAndLoadPage"
             >
+              <template #[`item.lastName`]="{ item }">
+                {{ item.firstName }} {{ item.lastName }}
+              </template>
               <template
                 v-if="!isInternalPath"
                 v-slot:[`item.actions`]="{ item }"
@@ -69,7 +73,7 @@
                     <v-col
                       class="pa-0"
                       cols="12"
-                      sm="6"
+                      sm="4"
                     >
                       <action-button
                         type="edit"
@@ -80,11 +84,21 @@
                     <v-col
                       class="pa-0"
                       cols="12"
-                      sm="6"
+                      sm="4"
                     >
                       <action-button
                         type="delete"
                         @click="openDelete(item)"
+                      />
+                    </v-col>
+                    <v-col
+                      class="pa-0"
+                      cols="12"
+                      sm="4"
+                    >
+                      <action-button
+                        type="readOnly"
+                        @click="openReadOnly(item)"
                       />
                     </v-col>
                   </v-row>
@@ -280,12 +294,7 @@ const headers = computed<
   TableHeader<ExternalPersonResponseDto | InternalPersonResponseDto>[]
 >(() => [
   {
-    title: "Vorname",
-    value: "firstName",
-    sortable: true,
-  },
-  {
-    title: "Nachname",
+    title: "Name",
     value: "lastName",
     sortable: true,
   },
@@ -316,10 +325,6 @@ const headers = computed<
           title: t("domain.externalPerson.postalCodeCity"),
           value: "postalCodeCity",
           sortable: true,
-        },
-        {
-          title: t("domain.externalPerson.note"),
-          value: "note",
         },
         {
           title: t("common.action", { count: 2 }),

@@ -3,6 +3,7 @@
     v-model="isValid"
     @update:model-value="updatedValidity"
     :disabled="disabled"
+    :readonly="readOnly"
   >
     <v-row>
       <v-col
@@ -67,9 +68,10 @@
         />
       </v-col>
     </v-row>
-    <v-text-field
+    <v-textarea
       v-model="modelValue.note"
       variant="outlined"
+      rows="3"
       :counter="MAX_NOTE_LENGTH"
       :rules="[maxNoteLength]"
       :label="t('domain.externalPerson.note')"
@@ -89,6 +91,7 @@ const modelValue = defineModel<ExternalPersonResponseDto>({ required: true });
 
 defineProps<{
   disabled?: boolean;
+  readOnly?: boolean;
 }>();
 
 const emit = defineEmits<{
