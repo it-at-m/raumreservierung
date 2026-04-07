@@ -11,7 +11,10 @@
             v-if="isSmallScreen"
             @click.stop="toggleDrawer()"
           />
-          <router-link to="/">
+          <router-link
+            to="/"
+            class="text-decoration-none"
+          >
             <v-toolbar-title
               class="font-weight-bold"
               :class="{ 'ml-4': !isSmallScreen }"
