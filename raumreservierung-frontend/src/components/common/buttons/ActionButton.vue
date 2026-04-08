@@ -8,7 +8,7 @@
 </template>
 
 <script setup lang="ts">
-import { mdiNoteTextOutline, mdiPencil, mdiTrashCanOutline } from "@mdi/js";
+import { mdiEyeOutline, mdiPencil, mdiTrashCanOutline } from "@mdi/js";
 import { computed } from "vue";
 
 type Type = "edit" | "delete" | "readOnly";
@@ -23,7 +23,7 @@ const computedIcon = computed(() => {
     case "delete":
       return mdiTrashCanOutline;
     case "readOnly":
-      return mdiNoteTextOutline;
+      return mdiEyeOutline;
     default:
       return mdiPencil;
   }

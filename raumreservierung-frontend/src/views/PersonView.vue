@@ -53,6 +53,7 @@
           <template #table="{ openEdit, openDelete, openReadOnly }">
             <v-data-table-server
               must-sort
+              hover
               :sortBy="currentPageOptions.sortBy"
               :items-length="personPageData?.page?.totalElements || 0"
               :items="personPageData?.content || []"
@@ -60,6 +61,7 @@
               :loading="personPageLoading"
               :disable-sort="personPageLoading"
               @update:options="updateOptionsAndLoadPage"
+              @click:row="handleRowClick"
             >
               <template #[`item.lastName`]="{ item }">
                 {{ item.firstName }} {{ item.lastName }}
@@ -217,6 +219,15 @@ const handleCreate = async (
     await onSuccess(
       t("generics.created", { domain: t("domain.equipment.header") })
     );
+  }
+};
+
+const handleRowClick = (
+  event: PointerEvent,
+  { item }: { item: InternalPersonResponseDto | ExternalPersonResponseDto }
+) => {
+  if (crudRef.value) {
+    crudRef.value.openReadOnly(item);
   }
 };
 

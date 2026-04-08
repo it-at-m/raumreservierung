@@ -208,6 +208,7 @@ const closeDialog = () => {
 
 defineExpose({
   closeDialog,
+  openReadOnly,
 });
 </script>
 
