@@ -25,7 +25,7 @@ export function UserLocalDevelopment(): User {
   u.authorities = [
     // todo add authorities
   ];
-  u.user_roles = ["fachadmin"];
+  u.user_roles = ["raumadmin"];
   return u;
 }
 
