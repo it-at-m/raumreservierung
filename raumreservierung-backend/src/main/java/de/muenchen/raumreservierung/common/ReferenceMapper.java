@@ -2,10 +2,9 @@ package de.muenchen.raumreservierung.common;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import java.util.UUID;
 import org.mapstruct.TargetType;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 public class ReferenceMapper {
@@ -16,7 +15,7 @@ public class ReferenceMapper {
     /**
      * Reference mapper for all entities implementing BaseEntity with an UUID
      *
-     * @param id          UUID of the given entity
+     * @param id UUID of the given entity
      * @param entityClass class which should be referenced
      * @return the reference of the entity of the given class
      */

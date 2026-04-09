@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.room;
 
 import static org.assertj.core.api.Assertions.assertThat;
+
 import de.muenchen.raumreservierung.common.ReferenceMapper;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentMapperImpl;
@@ -96,7 +97,7 @@ public class RoomMapperTest {
         roomSeatingCapacity1.setSeatingType(seatingType1);
         RoomSeatingCapacity roomSeatingCapacity2 = new RoomSeatingCapacity();
         roomSeatingCapacity2.setSeatingType(seatingType2);
-        final List<RoomSeatingCapacity> roomSeatingCapacitySet = List.of(roomSeatingCapacity1, roomSeatingCapacity2);
+        final Set<RoomSeatingCapacity> roomSeatingCapacitySet = Set.of(roomSeatingCapacity1, roomSeatingCapacity2);
 
         Equipment equipment1 = new Equipment();
         equipment1.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
@@ -111,7 +112,7 @@ public class RoomMapperTest {
         room.setCapacity(500);
         room.setInformation("Ein mittelgroßer Saal mit Stühlen, Tischen und Reihenbestuhlung und Stehempfang.");
         room.setNote("Hier gibt es keine Flecken.");
-        room.setIsActive(true);
+        room.setActive(true);
         room.setArea(100);
         room.setRoomSeatingCapacities(roomSeatingCapacitySet);
         room.setEquipment(equipments);
@@ -123,23 +124,23 @@ public class RoomMapperTest {
         assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(room);
     }
 
-//    @TestConfiguration
-//    static class TestConfig {
-//
-//        @Bean
-//        public ReferenceMapper referenceMapper() {
-//            return new ReferenceMapper() {
-//                @Override
-//                public <T extends BaseEntity> T resolve(java.util.UUID id, Class<T> entityClass) {
-//                    try {
-//                        T entity = entityClass.getDeclaredConstructor().newInstance();
-//                        entity.setId(id);
-//                        return entity;
-//                    } catch (Exception e) {
-//                        return null;
-//                    }
-//                }
-//            };
-//        }
-//    }
+    //    @TestConfiguration
+    //    static class TestConfig {
+    //
+    //        @Bean
+    //        public ReferenceMapper referenceMapper() {
+    //            return new ReferenceMapper() {
+    //                @Override
+    //                public <T extends BaseEntity> T resolve(java.util.UUID id, Class<T> entityClass) {
+    //                    try {
+    //                        T entity = entityClass.getDeclaredConstructor().newInstance();
+    //                        entity.setId(id);
+    //                        return entity;
+    //                    } catch (Exception e) {
+    //                        return null;
+    //                    }
+    //                }
+    //            };
+    //        }
+    //    }
 }

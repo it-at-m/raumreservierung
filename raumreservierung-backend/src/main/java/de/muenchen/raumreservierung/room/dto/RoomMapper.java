@@ -11,7 +11,7 @@ import org.mapstruct.NullValueMappingStrategy;
 
 @Mapper(
         nullValueIterableMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT,
-        uses = {ReferenceMapper.class, SeatingTypeMapper.class, EquipmentMapper.class}
+        uses = { ReferenceMapper.class, SeatingTypeMapper.class, EquipmentMapper.class }
 )
 public interface RoomMapper {
     @Mapping(source = "active", target = "isActive")

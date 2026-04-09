@@ -62,7 +62,6 @@ public class Room extends BaseEntity {
         this.area = roomChanges.getArea();
         this.note = roomChanges.getNote();
 
-
         this.equipment.clear();
         if (roomChanges.getEquipment() != null) {
             this.equipment.addAll(roomChanges.getEquipment());
@@ -72,15 +71,6 @@ public class Room extends BaseEntity {
         if (roomChanges.getRoomSeatingCapacities() != null) {
             this.roomSeatingCapacities.addAll(roomChanges.getRoomSeatingCapacities());
             this.roomSeatingCapacities.forEach(csc -> csc.setRoom(this));
-        }
-    }
-
-    public void updateRoomSeatingCapacityFrom(final Set<RoomSeatingCapacity> roomSeatingCapacities) {
-        if (this.roomSeatingCapacities != null) {
-            this.roomSeatingCapacities.clear();
-            this.roomSeatingCapacities.addAll(roomSeatingCapacities);
-        } else {
-            this.roomSeatingCapacities = roomSeatingCapacities;
         }
     }
 }

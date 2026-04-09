@@ -4,7 +4,6 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
-import de.muenchen.raumreservierung.equipment.EquipmentService;
 import de.muenchen.raumreservierung.security.Authorities;
 import java.util.List;
 import java.util.UUID;
@@ -19,10 +18,6 @@ import org.springframework.stereotype.Service;
 public class RoomService {
 
     private final RoomRepository roomRepository;
-
-    private final EquipmentService equipmentService;
-
-    private final RoomSeatingCapacityService roomSeatingCapacityService;
 
     public Room getById(final UUID roomId) {
         return roomRepository.findWithDetailsById(roomId)
