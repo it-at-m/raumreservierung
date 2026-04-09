@@ -6,7 +6,23 @@ changes:
       user: anwender
       role: anwender
       clientId: local
+
   - assignRole:
-      user: fachadmin
-      role: fachadmin
+      user: leseberechtigt
+      role: leseberechtigt
+      clientId: local
+
+  - assignRole:
+      user: terminorganisator
+      role: terminorganisator
+      clientId: local
+
+  - assignRole:
+      user: raumbuchung
+      role: raumbuchung
+      clientId: local
+
+  - assignRole:
+      user: raumadmin
+      role: raumadmin
       clientId: local
