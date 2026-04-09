@@ -12,7 +12,7 @@ import { PRIVILEGE_DIVIDER } from "@/types/Privilege.ts";
  * Mapping table of roles and privileges
  */
 const rolePrivilegeMapping = {
-  fachadmin: [
+  raumadmin: [
     "rooms:write",
     "bookings:manage",
     "bookings:self",
@@ -23,6 +23,20 @@ const rolePrivilegeMapping = {
     "seating:write",
     "users:manage",
   ],
+  raumbuchung: [
+    "bookings:self",
+    "bookings:write",
+    "bookings:manage",
+    "calendar:write",
+    "rooms:read",
+  ],
+  terminorganisator: [
+    "bookings:self",
+    "calendar:read",
+    "rooms:read",
+    "bookings:write",
+  ],
+  leseberechtigt: ["bookings:self", "calendar:read", "rooms:read"],
   anwender: ["bookings:self", "rooms:read"],
 } satisfies Record<Role, readonly Privilege[]>;
 

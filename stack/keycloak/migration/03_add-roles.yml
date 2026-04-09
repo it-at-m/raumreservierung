@@ -10,7 +10,28 @@ changes:
       composite: false
 
   - addRole:
-      name: fachadmin
+      name: leseberechtigt
+      description: Role to view all rooms and calendars
+      clientRole: true
+      clientId: local
+      composite: false
+
+  - addRole:
+      name: terminorganisator
+      description: Role to  modify appointment details (e.g. times, resources within the appointment)
+      clientRole: true
+      clientId: local
+      composite: false
+
+  - addRole:
+      name: raumbuchung
+      description: Role to modify appointments (e.g. date, appointment status, request status)
+      clientRole: true
+      clientId: local
+      composite: false
+
+  - addRole:
+      name: raumadmin
       description: Role to view and write all bookings and access to other administrative areas
       clientRole: true
       clientId: local
