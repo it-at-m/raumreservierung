@@ -7,14 +7,11 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
+import java.io.Serial;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.io.Serial;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -44,13 +41,13 @@ public class Room extends BaseEntity {
     private String note;
 
     @Column(nullable = false)
-    private Boolean isActive;
+    private boolean isActive;
 
     @Column
     private int area;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "room")
-    private List<RoomSeatingCapacity> roomSeatingCapacities = new ArrayList<>();
+    private Set<RoomSeatingCapacity> roomSeatingCapacities = new HashSet<>();
 
     @ManyToMany
     private Set<Equipment> equipment = new HashSet<>();
@@ -61,7 +58,7 @@ public class Room extends BaseEntity {
         this.number = roomChanges.getNumber();
         this.address = roomChanges.getAddress();
         this.capacity = roomChanges.getCapacity();
-        this.isActive = roomChanges.getIsActive();
+        this.isActive = roomChanges.isActive();
         this.area = roomChanges.getArea();
         this.note = roomChanges.getNote();
 
@@ -78,7 +75,7 @@ public class Room extends BaseEntity {
         }
     }
 
-    public void updateRoomSeatingCapacityFrom(final List<RoomSeatingCapacity> roomSeatingCapacities) {
+    public void updateRoomSeatingCapacityFrom(final Set<RoomSeatingCapacity> roomSeatingCapacities) {
         if (this.roomSeatingCapacities != null) {
             this.roomSeatingCapacities.clear();
             this.roomSeatingCapacities.addAll(roomSeatingCapacities);

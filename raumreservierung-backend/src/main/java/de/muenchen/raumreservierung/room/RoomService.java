@@ -1,19 +1,17 @@
 package de.muenchen.raumreservierung.room;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.equipment.EquipmentService;
 import de.muenchen.raumreservierung.security.Authorities;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.UUID;
-
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -39,7 +37,9 @@ public class RoomService {
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
     public Room createRoom(final Room room) {
-        return roomRepository.save(room);
+        final Room newRoom = new Room();
+        newRoom.updateFrom(room);
+        return roomRepository.save(newRoom);
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
@@ -55,7 +55,7 @@ public class RoomService {
     public void deleteRoom(final UUID roomId) {
         final Room toDelete = getEntityOrThrowException(roomId);
 
-        if (toDelete.getIsActive()) {
+        if (toDelete.isActive()) {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, roomId));
         }
 

@@ -13,7 +13,7 @@ public record RoomRequestDTO(@NotNull @Size(min = 2, max = 100) String name,
                              int capacity,
                              @Size(max = 1000) String information,
                              @Size(max = 1000) String note,
-                             @NotNull Boolean isActive,
+                             @NotNull boolean isActive,
                              int area,
                              List<SeatingCapacityRequestDTO> roomSeatingCapacities,
                              Set<UUID> equipmentIds) {

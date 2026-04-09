@@ -1,6 +1,6 @@
 package de.muenchen.raumreservierung.room;
 
-import de.muenchen.raumreservierung.common.BaseEntity;
+import static org.assertj.core.api.Assertions.assertThat;
 import de.muenchen.raumreservierung.common.ReferenceMapper;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentMapperImpl;
@@ -11,30 +11,29 @@ import de.muenchen.raumreservierung.room.dto.RoomRequestDTO;
 import de.muenchen.raumreservierung.room.dto.SeatingCapacityRequestDTO;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.seating.dto.SeatingTypeMapperImpl;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
-
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(
         classes = {
                 EquipmentMapperImpl.class,
                 SeatingTypeMapperImpl.class,
                 RoomMapperImpl.class,
-                RoomMapperTest.TestConfig.class
         }
 )
 public class RoomMapperTest {
 
     @Autowired
     private RoomMapper roomMapper;
+
+    @MockitoBean
+    private ReferenceMapper referenceMapper;
 
     @Test
     public void givenRequestDTO_thenReturnsCorrectEntity() {
@@ -54,18 +53,24 @@ public class RoomMapperTest {
                 capacityRequestDTOs, equipmentIds);
 
         // When
-        final Room result = roomMapper.toEntity(requestDTO);
-
-        // Then
-        Equipment equipment1 = new Equipment();
-        equipment1.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
-        Equipment equipment2 = new Equipment();
-        equipment2.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174001"));
-
         SeatingType seatingTypeOnlyId1 = new SeatingType();
         seatingTypeOnlyId1.setId(seatingTypeId1);
         SeatingType seatingTypeOnlyId2 = new SeatingType();
         seatingTypeOnlyId2.setId(seatingTypeId2);
+        Mockito.when(referenceMapper.resolve(seatingTypeId1, SeatingType.class)).thenReturn(seatingTypeOnlyId1);
+        Mockito.when(referenceMapper.resolve(seatingTypeId2, SeatingType.class)).thenReturn(seatingTypeOnlyId2);
+
+        Equipment equipment1 = new Equipment();
+        equipment1.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
+        Equipment equipment2 = new Equipment();
+        equipment2.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174001"));
+        Mockito.when(referenceMapper.resolve(equipmentId1, Equipment.class)).thenReturn(equipment1);
+        Mockito.when(referenceMapper.resolve(equipmentId2, Equipment.class)).thenReturn(equipment2);
+
+        final Room result = roomMapper.toEntity(requestDTO);
+
+        // Then
+        final Set<Equipment> equimentSet = Set.of(equipment1, equipment2);
         RoomSeatingCapacity roomSeatingCapacity1 = new RoomSeatingCapacity();
         roomSeatingCapacity1.setSeatingType(seatingTypeOnlyId1);
         roomSeatingCapacity1.setCapacity(100);
@@ -75,7 +80,7 @@ public class RoomMapperTest {
         final Set<RoomSeatingCapacity> roomSeatingCapacitySet = Set.of(roomSeatingCapacity1, roomSeatingCapacity2);
 
         assertThat(result).usingRecursiveComparison().ignoringFields("id", "equipment", "roomSeatingCapacities").isEqualTo(requestDTO);
-        assertThat(result.getEquipment()).usingRecursiveComparison().isNull();
+        assertThat(result.getEquipment()).usingRecursiveComparison().isEqualTo(equimentSet);
         assertThat(result.getRoomSeatingCapacities()).usingRecursiveComparison().isEqualTo(roomSeatingCapacitySet);
 
     }
@@ -118,17 +123,23 @@ public class RoomMapperTest {
         assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(room);
     }
 
-    @TestConfiguration
-    static class TestConfig {
-
-        @Bean
-        public ReferenceMapper referenceMapper() {
-            return new ReferenceMapper() {
-                @Override
-                public <T extends BaseEntity> T resolve(java.util.UUID id, Class<T> entityClass) {
-                    return null;
-                }
-            };
-        }
-    }
+//    @TestConfiguration
+//    static class TestConfig {
+//
+//        @Bean
+//        public ReferenceMapper referenceMapper() {
+//            return new ReferenceMapper() {
+//                @Override
+//                public <T extends BaseEntity> T resolve(java.util.UUID id, Class<T> entityClass) {
+//                    try {
+//                        T entity = entityClass.getDeclaredConstructor().newInstance();
+//                        entity.setId(id);
+//                        return entity;
+//                    } catch (Exception e) {
+//                        return null;
+//                    }
+//                }
+//            };
+//        }
+//    }
 }

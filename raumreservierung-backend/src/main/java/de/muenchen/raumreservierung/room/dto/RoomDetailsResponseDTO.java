@@ -15,7 +15,7 @@ public record RoomDetailsResponseDTO(
         @NotNull int capacity,
         @NotNull @Size(max = 1000) String information,
         @NotNull @Size(max = 1000) String note,
-        @NotNull Boolean isActive,
+        @NotNull boolean isActive,
         @NotNull int area,
         @NotNull List<SeatingCapacityResponseDTO> roomSeatingCapacities,
         @NotNull Set<EquipmentResponseDto> equipment) {
