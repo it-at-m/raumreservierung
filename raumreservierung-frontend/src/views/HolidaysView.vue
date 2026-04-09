@@ -190,7 +190,8 @@ const createHoliday = async (holiday: Partial<HolidayResponseDTO>) => {
     await onSuccess(
       t("generics.created", {
         domain: computedDomain.value,
-      })
+      }),
+      holiday.startDate?.getFullYear()
     );
   }
 };
@@ -205,7 +206,8 @@ const updateHoliday = async (holiday: Partial<HolidayResponseDTO>) => {
       await onSuccess(
         t("generics.updated", {
           domain: computedDomain.value,
-        })
+        }),
+        holiday.startDate?.getFullYear()
       );
     }
   }
@@ -222,8 +224,8 @@ const deleteHoliday = async (id: string) => {
   }
 };
 
-const onSuccess = async (msg: string) => {
-  await holidayStore.loadYear(selectedYear.value, true);
+const onSuccess = async (msg: string, yearOverride?: number) => {
+  await holidayStore.loadYear(yearOverride || selectedYear.value, true);
   if (tableRef.value) {
     tableRef.value.closeDialog();
   }
