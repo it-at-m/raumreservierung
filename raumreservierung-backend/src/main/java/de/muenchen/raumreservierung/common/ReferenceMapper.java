@@ -19,7 +19,7 @@ public class ReferenceMapper {
      * @param entityClass class which should be referenced
      * @return the reference of the entity of the given class
      */
-    public <T extends BaseEntity> T resolve(UUID id, @TargetType Class<T> entityClass) {
+    public <T extends BaseEntity> T resolve(final UUID id, @TargetType final Class<T> entityClass) {
         return id == null ? null : entityManager.getReference(entityClass, id);
     }
 

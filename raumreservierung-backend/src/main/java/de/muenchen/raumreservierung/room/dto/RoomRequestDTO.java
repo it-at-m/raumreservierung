@@ -2,7 +2,6 @@ package de.muenchen.raumreservierung.room.dto;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -14,7 +13,11 @@ public record RoomRequestDTO(@NotNull @Size(min = 2, max = 100) String name,
         @Size(max = 1000) String note,
         @NotNull boolean isActive,
         int area,
-        List<SeatingCapacityRequestDTO> roomSeatingCapacities,
+        Set<SeatingCapacityRequestDTO> roomSeatingCapacities,
         Set<UUID> equipmentIds) {
 
+    public RoomRequestDTO {
+        roomSeatingCapacities = roomSeatingCapacities == null ? Set.of() : Set.copyOf(roomSeatingCapacities);
+        equipmentIds = equipmentIds == null ? Set.of() : Set.copyOf(equipmentIds);
+    }
 }

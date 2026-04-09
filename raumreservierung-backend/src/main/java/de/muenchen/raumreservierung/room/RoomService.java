@@ -2,6 +2,7 @@ package de.muenchen.raumreservierung.room;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;

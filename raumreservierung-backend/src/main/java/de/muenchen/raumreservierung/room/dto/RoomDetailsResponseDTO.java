@@ -3,7 +3,6 @@ package de.muenchen.raumreservierung.room.dto;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -17,10 +16,10 @@ public record RoomDetailsResponseDTO(
         @NotNull @Size(max = 1000) String note,
         @NotNull boolean isActive,
         @NotNull int area,
-        @NotNull List<SeatingCapacityResponseDTO> roomSeatingCapacities,
+        @NotNull Set<SeatingCapacityResponseDTO> roomSeatingCapacities,
         @NotNull Set<EquipmentResponseDto> equipment) {
     public RoomDetailsResponseDTO {
-        roomSeatingCapacities = roomSeatingCapacities == null ? List.of() : List.copyOf(roomSeatingCapacities);
+        roomSeatingCapacities = roomSeatingCapacities == null ? Set.of() : Set.copyOf(roomSeatingCapacities);
         equipment = equipment == null ? Set.of() : Set.copyOf(equipment);
     }
 }

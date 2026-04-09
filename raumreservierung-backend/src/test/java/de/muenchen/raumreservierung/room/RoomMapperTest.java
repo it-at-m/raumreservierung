@@ -12,7 +12,6 @@ import de.muenchen.raumreservierung.room.dto.RoomRequestDTO;
 import de.muenchen.raumreservierung.room.dto.SeatingCapacityRequestDTO;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.seating.dto.SeatingTypeMapperImpl;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -43,7 +42,7 @@ public class RoomMapperTest {
         UUID seatingTypeId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174002");
         SeatingCapacityRequestDTO capacityRequestDTO1 = new SeatingCapacityRequestDTO(seatingTypeId1, 100);
         SeatingCapacityRequestDTO capacityRequestDTO2 = new SeatingCapacityRequestDTO(seatingTypeId2, 200);
-        final List<SeatingCapacityRequestDTO> capacityRequestDTOs = List.of(capacityRequestDTO1, capacityRequestDTO2);
+        final Set<SeatingCapacityRequestDTO> capacityRequestDTOs = Set.of(capacityRequestDTO1, capacityRequestDTO2);
 
         UUID equipmentId1 = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         UUID equipmentId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
