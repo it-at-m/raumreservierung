@@ -8,11 +8,8 @@ import de.muenchen.raumreservierung.equipment.dto.EquipmentMapperImpl;
 import de.muenchen.raumreservierung.person.ExternalPerson;
 import de.muenchen.raumreservierung.person.InternalPerson;
 import de.muenchen.raumreservierung.person.Person;
-import de.muenchen.raumreservierung.person.PersonType;
-import de.muenchen.raumreservierung.person.dto.ExternalPersonRequestDto;
 import de.muenchen.raumreservierung.person.dto.PersonMapper;
 import de.muenchen.raumreservierung.person.dto.PersonMapperImpl;
-import de.muenchen.raumreservierung.person.dto.PersonRequestDto;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
 import de.muenchen.raumreservierung.room.dto.RoomMapper;
 import de.muenchen.raumreservierung.room.dto.RoomMapperImpl;
@@ -60,10 +57,10 @@ public class RoomMapperTest {
         UUID equipmentId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
         final Set<UUID> equipmentIds = Set.of(equipmentId1, equipmentId2);
 
-        final PersonRequestDto personRequestDto = new ExternalPersonRequestDto("Hans Dampf", "hans.dampf@muenchen.de", "", PersonType.EXTERNAL, "", "", "");
+        final UUID personId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         final RoomRequestDTO requestDTO = new RoomRequestDTO("Mittlerer Saal", "102", "Pfad 3, 10101 Dazwischen, Deutschland", "Hinterm Stein links.", 500,
                 true, 100,
-                capacityRequestDTOs, equipmentIds, personRequestDto);
+                capacityRequestDTOs, equipmentIds, personId);
 
         // When
         SeatingType seatingTypeOnlyId1 = new SeatingType();
@@ -84,7 +81,7 @@ public class RoomMapperTest {
         contactPerson.setName("Hans Dampf");
         contactPerson.setEmail("hans.dampf@muenchen.de");
 
-        Mockito.when(personMapper.toEntity(requestDTO.contactPerson())).thenReturn(contactPerson);
+        //        Mockito.when(personMapper.toEntity(requestDTO.contactPerson())).thenReturn(contactPerson);
 
         final Room result = roomMapper.toEntity(requestDTO);
 

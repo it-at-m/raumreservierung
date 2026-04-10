@@ -23,6 +23,7 @@ public interface RoomMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "equipment", source = "equipmentIds")
+    @Mapping(target = "contactPerson", source = "contactPersonId")
     @Mapping(source = "isActive", target = "active")
     Room toEntity(RoomRequestDTO roomRequestDTO);
 

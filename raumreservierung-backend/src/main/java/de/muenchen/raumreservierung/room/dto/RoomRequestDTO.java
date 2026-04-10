@@ -1,6 +1,5 @@
 package de.muenchen.raumreservierung.room.dto;
 
-import de.muenchen.raumreservierung.person.dto.PersonRequestDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.Set;
@@ -15,7 +14,7 @@ public record RoomRequestDTO(@NotNull @Size(min = 2, max = 100) String name,
         int area,
         Set<SeatingCapacityRequestDTO> roomSeatingCapacities,
         Set<UUID> equipmentIds,
-        PersonRequestDto contactPerson) {
+        UUID contactPersonId) {
 
     public RoomRequestDTO {
         roomSeatingCapacities = roomSeatingCapacities == null ? Set.of() : Set.copyOf(roomSeatingCapacities);
