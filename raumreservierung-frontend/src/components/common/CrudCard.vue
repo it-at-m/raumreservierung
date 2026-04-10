@@ -87,7 +87,7 @@
   </div>
 </template>
 
-<script setup lang="ts" generic="T">
+<script setup lang="ts" generic="T extends { id?: string }">
 import { mdiContentSaveOutline, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
