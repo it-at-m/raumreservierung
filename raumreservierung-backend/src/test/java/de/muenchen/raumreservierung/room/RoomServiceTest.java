@@ -4,10 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import de.muenchen.raumreservierung.equipment.Equipment;
-import de.muenchen.raumreservierung.equipment.EquipmentService;
 import de.muenchen.raumreservierung.seating.SeatingType;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -22,21 +20,12 @@ public class RoomServiceTest {
     @Mock
     private RoomRepository roomRepository;
 
-    @Mock
-    private EquipmentService equipmentService;
-
-    @Mock
-    private RoomSeatingCapacityService roomSeatingCapacityService;
-
     @InjectMocks
     private RoomService roomService;
 
     @Test
     public void givenRoom_thenReturnsCorrectEntity_whenCreateRoomOnlyEquipment() {
         // Given
-        UUID eId1 = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-        UUID eId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
-
         final Room roomRequest = getExampleRoom();
 
         // When
@@ -61,7 +50,7 @@ public class RoomServiceTest {
         final RoomSeatingCapacity seatingCapacityOnlyId1 = getRoomSeatingCapacityOnlyId1(roomRequest);
         final RoomSeatingCapacity seatingCapacityOnlyId2 = getRoomSeatingCapacityOnlyId2(roomRequest);
 
-        final List<RoomSeatingCapacity> seatingCapacitiesOnlyIds = new ArrayList<>(List.of(seatingCapacityOnlyId1, seatingCapacityOnlyId2));
+        final Set<RoomSeatingCapacity> seatingCapacitiesOnlyIds = new HashSet<>(Set.of(seatingCapacityOnlyId1, seatingCapacityOnlyId2));
 
         final Room roomFull = buildExampleRoomWithEquipmentAndSeating(roomRequest, seatingCapacitiesOnlyIds, null);
 
@@ -72,7 +61,7 @@ public class RoomServiceTest {
         assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(roomFull);
     }
 
-    private Room buildExampleRoomWithEquipmentAndSeating(Room room, List<RoomSeatingCapacity> seatingCapacities, Set<Equipment> equipments) {
+    private Room buildExampleRoomWithEquipmentAndSeating(Room room, Set<RoomSeatingCapacity> seatingCapacities, Set<Equipment> equipments) {
         room.setRoomSeatingCapacities(seatingCapacities);
         room.setEquipment(equipments);
         return room;
@@ -86,26 +75,10 @@ public class RoomServiceTest {
         roomRequest.setCapacity(500);
         roomRequest.setInformation("Ein mittelgroßer Saal mit Stühlen, Tischen und Reihenbestuhlung und Stehempfang.");
         roomRequest.setNote("Hier gibt es keine Flecken.");
-        roomRequest.setIsActive(true);
+        roomRequest.setActive(true);
         roomRequest.setArea(100);
 
         return roomRequest;
-    }
-
-    private SeatingType getSeatingType1() {
-        SeatingType seatingType1 = new SeatingType();
-        seatingType1.setName("Reihenbestuhlung");
-        seatingType1.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
-        seatingType1.setDescription("Beschreibung von Reihenbestuhlung");
-        return seatingType1;
-    }
-
-    private SeatingType getSeatingType2() {
-        SeatingType seatingType2 = new SeatingType();
-        seatingType2.setName("Stehempfang");
-        seatingType2.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174002"));
-        seatingType2.setDescription("Beschreibung von Stehempfang");
-        return seatingType2;
     }
 
     private SeatingType getSeatingTypeOnlyId1() {
@@ -136,28 +109,12 @@ public class RoomServiceTest {
         return equipment2;
     }
 
-    private RoomSeatingCapacity getRoomSeatingCapacity1(Room room) {
-        final RoomSeatingCapacity roomSeatingCapacity1 = new RoomSeatingCapacity();
-        roomSeatingCapacity1.setRoom(room);
-        roomSeatingCapacity1.setSeatingType(getSeatingType1());
-        roomSeatingCapacity1.setCapacity(100);
-        return roomSeatingCapacity1;
-    }
-
     private RoomSeatingCapacity getRoomSeatingCapacityOnlyId1(Room room) {
         final RoomSeatingCapacity roomSeatingCapacity1 = new RoomSeatingCapacity();
         roomSeatingCapacity1.setRoom(room);
         roomSeatingCapacity1.setSeatingType(getSeatingTypeOnlyId1());
         roomSeatingCapacity1.setCapacity(100);
         return roomSeatingCapacity1;
-    }
-
-    private RoomSeatingCapacity getRoomSeatingCapacity2(Room room) {
-        final RoomSeatingCapacity roomSeatingCapacity2 = new RoomSeatingCapacity();
-        roomSeatingCapacity2.setRoom(room);
-        roomSeatingCapacity2.setSeatingType(getSeatingType2());
-        roomSeatingCapacity2.setCapacity(200);
-        return roomSeatingCapacity2;
     }
 
     private RoomSeatingCapacity getRoomSeatingCapacityOnlyId2(Room room) {
