@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.room.dto;
 
 import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
+import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.util.Set;
@@ -12,12 +13,11 @@ public record RoomDetailsResponseDTO(
         @NotNull @Size(max = 10) String number,
         @NotNull @Size(max = 255) String address,
         @NotNull int capacity,
-        @NotNull @Size(max = 1000) String information,
-        @NotNull @Size(max = 1000) String note,
         @NotNull boolean isActive,
         @NotNull int area,
         @NotNull Set<SeatingCapacityResponseDTO> roomSeatingCapacities,
-        @NotNull Set<EquipmentResponseDto> equipment) {
+        @NotNull Set<EquipmentResponseDto> equipment,
+        PersonResponseDto contactPerson) {
     public RoomDetailsResponseDTO {
         roomSeatingCapacities = roomSeatingCapacities == null ? Set.of() : Set.copyOf(roomSeatingCapacities);
         equipment = equipment == null ? Set.of() : Set.copyOf(equipment);

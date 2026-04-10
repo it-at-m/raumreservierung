@@ -2,6 +2,7 @@ package de.muenchen.raumreservierung.room.dto;
 
 import de.muenchen.raumreservierung.common.ReferenceMapper;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentMapper;
+import de.muenchen.raumreservierung.person.dto.PersonMapper;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
 import de.muenchen.raumreservierung.seating.dto.SeatingTypeMapper;
@@ -11,7 +12,7 @@ import org.mapstruct.NullValueMappingStrategy;
 
 @Mapper(
         nullValueIterableMappingStrategy = NullValueMappingStrategy.RETURN_DEFAULT,
-        uses = { ReferenceMapper.class, SeatingTypeMapper.class, EquipmentMapper.class }
+        uses = { ReferenceMapper.class, SeatingTypeMapper.class, EquipmentMapper.class, PersonMapper.class }
 )
 public interface RoomMapper {
     @Mapping(source = "active", target = "isActive")

@@ -1,14 +1,14 @@
 CREATE TABLE room
 (
-    id          UUID         NOT NULL,
-    name        VARCHAR(100) NOT NULL,
-    number      VARCHAR(100) NOT NULL,
-    address     VARCHAR(255),
-    capacity    INT,
-    information VARCHAR(1000),
-    note        VARCHAR(1000),
-    is_active   BOOLEAN DEFAULT TRUE,
-    area        INT,
+    id                   UUID         NOT NULL,
+    name                 VARCHAR(100) NOT NULL,
+    number               VARCHAR(100) NOT NULL,
+    location             VARCHAR(255),
+    location_description VARCHAR(500),
+    capacity             INT,
+    is_active            BOOLEAN DEFAULT TRUE,
+    area                 INT,
+    contact_person_id    UUID,
 
     PRIMARY KEY (id)
 );

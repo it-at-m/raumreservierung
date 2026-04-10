@@ -5,6 +5,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import de.muenchen.raumreservierung.common.ReferenceMapper;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentMapperImpl;
+import de.muenchen.raumreservierung.person.ExternalPerson;
+import de.muenchen.raumreservierung.person.InternalPerson;
+import de.muenchen.raumreservierung.person.Person;
+import de.muenchen.raumreservierung.person.PersonType;
+import de.muenchen.raumreservierung.person.dto.ExternalPersonRequestDto;
+import de.muenchen.raumreservierung.person.dto.PersonMapper;
+import de.muenchen.raumreservierung.person.dto.PersonMapperImpl;
+import de.muenchen.raumreservierung.person.dto.PersonRequestDto;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
 import de.muenchen.raumreservierung.room.dto.RoomMapper;
 import de.muenchen.raumreservierung.room.dto.RoomMapperImpl;
@@ -25,12 +33,16 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
                 EquipmentMapperImpl.class,
                 SeatingTypeMapperImpl.class,
                 RoomMapperImpl.class,
+                PersonMapperImpl.class,
         }
 )
 public class RoomMapperTest {
 
     @Autowired
     private RoomMapper roomMapper;
+
+    @MockitoBean
+    private PersonMapper personMapper;
 
     @MockitoBean
     private ReferenceMapper referenceMapper;
@@ -48,9 +60,10 @@ public class RoomMapperTest {
         UUID equipmentId2 = UUID.fromString("123e4567-e89b-12d3-a456-426614174001");
         final Set<UUID> equipmentIds = Set.of(equipmentId1, equipmentId2);
 
-        final RoomRequestDTO requestDTO = new RoomRequestDTO("Mittlerer Saal", "102", "Pfad 3, 10101 Dazwischen, Deutschland", 500,
-                "Ein mittelgroßer Saal mit Stühlen, Tischen und Reihenbestuhlung und Stehempfang.", "Hier gibt es keine Flecken.", true, 100,
-                capacityRequestDTOs, equipmentIds);
+        final PersonRequestDto personRequestDto = new ExternalPersonRequestDto("Hans Dampf", "hans.dampf@muenchen.de", "", PersonType.EXTERNAL, "", "", "");
+        final RoomRequestDTO requestDTO = new RoomRequestDTO("Mittlerer Saal", "102", "Pfad 3, 10101 Dazwischen, Deutschland", "Hinterm Stein links.", 500,
+                true, 100,
+                capacityRequestDTOs, equipmentIds, personRequestDto);
 
         // When
         SeatingType seatingTypeOnlyId1 = new SeatingType();
@@ -67,6 +80,12 @@ public class RoomMapperTest {
         Mockito.when(referenceMapper.resolve(equipmentId1, Equipment.class)).thenReturn(equipment1);
         Mockito.when(referenceMapper.resolve(equipmentId2, Equipment.class)).thenReturn(equipment2);
 
+        Person contactPerson = new ExternalPerson();
+        contactPerson.setName("Hans Dampf");
+        contactPerson.setEmail("hans.dampf@muenchen.de");
+
+        Mockito.when(personMapper.toEntity(requestDTO.contactPerson())).thenReturn(contactPerson);
+
         final Room result = roomMapper.toEntity(requestDTO);
 
         // Then
@@ -79,9 +98,10 @@ public class RoomMapperTest {
         roomSeatingCapacity2.setCapacity(200);
         final Set<RoomSeatingCapacity> roomSeatingCapacitySet = Set.of(roomSeatingCapacity1, roomSeatingCapacity2);
 
-        assertThat(result).usingRecursiveComparison().ignoringFields("id", "equipment", "roomSeatingCapacities").isEqualTo(requestDTO);
+        assertThat(result).usingRecursiveComparison().ignoringFields("id", "equipment", "roomSeatingCapacities", "contactPerson").isEqualTo(requestDTO);
         assertThat(result.getEquipment()).usingRecursiveComparison().isEqualTo(equimentSet);
         assertThat(result.getRoomSeatingCapacities()).usingRecursiveComparison().isEqualTo(roomSeatingCapacitySet);
+        assertThat(result.getContactPerson()).usingRecursiveComparison().isEqualTo(contactPerson);
 
     }
 
@@ -104,17 +124,20 @@ public class RoomMapperTest {
         equipment2.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174001"));
         final Set<Equipment> equipments = Set.of(equipment1, equipment2);
 
+        final Person contactPerson = new InternalPerson();
+        contactPerson.setName("Hans Dampf");
+        contactPerson.setEmail("hans.dampf@muenchen.de");
+
         final Room room = new Room();
         room.setName("Mittlerer Saal");
         room.setNumber("102");
-        room.setAddress("Pfad 3, 10101 Dazwischen, Deutschland");
+        room.setLocation("Pfad 3, 10101 Dazwischen, Deutschland");
         room.setCapacity(500);
-        room.setInformation("Ein mittelgroßer Saal mit Stühlen, Tischen und Reihenbestuhlung und Stehempfang.");
-        room.setNote("Hier gibt es keine Flecken.");
         room.setActive(true);
         room.setArea(100);
         room.setRoomSeatingCapacities(roomSeatingCapacitySet);
         room.setEquipment(equipments);
+        room.setContactPerson(contactPerson);
 
         // When
         final RoomListResponseDTO result = roomMapper.toDTO(room);
@@ -122,24 +145,4 @@ public class RoomMapperTest {
         // Then
         assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(room);
     }
-
-    //    @TestConfiguration
-    //    static class TestConfig {
-    //
-    //        @Bean
-    //        public ReferenceMapper referenceMapper() {
-    //            return new ReferenceMapper() {
-    //                @Override
-    //                public <T extends BaseEntity> T resolve(java.util.UUID id, Class<T> entityClass) {
-    //                    try {
-    //                        T entity = entityClass.getDeclaredConstructor().newInstance();
-    //                        entity.setId(id);
-    //                        return entity;
-    //                    } catch (Exception e) {
-    //                        return null;
-    //                    }
-    //                }
-    //            };
-    //        }
-    //    }
 }

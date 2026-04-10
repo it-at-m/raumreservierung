@@ -2,10 +2,12 @@ package de.muenchen.raumreservierung.room;
 
 import de.muenchen.raumreservierung.common.BaseEntity;
 import de.muenchen.raumreservierung.equipment.Equipment;
+import de.muenchen.raumreservierung.person.Person;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.io.Serial;
 import java.util.HashSet;
@@ -29,16 +31,16 @@ public class Room extends BaseEntity {
     private String number;
 
     @Column
-    private String address;
+    private String location;
+
+    @Column
+    private String locationDescription;
+
+    @ManyToOne
+    private Person contactPerson;
 
     @Column
     private int capacity;
-
-    @Column(length = 1000)
-    private String information;
-
-    @Column(length = 1000)
-    private String note;
 
     @Column(nullable = false)
     private boolean isActive;
@@ -54,13 +56,13 @@ public class Room extends BaseEntity {
 
     public void updateFrom(final Room roomChanges) {
         this.name = roomChanges.getName();
-        this.information = roomChanges.getInformation();
         this.number = roomChanges.getNumber();
-        this.address = roomChanges.getAddress();
+        this.location = roomChanges.getLocation();
         this.capacity = roomChanges.getCapacity();
         this.isActive = roomChanges.isActive();
         this.area = roomChanges.getArea();
-        this.note = roomChanges.getNote();
+        this.locationDescription = roomChanges.getLocationDescription();
+        this.contactPerson = roomChanges.getContactPerson();
 
         this.equipment.clear();
         if (roomChanges.getEquipment() != null) {

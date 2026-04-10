@@ -4,6 +4,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 
 import de.muenchen.raumreservierung.equipment.Equipment;
+import de.muenchen.raumreservierung.person.InternalPerson;
+import de.muenchen.raumreservierung.person.Person;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import java.util.HashSet;
 import java.util.Set;
@@ -68,15 +70,17 @@ public class RoomServiceTest {
     }
 
     private Room getExampleRoom() {
+        final Person contactPerson = new InternalPerson();
+        contactPerson.setEmail("hans.dampf@muenchen.de");
+        contactPerson.setName("Hans Dampf");
         final Room roomRequest = new Room();
         roomRequest.setName("Mittlerer Saal");
         roomRequest.setNumber("102");
-        roomRequest.setAddress("Pfad 3, 10101 Dazwischen, Deutschland");
+        roomRequest.setLocation("Pfad 3, 10101 Dazwischen, Deutschland");
         roomRequest.setCapacity(500);
-        roomRequest.setInformation("Ein mittelgroßer Saal mit Stühlen, Tischen und Reihenbestuhlung und Stehempfang.");
-        roomRequest.setNote("Hier gibt es keine Flecken.");
         roomRequest.setActive(true);
         roomRequest.setArea(100);
+        roomRequest.setContactPerson(contactPerson);
 
         return roomRequest;
     }
