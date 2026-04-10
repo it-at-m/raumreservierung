@@ -24,7 +24,7 @@
     "name": {
       "part1": "DIR - ",
       "part2": "Raum",
-      "part3": "reservierung",
+      "part3": "buchung",
       "full": "@:app.name.part2@:app.name.part3"
     }
   },

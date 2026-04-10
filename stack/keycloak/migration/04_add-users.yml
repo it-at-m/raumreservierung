@@ -12,13 +12,47 @@ changes:
   - updateUserPassword:
       name: anwender
       password: "anwender"
+
   - addUser:
-      name: fachadmin
-      lastName: fachadmin
-      firstName: fachadmin
+      name: leseberechtigt
+      lastName: leseberechtigt
+      firstName: leseberechtigt
       enabled: true
       emailVerified: true
-      email: fachadmin@fachadmin.de
+      email: leseberechtigt@leseberechtigt.de
   - updateUserPassword:
-      name: fachadmin
-      password: "fachadmin"
+      name: leseberechtigt
+      password: "leseberechtigt"
+
+  - addUser:
+      name: terminorganisator
+      lastName: terminorganisator
+      firstName: terminorganisator
+      enabled: true
+      emailVerified: true
+      email: terminorganisator@terminorganisator.de
+  - updateUserPassword:
+      name: terminorganisator
+      password: "terminorganisator"
+
+  - addUser:
+      name: raumbuchung
+      lastName: raumbuchung
+      firstName: raumbuchung
+      enabled: true
+      emailVerified: true
+      email: raumbuchung@raumbuchung.de
+  - updateUserPassword:
+      name: raumbuchung
+      password: "raumbuchung"
+
+  - addUser:
+      name: raumadmin
+      lastName: raumadmin
+      firstName: raumadmin
+      enabled: true
+      emailVerified: true
+      email: raumadmin@raumadmin.de
+  - updateUserPassword:
+      name: raumadmin
+      password: "raumadmin"
