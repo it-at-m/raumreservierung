@@ -224,7 +224,7 @@ const handleRowClick = (
   event: PointerEvent,
   { item }: { item: InternalPersonResponseDto | ExternalPersonResponseDto }
 ) => {
-  if (crudRef.value) {
+  if (crudRef.value && !isInternalPath.value) {
     crudRef.value.openReadOnly(item);
   }
 };
