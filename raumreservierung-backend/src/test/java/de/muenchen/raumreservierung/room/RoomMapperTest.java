@@ -80,8 +80,7 @@ public class RoomMapperTest {
         Person contactPerson = new ExternalPerson();
         contactPerson.setName("Hans Dampf");
         contactPerson.setEmail("hans.dampf@muenchen.de");
-
-        //        Mockito.when(personMapper.toEntity(requestDTO.contactPerson())).thenReturn(contactPerson);
+        Mockito.when(referenceMapper.resolve(personId, Person.class)).thenReturn(contactPerson);
 
         final Room result = roomMapper.toEntity(requestDTO);
 
