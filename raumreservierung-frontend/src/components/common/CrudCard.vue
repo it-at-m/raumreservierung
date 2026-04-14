@@ -10,7 +10,7 @@
       <confirm-card
         v-if="dialogMode == 'readOnly'"
         :loading="loading"
-        :title="t(domain)"
+        :title="domain"
         @cancel="closeDialog"
       >
         <template #text>

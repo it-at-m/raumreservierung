@@ -21,11 +21,11 @@
           ref="crudRef"
           :empty-item-template="EMPTY_ITEM_TEMPLATE"
           :domain="
-            t('generics.manage', {
-              domain: isInternalPath
+            t(
+              isInternalPath
                 ? t('domain.internalPerson.header', { count: 2 })
-                : t('domain.externalPerson.header', { count: 2 }),
-            })
+                : t('domain.externalPerson.header', { count: 2 })
+            )
           "
           :loading="personPageLoading || deletePersonLoading"
           @update:options="updateOptionsAndLoadPage"
