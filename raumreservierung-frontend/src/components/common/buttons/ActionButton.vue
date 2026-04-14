@@ -3,7 +3,7 @@
     variant="text"
     :disabled="disabled"
     :icon="computedIcon"
-    @click="emit('click')"
+    @click.stop="emit('click')"
   />
 </template>
 
