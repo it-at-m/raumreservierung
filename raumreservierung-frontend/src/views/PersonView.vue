@@ -21,11 +21,9 @@
           ref="crudRef"
           :empty-item-template="EMPTY_ITEM_TEMPLATE"
           :domain="
-            t(
-              isInternalPath
-                ? t('domain.internalPerson.header', { count: 2 })
-                : t('domain.externalPerson.header', { count: 2 })
-            )
+            isInternalPath
+              ? t('domain.internalPerson.header', { count: 2 })
+              : t('domain.externalPerson.header', { count: 2 })
           "
           :loading="personPageLoading || deletePersonLoading"
           @update:options="updateOptionsAndLoadPage"

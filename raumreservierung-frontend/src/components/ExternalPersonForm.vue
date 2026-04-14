@@ -118,7 +118,7 @@ const telefonNumberValidator = (value: string) =>
   t("common.rules.invalidTelefonNumber");
 
 const maxNoteLength = (value: string) =>
-  value.length <= MAX_NOTE_LENGTH ||
+  (value?.length || 0) <= MAX_NOTE_LENGTH ||
   t("common.rules.maxLengthError", {
     field: t("domain.externalPerson.note"),
     num: MAX_NOTE_LENGTH,
