@@ -46,13 +46,13 @@
 
         <!-- Core Frameworks -->
         <spring-cloud-dependencies.version>2025.0.1</spring-cloud-dependencies.version> <!-- Must match the chosen Spring Boot version -->
-        <hibernate-processor.version>7.2.6.Final</hibernate-processor.version>
+        <hibernate-processor.version>7.2.11.Final</hibernate-processor.version>
 
         <!-- Linting & Formatting -->
         <spotless-maven-plugin.version>3.1.0</spotless-maven-plugin.version>
         <itm-java-codeformat.version>1.0.10</itm-java-codeformat.version>
         <pmd-maven-plugin.version>3.28.0</pmd-maven-plugin.version>
-        <spotbugs-maven-plugin.version>4.9.8.2</spotbugs-maven-plugin.version>
+        <spotbugs-maven-plugin.version>4.9.8.3</spotbugs-maven-plugin.version>
         <spotbugs-annotations.version>4.9.8</spotbugs-annotations.version> <!-- must match the patch version of spotbugs-maven-plugin -->
         <findsecbugs-plugin.version>1.14.0</findsecbugs-plugin.version>
 
@@ -68,7 +68,7 @@
         <commons-io.version>2.21.0</commons-io.version>
         <commons-text.version>1.14.0</commons-text.version>
         <mapstruct.version>1.6.3</mapstruct.version>
-        <refarch-tools.version>1.2.0</refarch-tools.version>
+        <refarch-tools.version>1.2.2</refarch-tools.version>
 
         <!-- Additional required dependencies -->
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version> <!-- Needed to make MapStruct and Lombok work together -->
