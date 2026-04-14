@@ -15,19 +15,40 @@ public final class PersonSpecificationBuilder {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
         if (personFilterDto.searchName() != null && !personFilterDto.searchName().isBlank()) {
-            specificationList.add(filterForName(personFilterDto.searchName()));
+            specificationList.add(filterForFirstName(personFilterDto.searchName()));
+            specificationList.add(filterForLastName(personFilterDto.searchName()));
+            specificationList.add(filterForEmail(personFilterDto.searchName()));
+            specificationList.add(filterForOrganization(personFilterDto.searchName()));
         }
 
-        return Specification.allOf(specificationList);
+        return Specification.anyOf(specificationList);
     }
 
-    private static <T extends Person> Specification<T> filterForName(final String searchName) {
+    private static <T extends Person> Specification<T> filterForFirstName(final String searchName) {
         return (root, query, cb) -> {
             final String searchString = "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
-            return cb.or(
-                    cb.like(cb.lower(root.get(Person_.lastName)), searchString),
-                    cb.like(cb.lower(root.get(Person_.firstName)), searchString),
-                    cb.like(cb.lower(root.get(Person_.email)), searchString));
+            return cb.like(cb.lower(root.get(Person_.firstName)), searchString);
+        };
+    }
+
+    private static <T extends Person> Specification<T> filterForLastName(final String searchName) {
+        return (root, query, cb) -> {
+            final String searchString = "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
+            return cb.like(cb.lower(root.get(Person_.lastName)), searchString);
+        };
+    }
+
+    private static <T extends Person> Specification<T> filterForEmail(final String searchName) {
+        return (root, query, cb) -> {
+            final String searchString = "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
+            return cb.like(cb.lower(root.get(Person_.email)), searchString);
+        };
+    }
+
+    private static <T extends Person> Specification<T> filterForOrganization(final String searchName) {
+        return (root, query, cb) -> {
+            final String searchString = "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
+            return cb.like(cb.lower(root.get(ExternalPerson_.company.getName())), searchString);
         };
     }
 
