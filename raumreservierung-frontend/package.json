@@ -17,7 +17,7 @@
     "api-gen": "openapi-generator-cli generate"
   },
   "dependencies": {
-    "@fontsource/roboto": "5.2.9",
+    "@fontsource/roboto": "5.2.10",
     "@muenchen/appswitcher-vue": "2.2.0",
     "@vueuse/core": "14.0.0",
     "pinia": "3.0.4",
