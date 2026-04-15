@@ -22,8 +22,8 @@ public interface PersonMapper {
     @SubclassMapping(source = ExternalPerson.class, target = ExternalPersonResponseDto.class)
     PersonResponseDto mapToDto(Person person);
 
-    default PersonResponseDto toDto(Person person) {
-        Person unproxied = (Person) Hibernate.unproxy(person);
+    default PersonResponseDto toDto(final Person person) {
+        final Person unproxied = (Person) Hibernate.unproxy(person);
         return mapToDto(unproxied);
     }
 
