@@ -1,8 +1,11 @@
+import type { Role } from "@/types/Role.ts";
+
 import {
   defaultCatchHandler,
   defaultResponseHandler,
   getConfig,
 } from "@/api/fetch-utils";
+import { isRole, ROLE_WEIGHTS } from "@/types/Role.ts";
 import User from "@/types/User";
 
 /**
@@ -42,8 +45,21 @@ export function getUser(): Promise<User> {
       // LHM_Extended
       u.preferred_username = json.preferred_username || "";
       u.memberof = json.memberof || [];
-      u.user_roles = json.user_roles || [];
       u.authorities = json.authorities || [];
+      const resourceAccess = json.resource_access || {};
+
+      const highestValue = Object.values(resourceAccess)
+        .flatMap((client) => client?.roles || [])
+        .reduce<Role | undefined>((highest: Role | undefined, currentRole) => {
+          if (isRole(currentRole)) {
+            return !highest || ROLE_WEIGHTS[currentRole] > ROLE_WEIGHTS[highest]
+              ? currentRole
+              : highest;
+          }
+        }, undefined);
+
+      u.user_roles = [highestValue || ""];
+
       return u;
     });
 }
