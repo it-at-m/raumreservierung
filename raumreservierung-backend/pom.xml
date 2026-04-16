@@ -11,7 +11,7 @@
 
     <groupId>de.muenchen.raumreservierung</groupId>
     <artifactId>raumreservierung-backend</artifactId>
-    <version>0.2.0-SNAPSHOT</version>
+    <version>0.2.2-SNAPSHOT</version>
 
     <name>raumreservierung-backend</name>
     <description>This is the backend-project of the renewal of the raumreservierung</description>
@@ -340,7 +340,7 @@
                 <artifactId>springdoc-openapi-maven-plugin</artifactId>
                 <version>${springdoc-openapi-maven-plugin.version}</version>
                 <configuration>
-                    <apiDocsUrl>http://localhost:39146/v3/api-docs</apiDocsUrl>
+                    <apiDocsUrl>http://localhost:8086/v3/api-docs</apiDocsUrl>
                     <outputFileName>${project.name}.yaml</outputFileName>
                     <outputDir>${project.basedir}/src/api-spec</outputDir>
                     <failOnError>true</failOnError>
