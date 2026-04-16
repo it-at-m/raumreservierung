@@ -51,11 +51,10 @@ export function getUser(): Promise<User> {
       const highestValue = Object.values(resourceAccess)
         .flatMap((client) => client?.roles || [])
         .reduce<Role | undefined>((highest: Role | undefined, currentRole) => {
-          if (isRole(currentRole)) {
-            return !highest || ROLE_WEIGHTS[currentRole] > ROLE_WEIGHTS[highest]
-              ? currentRole
-              : highest;
-          }
+          return isRole(currentRole) &&
+            (!highest || ROLE_WEIGHTS[currentRole] > ROLE_WEIGHTS[highest])
+            ? currentRole
+            : highest;
         }, undefined);
 
       u.user_roles = [highestValue || ""];
