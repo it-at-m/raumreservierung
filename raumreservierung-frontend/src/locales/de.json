@@ -114,6 +114,13 @@
       }
     },
     "person": {
+      "title": "Anrede",
+      "titles": {
+        "mr": "Herr",
+        "ms": "Frau",
+        "diverse": "Divers",
+        "none": "Keine Angabe"
+      },
       "firstName": "Vorname",
       "lastName": "Nachname",
       "email": "E-Mail",

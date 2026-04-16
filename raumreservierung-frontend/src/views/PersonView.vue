@@ -48,7 +48,7 @@
               :text="t('common.add')"
             />
           </template>
-          <template #table="{ openEdit, openDelete, openReadOnly }">
+          <template #table="{ openEdit, openDelete }">
             <v-data-table-server
               must-sort
               hover
@@ -73,7 +73,7 @@
                     <v-col
                       class="pa-0"
                       cols="12"
-                      sm="4"
+                      sm="6"
                     >
                       <action-button
                         type="edit"
@@ -84,21 +84,11 @@
                     <v-col
                       class="pa-0"
                       cols="12"
-                      sm="4"
+                      sm="6"
                     >
                       <action-button
                         type="delete"
                         @click="openDelete(item)"
-                      />
-                    </v-col>
-                    <v-col
-                      class="pa-0"
-                      cols="12"
-                      sm="4"
-                    >
-                      <action-button
-                        type="readOnly"
-                        @click="openReadOnly(item)"
                       />
                     </v-col>
                   </v-row>

@@ -8,7 +8,21 @@
     <v-row>
       <v-col
         cols="12"
-        md="6"
+        md="3"
+        class="pb-0 pb-md-3"
+      >
+        <v-select
+          v-model="modelValue.title"
+          :items="titleOptions"
+          item-title="label"
+          item-value="value"
+          variant="outlined"
+          :label="t('domain.person.title')"
+        />
+      </v-col>
+      <v-col
+        cols="12"
+        md="4"
         class="pb-0 pb-md-3"
       >
         <v-text-field
@@ -19,7 +33,7 @@
       </v-col>
       <v-col
         cols="12"
-        md="6"
+        md="5"
         class="pt-0 pt-md-3"
       >
         <v-text-field
@@ -82,7 +96,7 @@
 <script setup lang="ts">
 import type { ExternalPersonResponseDto } from "@/api/raumreservierung-backend";
 
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 const { t } = useI18n();
@@ -101,6 +115,13 @@ const emit = defineEmits<{
 const MAX_NOTE_LENGTH = 500;
 
 const isValid = ref<boolean | null>(false);
+
+const titleOptions = computed(() => [
+  { value: "NONE", label: t("domain.person.titles.none") },
+  { value: "MS", label: t("domain.person.titles.ms") },
+  { value: "MR", label: t("domain.person.titles.mr") },
+  { value: "DIVERSE", label: t("domain.person.titles.diverse") },
+]);
 
 const emailNotEmpty = (value: string) =>
   !!value || t("common.rules.notEmpty", { field: t("domain.person.email") });
