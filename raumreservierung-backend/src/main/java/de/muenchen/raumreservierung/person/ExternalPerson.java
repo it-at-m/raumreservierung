@@ -2,6 +2,8 @@ package de.muenchen.raumreservierung.person;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import java.io.Serial;
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +15,10 @@ public class ExternalPerson extends Person {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private PersonTitle title;
 
     @Column
     private String company;
@@ -32,6 +38,7 @@ public class ExternalPerson extends Person {
             throw new IllegalArgumentException();
         }
         super.updateBaseFields(externalPerson);
+        this.title = externalPerson.getTitle();
         this.company = externalPerson.getCompany();
         this.streetAddress = externalPerson.getStreetAddress();
         this.postalCodeCity = externalPerson.getPostalCodeCity();
