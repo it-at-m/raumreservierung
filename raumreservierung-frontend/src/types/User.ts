@@ -16,6 +16,7 @@ class User {
   memberof: string[] = [];
   user_roles: string[] = [];
   authorities: string[] = [];
+  resource_access?: Record<string, { roles?: string[] }>;
 }
 
 export function UserLocalDevelopment(): User {
