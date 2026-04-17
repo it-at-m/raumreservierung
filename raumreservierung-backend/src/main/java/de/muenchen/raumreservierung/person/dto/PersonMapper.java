@@ -17,14 +17,14 @@ public interface PersonMapper {
     @SubclassMapping(source = ExternalPersonRequestDto.class, target = ExternalPerson.class)
     Person toEntity(PersonRequestDto personRequestDto);
 
-    @Named("toDtoWithUproxy")
+    @Named("toDto")
     @SubclassMapping(source = InternalPerson.class, target = InternalPersonResponseDto.class)
     @SubclassMapping(source = ExternalPerson.class, target = ExternalPersonResponseDto.class)
-    PersonResponseDto mapToDto(Person person);
+    PersonResponseDto toDto(Person person);
 
-    default PersonResponseDto toDto(final Person person) {
+    default PersonResponseDto unproxyAndMapToDto(final Person person) {
         final Person unproxied = (Person) Hibernate.unproxy(person);
-        return mapToDto(unproxied);
+        return toDto(unproxied);
     }
 
     @Mapping(target = "type", constant = "INTERNAL")
