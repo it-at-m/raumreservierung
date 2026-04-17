@@ -18,38 +18,24 @@ public final class PersonSpecificationBuilder {
             specificationList.add(filterForFirstName(personFilterDto.searchName()));
             specificationList.add(filterForLastName(personFilterDto.searchName()));
             specificationList.add(filterForEmail(personFilterDto.searchName()));
-            specificationList.add(filterForOrganization(personFilterDto.searchName()));
         }
 
         return Specification.anyOf(specificationList);
     }
 
+    private static String toLikePattern(final String searchName) {
+        return "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
+    }
+
     private static <T extends Person> Specification<T> filterForFirstName(final String searchName) {
-        return (root, query, cb) -> {
-            final String searchString = "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
-            return cb.like(cb.lower(root.get(Person_.firstName)), searchString);
-        };
+        return (root, query, cb) -> cb.like(cb.lower(root.get(Person_.firstName)), toLikePattern(searchName));
     }
 
     private static <T extends Person> Specification<T> filterForLastName(final String searchName) {
-        return (root, query, cb) -> {
-            final String searchString = "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
-            return cb.like(cb.lower(root.get(Person_.lastName)), searchString);
-        };
+        return (root, query, cb) -> cb.like(cb.lower(root.get(Person_.lastName)), toLikePattern(searchName));
     }
 
     private static <T extends Person> Specification<T> filterForEmail(final String searchName) {
-        return (root, query, cb) -> {
-            final String searchString = "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
-            return cb.like(cb.lower(root.get(Person_.email)), searchString);
-        };
+        return (root, query, cb) -> cb.like(cb.lower(root.get(Person_.email)), toLikePattern(searchName));
     }
-
-    private static <T extends Person> Specification<T> filterForOrganization(final String searchName) {
-        return (root, query, cb) -> {
-            final String searchString = "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
-            return cb.like(cb.lower(root.get(ExternalPerson_.company.getName())), searchString);
-        };
-    }
-
 }

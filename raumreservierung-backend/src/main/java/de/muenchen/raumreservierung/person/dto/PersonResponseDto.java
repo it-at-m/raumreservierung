@@ -2,6 +2,7 @@ package de.muenchen.raumreservierung.person.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import de.muenchen.raumreservierung.person.PersonTitle;
 import de.muenchen.raumreservierung.person.PersonType;
 import java.util.UUID;
 
@@ -20,6 +21,8 @@ import java.util.UUID;
 @SuppressWarnings("PMD.ShortMethodName")
 public interface PersonResponseDto {
     UUID id();
+
+    PersonTitle title();
 
     String firstName();
 

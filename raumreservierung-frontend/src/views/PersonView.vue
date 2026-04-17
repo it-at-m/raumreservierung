@@ -61,7 +61,7 @@
               @update:options="updateOptionsAndLoadPage"
               @click:row="handleRowClick"
             >
-              <template #[`item.lastName`]="{ item }">
+              <template #[`item.fullName`]="{ item }">
                 {{ item.firstName }} {{ item.lastName }}
               </template>
               <template
@@ -149,8 +149,7 @@ interface LoadEntriesOptions {
 }
 
 const EMPTY_ITEM_TEMPLATE = {
-  lastName: "",
-  firstName: "",
+  email: "",
 } as ExternalPersonResponseDto | InternalPersonResponseDto;
 
 // --- State ---
@@ -214,7 +213,7 @@ const handleRowClick = (
   event: PointerEvent,
   { item }: { item: InternalPersonResponseDto | ExternalPersonResponseDto }
 ) => {
-  if (crudRef.value && !isInternalPath.value) {
+  if (crudRef.value) {
     crudRef.value.openReadOnly(item);
   }
 };
@@ -294,7 +293,7 @@ const headers = computed<
 >(() => [
   {
     title: "Name",
-    value: "lastName",
+    value: "fullName",
     sortable: true,
   },
   {

@@ -35,8 +35,11 @@ public class PersonService {
         // Persontype differentiation will be done without specs as this saves an inner join!
         if (personFilterDto.personType().equals(PersonType.EXTERNAL)) {
 
-            final Specification<ExternalPerson> externalPersonSpecification = PersonSpecificationBuilder.fromFilter(personFilterDto);
-            return externalPersonRepository.findAll(externalPersonSpecification, pageable).map(externalPerson -> (Person) externalPerson);
+            final Specification<ExternalPerson> personSpecification = PersonSpecificationBuilder.fromFilter(personFilterDto);
+            final Specification<ExternalPerson> externalPersonSpecification = ExternalPersonSpecificationBuilder.fromFilter(personFilterDto);
+
+            return externalPersonRepository.findAll(personSpecification.or(externalPersonSpecification), pageable)
+                    .map(externalPerson -> (Person) externalPerson);
         } else {
 
             final Specification<InternalPerson> internalPersonSpecification = PersonSpecificationBuilder.fromFilter(personFilterDto);

@@ -23,7 +23,7 @@
       <v-col
         cols="12"
         md="4"
-        class="pb-0 pb-md-3"
+        class="py-0 py-md-3"
       >
         <v-text-field
           v-model="modelValue.firstName"
@@ -64,6 +64,7 @@
       <v-col
         cols="12"
         md="8"
+        class="pb-0 pb-md-3"
       >
         <v-text-field
           v-model="modelValue.streetAddress"
@@ -74,6 +75,7 @@
       <v-col
         cols="12"
         md="4"
+        class="pt-0 pt-md-3"
       >
         <v-text-field
           v-model="modelValue.postalCodeCity"
@@ -86,6 +88,7 @@
       v-model="modelValue.note"
       variant="outlined"
       rows="3"
+      class="mb-n4"
       :counter="MAX_NOTE_LENGTH"
       :rules="[maxNoteLength]"
       :label="t('domain.externalPerson.note')"
