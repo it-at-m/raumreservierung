@@ -13,9 +13,9 @@
     <template #form="{ item, updateItem, updateValidity }">
       <equipment-form
         :model-value="item"
+        :disabled="updateEquipmentLoading || saveEquipmentLoading"
         @update:model-value="updateItem"
         @is-valid="updateValidity"
-        :disabled="updateEquipmentLoading || saveEquipmentLoading"
       />
     </template>
     <template #[`item.isActive`]="{ item }">

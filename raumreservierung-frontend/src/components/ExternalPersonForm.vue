@@ -1,8 +1,8 @@
 <template>
   <v-form
     v-model="isValid"
-    @update:model-value="updatedValidity"
     :disabled="disabled"
+    @update:model-value="updatedValidity"
   >
     <v-text-field
       v-model="modelValue.name"

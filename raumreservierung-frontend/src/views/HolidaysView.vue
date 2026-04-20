@@ -15,11 +15,11 @@
     </template>
     <template #form="{ item, updateItem, updateValidity }">
       <holiday-form
-        :isPublic="isPublic"
+        :is-public="isPublic"
         :model-value="item"
+        :disabled="updateHolidayLoading || createHolidayLoading"
         @update:model-value="updateItem"
         @is-valid="updateValidity"
-        :disabled="updateHolidayLoading || createHolidayLoading"
       />
     </template>
     <template #[`item.startDate`]="{ item }">

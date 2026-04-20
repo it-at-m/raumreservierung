@@ -36,23 +36,23 @@
           <template #form="{ item, updateItem, updateValidity }">
             <external-person-form
               :model-value="item"
+              :disabled="updatePersonLoading || createPersonLoading"
               @update:model-value="updateItem"
               @is-valid="updateValidity"
-              :disabled="updatePersonLoading || createPersonLoading"
             />
           </template>
           <template #tableActions="{ openCreate }">
             <base-button
               :disabled="isInternalPath"
-              @click="openCreate"
               :append-icon="mdiPlus"
               :text="t('common.add')"
+              @click="openCreate"
             />
           </template>
           <template #table="{ openEdit, openDelete }">
             <v-data-table-server
               must-sort
-              :sortBy="currentPageOptions.sortBy"
+              :sort-by="currentPageOptions.sortBy"
               :items-length="personPageData?.page?.totalElements || 0"
               :items="personPageData?.content || []"
               :headers="headers"
@@ -62,7 +62,7 @@
             >
               <template
                 v-if="!isInternalPath"
-                v-slot:[`item.actions`]="{ item }"
+                #[`item.actions`]="{ item }"
               >
                 <slot name="item.actions">
                   <v-row align-content="center">
