@@ -8,7 +8,7 @@
       close-on-back
     >
       <confirm-card
-        v-if="dialogMode == 'read' || 'edit'"
+        v-if="dialogMode == 'read' || dialogMode == 'edit'"
         :loading="loading"
         :title="
           dialogMode == 'read'
