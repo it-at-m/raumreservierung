@@ -34,7 +34,6 @@
             v-if="dialogMode == 'read'"
             v-bind="props"
             secondary
-            class="mr-4"
             :text="t('common.close')"
             :prepend-icon="mdiClose"
           />
