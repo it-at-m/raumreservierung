@@ -19,7 +19,7 @@ public interface RoomMapper {
     RoomDetailsResponseDTO toDetailsDto(Room room);
 
     @Mapping(source = "active", target = "isActive")
-    RoomListResponseDTO toDTO(Room room);
+    RoomListResponseDTO toListDTO(Room room);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "equipment", source = "equipmentIds")

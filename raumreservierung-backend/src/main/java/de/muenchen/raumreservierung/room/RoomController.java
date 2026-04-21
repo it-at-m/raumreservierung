@@ -35,7 +35,7 @@ public class RoomController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<RoomListResponseDTO> getAllRooms() {
-        return roomService.findAll().stream().map(roomMapper::toDTO).toList();
+        return roomService.findAll().stream().map(roomMapper::toListDTO).toList();
     }
 
     @GetMapping({ "/{roomId}" })

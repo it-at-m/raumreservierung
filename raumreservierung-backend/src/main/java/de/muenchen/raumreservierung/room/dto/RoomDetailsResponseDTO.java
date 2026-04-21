@@ -2,11 +2,14 @@ package de.muenchen.raumreservierung.room.dto;
 
 import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+
 import java.util.Set;
 import java.util.UUID;
 
+@SuppressFBWarnings(value = {"EI_EXPOSE_REP"}, justification = "DTOs are simple data carriers")
 public record RoomDetailsResponseDTO(
         UUID id,
         @NotNull @Size(min = 2, max = 100) String name,
@@ -19,8 +22,4 @@ public record RoomDetailsResponseDTO(
         @NotNull Set<SeatingCapacityResponseDTO> roomSeatingCapacities,
         @NotNull Set<EquipmentResponseDto> equipment,
         PersonResponseDto contactPerson) {
-    public RoomDetailsResponseDTO {
-        roomSeatingCapacities = roomSeatingCapacities == null ? Set.of() : Set.copyOf(roomSeatingCapacities);
-        equipment = equipment == null ? Set.of() : Set.copyOf(equipment);
-    }
 }

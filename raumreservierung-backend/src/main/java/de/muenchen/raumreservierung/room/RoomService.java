@@ -1,17 +1,19 @@
 package de.muenchen.raumreservierung.room;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
-import java.util.List;
-import java.util.UUID;
+import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -19,10 +21,10 @@ import org.springframework.stereotype.Service;
 public class RoomService {
 
     private final RoomRepository roomRepository;
+    private final EntityManager entityManager;
 
     public Room getById(final UUID roomId) {
-        return roomRepository.findWithDetailsById(roomId)
-                .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, roomId)));
+        return getEntityOrThrowException(roomId);
     }
 
     public List<Room> findAll() {
@@ -35,16 +37,30 @@ public class RoomService {
     public Room createRoom(final Room room) {
         final Room newRoom = new Room();
         newRoom.updateFrom(room);
-        return roomRepository.save(newRoom);
+
+        final Room savedRoom = roomRepository.saveAndFlush(newRoom);
+        entityManager.detach(savedRoom);
+        if (savedRoom.getContactPerson() != null) {
+            entityManager.detach(savedRoom.getContactPerson());
+        }
+
+        log.debug("Saved room with id {}", savedRoom.getId());
+        return getEntityOrThrowException(savedRoom.getId());
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
     public Room updateRoom(final Room roomUpdates, final UUID roomId) {
         final Room existingRoom = getEntityOrThrowException(roomId);
-
         existingRoom.updateFrom(roomUpdates);
 
-        return roomRepository.save(existingRoom);
+        roomRepository.saveAndFlush(existingRoom);
+        entityManager.detach(existingRoom);
+        if (existingRoom.getContactPerson() != null) {
+            entityManager.detach(existingRoom.getContactPerson());
+        }
+
+        log.debug("Updated room with id {}", existingRoom.getId());
+        return getEntityOrThrowException(existingRoom.getId());
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)

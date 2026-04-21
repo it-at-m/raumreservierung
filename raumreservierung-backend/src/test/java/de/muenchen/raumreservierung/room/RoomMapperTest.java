@@ -136,7 +136,7 @@ public class RoomMapperTest {
         room.setContactPerson(contactPerson);
 
         // When
-        final RoomListResponseDTO result = roomMapper.toDTO(room);
+        final RoomListResponseDTO result = roomMapper.toListDTO(room);
 
         // Then
         assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(room);

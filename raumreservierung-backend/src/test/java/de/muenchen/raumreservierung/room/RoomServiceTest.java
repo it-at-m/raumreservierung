@@ -1,12 +1,14 @@
 package de.muenchen.raumreservierung.room;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.InternalPerson;
 import de.muenchen.raumreservierung.person.Person;
 import de.muenchen.raumreservierung.seating.SeatingType;
+import jakarta.persistence.EntityManager;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -22,6 +24,9 @@ public class RoomServiceTest {
     @Mock
     private RoomRepository roomRepository;
 
+    @Mock
+    private EntityManager entityManager;
+
     @InjectMocks
     private RoomService roomService;
 
@@ -34,9 +39,15 @@ public class RoomServiceTest {
         final Equipment equipment1 = getEquipment1();
         final Equipment equipment2 = getEquipment2();
         final Set<Equipment> equipmentsFull = Set.of(equipment1, equipment2);
+
         final Room roomFull = buildExampleRoomWithEquipmentAndSeating(getExampleRoom(), null, equipmentsFull);
 
-        when(roomRepository.save(roomRequest)).thenReturn(roomFull);
+        final UUID generatedId = UUID.randomUUID();
+        roomFull.setId(generatedId);
+
+        when(roomRepository.saveAndFlush(any(Room.class))).thenReturn(roomFull);
+        when(roomRepository.findWithDetailsById(generatedId)).thenReturn(java.util.Optional.of(roomFull));
+
         final Room result = roomService.createRoom(roomRequest);
 
         // Then
@@ -54,9 +65,16 @@ public class RoomServiceTest {
 
         final Set<RoomSeatingCapacity> seatingCapacitiesOnlyIds = new HashSet<>(Set.of(seatingCapacityOnlyId1, seatingCapacityOnlyId2));
 
-        final Room roomFull = buildExampleRoomWithEquipmentAndSeating(roomRequest, seatingCapacitiesOnlyIds, null);
+        final Room roomFull = buildExampleRoomWithEquipmentAndSeating(getExampleRoom(), seatingCapacitiesOnlyIds, null);
 
-        when(roomRepository.save(roomRequest)).thenReturn(roomFull);
+        // WICHTIG: Dem Mock-Ergebnis eine ID geben!
+        final UUID generatedId = UUID.randomUUID();
+        roomFull.setId(generatedId);
+
+        // Die neuen Service-Methoden mocken
+        when(roomRepository.saveAndFlush(any(Room.class))).thenReturn(roomFull);
+        when(roomRepository.findWithDetailsById(generatedId)).thenReturn(java.util.Optional.of(roomFull));
+
         final Room result = roomService.createRoom(roomRequest);
 
         // Then
