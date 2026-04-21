@@ -14,6 +14,7 @@ public final class Authorities {
     public static final String HOLIDAYS_MANAGE = "hasAnyRole('raumadmin')";
     public static final String SEATING_MANAGE = "hasAnyRole('raumadmin')";
     public static final String USERS_MANAGE = "hasAnyRole('raumadmin')";
+    public static final String BOOKING_TYPES_MANAGE = "hasAnyRole('raumadmin')";
 
     private Authorities() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
