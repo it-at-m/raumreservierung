@@ -10,7 +10,10 @@
         "output": "#{cwd}/src/api/#{name}",
         "additionalProperties": {
           "supportsES6": true,
-          "enumPropertyNaming": "UPPERCASE"
+          "enumPropertyNaming": "UPPERCASE",
+          "disallowAdditionalPropertiesIfNotPresent": false,
+          "useSingleRequestParameter": false,
+          "validationAttributes": true
         }
       }
     }
