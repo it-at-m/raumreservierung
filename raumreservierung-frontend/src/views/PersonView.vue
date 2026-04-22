@@ -34,25 +34,25 @@
           <template #form="{ item, updateItem, updateValidity, readOnly }">
             <external-person-form
               :model-value="item"
-              @update:model-value="updateItem"
-              @is-valid="updateValidity"
               :disabled="updatePersonLoading || createPersonLoading"
               :readonly="readOnly"
+              @update:model-value="updateItem"
+              @is-valid="updateValidity"
             />
           </template>
           <template #tableActions="{ openCreate }">
             <base-button
               :disabled="isInternalPath"
-              @click="openCreate"
               :append-icon="mdiPlus"
               :text="t('common.add')"
+              @click="openCreate"
             />
           </template>
           <template #table="{ openEdit, openDelete }">
             <v-data-table-server
               must-sort
               hover
-              :sortBy="currentPageOptions.sortBy"
+              :sort-by="currentPageOptions.sortBy"
               :items-length="personPageData?.page?.totalElements || 0"
               :items="personPageData?.content || []"
               :headers="headers"
@@ -66,7 +66,7 @@
               </template>
               <template
                 v-if="!isInternalPath"
-                v-slot:[`item.actions`]="{ item }"
+                #[`item.actions`]="{ item }"
               >
                 <slot name="item.actions">
                   <v-row align-content="center">
