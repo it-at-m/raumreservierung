@@ -78,7 +78,8 @@ public class RoomMapperTest {
         Mockito.when(referenceMapper.resolve(equipmentId2, Equipment.class)).thenReturn(equipment2);
 
         Person contactPerson = new ExternalPerson();
-        contactPerson.setName("Hans Dampf");
+        contactPerson.setFirstName("Hans");
+        contactPerson.setLastName("Dampf");
         contactPerson.setEmail("hans.dampf@muenchen.de");
         Mockito.when(referenceMapper.resolve(personId, Person.class)).thenReturn(contactPerson);
 
@@ -121,7 +122,8 @@ public class RoomMapperTest {
         final Set<Equipment> equipments = Set.of(equipment1, equipment2);
 
         final Person contactPerson = new InternalPerson();
-        contactPerson.setName("Hans Dampf");
+        contactPerson.setFirstName("Hans");
+        contactPerson.setLastName("Dampf");
         contactPerson.setEmail("hans.dampf@muenchen.de");
 
         final Room room = new Room();

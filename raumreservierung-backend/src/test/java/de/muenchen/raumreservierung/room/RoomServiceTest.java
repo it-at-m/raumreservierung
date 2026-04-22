@@ -90,7 +90,8 @@ public class RoomServiceTest {
     private Room getExampleRoom() {
         final Person contactPerson = new InternalPerson();
         contactPerson.setEmail("hans.dampf@muenchen.de");
-        contactPerson.setName("Hans Dampf");
+        contactPerson.setFirstName("Hans");
+        contactPerson.setLastName("Dampf");
         final Room roomRequest = new Room();
         roomRequest.setName("Mittlerer Saal");
         roomRequest.setNumber("102");

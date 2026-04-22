@@ -154,7 +154,8 @@ class RoomControllerIntegrationTest {
         equipment = equipmentRepository.save(equipment);
 
         InternalPerson person = new InternalPerson();
-        person.setName("Max Mustermann");
+        person.setFirstName("Max");
+        person.setLastName("Mustermann");
         person.setEmail("max@muenchen.de");
         person.setOrganisationId("123e4567-e89b-12d3-a456-426614171000");
         person.setOrganisationUnit("DKL33");
@@ -186,7 +187,8 @@ class RoomControllerIntegrationTest {
         assertEquals(equipment.getDescription(), body.equipment().iterator().next().description());
         assertEquals(equipment.isActive(), body.equipment().iterator().next().isActive());
         InternalPersonResponseDto internalPersonResponseDto = (InternalPersonResponseDto) body.contactPerson();
-        assertEquals(person.getName(), internalPersonResponseDto.name());
+        assertEquals(person.getFirstName(), internalPersonResponseDto.firstName());
+        assertEquals(person.getLastName(), internalPersonResponseDto.lastName());
         assertEquals(person.getEmail(), internalPersonResponseDto.email());
         assertEquals(person.getOrganisationId(), internalPersonResponseDto.organisationId());
         assertEquals(person.getOrganisationUnit(), internalPersonResponseDto.organisationUnit());
@@ -223,7 +225,8 @@ class RoomControllerIntegrationTest {
         SeatingCapacityRequestDTO seatingReq2 = new SeatingCapacityRequestDTO(seatingType2.getId(), 222);
 
         InternalPerson person1 = new InternalPerson();
-        person1.setName("Max Mustermann");
+        person1.setFirstName("Max");
+        person1.setLastName("Mustermann");
         person1.setEmail("max@muenchen.de");
         person1.setOrganisationUnit("DKL33");
         person1.setOrganisationId("123e4567-e89b-12d3-a456-426614171001");
@@ -231,7 +234,8 @@ class RoomControllerIntegrationTest {
         person1 = personRepository.save(person1);
 
         InternalPerson person2 = new InternalPerson();
-        person2.setName("Maxima Mustermann");
+        person2.setFirstName("Maxima");
+        person2.setLastName("Mustermann");
         person2.setEmail("maxima@muenchen.de");
         person2.setOrganisationId("123e4567-e89b-12d3-a456-426614171002");
         person2.setOrganisationUnit("DKL34");
@@ -264,7 +268,8 @@ class RoomControllerIntegrationTest {
         assertEquals(eq2.getDescription(), response.getBody().equipment().iterator().next().description());
         assertEquals(eq2.isActive(), response.getBody().equipment().iterator().next().isActive());
         InternalPersonResponseDto internalPersonResponseDto = (InternalPersonResponseDto) response.getBody().contactPerson();
-        assertEquals(person2.getName(), internalPersonResponseDto.name());
+        assertEquals(person2.getFirstName(), internalPersonResponseDto.firstName());
+        assertEquals(person2.getLastName(), internalPersonResponseDto.lastName());
         assertEquals(person2.getEmail(), internalPersonResponseDto.email());
         assertEquals(person2.getOrganisationId(), internalPersonResponseDto.organisationId());
         assertEquals(person2.getOrganisationUnit(), internalPersonResponseDto.organisationUnit());
