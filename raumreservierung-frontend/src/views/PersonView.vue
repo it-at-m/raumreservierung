@@ -21,11 +21,9 @@
           ref="crudRef"
           :empty-item-template="EMPTY_ITEM_TEMPLATE"
           :domain="
-            t('generics.manage', {
-              domain: isInternalPath
-                ? t('domain.internalPerson.header', { count: 2 })
-                : t('domain.externalPerson.header', { count: 2 }),
-            })
+            isInternalPath
+              ? t('domain.internalPerson.header', { count: 2 })
+              : t('domain.externalPerson.header', { count: 2 })
           "
           :loading="personPageLoading || deletePersonLoading"
           @update:options="updateOptionsAndLoadPage"
@@ -33,12 +31,13 @@
           @update="handleUpdate"
           @delete="handleDelete"
         >
-          <template #form="{ item, updateItem, updateValidity }">
+          <template #form="{ item, updateItem, updateValidity, readOnly }">
             <external-person-form
               :model-value="item"
               @update:model-value="updateItem"
               @is-valid="updateValidity"
               :disabled="updatePersonLoading || createPersonLoading"
+              :readonly="readOnly"
             />
           </template>
           <template #tableActions="{ openCreate }">
@@ -52,6 +51,7 @@
           <template #table="{ openEdit, openDelete }">
             <v-data-table-server
               must-sort
+              hover
               :sortBy="currentPageOptions.sortBy"
               :items-length="personPageData?.page?.totalElements || 0"
               :items="personPageData?.content || []"
@@ -59,7 +59,11 @@
               :loading="personPageLoading"
               :disable-sort="personPageLoading"
               @update:options="updateOptionsAndLoadPage"
+              @click:row="handleRowClick"
             >
+              <template #[`item.fullName`]="{ item }">
+                {{ item.firstName }} {{ item.lastName }}
+              </template>
               <template
                 v-if="!isInternalPath"
                 v-slot:[`item.actions`]="{ item }"
@@ -145,7 +149,7 @@ interface LoadEntriesOptions {
 }
 
 const EMPTY_ITEM_TEMPLATE = {
-  name: "",
+  email: "",
 } as ExternalPersonResponseDto | InternalPersonResponseDto;
 
 // --- State ---
@@ -153,7 +157,7 @@ const currentPageOptions = ref<LoadEntriesOptions>({
   page: 1,
   itemsPerPage: 10,
   searchName: undefined,
-  sortBy: [{ key: "name", order: "asc" }],
+  sortBy: [{ key: "lastName", order: "asc" }],
 });
 
 const snackbarStore = useSnackbarStore();
@@ -202,6 +206,15 @@ const handleCreate = async (
     await onSuccess(
       t("generics.created", { domain: t("domain.equipment.header") })
     );
+  }
+};
+
+const handleRowClick = (
+  event: PointerEvent,
+  { item }: { item: InternalPersonResponseDto | ExternalPersonResponseDto }
+) => {
+  if (crudRef.value) {
+    crudRef.value.openReadOnly(item);
   }
 };
 
@@ -280,7 +293,7 @@ const headers = computed<
 >(() => [
   {
     title: "Name",
-    value: "name",
+    value: "fullName",
     sortable: true,
   },
   {

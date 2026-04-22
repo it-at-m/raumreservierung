@@ -23,6 +23,9 @@ public class ExternalPerson extends Person {
     @Column
     private String postalCodeCity;
 
+    @Column
+    private String note;
+
     @Override
     public void updateFrom(final Person person) {
         if (!(person instanceof ExternalPerson externalPerson)) {
@@ -32,5 +35,6 @@ public class ExternalPerson extends Person {
         this.company = externalPerson.getCompany();
         this.streetAddress = externalPerson.getStreetAddress();
         this.postalCodeCity = externalPerson.getPostalCodeCity();
+        this.note = externalPerson.getNote();
     }
 }
