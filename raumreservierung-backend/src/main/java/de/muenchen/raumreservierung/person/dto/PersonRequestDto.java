@@ -2,6 +2,7 @@ package de.muenchen.raumreservierung.person.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import de.muenchen.raumreservierung.person.PersonTitle;
 import de.muenchen.raumreservierung.person.PersonType;
 
 @JsonTypeInfo(
@@ -16,7 +17,11 @@ import de.muenchen.raumreservierung.person.PersonType;
     }
 )
 public interface PersonRequestDto {
-    String name();
+    PersonTitle title();
+
+    String firstName();
+
+    String lastName();
 
     String telefonNumber();
 

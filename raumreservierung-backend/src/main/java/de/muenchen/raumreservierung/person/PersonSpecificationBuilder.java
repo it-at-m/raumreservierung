@@ -15,14 +15,27 @@ public final class PersonSpecificationBuilder {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
         if (personFilterDto.searchName() != null && !personFilterDto.searchName().isBlank()) {
-            specificationList.add(filterForName(personFilterDto.searchName()));
+            specificationList.add(filterForFirstName(personFilterDto.searchName()));
+            specificationList.add(filterForLastName(personFilterDto.searchName()));
+            specificationList.add(filterForEmail(personFilterDto.searchName()));
         }
 
-        return Specification.allOf(specificationList);
+        return Specification.anyOf(specificationList);
     }
 
-    private static <T extends Person> Specification<T> filterForName(final String searchName) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get(Person_.name)), "%" + searchName.toLowerCase(Locale.GERMAN) + "%");
+    private static String toLikePattern(final String searchName) {
+        return "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
     }
 
+    private static <T extends Person> Specification<T> filterForFirstName(final String searchName) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get(Person_.firstName)), toLikePattern(searchName));
+    }
+
+    private static <T extends Person> Specification<T> filterForLastName(final String searchName) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get(Person_.lastName)), toLikePattern(searchName));
+    }
+
+    private static <T extends Person> Specification<T> filterForEmail(final String searchName) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get(Person_.email)), toLikePattern(searchName));
+    }
 }
