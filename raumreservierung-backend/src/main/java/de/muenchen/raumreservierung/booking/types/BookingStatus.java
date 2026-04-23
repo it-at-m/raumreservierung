@@ -7,6 +7,5 @@ import jakarta.persistence.Enumerated;
 @Embeddable
 public record BookingStatus(
         @Enumerated(EnumType.STRING) BookingState bookingState,
-        @Enumerated(EnumType.STRING) BookingSubStatus bookingSubStatus
-) {
+        @Enumerated(EnumType.STRING) BookingSubStatus bookingSubStatus) {
 }

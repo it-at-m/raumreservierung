@@ -21,36 +21,47 @@ public class Booking extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @Column
-    BookingStatus bookingStatus;
+    private BookingStatus bookingStatus;
 
     @Column
-    String title;
+    private String title;
 
     //test for validity >0 & <1000
     // if room: <= max capacity of seatingtypecapacity of room
     //          or if no seatingtype selected: <= max capacity of room
     // if no room: <= max capacity of all rooms => roomController?
     @Column
-    int participantCount;
+    private int participantCount;
 
     @ManyToMany
-    List<Equipment> equipmentList;
+    private List<Equipment> equipmentList;
 
     //merge of room backend branch needed first
     // seatingTypes and seatingTypesCapacity from selected room
-//    @ManyToOne
-//    Room room;
+    //    @ManyToOne
+    //    Room room;
 
     @Column
-    boolean cateringNeeded;
+    private boolean cateringNeeded;
 
     @Column
-    String cateringRequirements;
+    private String cateringRequirements;
 
     @Column
-    String internalNotes;
+    private String internalNotes;
 
     // new type ServiceTime needed for that
     @Column
-    List<BookingServiceTime> serviceTimes;
+    private List<BookingServiceTime> serviceTimes;
+
+    public void updateFrom(final Booking booking) {
+        this.bookingStatus = booking.getBookingStatus();
+        this.title = booking.getTitle();
+        this.participantCount = booking.getParticipantCount();
+        this.cateringNeeded = booking.isCateringNeeded();
+        this.cateringRequirements = booking.getCateringRequirements();
+        this.internalNotes = booking.getInternalNotes();
+        this.serviceTimes = booking.getServiceTimes();
+        this.equipmentList = booking.getEquipmentList();
+    }
 }

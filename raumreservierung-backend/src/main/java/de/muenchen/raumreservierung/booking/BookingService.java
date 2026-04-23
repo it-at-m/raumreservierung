@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import java.util.List;
@@ -21,47 +22,29 @@ public class BookingService {
     }
 
     public List<Booking> findAll() {
-        final List<Booking> allRooms = bookingRepository.findAll();
-        log.debug("Found {} equipments", allRooms.size());
-        return allRooms;
+        final List<Booking> allBookings = bookingRepository.findAll();
+        log.debug("Found {} bookings", allBookings.size());
+        return allBookings;
     }
 
     @PreAuthorize(Authorities.BOOKING_MANAGE)
-    public Booking createBooking(final Booking room) {
-        final Booking newBooking = new Booking();
-        newBooking.updateFrom(room);
-
-        final Booking savedRoom = bookingRepository.saveAndFlush(newBooking);
-        entityManager.detach(savedRoom);
-        if (savedRoom.getContactPerson() != null) {
-            entityManager.detach(savedRoom.getContactPerson());
-        }
-
-        log.debug("Saved room with id {}", savedRoom.getId());
-        return getEntityOrThrowException(savedRoom.getId());
+    public Booking createBooking(final Booking booking) {
+        log.debug("Creating booking {}", booking);
+        return bookingRepository.save(booking);
     }
 
     @PreAuthorize(Authorities.BOOKING_MANAGE)
-    public Booking updateRoom(final Booking roomUpdates, final UUID roomId) {
-        final Booking existingRoom = getEntityOrThrowException(roomId);
-        existingRoom.updateFrom(roomUpdates);
-
-        bookingRepository.saveAndFlush(existingRoom);
-        entityManager.detach(existingRoom);
-        if (existingRoom.getContactPerson() != null) {
-            entityManager.detach(existingRoom.getContactPerson());
-        }
-
-        log.debug("Updated room with id {}", existingRoom.getId());
-        return getEntityOrThrowException(existingRoom.getId());
+    public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
+        final Booking existingBooking = getEntityOrThrowException(bookingId);
+        existingBooking.updateFrom(bookingUpdates);
+        log.debug("Updated booking with id {}", existingBooking.getId());
+        return bookingRepository.save(existingBooking);
     }
 
     @PreAuthorize(Authorities.BOOKING_MANAGE)
-    public void deleteRoom(final UUID roomId) {
-        final Booking toDelete = getEntityOrThrowException(roomId);
-
-        log.debug("Deleted room to {}", roomId);
-        bookingRepository.deleteById(roomId);
+    public void deleteBooking(final UUID bookingId) {
+        log.debug("Deleted booking with id {}", bookingId);
+        bookingRepository.deleteById(bookingId);
     }
 
     private Booking getEntityOrThrowException(final UUID bookingId) {

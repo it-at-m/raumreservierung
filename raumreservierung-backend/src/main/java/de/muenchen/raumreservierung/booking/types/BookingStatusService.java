@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public class BookingStatusService {
 
     @PreAuthorize(Authorities.BOOKING_STATE_UPDATE)
-    public BookingStatus updateBookingState(BookingStatus currentStatus, BookingState nextState) {
-        BookingState currentState = currentStatus.bookingState();
+    public BookingStatus updateBookingState(final BookingStatus currentStatus, final BookingState nextState) {
+        final BookingState currentState = currentStatus.bookingState();
         BookingSubStatus nextSub = currentStatus.bookingSubStatus();
 
         if (nextState == BookingState.BLOCKED) {
@@ -23,10 +23,11 @@ public class BookingStatusService {
     }
 
     @PreAuthorize(Authorities.BOOKING_SUBSTATE_UPDATE)
-    public BookingStatus updateBookingSubStatus(BookingStatus status, BookingSubStatus nextSub) {
+    public BookingStatus updateBookingSubStatus(final BookingStatus status, final BookingSubStatus nextSub) {
+        BookingStatus updatedStatus = status;
         if (nextSub == BookingSubStatus.IN_PROGRESS || nextSub == BookingSubStatus.AGREED) {
-            status = new BookingStatus(status.bookingState(), nextSub);
+            updatedStatus = new BookingStatus(status.bookingState(), nextSub);
         }
-        return status;
+        return updatedStatus;
     }
 }
