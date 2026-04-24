@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.holidays;
 
+import de.muenchen.raumreservierung.holidays.dto.HolidayFilterDto;
 import de.muenchen.raumreservierung.holidays.dto.HolidayMapper;
 import de.muenchen.raumreservierung.holidays.dto.HolidayRequestDTO;
 import de.muenchen.raumreservierung.holidays.dto.HolidayResponseDTO;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,7 +18,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -30,8 +31,8 @@ public class HolidayController {
 
     @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public List<HolidayResponseDTO> getHolidays(@RequestParam final boolean isPublic) {
-        final List<Holiday> holidays = holidayService.getHolidays(isPublic);
+    public List<HolidayResponseDTO> getHolidays(@Valid @ParameterObject final HolidayFilterDto holidayFilterDto) {
+        final List<Holiday> holidays = holidayService.getHolidays(holidayFilterDto);
         return holidays.stream().map(holidayMapper::toDTO).toList();
     }
 
