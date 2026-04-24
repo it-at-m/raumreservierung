@@ -67,7 +67,7 @@
       </confirm-card>
     </v-dialog>
 
-    <v-card>
+    <v-card :loading="loading">
       <template #title>
         <v-row align-content="center">
           <v-col class="d-flex align-center justify-end">

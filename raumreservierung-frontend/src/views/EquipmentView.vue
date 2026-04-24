@@ -1,58 +1,71 @@
 <template>
-  <generic-table-crud-view
-    ref="crudRef"
-    :domain="t('domain.equipment.header')"
-    :items="allEquipmentsData || []"
-    :headers="headers"
-    :loading="getAllEquipmentLoading || deleteEquipmentLoading"
-    :empty-item-template="EMPTY_ITEM_TEMPLATE"
-    @create="handleCreate"
-    @update="handleUpdate"
-    @delete="handleDelete"
+  <base-view
+    :header-text="
+      t('generics.manage', { domain: t('domain.equipment.header') })
+    "
   >
-    <template #form="{ item, updateItem, updateValidity }">
-      <equipment-form
-        :model-value="item"
-        @update:model-value="updateItem"
-        @is-valid="updateValidity"
-        :disabled="updateEquipmentLoading || saveEquipmentLoading"
-      />
-    </template>
-    <template #[`item.isActive`]="{ item }">
-      <v-checkbox-btn
-        readonly
-        hide-details
-        :model-value="item.isActive"
-        class="pointer-events-none"
-      />
-    </template>
-    <template #itemActions="{ openEdit, promptDelete, item }">
-      <v-row align-content="center">
-        <v-col
-          class="pa-0"
-          cols="12"
-          sm="6"
+    <crud-card
+      ref="crudRef"
+      :empty-item-template="EMPTY_ITEM_TEMPLATE"
+      :loading="getAllEquipmentLoading || deleteEquipmentLoading"
+      :domain="t('domain.equipment.header')"
+      @delete="handleDelete"
+      @create="handleCreate"
+      @update="handleUpdate"
+    >
+      <template #form="{ item, updateItem, updateValidity }">
+        <equipment-form
+          :model-value="item"
+          :disabled="updateEquipmentLoading || saveEquipmentLoading"
+          @update:model-value="updateItem"
+          @is-valid="updateValidity"
+        />
+      </template>
+      <template #table="{ openEdit, openDelete }">
+        <v-data-table
+          :headers="headers"
+          :items="allEquipmentsData || []"
+          hide-default-footer
+          items-per-page="-1"
         >
-          <action-button
-            type="edit"
-            class="mr-1"
-            @click="openEdit(item)"
-          />
-        </v-col>
-        <v-col
-          class="pa-0"
-          cols="12"
-          sm="6"
-        >
-          <action-button
-            :disabled="item.isActive"
-            type="delete"
-            @click="promptDelete(item)"
-          />
-        </v-col>
-      </v-row>
-    </template>
-  </generic-table-crud-view>
+          <template #[`item.isActive`]="{ item }">
+            <v-checkbox-btn
+              readonly
+              hide-details
+              :model-value="item.isActive"
+              class="pointer-events-none"
+            />
+          </template>
+          <template #[`item.actions`]="{ item }">
+            <v-row align-content="center">
+              <v-col
+                class="pa-0"
+                cols="12"
+                sm="6"
+              >
+                <action-button
+                  type="edit"
+                  class="mr-1"
+                  @click="openEdit(item)"
+                />
+              </v-col>
+              <v-col
+                class="pa-0"
+                cols="12"
+                sm="6"
+              >
+                <action-button
+                  :disabled="item.isActive"
+                  type="delete"
+                  @click="openDelete(item)"
+                />
+              </v-col>
+            </v-row>
+          </template>
+        </v-data-table>
+      </template>
+    </crud-card>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -63,8 +76,9 @@ import { onMounted, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
+import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import GenericTableCrudView from "@/components/common/GenericTableCrudView.vue";
+import CrudCard from "@/components/common/CrudCard.vue";
 import EquipmentForm from "@/components/EquipmentForm.vue";
 import {
   useCreateEquipment,
