@@ -11,7 +11,7 @@
 
     <groupId>de.muenchen.raumreservierung</groupId>
     <artifactId>raumreservierung-backend</artifactId>
-    <version>0.4.0</version>
+    <version>0.4.1-SNAPSHOT</version>
 
     <name>raumreservierung-backend</name>
     <description>This is the backend-project of the renewal of the raumreservierung</description>
@@ -27,7 +27,7 @@
         <url>https://github.com/it-at-m/raumreservierung.git</url>
         <connection>scm:git:https://github.com/it-at-m/raumreservierung.git</connection>
         <developerConnection>scm:git:https://github.com/it-at-m/raumreservierung.git</developerConnection>
-        <tag>raumreservierung-backend-0.4.0</tag>
+        <tag>HEAD</tag>
     </scm>
     <developers>
         <developer>
