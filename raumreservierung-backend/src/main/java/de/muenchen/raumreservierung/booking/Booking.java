@@ -5,9 +5,11 @@ import de.muenchen.raumreservierung.booking.types.BookingStatus;
 import de.muenchen.raumreservierung.common.BaseEntity;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import java.io.Serial;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,10 +22,10 @@ public class Booking extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Column
+    @Column(nullable = false)
     private BookingStatus bookingStatus;
 
-    @Column
+    @Column(nullable = false)
     private String title;
 
     //test for validity >0 & <1000
@@ -38,28 +40,38 @@ public class Booking extends BaseEntity {
 
     //merge of room backend branch needed first
     // seatingTypes and seatingTypesCapacity from selected room
+    // how to handle special seating request
     //    @ManyToOne
     //    Room room;
+
+    //    @ManyToOne
+    //    private SeatingType seatingType;
+    //    or
+    //    @ManyToOne
+    //    private SeatingTypeCapacity seatingTypeCapacity;
+
+    @Column(length = 500)
+    private String specialSeatingRequest;
 
     @Column
     private boolean cateringNeeded;
 
-    @Column
-    private String cateringRequirements;
+    @Column(length = 500)
+    private String cateringCoordination;
 
-    @Column
+    @Column(length = 2000)
     private String internalNotes;
 
     // new type ServiceTime needed for that
-    @Column
-    private List<BookingServiceTime> serviceTimes;
+    @ElementCollection
+    private List<BookingServiceTime> serviceTimes = new ArrayList<>();
 
     public void updateFrom(final Booking booking) {
         this.bookingStatus = booking.getBookingStatus();
         this.title = booking.getTitle();
         this.participantCount = booking.getParticipantCount();
         this.cateringNeeded = booking.isCateringNeeded();
-        this.cateringRequirements = booking.getCateringRequirements();
+        this.cateringCoordination = booking.getCateringCoordination();
         this.internalNotes = booking.getInternalNotes();
         this.serviceTimes = booking.getServiceTimes();
         this.equipmentList = booking.getEquipmentList();

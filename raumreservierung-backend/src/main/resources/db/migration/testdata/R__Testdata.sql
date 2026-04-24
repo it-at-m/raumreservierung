@@ -74,9 +74,9 @@ insert into internal_person (id, organisation_id, organisation_unit, role_functi
 values ('123e4567-e89b-12d3-a456-426614174010', 'ORG-RIT-001', 'it@M', 'Administrator'),
        ('123e4567-e89b-12d3-a456-426614174011', 'ORG-KVR-002', 'Kreisverwaltungsreferat', 'Sachbearbeiterin');
 
-insert into booking_status (id, booking_state, booking_substatus)
-values ('550e8400-e29b-41d4-a716-446655440000', 'REQUESTED', 'NEW'),
-       ('550e8400-e29b-41d4-a716-446655440001', 'BLOCKED', 'IN_PROGRESS'),
-       ('550e8400-e29b-41d4-a716-446655440002', 'BOOKED', 'AGREED'),
-       ('550e8400-e29b-41d4-a716-446655440003', 'CANCELED', 'PREVIEW'),
-       ('550e8400-e29b-41d4-a716-446655440004', 'ROOM_SERVICE', 'IN_PROGRESS');
+insert into booking (id, title, booking_state, booking_sub_status)
+values ('550e8400-e29b-41d4-a716-446655440000', 'Feier', 'REQUESTED', 'NEW'),
+       ('550e8400-e29b-41d4-a716-446655440001', 'Meeting', 'BLOCKED', 'IN_PROGRESS'),
+       ('550e8400-e29b-41d4-a716-446655440002', 'Mittagessen', 'BOOKED', 'AGREED'),
+       ('550e8400-e29b-41d4-a716-446655440003', 'Feierabend', 'CANCELED', 'PREVIEW'),
+       ('550e8400-e29b-41d4-a716-446655440004', 'Party', 'ROOM_SERVICE', 'IN_PROGRESS');

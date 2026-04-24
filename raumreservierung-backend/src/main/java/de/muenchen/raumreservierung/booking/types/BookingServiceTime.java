@@ -1,18 +1,20 @@
 package de.muenchen.raumreservierung.booking.types;
 
-import de.muenchen.raumreservierung.common.BaseEntity;
 import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.Size;
 import java.io.Serial;
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-@Entity
+@Embeddable
 @Getter
 @Setter
-public class BookingServiceTime extends BaseEntity {
+@NoArgsConstructor
+public class BookingServiceTime implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
@@ -26,7 +28,7 @@ public class BookingServiceTime extends BaseEntity {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    public void updateServiceTime(final BookingServiceTime bookingServiceTime) {
+    public void updateServiceTimeFrom(final BookingServiceTime bookingServiceTime) {
         this.title = bookingServiceTime.getTitle();
         this.startTime = bookingServiceTime.getStartTime();
         this.endTime = bookingServiceTime.getEndTime();

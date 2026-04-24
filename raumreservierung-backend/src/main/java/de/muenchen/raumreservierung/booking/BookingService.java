@@ -21,12 +21,14 @@ public class BookingService {
         return getEntityOrThrowException(bookingId);
     }
 
+    //differentiate between self and all in controller or here -> REST-Guidelines?
     public List<Booking> findAll() {
         final List<Booking> allBookings = bookingRepository.findAll();
         log.debug("Found {} bookings", allBookings.size());
         return allBookings;
     }
 
+    //only one requestDTO, differentiation between two roles here in service class, looking at single fields
     @PreAuthorize(Authorities.BOOKING_MANAGE)
     public Booking createBooking(final Booking booking) {
         log.debug("Creating booking {}", booking);
