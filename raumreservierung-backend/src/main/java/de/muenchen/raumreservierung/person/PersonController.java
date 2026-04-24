@@ -4,7 +4,6 @@ import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
 import de.muenchen.raumreservierung.person.dto.PersonMapper;
 import de.muenchen.raumreservierung.person.dto.PersonRequestDto;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -20,6 +19,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.UUID;
 
 @RestController
 @Slf4j
@@ -39,7 +40,7 @@ public class PersonController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<PersonResponseDto> getPersonsByPageableAndFilter(@ParameterObject final Pageable pageable,
-            @ParameterObject final PersonFilterDto personFilterDto) {
+                                                                 @ParameterObject final PersonFilterDto personFilterDto) {
         final Page<Person> personPage = personService.getPersonsByPageableAndFilter(pageable, personFilterDto);
 
         return personPage.map(personMapper::toDto);
@@ -58,7 +59,7 @@ public class PersonController {
     }
 
     @DeleteMapping("/{personId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deletePerson(@PathVariable("personId") final UUID personId) {
         personService.deletePerson(personId);
     }
