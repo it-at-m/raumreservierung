@@ -8,12 +8,14 @@
       close-on-back
     >
       <confirm-card
-        v-if="dialogMode == 'form'"
+        v-if="dialogMode == 'read' || dialogMode == 'edit'"
         :loading="loading"
         :title="
-          t(activeItem.id ? 'generics.edit' : 'generics.create', {
-            domain: domain,
-          })
+          dialogMode == 'read'
+            ? domain
+            : t(activeItem.id ? 'generics.edit' : 'generics.create', {
+                domain: domain,
+              })
         "
         @confirm="handleSave"
         @cancel="closeDialog"
@@ -24,10 +26,21 @@
             :item="activeItem"
             :updateItem="updateActiveItem"
             :updateValidity="updateFormValidity"
+            :readOnly="dialogMode == 'read'"
+          />
+        </template>
+        <template #cancel="{ props }">
+          <base-button
+            v-if="dialogMode == 'read'"
+            v-bind="props"
+            secondary
+            :text="t('common.close')"
+            :prepend-icon="mdiClose"
           />
         </template>
         <template #confirm="{ props }">
           <base-button
+            v-if="dialogMode == 'edit'"
             :text="t('common.save')"
             :append-icon="mdiContentSaveOutline"
             :disabled="!isFormSlotValid"
@@ -54,7 +67,7 @@
       </confirm-card>
     </v-dialog>
 
-    <v-card>
+    <v-card :loading="loading">
       <template #title>
         <v-row align-content="center">
           <v-col class="d-flex align-center justify-end">
@@ -81,6 +94,7 @@
           name="table"
           :openEdit="openEdit"
           :openDelete="promptDelete"
+          :openReadOnly="openRead"
         />
       </template>
     </v-card>
@@ -88,7 +102,12 @@
 </template>
 
 <script setup lang="ts" generic="T extends { id?: string }">
-import { mdiContentSaveOutline, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
+import {
+  mdiClose,
+  mdiContentSaveOutline,
+  mdiPlus,
+  mdiTrashCanOutline,
+} from "@mdi/js";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -97,7 +116,7 @@ import ConfirmCard from "@/components/common/ConfirmCard.vue";
 
 const { t } = useI18n();
 
-type DialogMode = "form" | "delete" | null;
+type DialogMode = "edit" | "delete" | "read" | null;
 const dialogMode = ref<DialogMode>(null);
 const showDialog = computed(() => dialogMode.value !== null);
 
@@ -136,12 +155,17 @@ const updateActiveItem = (newValue: T) => {
 
 const openCreate = () => {
   activeItem.value = { ...emptyItemTemplate } as T;
-  dialogMode.value = "form";
+  dialogMode.value = "edit";
 };
 
 const openEdit = (item: T) => {
   activeItem.value = JSON.parse(JSON.stringify(item)) as T;
-  dialogMode.value = "form";
+  dialogMode.value = "edit";
+};
+
+const openRead = (item: T) => {
+  activeItem.value = JSON.parse(JSON.stringify(item)) as T;
+  dialogMode.value = "read";
 };
 
 const promptDelete = (item: T) => {
@@ -170,6 +194,7 @@ const closeDialog = () => {
 
 defineExpose({
   closeDialog,
+  openReadOnly: openRead,
 });
 </script>
 

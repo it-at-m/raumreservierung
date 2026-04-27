@@ -6,6 +6,7 @@
     "delete": "löschen",
     "save": "Speichern",
     "add": "Hinzufügen",
+    "close": "Schließen",
     "search": "Suche",
     "action": "Aktion | Aktionen",
     "messages": {},
@@ -114,7 +115,15 @@
       }
     },
     "person": {
-      "name": "Name",
+      "title": "Anrede",
+      "titles": {
+        "mr": "Herr",
+        "ms": "Frau",
+        "diverse": "Divers",
+        "none": "Keine Angabe"
+      },
+      "firstName": "Vorname",
+      "lastName": "Nachname",
       "email": "E-Mail",
       "telefonNumber": "Telefonnummer"
     },
@@ -122,7 +131,8 @@
       "header": "Externe Person | Externe Personen",
       "company": "Firma",
       "streetAddress": "Straße und Hausnummer",
-      "postalCodeCity": "Postleitzahl und Stadt"
+      "postalCodeCity": "Postleitzahl und Stadt",
+      "note": "Bemerkung"
     },
     "internalPerson": {
       "header": "Interne Person | Interne Personen",
