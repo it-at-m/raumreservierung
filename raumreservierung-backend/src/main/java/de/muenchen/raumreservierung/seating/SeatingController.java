@@ -75,7 +75,7 @@ public class SeatingController {
      * @param seatingId the UUID of the Seating to delete
      */
     @DeleteMapping("/{seatingTypeId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteSeatingType(@Valid @PathVariable("seatingTypeId") final UUID seatingId) {
         seatingService.deleteSeating(seatingId);
     }

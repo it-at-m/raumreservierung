@@ -13,6 +13,7 @@ public final class Authorities {
     public static final String EQUIPMENT_MANAGE = "hasAnyRole('raumadmin')";
     public static final String HOLIDAYS_MANAGE = "hasAnyRole('raumadmin')";
     public static final String SEATING_MANAGE = "hasAnyRole('raumadmin')";
+    public static final String ROOM_MANAGE = "hasAnyRole('fachadmin')";
     public static final String USERS_MANAGE = "hasAnyRole('raumadmin')";
     public static final String BOOKING_STATE_UPDATE = "hasAnyRole('raumbuchung')";
     public static final String BOOKING_SUBSTATE_UPDATE = "hasAnyRole('terminorganisator')";

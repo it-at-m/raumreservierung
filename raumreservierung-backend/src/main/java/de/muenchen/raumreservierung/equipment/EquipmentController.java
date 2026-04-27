@@ -74,7 +74,7 @@ public class EquipmentController {
      * @param equipmentId the UUID of the equipment to delete
      */
     @DeleteMapping("/{equipmentId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteEquipment(@Valid @PathVariable("equipmentId") final UUID equipmentId) {
         equipmentService.deleteEquipment(equipmentId);
     }

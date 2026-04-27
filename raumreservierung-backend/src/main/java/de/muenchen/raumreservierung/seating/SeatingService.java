@@ -20,6 +20,10 @@ public class SeatingService {
 
     private final SeatingRepository seatingRepository;
 
+    public final SeatingType getReferenceById(final UUID seatingId) {
+        return seatingRepository.getReferenceById(seatingId);
+    }
+
     public List<SeatingType> findAll() {
         final List<SeatingType> allSeatingTypes = seatingRepository.findAll();
         log.debug("Found {} Seatings", allSeatingTypes.size());

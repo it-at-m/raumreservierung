@@ -49,7 +49,7 @@ public class HolidayController {
     }
 
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteHoliday(@PathVariable("id") final UUID holidayId) {
         holidayService.deleteHoliday(holidayId);
     }

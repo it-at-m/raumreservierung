@@ -20,6 +20,10 @@ public class EquipmentService {
 
     private final EquipmentRepository equipmentRepository;
 
+    public final Equipment getReferenceById(final UUID equipmentId) {
+        return equipmentRepository.getReferenceById(equipmentId);
+    }
+
     public List<Equipment> findAll() {
         final List<Equipment> allEquipments = equipmentRepository.findAll();
         log.debug("Found {} equipments", allEquipments.size());
