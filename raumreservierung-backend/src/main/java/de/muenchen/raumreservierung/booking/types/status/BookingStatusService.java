@@ -1,4 +1,4 @@
-package de.muenchen.raumreservierung.booking.types;
+package de.muenchen.raumreservierung.booking.types.status;
 
 import de.muenchen.raumreservierung.security.Authorities;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -9,7 +9,7 @@ public class BookingStatusService {
 
     @PreAuthorize(Authorities.BOOKING_STATE_UPDATE)
     public BookingStatus updateBookingState(final BookingStatus currentStatus, final BookingState nextState) {
-        BookingSubStatus nextSub = currentStatus.bookingSubStatus();
+        final BookingSubStatus nextSub = currentStatus.bookingSubStatus();
         return new BookingStatus(nextState, nextSub);
     }
 

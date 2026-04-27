@@ -8,6 +8,8 @@ import org.mapstruct.Mapping;
 public interface BookingMapper {
     BookingResponseDTO toDto(Booking booking);
 
+    BookingListResponseDTO toListDto(Booking booking);
+
     @Mapping(target = "id", ignore = true)
     Booking toEntity(BookingRequestDTO bookingRequestDTO);
 }

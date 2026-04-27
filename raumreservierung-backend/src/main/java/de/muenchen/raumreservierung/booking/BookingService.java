@@ -2,8 +2,8 @@ package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
-import de.muenchen.raumreservierung.booking.types.BookingStatus;
-import de.muenchen.raumreservierung.booking.types.BookingSubStatus;
+import de.muenchen.raumreservierung.booking.types.status.BookingStatus;
+import de.muenchen.raumreservierung.booking.types.status.BookingSubStatus;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import java.util.List;
@@ -39,7 +39,6 @@ public class BookingService {
         if (isOnlyBookingWriter()) {
             booking.setCateringCoordination(null);
             booking.setInternalNotes(null);
-            booking.getServiceTimes().clear();
         }
 
         log.debug("Creating booking {}", booking);
@@ -47,14 +46,14 @@ public class BookingService {
     }
 
     private boolean isOnlyBookingWriter() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         return auth.getAuthorities().stream()
-                .noneMatch(a -> a.getAuthority().equals(Authorities.BOOKING_WRITE));
+                .noneMatch(a -> Authorities.BOOKING_WRITE.equals(a.getAuthority()));
     }
 
     private void setBookingSubStatusToNew(final Booking booking) {
-        BookingStatus status = booking.getBookingStatus();
-        BookingStatus updatedStatus = new BookingStatus(status.bookingState(), BookingSubStatus.NEW);
+        final BookingStatus status = booking.getBookingStatus();
+        final BookingStatus updatedStatus = new BookingStatus(status.bookingState(), BookingSubStatus.NEW);
         booking.setBookingStatus(updatedStatus);
     }
 
@@ -65,7 +64,6 @@ public class BookingService {
         if (isOnlyBookingWriter()) {
             bookingUpdates.setCateringCoordination(existingBooking.getCateringCoordination());
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
-            bookingUpdates.setServiceTimes(existingBooking.getServiceTimes());
         }
 
         existingBooking.updateFrom(bookingUpdates);

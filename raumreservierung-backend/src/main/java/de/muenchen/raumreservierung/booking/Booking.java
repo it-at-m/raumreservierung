@@ -1,16 +1,20 @@
 package de.muenchen.raumreservierung.booking;
 
-import de.muenchen.raumreservierung.booking.types.BookingServiceTime;
-import de.muenchen.raumreservierung.booking.types.BookingStatus;
+import de.muenchen.raumreservierung.booking.types.appointment.Appointment;
+import de.muenchen.raumreservierung.booking.types.status.BookingStatus;
 import de.muenchen.raumreservierung.common.BaseEntity;
 import de.muenchen.raumreservierung.equipment.Equipment;
+import de.muenchen.raumreservierung.room.Room;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import java.io.Serial;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -21,6 +25,15 @@ public class Booking extends BaseEntity {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    @ManyToOne
+    private Room room;
+
+    @Column(nullable = false)
+    private LocalDateTime start;
+
+    @Column(nullable = false)
+    private LocalDateTime end;
 
     @Column(nullable = false)
     private BookingStatus bookingStatus;
@@ -36,19 +49,7 @@ public class Booking extends BaseEntity {
     private int participantCount;
 
     @ManyToMany
-    private List<Equipment> equipmentList;
-
-    //merge of room backend branch needed first
-    // seatingTypes and seatingTypesCapacity from selected room
-    // how to handle special seating request
-    //    @ManyToOne
-    //    Room room;
-
-    //    @ManyToOne
-    //    private SeatingType seatingType;
-    //    or
-    //    @ManyToOne
-    //    private SeatingTypeCapacity seatingTypeCapacity;
+    private Set<Equipment> equipments = new HashSet<>();
 
     @Column(length = 500)
     private String specialSeatingRequest;
@@ -62,18 +63,32 @@ public class Booking extends BaseEntity {
     @Column(length = 2000)
     private String internalNotes;
 
-    // new type ServiceTime needed for that
-    @ElementCollection
-    private List<BookingServiceTime> serviceTimes = new ArrayList<>();
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "booking")
+    private Set<Appointment> appointments = new HashSet<>();
 
     public void updateFrom(final Booking booking) {
+        this.start = booking.getStart();
+        this.end = booking.getEnd();
+        this.room = booking.getRoom();
         this.bookingStatus = booking.getBookingStatus();
         this.title = booking.getTitle();
         this.participantCount = booking.getParticipantCount();
+        this.equipments = booking.getEquipments();
+        this.specialSeatingRequest = booking.getSpecialSeatingRequest();
         this.cateringNeeded = booking.isCateringNeeded();
         this.cateringCoordination = booking.getCateringCoordination();
         this.internalNotes = booking.getInternalNotes();
-        this.serviceTimes = booking.getServiceTimes();
-        this.equipmentList = booking.getEquipmentList();
+        this.appointments = booking.getAppointments();
+
+        this.equipments.clear();
+        if (booking.getEquipments() != null) {
+            this.equipments.addAll(booking.getEquipments());
+        }
+
+        this.appointments.clear();
+        if (booking.getAppointments() != null) {
+            this.appointments.addAll(booking.getAppointments());
+            this.appointments.forEach(csc -> csc.setBooking(this));
+        }
     }
 }

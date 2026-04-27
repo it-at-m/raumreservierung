@@ -1,6 +1,5 @@
 package de.muenchen.raumreservierung.booking.dto;
 
-import de.muenchen.raumreservierung.booking.types.appointment.dto.AppointmentResponseDTO;
 import de.muenchen.raumreservierung.booking.types.status.BookingStatus;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
@@ -9,18 +8,13 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
-public record BookingResponseDTO(
+public record BookingListResponseDTO(
         @NotNull UUID bookingId,
         @NotNull BookingStatus bookingStatus,
         @NotNull String title,
         @NotNull int participantCount,
-        @NotNull List<Equipment> equipments,
-        String specialSeatingRequest,
-        @NotNull boolean cateringNeeded,
-        String cateringCoordination,
-        String internalNotes,
-        @NotNull List<AppointmentResponseDTO> appointments,
         RoomListResponseDTO room,
+        @NotNull List<Equipment> equipment,
         @NotNull LocalDateTime start,
         @NotNull LocalDateTime end) {
 }

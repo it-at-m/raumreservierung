@@ -1,4 +1,4 @@
-package de.muenchen.raumreservierung.booking.types;
+package de.muenchen.raumreservierung.booking.types.status;
 
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EnumType;

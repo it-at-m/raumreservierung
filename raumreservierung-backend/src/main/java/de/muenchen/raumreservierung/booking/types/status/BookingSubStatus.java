@@ -1,4 +1,4 @@
-package de.muenchen.raumreservierung.booking.types;
+package de.muenchen.raumreservierung.booking.types.status;
 
 public enum BookingSubStatus {
     NEW,
