@@ -10,8 +10,4 @@ public interface BookingMapper {
 
     @Mapping(target = "id", ignore = true)
     Booking toEntity(BookingRequestDTO bookingRequestDTO);
-
-    @Mapping(target = "id", ignore = true)
-    Booking toEntity(BookingCoordinationRequestDTO bookingRequestDTO);
-
 }

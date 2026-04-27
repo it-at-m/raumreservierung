@@ -9,16 +9,7 @@ public class BookingStatusService {
 
     @PreAuthorize(Authorities.BOOKING_STATE_UPDATE)
     public BookingStatus updateBookingState(final BookingStatus currentStatus, final BookingState nextState) {
-        final BookingState currentState = currentStatus.bookingState();
         BookingSubStatus nextSub = currentStatus.bookingSubStatus();
-
-        if (nextState == BookingState.BLOCKED) {
-            nextSub = BookingSubStatus.PREVIEW;
-        }
-        if (currentState == BookingState.BLOCKED && nextState == BookingState.BOOKED) {
-            nextSub = BookingSubStatus.NEW;
-        }
-
         return new BookingStatus(nextState, nextSub);
     }
 

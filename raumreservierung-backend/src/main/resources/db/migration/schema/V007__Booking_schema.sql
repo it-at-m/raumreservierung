@@ -2,7 +2,7 @@ create table booking
 (
     id                      uuid         not null,
     booking_state           varchar(255) not null,
-    booking_substatus       varchar(255) not null,
+    booking_sub_status      varchar(255) not null,
     title                   varchar(255) not null,
     participant_count       int,
     special_seating_request varchar(500),
@@ -26,3 +26,14 @@ CREATE TABLE booking_service_times
 );
 
 CREATE INDEX idx_booking_service_times_booking_id ON booking_service_times (booking_id);
+
+CREATE TABLE booking_equipment_list
+(
+    booking_id        UUID NOT NULL,
+    equipment_list_id UUID NOT NULL,
+
+    PRIMARY KEY (booking_id, equipment_list_id),
+    FOREIGN KEY (booking_id) REFERENCES booking (id) ON DELETE CASCADE,
+    FOREIGN KEY (equipment_list_id) REFERENCES equipment (id) ON DELETE CASCADE
+);
+
