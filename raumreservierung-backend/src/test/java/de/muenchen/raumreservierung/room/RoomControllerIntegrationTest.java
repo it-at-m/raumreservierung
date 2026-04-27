@@ -1,5 +1,10 @@
 package de.muenchen.raumreservierung.room;
 
+import static de.muenchen.raumreservierung.TestConstants.SPRING_NO_SECURITY_PROFILE;
+import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 import de.muenchen.raumreservierung.MicroServiceApplication;
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.equipment.Equipment;
@@ -13,6 +18,10 @@ import de.muenchen.raumreservierung.room.dto.RoomRequestDTO;
 import de.muenchen.raumreservierung.room.dto.SeatingCapacityRequestDTO;
 import de.muenchen.raumreservierung.seating.SeatingRepository;
 import de.muenchen.raumreservierung.seating.SeatingType;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -28,22 +37,12 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
-
-import static de.muenchen.raumreservierung.TestConstants.SPRING_NO_SECURITY_PROFILE;
-import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-
 @Testcontainers
 @SpringBootTest(
-        classes = {MicroServiceApplication.class},
+        classes = { MicroServiceApplication.class },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-@ActiveProfiles(profiles = {SPRING_TEST_PROFILE, SPRING_NO_SECURITY_PROFILE})
+@ActiveProfiles(profiles = { SPRING_TEST_PROFILE, SPRING_NO_SECURITY_PROFILE })
 class RoomControllerIntegrationTest {
 
     @Container
