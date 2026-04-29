@@ -1,8 +1,9 @@
 package de.muenchen.raumreservierung.booking;
 
+import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
+import de.muenchen.raumreservierung.booking.dto.BookingListResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingMapper;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
-import de.muenchen.raumreservierung.booking.dto.BookingResponseDTO;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -30,21 +31,22 @@ public class BookingController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<BookingResponseDTO> getAllBookings() {
-        return bookingService.findAll().stream().map(bookingMapper::toDto).toList();
+    public List<BookingListResponseDTO> getAllBookings() {
+        //problem with person proxy not found in personcontroller, there no usage of stream and map
+        return bookingService.findAll().stream().map(bookingMapper::toListDto).toList();
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public BookingResponseDTO createBooking(@Valid @RequestBody final BookingRequestDTO bookingRequestDTO) {
-        return bookingMapper.toDto(bookingService.createBooking(bookingMapper.toEntity(bookingRequestDTO)));
+    public BookingDetailResponseDTO createBooking(@Valid @RequestBody final BookingRequestDTO bookingRequestDTO) {
+        return bookingMapper.toDetailDto(bookingService.createBooking(bookingMapper.toEntity(bookingRequestDTO)));
     }
 
     @PutMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
-    public BookingResponseDTO updateBooking(@Valid @RequestBody final BookingRequestDTO bookingRequestDTO,
+    public BookingDetailResponseDTO updateBooking(@Valid @RequestBody final BookingRequestDTO bookingRequestDTO,
             @PathVariable("bookingId") final UUID bookingId) {
-        return bookingMapper.toDto(bookingService.updateBooking(bookingMapper.toEntity(bookingRequestDTO), bookingId));
+        return bookingMapper.toDetailDto(bookingService.updateBooking(bookingMapper.toEntity(bookingRequestDTO), bookingId));
     }
 
     @DeleteMapping("/{bookingId}")

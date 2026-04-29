@@ -2,8 +2,6 @@ package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
-import de.muenchen.raumreservierung.booking.types.status.BookingStatus;
-import de.muenchen.raumreservierung.booking.types.status.BookingSubStatus;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import java.util.List;
@@ -34,10 +32,8 @@ public class BookingService {
 
     @PreAuthorize(Authorities.BOOKING_MANAGE + " or " + Authorities.BOOKING_WRITE)
     public Booking createBooking(final Booking booking) {
-        setBookingSubStatusToNew(booking);
 
         if (isOnlyBookingWriter()) {
-            booking.setCateringCoordination(null);
             booking.setInternalNotes(null);
         }
 
@@ -51,18 +47,11 @@ public class BookingService {
                 .noneMatch(a -> Authorities.BOOKING_WRITE.equals(a.getAuthority()));
     }
 
-    private void setBookingSubStatusToNew(final Booking booking) {
-        final BookingStatus status = booking.getBookingStatus();
-        final BookingStatus updatedStatus = new BookingStatus(status.bookingState(), BookingSubStatus.NEW);
-        booking.setBookingStatus(updatedStatus);
-    }
-
     @PreAuthorize(Authorities.BOOKING_MANAGE)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
 
         if (isOnlyBookingWriter()) {
-            bookingUpdates.setCateringCoordination(existingBooking.getCateringCoordination());
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
         }
 

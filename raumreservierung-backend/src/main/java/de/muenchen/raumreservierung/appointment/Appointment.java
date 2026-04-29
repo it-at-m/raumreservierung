@@ -1,12 +1,12 @@
-package de.muenchen.raumreservierung.booking.types.appointment;
+package de.muenchen.raumreservierung.appointment;
 
 import de.muenchen.raumreservierung.booking.Booking;
+import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import java.io.Serial;
-import java.time.LocalDateTime;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,18 +19,13 @@ public class Appointment extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @Column(nullable = false)
-    private LocalDateTime start;
-
-    @Column(nullable = false)
-    private LocalDateTime end;
-
-    @Column(nullable = false)
-    private int duration;
+    private ScheduleTemplate schedule;
 
     @ManyToOne
     private Booking booking;
 
-    //    @ElementCollection
-    //    private List<BookingServiceTime> serviceTimes = new ArrayList<>();
-
+    public void updateFrom(final Appointment appointment) {
+        this.booking = appointment.getBooking();
+        this.schedule = appointment.getSchedule();
+    }
 }
