@@ -1,29 +1,29 @@
 <template>
   <v-form
     :model-value="isValid"
-    @update:model-value="updatedValidity"
     :disabled="disabled"
+    @update:model-value="updatedValidity"
   >
     <v-text-field
+      v-model="modelValue.name"
       variant="outlined"
       :label="t('domain.seatingType.name')"
       :rules="[minTwoChars, maxNameLength]"
       class="mb-2"
-      v-model="modelValue.name"
       autofocus
     />
     <v-text-field
+      v-model="modelValue.description"
       variant="outlined"
       :label="t('domain.seatingType.description')"
       counter="255"
       :rules="[maxDescriptionLength]"
-      v-model="modelValue.description"
     />
     <card-form :subtitle="t('domain.seatingType.isActive')">
       <template #text>
         <v-checkbox
-          density="compact"
           v-model="modelValue.isActive"
+          density="compact"
           hide-details
           :label="
             t('generics.isActivated', {

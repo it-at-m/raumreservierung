@@ -1,9 +1,9 @@
 <template>
   <v-form
     v-model="isValid"
-    @update:model-value="updatedValidity"
     :disabled="disabled"
     :readonly="readOnly"
+    @update:model-value="updatedValidity"
   >
     <v-row>
       <v-col
