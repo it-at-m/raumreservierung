@@ -10,14 +10,20 @@ import org.springframework.security.access.prepost.PreAuthorize;
  */
 @SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.DataClass" })
 public final class Authorities {
-    public static final String EQUIPMENT_MANAGE = "hasAnyRole('raumadmin')";
-    public static final String HOLIDAYS_MANAGE = "hasAnyRole('raumadmin')";
-    public static final String SEATING_MANAGE = "hasAnyRole('raumadmin')";
-    public static final String ROOM_MANAGE = "hasAnyRole('fachadmin')";
-    public static final String USERS_MANAGE = "hasAnyRole('raumadmin')";
-    public static final String BOOKING_MANAGE = "hasAnyRole('terminorganisator')";
-    public static final String BOOKING_WRITE = "hasAnyRole('anwender')";
-    public static final String APPOINTMENT_WRITE = "hasAnyRole('anwender')";
+    public static final String ANWENDER = "ROLE_anwender";
+    public static final String LESEBERECHTIGT = "ROLE_leseberechtigt";
+    public static final String TERMIN_ORGANISATOR = "ROLE_terminorganisator";
+    public static final String RAUM_BUCHUNG = "ROLE_raumbuchung";
+    public static final String RAUM_ADMIN = "ROLE_raumadmin";
+    public static final String EQUIPMENT_MANAGE = "hasRole('" + RAUM_ADMIN + "')";
+    public static final String HOLIDAYS_MANAGE = "hasRole('" + RAUM_ADMIN + "')";
+    public static final String SEATING_MANAGE = "hasRole('" + RAUM_ADMIN + "')";
+    public static final String ROOM_MANAGE = "hasRole('" + RAUM_ADMIN + "')";
+    public static final String USERS_MANAGE = "hasRole('" + RAUM_ADMIN + "')";
+    public static final String BOOKING_WRITE = "hasRole('" + TERMIN_ORGANISATOR + "')";
+    public static final String BOOKING_READ = "hasRole('" + LESEBERECHTIGT + "')";
+    public static final String BOOKING_SELF = "hasRole('" + ANWENDER + "')";
+    public static final String APPOINTMENT_WRITE = "hasRole('" + ANWENDER + "')";
 
     private Authorities() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

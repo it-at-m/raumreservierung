@@ -4,6 +4,7 @@ import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingListResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingMapper;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.List;
 import java.util.UUID;
@@ -32,10 +33,22 @@ public class BookingController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<BookingListResponseDTO> getAllBookings() {
-        //problem with person proxy not found in personcontroller, there no usage of stream and map
-        return bookingService.findAll().stream().map(bookingMapper::toListDto).toList();
+        return bookingService.getAllBookings().stream().map(bookingMapper::toListDto).toList();
     }
 
+    @GetMapping("/self")
+    @ResponseStatus(HttpStatus.OK)
+    public List<BookingListResponseDTO> getOwnBookings() {
+        return bookingService.getOwnBookings().stream().map(bookingMapper::toListDto).toList();
+    }
+
+    @GetMapping("/{bookingId}")
+    @ResponseStatus(HttpStatus.OK)
+    public BookingDetailResponseDTO getBooking(@PathVariable final UUID bookingId) {
+        return bookingMapper.toDetailDto(bookingService.getById(bookingId));
+    }
+
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookingDetailResponseDTO createBooking(@Valid @RequestBody final BookingRequestDTO bookingRequestDTO) {

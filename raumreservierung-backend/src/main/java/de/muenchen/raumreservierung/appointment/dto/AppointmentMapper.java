@@ -13,5 +13,5 @@ public interface AppointmentMapper {
     AppointmentSearchResponseDTO toSearchDto(Appointment appointment);
 
     @Mapping(target = "id", ignore = true)
-    Appointment toEntity(AppointmentRequestDTO appointmentRequestDTO);
+    Appointment toEntity(AppointmentExistingBookingRequestDTO appointmentExistingBookingRequestDTO);
 }

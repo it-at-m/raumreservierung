@@ -33,9 +33,9 @@ public class Booking extends BaseEntity {
     private String title;
 
     //test for validity >0 & <1000
-    // if room: <= max capacity of seatingtypecapacity of room
-    //          or if no seatingtype selected: <= max capacity of room
-    // if no room: <= max capacity of all rooms => roomController?
+    // if roomId: <= max capacity of seatingtypecapacity of roomId
+    //          or if no seatingtype selected: <= max capacity of roomId
+    // if no roomId: <= max capacity of all rooms => roomController?
     @Column
     private int participantCount;
 
@@ -64,11 +64,9 @@ public class Booking extends BaseEntity {
         this.room = booking.getRoom();
         this.title = booking.getTitle();
         this.participantCount = booking.getParticipantCount();
-        this.equipment = booking.getEquipment();
         this.cateringNeeded = booking.isCateringNeeded();
         this.internalNotes = booking.getInternalNotes();
         this.additionalNotes = booking.getAdditionalNotes();
-        this.appointments = booking.getAppointments();
         this.schedule = booking.getSchedule();
         this.contactPerson = booking.getContactPerson();
 

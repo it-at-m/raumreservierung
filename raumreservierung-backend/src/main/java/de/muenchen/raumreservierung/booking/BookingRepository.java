@@ -10,6 +10,10 @@ import org.springframework.transaction.annotation.Transactional;
 public interface BookingRepository extends JpaRepository<Booking, UUID> {
     @Override
     @NonNull @Transactional(readOnly = true)
-    @EntityGraph(attributePaths = { "equipment", "appointments", "room" })
+    @EntityGraph(attributePaths = { "equipment", "appointments", "roomId", "contactPerson" })
     List<Booking> findAll();
+
+    @Transactional(readOnly = true)
+    @EntityGraph(attributePaths = { "equipment", "appointments", "roomId", "contactPerson" })
+    List<Booking> findByContactPersonEmail(String email);
 }

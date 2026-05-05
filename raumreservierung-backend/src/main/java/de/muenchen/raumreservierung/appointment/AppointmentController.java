@@ -1,8 +1,8 @@
 package de.muenchen.raumreservierung.appointment;
 
+import de.muenchen.raumreservierung.appointment.dto.AppointmentExistingBookingRequestDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentMapper;
-import de.muenchen.raumreservierung.appointment.dto.AppointmentRequestDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentResponseDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentSearchResponseDTO;
 import jakarta.validation.Valid;
@@ -31,7 +31,7 @@ public class AppointmentController {
 
     private final AppointmentMapper appointmentMapper;
 
-    //get only for time period and room
+    //get only for time period and roomId
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<AppointmentSearchResponseDTO> getAppointmentsByPeriodAndRoom(@ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
@@ -40,15 +40,15 @@ public class AppointmentController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public AppointmentResponseDTO createAppointment(@Valid @RequestBody final AppointmentRequestDTO appointmentRequestDTO) {
-        return appointmentMapper.toDto(appointmentService.createAppointment(appointmentMapper.toEntity(appointmentRequestDTO)));
+    public AppointmentResponseDTO createAppointment(@Valid @RequestBody final AppointmentExistingBookingRequestDTO appointmentExistingBookingRequestDTO) {
+        return appointmentMapper.toDto(appointmentService.createAppointment(appointmentMapper.toEntity(appointmentExistingBookingRequestDTO)));
     }
 
     @PutMapping("/{appointmentId}")
     @ResponseStatus(HttpStatus.OK)
-    public AppointmentResponseDTO updateAppointment(@Valid @RequestBody final AppointmentRequestDTO appointmentRequestDTO,
+    public AppointmentResponseDTO updateAppointment(@Valid @RequestBody final AppointmentExistingBookingRequestDTO appointmentExistingBookingRequestDTO,
             @PathVariable("appointmentId") final UUID appointmentId) {
-        return appointmentMapper.toDto(appointmentService.updateAppointment(appointmentMapper.toEntity(appointmentRequestDTO), appointmentId));
+        return appointmentMapper.toDto(appointmentService.updateAppointment(appointmentMapper.toEntity(appointmentExistingBookingRequestDTO), appointmentId));
     }
 
     @DeleteMapping("/{appointmentId}")

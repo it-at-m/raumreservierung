@@ -11,11 +11,8 @@ public record BookingListResponseDTO(
         @NotNull String title,
         int participantCount,
         RoomListResponseDTO room,
-        //boolean -> annotation in mapper?
         @NotNull boolean hasEquipment,
-        //boolean -> for recurring appointment
         @NotNull boolean isRecurring,
-        //template + internal time as embeddable
         @NotNull ScheduleTemplate schedule,
         @NotNull PersonResponseDto contactPerson) {
 }

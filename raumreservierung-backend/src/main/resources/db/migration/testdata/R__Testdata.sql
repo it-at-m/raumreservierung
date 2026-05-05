@@ -50,7 +50,28 @@ values
     ('123e4567-e89b-12d3-a456-426614174020', 'MR', 'Lukas', 'Hoffmann', '0162-4455667', 'l.hoffmann@event-pro.de'),
     ('123e4567-e89b-12d3-a456-426614174021', 'NONE', 'Sophie', 'Neumann', '089-7778889', 's.neumann@audit-partners.de'),
     ('123e4567-e89b-12d3-a456-426614174022', 'DIVERSE', 'Tim', 'Krüger', '0152-1122334', 'krueger@it-sec-consult.de'),
-    ('123e4567-e89b-12d3-a456-426614174023', 'DIVERSE', 'Laura', 'Zimmermann', null, 'lz@zimmermann-pr.de');
+    ('123e4567-e89b-12d3-a456-426614174023', 'DIVERSE', 'Laura', 'Zimmermann', null, 'lz@zimmermann-pr.de'),
+    -- Neue interne Personen:
+    ('123e4567-e89b-12d3-a456-426614174024', 'MR', 'Christian', 'Schulz', '089-111111', 'anwender@anwender.de'),
+    ('123e4567-e89b-12d3-a456-426614174025', 'MS', 'Melanie', 'Fischer', '089-222222', 'leseberechtigt@leseberechtigt.de'),
+    ('123e4567-e89b-12d3-a456-426614174026', 'DIVERSE', 'Alex', 'Meyer', '089-333333', 'raumadmin@raumadmin.de'),
+    ('123e4567-e89b-12d3-a456-426614174027', 'MR', 'Sebastian', 'Wagner', '089-444444', 'raumbuchung@raumbuchung.de'),
+    ('123e4567-e89b-12d3-a456-426614174028', 'MS', 'Nicole', 'Becker', '089-555555', 'terminorganisator@terminorganisator.de'),
+    ('123e4567-e89b-12d3-a456-426614174029', 'MR', 'Florian', 'Hoffmann', '089-666666', 'anwender@anwender.de'),
+    ('123e4567-e89b-12d3-a456-426614174030', 'MS', 'Sabine', 'Schäfer', null, 'leseberechtigt@leseberechtigt.de'),
+    ('123e4567-e89b-12d3-a456-426614174031', 'NONE', 'Jan', 'Koch', '089-888888', 'raumadmin@raumadmin.de'),
+    ('123e4567-e89b-12d3-a456-426614174032', 'MR', 'Tobias', 'Bauer', '0170-1234567', 'raumbuchung@raumbuchung.de'),
+    ('123e4567-e89b-12d3-a456-426614174033', 'MS', 'Claudia', 'Richter', null, 'terminorganisator@terminorganisator.de'),
+    ('123e4567-e89b-12d3-a456-426614174034', 'DIVERSE', 'Kim', 'Klein', '0151-2233445', 'anwender@anwender.de'),
+    ('123e4567-e89b-12d3-a456-426614174035', 'MR', 'Dominik', 'Wolf', '089-999000', 'leseberechtigt@leseberechtigt.de'),
+    ('123e4567-e89b-12d3-a456-426614174036', 'MS', 'Verena', 'Schröder', '089-112233', 'raumadmin@raumadmin.de'),
+    ('123e4567-e89b-12d3-a456-426614174037', 'MR', 'Patrick', 'Neumann', null, 'raumbuchung@raumbuchung.de'),
+    ('123e4567-e89b-12d3-a456-426614174038', 'MS', 'Daniela', 'Schwarz', '0160-5566778', 'terminorganisator@terminorganisator.de'),
+    ('123e4567-e89b-12d3-a456-426614174039', 'NONE', 'Erik', 'Zimmermann', '089-445566', 'anwender@anwender.de'),
+    ('123e4567-e89b-12d3-a456-426614174040', 'MR', 'Julian', 'Braun', '089-778899', 'leseberechtigt@leseberechtigt.de'),
+    ('123e4567-e89b-12d3-a456-426614174041', 'MS', 'Kathrin', 'Krüger', null, 'raumadmin@raumadmin.de'),
+    ('123e4567-e89b-12d3-a456-426614174042', 'MR', 'Manuel', 'Hofmann', '0172-998877', 'raumbuchung@raumbuchung.de'),
+    ('123e4567-e89b-12d3-a456-426614174043', 'DIVERSE', 'Robin', 'Lange', '089-121212', 'terminorganisator@terminorganisator.de');
 
 -- Hier kommen jetzt die spezifischen externen Daten (verknüpft über die gleiche ID):
 insert into external_person (id, company, street_address, postal_code_city, note)
@@ -71,7 +92,28 @@ values
     ('123e4567-e89b-12d3-a456-426614174023', 'Zimmermann PR', 'Kaufingerstraße 15', '80331 München', 'Die PR-Agentur fungiert als strategischer Partner bei der Kommunikation komplexer Infrastrukturprojekte der Stadt München. Durch ihre Expertise in der Bürgerbeteiligung und Krisenkommunikation stellt sie sicher, dass Stadtratsbeschlüsse transparent über alle städtischen Kanäle vermittelt werden. Besonders hervorzuheben ist die professionelle Steuerung der Pressearbeit sowie die Erstellung multilingualer Kampagnen, die die Akzeptanz für Großprojekte im urbanen Raum nachhaltig fördern.');
 insert into internal_person (id, organisation_id, organisation_unit, role_function)
 values ('123e4567-e89b-12d3-a456-426614174010', 'ORG-RIT-001', 'it@M', 'Administrator'),
-       ('123e4567-e89b-12d3-a456-426614174011', 'ORG-KVR-002', 'Kreisverwaltungsreferat', 'Sachbearbeiterin');
+       ('123e4567-e89b-12d3-a456-426614174011', 'ORG-KVR-002', 'Kreisverwaltungsreferat', 'Sachbearbeiterin'),
+       ('123e4567-e89b-12d3-a456-426614174024', 'ORG-RIT-003', 'it@M', 'Anwender'),
+       ('123e4567-e89b-12d3-a456-426614174025', 'ORG-KVR-004', 'Kreisverwaltungsreferat', 'Leseberechtigter'),
+       ('123e4567-e89b-12d3-a456-426614174026', 'ORG-RIT-005', 'it@M', 'Raum-Admin'),
+       ('123e4567-e89b-12d3-a456-426614174027', 'ORG-KVR-006', 'Zentrale Buchung', 'Raumbucher'),
+       ('123e4567-e89b-12d3-a456-426614174028', 'ORG-RIT-007', 'Sekretariat', 'Terminorganisator'),
+       ('123e4567-e89b-12d3-a456-426614174029', 'ORG-RIT-008', 'Support', 'First Level'),
+       ('123e4567-e89b-12d3-a456-426614174030', 'ORG-KVR-009', 'Bürgerservice', 'Auskunft'),
+       ('123e4567-e89b-12d3-a456-426614174031', 'ORG-RIT-010', 'it@M', 'Infrastruktur'),
+       ('123e4567-e89b-12d3-a456-426614174032', 'ORG-KVR-011', 'Liegenschaften', 'Verwaltung'),
+       ('123e4567-e89b-12d3-a456-426614174033', 'ORG-RIT-012', 'it@M', 'Assistenz'),
+       ('123e4567-e89b-12d3-a456-426614174034', 'ORG-KVR-013', 'Personalrat', 'Mitglied'),
+       ('123e4567-e89b-12d3-a456-426614174035', 'ORG-RIT-014', 'it@M', 'Softwareentwickler'),
+       ('123e4567-e89b-12d3-a456-426614174036', 'ORG-KVR-015', 'Kreisverwaltungsreferat', 'Fachbereichleitung'),
+       ('123e4567-e89b-12d3-a456-426614174037', 'ORG-RIT-016', 'it@M', 'System-Engineer'),
+       ('123e4567-e89b-12d3-a456-426614174038', 'ORG-KVR-017', 'Standesamt', 'Urkundensachbearbeitung'),
+       ('123e4567-e89b-12d3-a456-426614174039', 'ORG-RIT-018', 'it@M', 'Netzwerktechnik'),
+       ('123e4567-e89b-12d3-a456-426614174040', 'ORG-KVR-019', 'Zulassungsstelle', 'Schalterdienst'),
+       ('123e4567-e89b-12d3-a456-426614174041', 'ORG-RIT-020', 'it@M', 'IT-Sicherheit'),
+       ('123e4567-e89b-12d3-a456-426614174042', 'ORG-KVR-021', 'Branddirektion', 'Einsatzplanung'),
+       ('123e4567-e89b-12d3-a456-426614174043', 'ORG-RIT-022', 'it@M', 'Projektleiter');
+
 
 truncate room cascade;
 insert into room (id, name, number, location, location_description, capacity, is_active, area, contact_person_id)
@@ -114,17 +156,17 @@ values ('550e8400-e29b-41d4-a716-446655449000', '123e4567-e89b-12d3-a456-4266141
 truncate booking cascade;
 insert into booking (id, room_id, title, participant_count, catering_needed, internal_notes, additional_notes, occupancy_start, occupancy_end, appointment_start, appointment_end, contact_person_id)
 values ('550e8400-e29b-41d4-a716-446655440011', '770e8400-e29b-41d4-a716-446655440001', 'Team-Meeting', 12, true, 'Kaffee bereitstellen', 'Standard-Setup', '2024-05-10 08:30:00', '2024-05-10 11:30:00', '2024-05-10 09:00:00', '2024-05-10 11:00:00', '123e4567-e89b-12d3-a456-426614174010'),
-       ('550e8400-e29b-41d4-a716-446655440012', '770e8400-e29b-41d4-a716-446655440002', 'Projekt-Kickoff', 25, true, 'Beamer testen', 'Zusatzstühle', '2024-05-12 09:00:00', '2024-05-12 17:00:00', '2024-05-12 10:00:00', '2024-05-12 16:00:00', '123e4567-e89b-12d3-a456-426614174011'),
-       ('550e8400-e29b-41d4-a716-446655440013', '770e8400-e29b-41d4-a716-446655440001', 'Vorstandssitzung', 8, true, 'VIP-Service', 'Wasser/Saft', '2024-05-15 13:30:00', '2024-05-15 18:30:00', '2024-05-15 14:00:00', '2024-05-15 18:00:00', '123e4567-e89b-12d3-a456-426614174012'),
-       ('550e8400-e29b-41d4-a716-446655440014', '770e8400-e29b-41d4-a716-446655440003', 'IT-Security Workshop', 15, false, 'LAN-Anschluss', 'Eigene Laptops', '2024-05-16 07:45:00', '2024-05-16 17:15:00', '2024-05-16 08:00:00', '2024-05-16 17:00:00', '123e4567-e89b-12d3-a456-426614174013'),
-       ('550e8400-e29b-41d4-a716-446655440015', '770e8400-e29b-41d4-a716-446655440001', 'Mittagessen Team Blau', 20, true, 'Buffet Nebenraum', 'Vegetarisch', '2024-05-17 11:45:00', '2024-05-17 14:00:00', '2024-05-17 12:00:00', '2024-05-17 13:30:00', '123e4567-e89b-12d3-a456-426614174014'),
-       ('550e8400-e29b-41d4-a716-446655440016', '770e8400-e29b-41d4-a716-446655440004', 'Bürgersprechstunde', 1, false, 'Diskretion', 'Barrierefrei', '2024-05-20 10:00:00', '2024-05-20 12:00:00', '2024-05-20 10:00:00', '2024-05-20 12:00:00', '123e4567-e89b-12d3-a456-426614174015'),
-       ('550e8400-e29b-41d4-a716-446655440017', '770e8400-e29b-41d4-a716-446655440002', 'Abteilungsleiter-Runde', 5, false, 'Protokoll XY', NULL, '2024-05-21 08:50:00', '2024-05-21 10:40:00', '2024-05-21 09:00:00', '2024-05-21 10:30:00', '123e4567-e89b-12d3-a456-426614174016'),
-       ('550e8400-e29b-41d4-a716-446655440018', '770e8400-e29b-41d4-a716-446655440003', 'Software-Demo', 50, false, 'Streaming-Check', 'Mikrofon', '2024-05-22 14:30:00', '2024-05-22 16:30:00', '2024-05-22 15:00:00', '2024-05-22 16:00:00', '123e4567-e89b-12d3-a456-426614174017'),
-       ('550e8400-e29b-41d4-a716-446655440019', '770e8400-e29b-41d4-a716-446655440001', 'Yoga-Kurs', 15, false, 'Reinigung', 'Matten Schrank 4', '2024-05-23 16:45:00', '2024-05-23 18:15:00', '2024-05-23 17:00:00', '2024-05-23 18:00:00', '123e4567-e89b-12d3-a456-426614174018'),
-       ('550e8400-e29b-41d4-a716-446655440020', '770e8400-e29b-41d4-a716-446655440004', 'Jahresfeier', 150, true, 'Security', 'DJ-Pult', '2024-12-20 14:00:00', '2024-12-21 03:00:00', '2024-12-20 18:00:00', '2024-12-21 01:00:00', '123e4567-e89b-12d3-a456-426614174019'),
-       ('550e8400-e29b-41d4-a716-446655440021', null, 'Jahresfeier', 150, true, 'Security', 'DJ-Pult', '2024-12-20 14:00:00', '2024-12-21 03:00:00', '2024-12-20 18:00:00', '2024-12-21 01:00:00', '123e4567-e89b-12d3-a456-426614174019'),
-       ('550e8400-e29b-41d4-a716-446655440022', null, 'Jahresfeier', 150, true, 'Security', 'DJ-Pult', '2024-12-20 14:00:00', '2024-12-21 03:00:00', '2024-12-20 18:00:00', '2024-12-21 01:00:00', '123e4567-e89b-12d3-a456-426614174019');
+       ('550e8400-e29b-41d4-a716-446655440012', '770e8400-e29b-41d4-a716-446655440002', 'Projekt-Kickoff', 25, true, 'Beamer testen', 'Zusatzstühle', '2024-05-12 09:00:00', '2024-05-12 17:00:00', '2024-05-12 10:00:00', '2024-05-12 16:00:00', '123e4567-e89b-12d3-a456-426614174031'),
+       ('550e8400-e29b-41d4-a716-446655440013', '770e8400-e29b-41d4-a716-446655440001', 'Vorstandssitzung', 8, true, 'VIP-Service', 'Wasser/Saft', '2024-05-15 13:30:00', '2024-05-15 18:30:00', '2024-05-15 14:00:00', '2024-05-15 18:00:00', '123e4567-e89b-12d3-a456-426614174032'),
+       ('550e8400-e29b-41d4-a716-446655440014', '770e8400-e29b-41d4-a716-446655440003', 'IT-Security Workshop', 15, false, 'LAN-Anschluss', 'Eigene Laptops', '2024-05-16 07:45:00', '2024-05-16 17:15:00', '2024-05-16 08:00:00', '2024-05-16 17:00:00', '123e4567-e89b-12d3-a456-426614174033'),
+       ('550e8400-e29b-41d4-a716-446655440015', '770e8400-e29b-41d4-a716-446655440001', 'Mittagessen Team Blau', 20, true, 'Buffet Nebenraum', 'Vegetarisch', '2024-05-17 11:45:00', '2024-05-17 14:00:00', '2024-05-17 12:00:00', '2024-05-17 13:30:00', '123e4567-e89b-12d3-a456-426614174034'),
+       ('550e8400-e29b-41d4-a716-446655440016', '770e8400-e29b-41d4-a716-446655440004', 'Bürgersprechstunde', 1, false, 'Diskretion', 'Barrierefrei', '2024-05-20 10:00:00', '2024-05-20 12:00:00', '2024-05-20 10:00:00', '2024-05-20 12:00:00', '123e4567-e89b-12d3-a456-426614174035'),
+       ('550e8400-e29b-41d4-a716-446655440017', '770e8400-e29b-41d4-a716-446655440002', 'Abteilungsleiter-Runde', 5, false, 'Protokoll XY', NULL, '2024-05-21 08:50:00', '2024-05-21 10:40:00', '2024-05-21 09:00:00', '2024-05-21 10:30:00', '123e4567-e89b-12d3-a456-426614174036'),
+       ('550e8400-e29b-41d4-a716-446655440018', '770e8400-e29b-41d4-a716-446655440003', 'Software-Demo', 50, false, 'Streaming-Check', 'Mikrofon', '2024-05-22 14:30:00', '2024-05-22 16:30:00', '2024-05-22 15:00:00', '2024-05-22 16:00:00', '123e4567-e89b-12d3-a456-426614174037'),
+       ('550e8400-e29b-41d4-a716-446655440019', '770e8400-e29b-41d4-a716-446655440001', 'Yoga-Kurs', 15, false, 'Reinigung', 'Matten Schrank 4', '2024-05-23 16:45:00', '2024-05-23 18:15:00', '2024-05-23 17:00:00', '2024-05-23 18:00:00', '123e4567-e89b-12d3-a456-426614174038'),
+       ('550e8400-e29b-41d4-a716-446655440020', '770e8400-e29b-41d4-a716-446655440004', 'Jahresfeier', 150, true, 'Security', 'DJ-Pult', '2024-12-20 14:00:00', '2024-12-21 03:00:00', '2024-12-20 18:00:00', '2024-12-21 01:00:00', '123e4567-e89b-12d3-a456-426614174039'),
+       ('550e8400-e29b-41d4-a716-446655440021', null, 'Jahresfeier nächstes Jahr', 150, true, 'Security', 'DJ-Pult und gute Laune', '2025-12-20 14:00:00', '2025-12-21 03:00:00', '2025-12-20 18:00:00', '2025-12-21 01:00:00', '123e4567-e89b-12d3-a456-426614174039'),
+       ('550e8400-e29b-41d4-a716-446655440022', null, 'Jahresfeier übernächstes Jahr', 150, true, 'Security', 'DJ-Pult und mehr Sekt', '2026-12-20 14:00:00', '2026-12-21 03:00:00', '2026-12-20 18:00:00', '2026-12-21 01:00:00', '123e4567-e89b-12d3-a456-426614174039');
 
 truncate booking_equipment;
 insert into booking_equipment (booking_id, equipment_id)
