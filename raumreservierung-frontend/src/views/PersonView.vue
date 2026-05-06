@@ -1,7 +1,7 @@
 <template>
   <div>
     <base-view
-      :header-text="
+        :header-text="
         t('generics.manage', {
           domain: isInternalPath
             ? t('domain.internalPerson.header', { count: 2 })
@@ -11,84 +11,84 @@
     >
       <template #default>
         <v-text-field
-          variant="outlined"
-          :label="t('common.search')"
-          clearable
-          @click:clear="fetchPage"
-          @update:model-value="updateSearchNameAndLoadPage"
+            :label="t('common.search')"
+            clearable
+            variant="outlined"
+            @click:clear="fetchPage"
+            @update:model-value="updateSearchNameAndLoadPage"
         />
         <crud-card
-          ref="crudRef"
-          :empty-item-template="EMPTY_ITEM_TEMPLATE"
-          :domain="
+            ref="crudRef"
+            :domain="
             isInternalPath
               ? t('domain.internalPerson.header', { count: 2 })
               : t('domain.externalPerson.header', { count: 2 })
           "
-          :loading="personPageLoading || deletePersonLoading"
-          @update:options="updateOptionsAndLoadPage"
-          @create="handleCreate"
-          @update="handleUpdate"
-          @delete="handleDelete"
+            :empty-item-template="EMPTY_ITEM_TEMPLATE"
+            :loading="personPageLoading || deletePersonLoading"
+            @create="handleCreate"
+            @delete="handleDelete"
+            @update="handleUpdate"
+            @update:options="updateOptionsAndLoadPage"
         >
           <template #form="{ item, updateItem, updateValidity, readOnly }">
             <external-person-form
-              :model-value="item"
-              :disabled="updatePersonLoading || createPersonLoading"
-              :readonly="readOnly"
-              @update:model-value="updateItem"
-              @is-valid="updateValidity"
+                :disabled="updatePersonLoading || createPersonLoading"
+                :model-value="item"
+                :readonly="readOnly"
+                @update:model-value="updateItem"
+                @is-valid="updateValidity"
             />
           </template>
           <template #tableActions="{ openCreate }">
             <base-button
-              :disabled="isInternalPath"
-              :append-icon="mdiPlus"
-              :text="t('common.add')"
-              @click="openCreate"
+                :append-icon="mdiPlus"
+                :disabled="isInternalPath"
+                :text="t('common.add')"
+                @click="openCreate"
             />
           </template>
           <template #table="{ openEdit, openDelete }">
             <v-data-table-server
-              must-sort
-              hover
-              :sort-by="currentPageOptions.sortBy"
-              :items-length="personPageData?.page?.totalElements || 0"
-              :items="personPageData?.content || []"
-              :headers="headers"
-              :loading="personPageLoading"
-              :disable-sort="personPageLoading"
-              @update:options="updateOptionsAndLoadPage"
-              @click:row="handleRowClick"
+                :disable-sort="personPageLoading"
+                :headers="headers"
+                :items="personPageData?.content || []"
+                :items-length="personPageData?.page?.totalElements || 0"
+                :loading="personPageLoading"
+                :sort-by="currentPageOptions.sortBy"
+                hover
+                must-sort
+                @update:options="updateOptionsAndLoadPage"
+                @click:row="handleRowClick"
             >
               <template #[`item.fullName`]="{ item }">
                 {{ item.firstName }} {{ item.lastName }}
               </template>
               <template
-                v-if="!isInternalPath"
-                #[`item.actions`]="{ item }"
+                  v-if="!isInternalPath"
+                  #[`item.actions`]="{ item }"
               >
                 <slot name="item.actions">
                   <v-row align-content="center">
                     <v-col
-                      class="pa-0"
-                      cols="12"
-                      sm="6"
+                        class="pa-0"
+                        cols="12"
+                        sm="6"
                     >
                       <action-button
-                        type="edit"
-                        class="mr-1"
-                        @click="openEdit(item)"
+                          class="mr-1"
+                          type="edit"
+                          @click="openEdit(item)"
                       />
                     </v-col>
                     <v-col
-                      class="pa-0"
-                      cols="12"
-                      sm="6"
+                        class="pa-0"
+                        cols="12"
+                        sm="6"
                     >
                       <action-button
-                        type="delete"
-                        @click="openDelete(item)"
+                          type="delete"
+                          @click="openDelete(item)"
                       />
                     </v-col>
                   </v-row>
@@ -102,37 +102,28 @@
   </div>
 </template>
 
-<script setup lang="ts">
-import type {
-  ExternalPersonResponseDto,
-  InternalPersonResponseDto,
-  InternalPersonResponseDtoTypeEnum,
-} from "@/api/raumreservierung-backend";
-import type { TableHeader } from "@/types/TableHeader.ts";
+<script lang="ts" setup>
+import type {ExternalPersonResponseDto, InternalPersonResponseDto, InternalPersonResponseDtoTypeEnum,} from "@/api/raumreservierung-backend";
+import {ExternalPersonResponseDtoTypeEnum} from "@/api/raumreservierung-backend";
+import type {TableHeader} from "@/types/TableHeader.ts";
 
-import { mdiPlus } from "@mdi/js";
-import { useDebounceFn } from "@vueuse/core";
-import { computed, ref, useTemplateRef } from "vue";
-import { useI18n } from "vue-i18n";
-import { useRoute } from "vue-router";
+import {mdiPlus} from "@mdi/js";
+import {useDebounceFn} from "@vueuse/core";
+import {computed, ref, useTemplateRef} from "vue";
+import {useI18n} from "vue-i18n";
+import {useRoute} from "vue-router";
 
-import { Levels } from "@/api/error.ts";
-import { ExternalPersonResponseDtoTypeEnum } from "@/api/raumreservierung-backend";
+import {Levels} from "@/api/error.ts";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import ExternalPersonForm from "@/components/ExternalPersonForm.vue";
-import {
-  useCreatePerson,
-  useDeletePerson,
-  useGetPersonPage,
-  useUpdatePerson,
-} from "@/composables/api/usePersonApi.ts";
-import { useSnackbarStore } from "@/stores/snackbar.ts";
-import { ROUTES } from "@/types/Routes.ts";
+import {useCreatePerson, useDeletePerson, useGetPersonPage, useUpdatePerson,} from "@/composables/api/usePersonApi.ts";
+import {useSnackbarStore} from "@/stores/snackbar.ts";
+import {ROUTES} from "@/types/Routes.ts";
 
-const { t } = useI18n();
+const {t} = useI18n();
 
 const route = useRoute();
 
@@ -157,7 +148,7 @@ const currentPageOptions = ref<LoadEntriesOptions>({
   page: 1,
   itemsPerPage: 10,
   searchName: undefined,
-  sortBy: [{ key: "lastName", order: "asc" }],
+  sortBy: [{key: "lastName", order: "asc"}],
 });
 
 const snackbarStore = useSnackbarStore();
@@ -167,8 +158,8 @@ const crudRef = useTemplateRef("crudRef");
 const isInternalPath = computed(() => route.name === ROUTES.INTERNAL_PERSON);
 
 const personType = computed(
-  (): ExternalPersonResponseDtoTypeEnum | InternalPersonResponseDtoTypeEnum =>
-    isInternalPath.value ? "INTERNAL" : "EXTERNAL"
+    (): ExternalPersonResponseDtoTypeEnum | InternalPersonResponseDtoTypeEnum =>
+        isInternalPath.value ? "INTERNAL" : "EXTERNAL"
 );
 
 const {
@@ -197,21 +188,21 @@ const {
 
 // --- Functions ---
 const handleCreate = async (
-  newPerson: ExternalPersonResponseDto | InternalPersonResponseDto
+    newPerson: ExternalPersonResponseDto | InternalPersonResponseDto
 ) => {
   await createPerson({
-    updatePersonRequest: { ...newPerson, type: personType.value },
+    updatePersonRequest: {...newPerson, type: personType.value},
   });
   if (!createPersonError.value) {
     await onSuccess(
-      t("generics.created", { domain: t("domain.equipment.header") })
+        t("generics.created", {domain: t("domain.person.header")})
     );
   }
 };
 
 const handleRowClick = (
-  event: PointerEvent,
-  { item }: { item: InternalPersonResponseDto | ExternalPersonResponseDto }
+    event: PointerEvent,
+    {item}: { item: InternalPersonResponseDto | ExternalPersonResponseDto }
 ) => {
   if (crudRef.value) {
     crudRef.value.openReadOnly(item);
@@ -219,26 +210,26 @@ const handleRowClick = (
 };
 
 const handleUpdate = async (
-  updatedPerson: ExternalPersonResponseDto | InternalPersonResponseDto
+    updatedPerson: ExternalPersonResponseDto | InternalPersonResponseDto
 ) => {
   if (updatedPerson.id) {
     await updatePerson({
-      updatePersonRequest: { ...updatedPerson, type: personType.value },
+      updatePersonRequest: {...updatedPerson, type: personType.value},
       personId: updatedPerson.id,
     });
     if (!updatePersonError.value) {
       await onSuccess(
-        t("generics.updated", { domain: t("domain.equipment.header") })
+          t("generics.updated", {domain: t("domain.person.header")})
       );
     }
   }
 };
 
 const handleDelete = async (id: string) => {
-  await deletePerson({ personId: id });
+  await deletePerson({personId: id});
   if (!deletePersonError.value) {
     await onSuccess(
-      t("generics.deleted", { domain: t("domain.equipment.header") })
+        t("generics.deleted", {domain: t("domain.person.header")})
     );
   }
 };
@@ -248,7 +239,7 @@ const onSuccess = async (msg: string) => {
   if (crudRef.value) {
     crudRef.value.closeDialog();
   }
-  snackbarStore.add({ message: msg, level: Levels.SUCCESS });
+  snackbarStore.add({message: msg, level: Levels.SUCCESS});
 };
 
 const updateOptionsAndLoadPage = async (options: LoadEntriesOptions) => {
@@ -273,11 +264,11 @@ const updateSearchNameAndLoadPage = async (searchName: string | undefined) => {
 
 const fetchPage = async () => {
   const sort =
-    currentPageOptions.value.sortBy.length > 0
-      ? currentPageOptions.value.sortBy.map(
-          (item) => `${item.key},${item.order}`
-        )
-      : [];
+      currentPageOptions.value.sortBy.length > 0
+          ? currentPageOptions.value.sortBy.map(
+              (item) => `${item.key},${item.order}`
+          )
+          : [];
 
   await getPersonPage({
     page: currentPageOptions.value.page - 1,
@@ -289,7 +280,7 @@ const fetchPage = async () => {
 };
 
 const headers = computed<
-  TableHeader<ExternalPersonResponseDto | InternalPersonResponseDto>[]
+    TableHeader<ExternalPersonResponseDto | InternalPersonResponseDto>[]
 >(() => [
   {
     title: "Name",
@@ -308,7 +299,7 @@ const headers = computed<
   },
 
   ...(!isInternalPath.value
-    ? [
+      ? [
         {
           title: t("domain.externalPerson.company"),
           value: "company",
@@ -325,11 +316,11 @@ const headers = computed<
           sortable: true,
         },
         {
-          title: t("common.action", { count: 2 }),
+          title: t("common.action", {count: 2}),
           value: "actions",
         },
       ]
-    : [
+      : [
         {
           title: t("domain.internalPerson.organisationUnit"),
           value: "organisationUnit",
