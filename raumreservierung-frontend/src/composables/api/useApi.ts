@@ -1,3 +1,5 @@
+import type { Ref } from "vue";
+
 import { readonly, ref } from "vue";
 
 /**
@@ -16,7 +18,7 @@ export function useApi<TRequest, TResponse = void>(
 
   const loading = readonly(loadingInternal);
   const error = readonly(errorInternal);
-  const data = readonly(dataInternal);
+  const data = readonly(dataInternal) as Readonly<Ref<TResponse>>;
 
   /**
    * Executes the API method and updates the state accordingly.

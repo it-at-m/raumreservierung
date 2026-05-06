@@ -13,9 +13,9 @@
       <v-slide-group-item
         v-for="year in years"
         :key="year"
-        :value="year"
-        selectedClass="border-b-md border-tertiary text-tertiary"
         v-slot="{ select, selectedClass }"
+        :value="year"
+        selected-class="border-b-md border-tertiary text-tertiary"
       >
         <v-btn
           class="px-8"

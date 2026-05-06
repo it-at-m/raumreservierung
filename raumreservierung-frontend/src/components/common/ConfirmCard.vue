@@ -18,9 +18,9 @@
           <base-button
             secondary
             class="mr-4"
-            @click="cancel"
             :prepend-icon="mdiClose"
             :text="t('common.cancel')"
+            @click="cancel"
           />
         </slot>
         <slot

@@ -12,7 +12,7 @@ import { globalIgnores } from "eslint/config";
 export default defineConfigWithVueTs(
   ESLint.defaultConfig,
   jsEslintConfig.configs.recommended,
-  vueEslintConfig.configs["flat/essential"],
+  vueEslintConfig.configs["flat/recommended-error"],
   vueTsConfigs.strict,
   vueTsConfigs.stylistic,
   vueI18nEslintConfig.configs.recommended,
@@ -29,6 +29,7 @@ export default defineConfigWithVueTs(
         "kebab-case",
         { registeredComponentsOnly: false },
       ],
+      "vue/require-default-prop": "off",
       // Enforce i18n best practices manually as no stylistic ruleset exists yet
       "@intlify/vue-i18n/key-format-style": ["error"], // enforce camelCase for message keys
       "@intlify/vue-i18n/no-duplicate-keys-in-locale": ["error"],
@@ -47,7 +48,26 @@ export default defineConfigWithVueTs(
         localeDir: "./src/locales/*.json",
         messageSyntaxVersion: "^11.0.0",
       },
+      "import/core-modules": ["vue-router/auto-routes"],
+    },
+    languageOptions: {
+      globals: {
+        definePage: "readonly",
+      },
     },
   },
-  globalIgnores(["dist", "target", "node_modules", "env.d.ts", "src/api/*/**"])
+  {
+    files: ["src/routes/**/*.vue"],
+    rules: {
+      "vue/multi-word-component-names": "off",
+    },
+  },
+  globalIgnores([
+    "dist",
+    "target",
+    "node_modules",
+    "env.d.ts",
+    "route-map.d.ts",
+    "src/api/*/**",
+  ])
 );

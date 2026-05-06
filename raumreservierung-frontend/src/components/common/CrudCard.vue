@@ -24,9 +24,9 @@
           <slot
             name="form"
             :item="activeItem"
-            :updateItem="updateActiveItem"
-            :updateValidity="updateFormValidity"
-            :readOnly="dialogMode == 'read'"
+            :update-item="updateActiveItem"
+            :update-validity="updateFormValidity"
+            :read-only="dialogMode == 'read'"
           />
         </template>
         <template #cancel="{ props }">
@@ -73,12 +73,12 @@
           <v-col class="d-flex align-center justify-end">
             <slot
               name="tableActions"
-              :openCreate="openCreate"
+              :open-create="openCreate"
             >
               <base-button
-                @click="openCreate"
                 :append-icon="mdiPlus"
                 :text="t('common.add')"
+                @click="openCreate"
               />
             </slot>
           </v-col>
@@ -92,9 +92,9 @@
       <template #text>
         <slot
           name="table"
-          :openEdit="openEdit"
-          :openDelete="promptDelete"
-          :openReadOnly="openRead"
+          :open-edit="openEdit"
+          :open-delete="promptDelete"
+          :open-read-only="openRead"
         />
       </template>
     </v-card>
