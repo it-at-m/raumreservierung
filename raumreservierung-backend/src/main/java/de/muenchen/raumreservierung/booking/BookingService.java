@@ -1,7 +1,10 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
+
 import de.muenchen.raumreservierung.common.NotFoundException;
+import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.persistence.EntityManager;
 import java.util.List;
@@ -23,9 +26,14 @@ public class BookingService {
     private final EntityManager entityManager;
     private final RoleHierarchy roleHierarchy;
 
-    //check if user is authorized to get booking, i.e. if own booking or appropriate role
+    @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
-        return getEntityOrThrowException(bookingId);
+        String email = getUserEmail();
+        final Booking booking = getEntityOrThrowException(bookingId);
+        if (!booking.getContactPerson().getEmail().equals(email) || lacksAuthority(Authorities.LESEBERECHTIGT)) {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
+        return booking;
     }
 
     @PreAuthorize(Authorities.BOOKING_READ)
@@ -37,27 +45,15 @@ public class BookingService {
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public List<Booking> getOwnBookings() {
-        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = null;
-        if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
-            email = jwt.getClaimAsString("email");
-        }
+        String email = getUserEmail();
         final List<Booking> ownBookings = bookingRepository.findByContactPersonEmail(email);
         log.debug("Found {} bookings", ownBookings.size());
         return ownBookings;
     }
 
-    private boolean hasAuthority(final String authorityName) {
-        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-
-        return auth != null && roleHierarchy.getReachableGrantedAuthorities(auth.getAuthorities())
-                .stream()
-                .anyMatch(a -> a.getAuthority().equals(authorityName));
-    }
-
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking createBooking(final Booking booking) {
-        if (!hasAuthority(Authorities.TERMIN_ORGANISATOR)) {
+        if (lacksAuthority(Authorities.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
         }
 
@@ -74,12 +70,16 @@ public class BookingService {
         return getEntityOrThrowException(savedBooking.getId());
     }
 
-    //check if user is authorized to update booking, i.e. if own booking or appropriate role
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
 
-        if (!hasAuthority(Authorities.TERMIN_ORGANISATOR)) {
+        String email = getUserEmail();
+        if (!existingBooking.getContactPerson().getEmail().equals(email)) {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
+
+        if (lacksAuthority(Authorities.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
         }
         existingBooking.updateFrom(bookingUpdates);
@@ -101,5 +101,22 @@ public class BookingService {
 
     private Booking getEntityOrThrowException(final UUID bookingId) {
         return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, bookingId)));
+    }
+
+    private String getUserEmail() {
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String email = null;
+        if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
+            email = jwt.getClaimAsString("email");
+        }
+        return email;
+    }
+
+    private boolean lacksAuthority(final String authorityName) {
+        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
+        return auth == null || roleHierarchy.getReachableGrantedAuthorities(auth.getAuthorities())
+                .stream()
+                .noneMatch(a -> a.getAuthority().equals(authorityName));
     }
 }
