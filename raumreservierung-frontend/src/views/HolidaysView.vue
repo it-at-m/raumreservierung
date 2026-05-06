@@ -3,15 +3,15 @@
     <template #default>
       <year-slider
         v-model="selectedYear"
-        :start-year="currentYear - PREVIOUS_YEARS"
         :end-year="currentYear + NEXT_YEARS"
+        :start-year="currentYear - PREVIOUS_YEARS"
         class="mb-4"
         @update:model-value="updatedYearSelection"
       />
       <crud-card
         ref="tableRef"
-        :empty-item-template="EMPTY_HOLIDAY"
         :domain="computedDomain"
+        :empty-item-template="EMPTY_HOLIDAY"
         :loading="holidayStore.loading || deleteHolidayLoading"
         @create="createHoliday"
         @delete="deleteHoliday"
@@ -19,9 +19,9 @@
       >
         <template #form="{ item, updateItem, updateValidity }">
           <holiday-form
+            :disabled="updateHolidayLoading || createHolidayLoading"
             :is-public="isPublic"
             :model-value="item"
-            :disabled="updateHolidayLoading || createHolidayLoading"
             @update:model-value="updateItem"
             @is-valid="updateValidity"
           />
@@ -41,10 +41,10 @@
             </template>
             <template #[`item.actions`]="{ item }">
               <slot
-                name="itemActions"
                 :item="item"
                 :open-edit="openEdit"
                 :prompt-delete="openDelete"
+                name="itemActions"
               >
                 <v-row align-content="center">
                   <v-col
@@ -53,8 +53,8 @@
                     sm="6"
                   >
                     <action-button
-                      type="edit"
                       class="mr-1"
+                      type="edit"
                       @click="openEdit(item)"
                     />
                   </v-col>
@@ -78,7 +78,7 @@
   </base-view>
 </template>
 
-<script setup lang="ts">
+<script lang="ts" setup>
 import type {
   HolidayRequestDTO,
   HolidayResponseDTO,
@@ -166,7 +166,8 @@ const computedDomain = computed(() =>
 );
 
 const toApiDate = (date: Date): Date => {
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+  const d = new Date(date);
+  return new Date(d.getTime() - d.getTimezoneOffset() * 60000);
 };
 
 const toApiHoliday = (holiday: HolidayResponseDTO): HolidayRequestDTO => {
@@ -203,11 +204,13 @@ const updateHoliday = async (holiday: Partial<HolidayResponseDTO>) => {
       holidayRequestDTO: toApiHoliday(holiday as HolidayResponseDTO),
     });
     if (!updateHolidayError.value) {
+      const startDate = holiday.startDate ? new Date(holiday.startDate) : null;
+      const year = startDate?.getFullYear();
       await onSuccess(
         t("generics.updated", {
           domain: computedDomain.value,
         }),
-        holiday.startDate?.getFullYear()
+        year
       );
     }
   }
