@@ -98,8 +98,8 @@ const maxNameLength = (value: string) =>
     num: MAX_NAME_LENGTH,
   });
 
-const ensureDate = (val: Date | string): Date => {
-  return new Date(val);
+const ensureDate = (value: string | Date | undefined): Date | undefined => {
+  return value ? (value instanceof Date ? value : new Date(value)) : undefined;
 };
 
 const datePicked = (value: Date) =>
@@ -113,12 +113,13 @@ const updatedValidity = (newIsValid: boolean | null) => {
 const applyDateRule = (date: Date, type: dateType) => {
   const isStartDate = type === "startDate";
   const other = isStartDate ? "endDate" : "startDate";
-  const otherDate = ensureDate(modelValue.value[other] || "");
+  const otherDate = ensureDate(modelValue.value[other]);
   const currentDate = ensureDate(date);
 
   return (
     isPublic ||
     !otherDate ||
+    !currentDate ||
     (isStartDate ? currentDate < otherDate : currentDate > otherDate)
   );
 };
