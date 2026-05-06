@@ -33,9 +33,9 @@ public class Booking extends BaseEntity {
     private String title;
 
     //test for validity >0 & <1000
-    // if roomId: <= max capacity of seatingtypecapacity of roomId
-    //          or if no seatingtype selected: <= max capacity of roomId
-    // if no roomId: <= max capacity of all rooms => roomController?
+    // if room: <= max capacity of seatingtypecapacity of room
+    //          or if no seatingtype selected: <= max capacity of room
+    // if no room: <= max capacity of all rooms => roomController?
     @Column
     private int participantCount;
 

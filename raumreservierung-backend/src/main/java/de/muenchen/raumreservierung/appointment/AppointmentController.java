@@ -31,7 +31,7 @@ public class AppointmentController {
 
     private final AppointmentMapper appointmentMapper;
 
-    //get only for time period and roomId
+    //get only for time period and room
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<AppointmentSearchResponseDTO> getAppointmentsByPeriodAndRoom(@ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
