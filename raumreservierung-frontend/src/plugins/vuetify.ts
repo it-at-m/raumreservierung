@@ -12,6 +12,11 @@ import { createVueI18nAdapter } from "vuetify/locale/adapters/vue-i18n";
 import i18n from "@/plugins/i18n";
 
 export default createVuetify({
+  defaults: {
+    VTextField: {
+      variant: "outlined",
+    },
+  },
   components: {
     VDateInput,
   },
