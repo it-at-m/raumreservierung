@@ -2,7 +2,6 @@ package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
-
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.security.Authorities;
@@ -28,11 +27,8 @@ public class BookingService {
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
-        String email = getUserEmail();
         final Booking booking = getEntityOrThrowException(bookingId);
-        if (!booking.getContactPerson().getEmail().equals(email) || lacksAuthority(Authorities.LESEBERECHTIGT)) {
-            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
-        }
+        hasBookingAccessOrThrowException(booking, Authorities.LESEBERECHTIGT);
         return booking;
     }
 
@@ -45,7 +41,7 @@ public class BookingService {
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public List<Booking> getOwnBookings() {
-        String email = getUserEmail();
+        final String email = getUserEmail();
         final List<Booking> ownBookings = bookingRepository.findByContactPersonEmail(email);
         log.debug("Found {} bookings", ownBookings.size());
         return ownBookings;
@@ -57,14 +53,7 @@ public class BookingService {
             booking.setInternalNotes(null);
         }
 
-        final Booking newBooking = new Booking();
-        newBooking.updateFrom(booking);
-
-        final Booking savedBooking = bookingRepository.saveAndFlush(newBooking);
-        entityManager.detach(savedBooking);
-        if (savedBooking.getContactPerson() != null) {
-            entityManager.detach(savedBooking.getContactPerson());
-        }
+        final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
         log.debug("Created booking with id {}", savedBooking.getId());
         return getEntityOrThrowException(savedBooking.getId());
@@ -73,21 +62,13 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
-
-        String email = getUserEmail();
-        if (!existingBooking.getContactPerson().getEmail().equals(email)) {
-            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
-        }
+        hasBookingAccessOrThrowException(existingBooking, Authorities.TERMIN_ORGANISATOR);
 
         if (lacksAuthority(Authorities.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
         }
-        existingBooking.updateFrom(bookingUpdates);
-        bookingRepository.saveAndFlush(existingBooking);
-        entityManager.detach(existingBooking);
-        if (existingBooking.getContactPerson() != null) {
-            entityManager.detach(existingBooking.getContactPerson());
-        }
+
+        saveAndDetach(existingBooking, bookingUpdates);
 
         log.debug("Updated booking with id {}", existingBooking.getId());
         return getEntityOrThrowException(existingBooking.getId());
@@ -118,5 +99,25 @@ public class BookingService {
         return auth == null || roleHierarchy.getReachableGrantedAuthorities(auth.getAuthorities())
                 .stream()
                 .noneMatch(a -> a.getAuthority().equals(authorityName));
+    }
+
+    private void hasBookingAccessOrThrowException(final Booking booking, final String authorityName) {
+        final String email = getUserEmail();
+        if (!booking.getContactPerson().getEmail().equals(email) && lacksAuthority(authorityName)) {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
+    }
+
+    private Booking saveAndDetach(final Booking bookingToUpdate, final Booking sourceData) {
+        bookingToUpdate.updateFrom(sourceData);
+
+        final Booking savedBooking = bookingRepository.saveAndFlush(bookingToUpdate);
+
+        entityManager.detach(savedBooking);
+        if (savedBooking.getContactPerson() != null) {
+            entityManager.detach(savedBooking.getContactPerson());
+        }
+
+        return savedBooking;
     }
 }

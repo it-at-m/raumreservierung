@@ -55,6 +55,7 @@ public class BookingController {
         return bookingMapper.toDetailDto(bookingService.createBooking(bookingMapper.toEntity(bookingRequestDTO)));
     }
 
+    @Transactional
     @PutMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
     public BookingDetailResponseDTO updateBooking(@Valid @RequestBody final BookingRequestDTO bookingRequestDTO,
