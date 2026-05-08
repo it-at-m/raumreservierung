@@ -1,52 +1,110 @@
 <template>
-  <base-view>
-    <template #header>
-      <v-row justify="space-between">
-        <v-col cols="auto">
-          <div class="d-flex align-center">
-            <v-icon
-              class="mr-5 ml-2"
-              size="30"
-              :icon="mdiArrowLeft"
-              @click="router.back()"
-            />
-            <p>Raumdetails</p>
-          </div>
-        </v-col>
-        <v-col cols="auto">
-          <base-button
-            text="Bearbeiten"
-            :append-icon="mdiPencil"
-            @click="
-              router.push({
-                name: ROUTES.ROOMS_EDIT,
-                params: { id },
-              })
-            "
-          />
-        </v-col>
-      </v-row>
+  <base-view header-text="Raumdetails">
+    <template #headerPrepend>
+      <v-icon
+        size="30"
+        :icon="mdiArrowLeft"
+        @click="router.back()"
+      />
     </template>
+    <template #headerActions>
+      <base-button
+        text="Bearbeiten"
+        :append-icon="mdiPencil"
+        @click="
+          router.push({
+            name: ROUTES.ROOMS_EDIT,
+            params: { id },
+          })
+        "
+      />
+    </template>
+
     <template #default>
       <v-row>
-        <v-col cols="4">
+        <v-col
+          cols="12"
+          md="6"
+        >
           <v-skeleton-loader
-            elevation="1"
             :loading="getRoomLoading"
-            class="mb-4"
             type="article"
           >
             <v-responsive>
               <v-card
-                class="mb-4"
                 flat
-                :title="getRoomData?.name"
-                :subtitle="`${getRoomData?.number} - ${getRoomData?.location}`"
-                :text="getRoomData?.locationDescription"
+                :title="roomData?.name"
+                :subtitle="`${roomData?.number} - ${roomData?.location}`"
+                :text="roomData?.locationDescription"
               />
             </v-responsive>
           </v-skeleton-loader>
-
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <v-skeleton-loader
+            :loading="getRoomLoading"
+            class="mb-4"
+            type="image"
+          >
+            <v-responsive>
+              <v-card
+                class="mb-4 d-flex align-center justify-center bg-grey-lighten-4"
+                height="250"
+                flat
+                border
+              >
+                <div class="text-center text-grey">
+                  <v-icon
+                    :icon="mdiImage"
+                    size="48"
+                    class="mb-2"
+                  />
+                </div>
+              </v-card>
+            </v-responsive>
+          </v-skeleton-loader>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <rooms-details-card
+            title="Ansprechperson"
+            :icon="mdiAccount"
+            :loading="getRoomLoading"
+          >
+            <p class="text-grey-darken-4">
+              {{ roomData?.contactPerson?.title }}
+              {{ roomData?.contactPerson?.firstName }}
+              {{ roomData?.contactPerson?.lastName }}
+            </p>
+            <p class="text-grey-darken-4">
+              Tel: {{ roomData?.contactPerson?.telefonNumber }}
+            </p>
+            <p class="text-grey-darken-4">
+              E-Mail: {{ roomData?.contactPerson?.email }}
+            </p>
+          </rooms-details-card>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
+          <rooms-details-card
+            title="Nutzbare Fläche"
+            :icon="mdiTextureBox"
+            :loading="getRoomLoading"
+          >
+            <p class="text-grey-darken-4">{{ roomData?.area }} qm</p>
+          </rooms-details-card>
+        </v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
           <rooms-details-card
             title="Kapazität"
             :icon="mdiHumanCapacityIncrease"
@@ -54,7 +112,7 @@
           >
             <template #subtitle>
               <p class="text-grey-darken-4">
-                Maximale Kapazität: {{ getRoomData?.capacity }}
+                Maximale Kapazität: {{ roomData?.capacity }}
               </p>
             </template>
             <v-list
@@ -62,7 +120,7 @@
               density="compact"
             >
               <v-list-item
-                v-for="(capacity, idx) in getRoomData?.roomSeatingCapacities"
+                v-for="(capacity, idx) in roomData?.roomSeatingCapacities"
                 :key="idx"
                 v-tooltip:end="capacity.seatingType.description"
                 :title="capacity.seatingType.name"
@@ -70,7 +128,12 @@
               />
             </v-list>
           </rooms-details-card>
+        </v-col>
 
+        <v-col
+          cols="12"
+          md="6"
+        >
           <rooms-details-card
             title="Mögliche Ausstattung"
             :icon="mdiSofaSingleOutline"
@@ -81,38 +144,12 @@
               density="compact"
             >
               <v-list-item
-                v-for="(eq, idx) in getRoomData?.equipment"
+                v-for="(eq, idx) in roomData?.equipment"
                 :key="idx"
                 :title="eq.name"
                 :subtitle="eq.description"
               />
             </v-list>
-          </rooms-details-card>
-
-          <rooms-details-card
-            title="Ansprechperson"
-            :icon="mdiAccount"
-            :loading="getRoomLoading"
-          >
-            <p class="text-grey-darken-4">
-              {{ getRoomData?.contactPerson?.title }}
-              {{ getRoomData?.contactPerson?.firstName }}
-              {{ getRoomData?.contactPerson?.lastName }}
-            </p>
-            <p class="text-grey-darken-4">
-              Tel: {{ getRoomData?.contactPerson?.telefonNumber }}
-            </p>
-            <p class="text-grey-darken-4">
-              E-Mail: {{ getRoomData?.contactPerson?.email }}
-            </p>
-          </rooms-details-card>
-
-          <rooms-details-card
-            title="Nutzbare Fläche"
-            :icon="mdiTextureBox"
-            :loading="getRoomLoading"
-          >
-            <p class="text-grey-darken-4">{{ getRoomData?.area }} qm</p>
           </rooms-details-card>
         </v-col>
       </v-row>
@@ -121,23 +158,24 @@
 </template>
 
 <script setup lang="ts">
+import type { RoomDetailsResponseDTO } from "@/api/raumreservierung-backend";
+
 import {
   mdiAccount,
   mdiArrowLeft,
   mdiHumanCapacityIncrease,
-  mdiMail,
+  mdiImage,
   mdiPencil,
-  mdiPhone,
   mdiSofaSingleOutline,
   mdiTextureBox,
 } from "@mdi/js";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import RoomsDetailsCard from "@/components/rooms/RoomsDetailsCard.vue";
-import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
+import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
 const router = useRouter();
@@ -145,17 +183,17 @@ const route = useRoute();
 
 const id = computed(() => route.params.id as string | undefined);
 
-const {
-  call: getRoom,
-  data: getRoomData,
-  loading: getRoomLoading,
-} = useGetRoom();
+const roomData = ref<RoomDetailsResponseDTO>();
+
+const { call, loading: getRoomLoading } = useRoomCache();
 
 onMounted(async () => {
   if (id.value) {
-    await getRoom({ roomId: id.value });
-  } else {
-    console.log("ID was empty");
+    const result = await call(id.value);
+
+    if (result) {
+      roomData.value = result as RoomDetailsResponseDTO;
+    }
   }
 });
 </script>
