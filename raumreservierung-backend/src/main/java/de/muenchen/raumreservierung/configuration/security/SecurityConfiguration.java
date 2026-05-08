@@ -1,6 +1,6 @@
 package de.muenchen.raumreservierung.configuration.security;
 
-import de.muenchen.raumreservierung.security.Authorities;
+import de.muenchen.raumreservierung.security.Roles;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
 import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
-import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -95,15 +94,18 @@ public class SecurityConfiguration {
         return http.build();
     }
 
+    /**
+     * Configures the role hierarchy for the application.
+     * This defines a cascading relationship where higher-level authorities
+     * automatically inherit all permissions of the lower-level authorities.
+     * Hierarchy structure:
+     * RAUM_ADMIN > RAUM_BUCHUNG > TERMIN_ORGANISATOR > LESEBERECHTIGT > ANWENDER
+     *
+     * @return The configured RoleHierarchy bean.
+     */
     @Bean
     public RoleHierarchy roleHierarchy() {
-        return RoleHierarchyImpl.fromHierarchy(
-                String.format(
-                        "%s > %s %n %s > %s %n %s > %s %n %s > %s",
-                        Authorities.RAUM_ADMIN, Authorities.RAUM_BUCHUNG,
-                        Authorities.RAUM_BUCHUNG, Authorities.TERMIN_ORGANISATOR,
-                        Authorities.TERMIN_ORGANISATOR, Authorities.LESEBERECHTIGT,
-                        Authorities.LESEBERECHTIGT, Authorities.ANWENDER));
+        return Roles.buildRoleHierarchy();
     }
 
 }
