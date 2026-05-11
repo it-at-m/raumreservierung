@@ -13,7 +13,7 @@ INSERT INTO holiday (name, start_date, end_date, id) VALUES
 ('Weihnachtsferien', '2030-12-24', '2031-01-08', '123e4567-e89b-12d3-a456-426614174010'),
 ('Sommerferien', '2030-08-03', '2030-09-14', '123e4567-e89b-12d3-a456-426614174011');
 
-truncate equipment;
+truncate equipment cascade;
 INSERT INTO equipment (is_active, name, description, id) VALUES
     (true, 'Tisch', 'Ein stabiler Holzschreibtisch mit viel Platz für Arbeiten.', '123e4567-e89b-12d3-a456-426614174000'),
     (true, 'Stuhl', 'Ein ergonomischer Bürostuhl mit verstellbarer Höhe.', '123e4567-e89b-12d3-a456-426614174001'),
@@ -25,7 +25,7 @@ INSERT INTO equipment (is_active, name, description, id) VALUES
     (true, 'Kopierer', 'Ein Multifunktionsgerät zum Kopieren, Scannen und Drucken.', '123e4567-e89b-12d3-a456-426614174007');
 
 
-truncate seating_type;
+truncate seating_type cascade;
 INSERT INTO seating_type (is_active, name, description, id) VALUES
     (true, 'Reihenbestuhlung', 'Beschreibung von Reihenbestuhlung', '123e4567-e89b-12d3-a456-426614174000'),
     (true, 'Stadtrats- / Ausschussbestuhlunq', 'Beschreibung von Stadtrats-Ausschussbestuhlung.', '123e4567-e89b-12d3-a456-426614174001'),
@@ -70,3 +70,35 @@ insert into external_person (id, company, street_address, postal_code_city, note
 insert into internal_person (id, organisation_id, organisation_unit, role_function) values
     ('123e4567-e89b-12d3-a456-426614174010', 'ORG-RIT-001', 'it@M', 'Administrator'),
     ('123e4567-e89b-12d3-a456-426614174011', 'ORG-KVR-002', 'Kreisverwaltungsreferat', 'Sachbearbeiterin');
+
+
+truncate room cascade;
+insert into room (id, name, number, location, location_description, contact_person_id, capacity, is_active, area) values
+    ('123e4567-e89b-12d3-a456-426614174050', 'Großer Sitzungssaal', 'A1.01', 'Rathaus, 1. OG', 'Hauptgebäude, am Ende des linken Flurs', '123e4567-e89b-12d3-a456-426614174010', 100, true, 150),
+    ('123e4567-e89b-12d3-a456-426614174051', 'Besprechungsraum Isar', 'B2.15', 'KVR, 2. OG', 'Neben der Teeküche', '123e4567-e89b-12d3-a456-426614174011', 12, true, 25),
+    ('123e4567-e89b-12d3-a456-426614174052', 'Kreativraum', 'C0.05', 'IT-Referat, EG', 'Glastür direkt am Eingang', '123e4567-e89b-12d3-a456-426614174010', 20, true, 40),
+    ('123e4567-e89b-12d3-a456-426614174053', 'Konferenzraum Alpen', 'A3.10', 'Rathaus, 3. OG', 'Mit Panoramablick, aktuell im Umbau', '123e4567-e89b-12d3-a456-426614174011', 50, false, 80);
+
+truncate room_equipment cascade;
+insert into room_equipment (room_id, equipment_id) values
+    -- Großer Sitzungssaal (4050) hat Tisch(00), Stuhl(01), Projektor(03), Konferenztisch(05)
+    ('123e4567-e89b-12d3-a456-426614174050', '123e4567-e89b-12d3-a456-426614174000'),
+    ('123e4567-e89b-12d3-a456-426614174050', '123e4567-e89b-12d3-a456-426614174001'),
+    ('123e4567-e89b-12d3-a456-426614174050', '123e4567-e89b-12d3-a456-426614174003'),
+    ('123e4567-e89b-12d3-a456-426614174050', '123e4567-e89b-12d3-a456-426614174005'),
+    -- Besprechungsraum Isar (4051) hat Whiteboard(02), Projektor(03)
+    ('123e4567-e89b-12d3-a456-426614174051', '123e4567-e89b-12d3-a456-426614174002'),
+    ('123e4567-e89b-12d3-a456-426614174051', '123e4567-e89b-12d3-a456-426614174003'),
+    -- Kreativraum (4052) hat Whiteboard(02), Bücherregal(04)
+    ('123e4567-e89b-12d3-a456-426614174052', '123e4567-e89b-12d3-a456-426614174002'),
+    ('123e4567-e89b-12d3-a456-426614174052', '123e4567-e89b-12d3-a456-426614174004');
+
+truncate room_seating_capacity cascade;
+insert into room_seating_capacity (id, capacity, room_id, seating_type_id) values
+    -- Großer Sitzungssaal (4050)
+    ('123e4567-e89b-12d3-a456-426614174060', 100, '123e4567-e89b-12d3-a456-426614174050', '123e4567-e89b-12d3-a456-426614174000'), -- Reihenbestuhlung
+    ('123e4567-e89b-12d3-a456-426614174061', 40,  '123e4567-e89b-12d3-a456-426614174050', '123e4567-e89b-12d3-a456-426614174001'), -- Stadtrats- / Ausschussbestuhlung
+    -- Besprechungsraum Isar (4051)
+    ('123e4567-e89b-12d3-a456-426614174062', 12,  '123e4567-e89b-12d3-a456-426614174051', '123e4567-e89b-12d3-a456-426614174003'), -- Parlamentarische Bestuhlung
+    -- Kreativraum (4052)
+    ('123e4567-e89b-12d3-a456-426614174063', 30,  '123e4567-e89b-12d3-a456-426614174052', '123e4567-e89b-12d3-a456-426614174002'); -- Stehempfang
