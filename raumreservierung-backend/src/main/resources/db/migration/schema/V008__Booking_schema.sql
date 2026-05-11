@@ -12,6 +12,7 @@ create table booking
     appointment_end   timestamp    not null,
     contact_person_id uuid         not null,
     room_id           uuid,
+    recurring_rule    varchar(255),
     primary key (id)
 );
 

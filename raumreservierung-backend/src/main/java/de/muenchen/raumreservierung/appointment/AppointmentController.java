@@ -31,13 +31,13 @@ public class AppointmentController {
 
     private final AppointmentMapper appointmentMapper;
 
-    //get only for time period and room
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<AppointmentSearchResponseDTO> getAppointmentsByPeriodAndRoom(@ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
         return appointmentService.getAppointmentsByPeriodAndRoom(appointmentFilterDTO).stream().map(appointmentMapper::toSearchDto).toList();
     }
 
+    // Add authorization or check on own appointment
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public AppointmentResponseDTO createAppointment(@Valid @RequestBody final AppointmentExistingBookingRequestDTO appointmentExistingBookingRequestDTO) {

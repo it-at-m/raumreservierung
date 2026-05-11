@@ -51,6 +51,9 @@ public class Booking extends BaseEntity {
     @Column(length = 500)
     private String additionalNotes;
 
+    @Column
+    private String recurringRule;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "booking")
     private Set<Appointment> appointments = new HashSet<>();
 

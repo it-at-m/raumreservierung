@@ -1,6 +1,5 @@
 package de.muenchen.raumreservierung.booking.dto;
 
-import de.muenchen.raumreservierung.appointment.dto.AppointmentNewBookingRequestDTO;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.validation.constraints.NotNull;
@@ -16,7 +15,7 @@ public record BookingRequestDTO(
         boolean cateringNeeded,
         @Size(max = 500) String internalNotes,
         @Size(max = 500) String additionalNotes,
-        List<AppointmentNewBookingRequestDTO> appointments,
+        String recurringRule,
         UUID roomId,
         @NotNull ScheduleTemplate schedule,
         UUID contactPersonId) {

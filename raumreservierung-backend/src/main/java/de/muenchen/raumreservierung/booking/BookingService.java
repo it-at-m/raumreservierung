@@ -3,12 +3,15 @@ package de.muenchen.raumreservierung.booking;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
+import de.muenchen.raumreservierung.appointment.Appointment;
+import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final EntityManager entityManager;
     private final RoleHierarchy roleHierarchy;
+    private final AppointmentService appointmentService;
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
@@ -54,6 +58,9 @@ public class BookingService {
         if (lacksAuthority(Roles.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
         }
+
+        final Set<Appointment> calculatedAppointments = appointmentService.calculate(booking);
+        booking.setAppointments(calculatedAppointments);
 
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
