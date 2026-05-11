@@ -16,7 +16,9 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -42,6 +44,9 @@ class CacheControlFilterTest {
 
     @Autowired
     private TestRestTemplate testRestTemplate;
+
+    @MockitoBean
+    private RoleHierarchy roleHierarchy;
 
     @Test
     void testForCacheControlHeadersForEquipmentEndpoint() {

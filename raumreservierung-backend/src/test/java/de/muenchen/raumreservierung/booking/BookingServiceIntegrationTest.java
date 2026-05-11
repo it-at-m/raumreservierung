@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
+import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
 import de.muenchen.raumreservierung.person.InternalPerson;
 import de.muenchen.raumreservierung.person.Person;
 import de.muenchen.raumreservierung.security.Roles;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,6 +21,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(
         classes = {
+                BookingService.class,
                 SecurityConfiguration.class
         }
 )
@@ -26,7 +29,13 @@ public class BookingServiceIntegrationTest {
     @Autowired
     private BookingService bookingService;
     @MockitoBean
+    private BookingRepository bookingRepository;
+    @MockitoBean
     private JwtDecoder jwtDecoder;
+    @MockitoBean
+    private EntityManager entityManager;
+    @MockitoBean
+    private AppointmentService appointmentService;
 
     @Test
     @WithMockJwt(email = "anwender@anwender.de", authorities = { Roles.ANWENDER })

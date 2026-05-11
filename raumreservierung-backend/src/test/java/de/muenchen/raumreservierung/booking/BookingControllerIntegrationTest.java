@@ -7,8 +7,9 @@ import static org.springframework.test.util.AssertionErrors.assertEquals;
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
-import de.muenchen.raumreservierung.security.Authorities;
+import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -45,12 +46,14 @@ public class BookingControllerIntegrationTest {
     @MockitoBean
     private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
 
-    private HttpEntity<Object> createRequestEntity(Object body, String... authorities) {
-        // Wir definieren, was passieren soll, wenn der Server das Token validiert
+    private HttpEntity<Object> createRequestEntity(Object body, String... roles) {
+        Map<String, Object> clientRoles = Map.of("roles", Arrays.asList(roles));
+        Map<String, Object> resourceAccess = Map.of("test-client", clientRoles);
+
         org.springframework.security.oauth2.jwt.Jwt mockJwt = org.springframework.security.oauth2.jwt.Jwt.withTokenValue("mock-token")
                 .header("alg", "none")
                 .claim("email", "test@muenchen.de")
-                .claim("authorities", Arrays.asList(authorities))
+                .claim("resource_access", resourceAccess) // Hier sucht dein Konverter!
                 .subject("test-user")
                 .build();
 
@@ -63,14 +66,30 @@ public class BookingControllerIntegrationTest {
 
     @Test
     void testCreateBooking_Authenticated() {
-        BookingRequestDTO request = new BookingRequestDTO("Test", 100, null, false, "please clean", "no notes necessary", null, null, null, null);
+        LocalDateTime now = LocalDateTime.now();
+        ScheduleTemplate schedule = new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30));
+        BookingRequestDTO request = new BookingRequestDTO(
+                "Test",
+                100,
+                null,
+                false,
+                "please clean",
+                "no notes necessary",
+                null,
+                null,
+                schedule,
+                null);
 
         // Request mit Token und den benötigten Rollen absenden
-        HttpEntity<Object> entity = createRequestEntity(request, Authorities.BOOKING_SELF);
+        HttpEntity<Object> entity = createRequestEntity(request, "anwender");
 
         ResponseEntity<BookingDetailResponseDTO> response = testRestTemplate.exchange(
                 BOOKINGS_URL, HttpMethod.POST, entity, BookingDetailResponseDTO.class);
 
-        assertEquals("Status codes not equal", HttpStatus.CREATED.toString(), response.getStatusCode());
+        assertEquals("Status codes not equal", HttpStatus.CREATED, response.getStatusCode());
     }
 }
