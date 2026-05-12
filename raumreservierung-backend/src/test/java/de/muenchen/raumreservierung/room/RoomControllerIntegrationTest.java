@@ -9,8 +9,8 @@ import de.muenchen.raumreservierung.MicroServiceApplication;
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.EquipmentRepository;
-import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.PersonRepository;
+import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.dto.InternalPersonResponseDto;
 import de.muenchen.raumreservierung.room.dto.RoomDetailsResponseDTO;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
@@ -18,12 +18,10 @@ import de.muenchen.raumreservierung.room.dto.RoomRequestDTO;
 import de.muenchen.raumreservierung.room.dto.SeatingCapacityRequestDTO;
 import de.muenchen.raumreservierung.seating.SeatingRepository;
 import de.muenchen.raumreservierung.seating.SeatingType;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -41,10 +39,10 @@ import org.testcontainers.utility.DockerImageName;
 
 @Testcontainers
 @SpringBootTest(
-        classes = {MicroServiceApplication.class},
+        classes = { MicroServiceApplication.class },
         webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT
 )
-@ActiveProfiles(profiles = {SPRING_TEST_PROFILE, SPRING_NO_SECURITY_PROFILE})
+@ActiveProfiles(profiles = { SPRING_TEST_PROFILE, SPRING_NO_SECURITY_PROFILE })
 class RoomControllerIntegrationTest {
 
     @Container

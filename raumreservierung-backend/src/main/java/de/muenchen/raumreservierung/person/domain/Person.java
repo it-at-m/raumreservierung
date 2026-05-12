@@ -7,9 +7,7 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
-
 import java.io.Serial;
-
 import lombok.Getter;
 import lombok.Setter;
 

@@ -3,11 +3,10 @@ package de.muenchen.raumreservierung.person;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson_;
 import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import org.springframework.data.jpa.domain.Specification;
 
 public final class ExternalPersonSpecificationBuilder {
 

@@ -3,7 +3,6 @@ package de.muenchen.raumreservierung.person.dto;
 import de.muenchen.raumreservierung.person.domain.PersonTitle;
 import de.muenchen.raumreservierung.person.domain.PersonType;
 import jakarta.validation.constraints.NotNull;
-
 import java.util.UUID;
 
 public record ExternalPersonResponseDto(

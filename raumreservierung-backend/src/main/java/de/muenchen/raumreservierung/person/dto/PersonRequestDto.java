@@ -11,10 +11,10 @@ import de.muenchen.raumreservierung.person.domain.PersonType;
         include = JsonTypeInfo.As.EXISTING_PROPERTY
 )
 @JsonSubTypes(
-        {
-                @JsonSubTypes.Type(value = InternalPersonRequestDto.class, name = "INTERNAL"),
-                @JsonSubTypes.Type(value = ExternalPersonRequestDto.class, name = "EXTERNAL")
-        }
+    {
+            @JsonSubTypes.Type(value = InternalPersonRequestDto.class, name = "INTERNAL"),
+            @JsonSubTypes.Type(value = ExternalPersonRequestDto.class, name = "EXTERNAL")
+    }
 )
 public interface PersonRequestDto {
     PersonTitle title();
