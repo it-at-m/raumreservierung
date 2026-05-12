@@ -5,16 +5,23 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
+import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -39,18 +46,19 @@ public class BookingService {
     }
 
     @PreAuthorize(Authorities.BOOKING_READ)
-    public List<Booking> getAllBookings() {
-        final List<Booking> allBookings = bookingRepository.findAll();
-        log.debug("Found {} bookings", allBookings.size());
+    public Page<Booking> getAllBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
+        final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilter(bookingFilterDto);
+        final Page<Booking> allBookings = bookingRepository.findAll(bookingSpecification, pageable);
+        log.debug("Found {} bookings", allBookings.getTotalElements());
         return allBookings;
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
-    public List<Booking> getOwnBookings() {
+    public Page<Booking> getOwnBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
         final String email = getUserEmail();
         final List<Booking> ownBookings = bookingRepository.findByContactPersonEmail(email);
         log.debug("Found {} bookings", ownBookings.size());
-        return ownBookings;
+        return null;
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
@@ -58,8 +66,7 @@ public class BookingService {
         if (lacksAuthority(Roles.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
         }
-
-        final Set<Appointment> calculatedAppointments = appointmentService.calculate(booking);
+        final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
@@ -68,6 +75,16 @@ public class BookingService {
         return getEntityOrThrowException(savedBooking.getId());
     }
 
+    /**
+     * Updates an existing booking. If the recurrence rule is modified, it regenerates
+     * future appointments while preserving the history of past appointments.
+     *
+     * @param bookingUpdates The booking object containing the updated data.
+     * @param bookingId The unique identifier of the booking to be updated.
+     * @return The updated and persisted booking entity.
+     * @throws NotFoundException if no booking with the given ID exists.
+     * @throws UnauthorizedActionException if the user is neither the owner nor an admin.
+     */
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
@@ -75,6 +92,21 @@ public class BookingService {
 
         if (lacksAuthority(Roles.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
+        }
+
+        if (!Objects.equals(bookingUpdates.getRecurringRule(), existingBooking.getRecurringRule())) {
+            final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
+
+            final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
+                    .filter(a -> a.getSchedule().occupancyStart().isBefore(LocalDateTime.now()))
+                    .collect(Collectors.toSet());
+
+            final Set<Appointment> futureNewAppointments = newAppointments.stream()
+                    .filter(a -> a.getSchedule().occupancyStart().isAfter(LocalDateTime.now()))
+                    .collect(Collectors.toSet());
+
+            pastAppointments.addAll(futureNewAppointments);
+            bookingUpdates.setAppointments(pastAppointments);
         }
 
         saveAndDetach(existingBooking, bookingUpdates);

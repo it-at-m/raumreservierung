@@ -1,15 +1,18 @@
 package de.muenchen.raumreservierung.booking;
 
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
+import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingListResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingMapper;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,14 +35,18 @@ public class BookingController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<BookingListResponseDTO> getAllBookings() {
-        return bookingService.getAllBookings().stream().map(bookingMapper::toListDto).toList();
+    public Page<BookingListResponseDTO> getAllBookingsByPageableAndFilter(@ParameterObject final Pageable pageable,
+            @ParameterObject final BookingFilterDTO bookingFilterDTO) {
+        final Page<Booking> bookingPage = bookingService.getAllBookingsByPageableAndFilter(pageable, bookingFilterDTO);
+        return bookingPage.map(bookingMapper::toListDto);
     }
 
     @GetMapping("/self")
     @ResponseStatus(HttpStatus.OK)
-    public List<BookingListResponseDTO> getOwnBookings() {
-        return bookingService.getOwnBookings().stream().map(bookingMapper::toListDto).toList();
+    public Page<BookingListResponseDTO> getOwnBookingsByPageableAndFilter(@ParameterObject final Pageable pageable,
+            @ParameterObject final BookingFilterDTO bookingFilterDTO) {
+        final Page<Booking> bookingPage = bookingService.getOwnBookingsByPageableAndFilter(pageable, bookingFilterDTO);
+        return bookingPage.map(bookingMapper::toListDto);
     }
 
     @GetMapping("/{bookingId}")

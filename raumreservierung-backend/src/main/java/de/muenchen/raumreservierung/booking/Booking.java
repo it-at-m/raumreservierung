@@ -32,7 +32,7 @@ public class Booking extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    //test for validity >0 & <1000
+    //TODO: test for validity >0 & <1000
     // if room: <= max capacity of seatingtypecapacity of room
     //          or if no seatingtype selected: <= max capacity of room
     // if no room: <= max capacity of all rooms => roomController?
@@ -63,6 +63,8 @@ public class Booking extends BaseEntity {
     @ManyToOne
     private Person contactPerson;
 
+    //TODO: add status
+
     public void updateFrom(final Booking booking) {
         this.room = booking.getRoom();
         this.title = booking.getTitle();
@@ -72,6 +74,7 @@ public class Booking extends BaseEntity {
         this.additionalNotes = booking.getAdditionalNotes();
         this.schedule = booking.getSchedule();
         this.contactPerson = booking.getContactPerson();
+        this.recurringRule = booking.getRecurringRule();
 
         this.equipment.clear();
         if (booking.getEquipment() != null) {
