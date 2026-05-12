@@ -92,3 +92,7 @@ info:
     java.version: "@java.version@"
     spring-cloud.version: "@spring-cloud-dependencies.version@"
 
+raumreservierung:
+  scheduling:
+    ext-person-cleanup: 0 0 4 1 * *
+    max-ext-person-age-months: 14

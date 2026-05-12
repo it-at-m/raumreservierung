@@ -2,11 +2,11 @@ package de.muenchen.raumreservierung.person.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-
-import java.io.Serial;
-
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serial;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -28,6 +28,9 @@ public class ExternalPerson extends Person {
     @Column
     private String note;
 
+    @Column
+    private LocalDate lastModified;
+
     @Override
     public void updateFrom(final Person person) {
         if (!(person instanceof ExternalPerson externalPerson)) {
@@ -39,4 +42,11 @@ public class ExternalPerson extends Person {
         this.postalCodeCity = externalPerson.getPostalCodeCity();
         this.note = externalPerson.getNote();
     }
+
+    public void updateLastModified(final LocalDate futureDate) {
+        final LocalDate today = LocalDate.now();
+
+        this.lastModified = (futureDate != null && futureDate.isAfter(today)) ? futureDate : today;
+    }
+
 }
