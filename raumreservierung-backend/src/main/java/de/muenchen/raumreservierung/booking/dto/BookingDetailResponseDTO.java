@@ -22,5 +22,7 @@ public record BookingDetailResponseDTO(
         @NotNull List<AppointmentWithoutBookingIdResponseDTO> appointments,
         RoomListResponseDTO room,
         @NotNull ScheduleTemplate schedule,
-        @NotNull PersonResponseDto contactPerson) {
+        @NotNull PersonResponseDto contactPerson
+        //TODO: add status
+) {
 }
