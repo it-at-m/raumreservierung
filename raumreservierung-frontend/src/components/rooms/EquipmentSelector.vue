@@ -1,22 +1,11 @@
 <template>
-  <card-form :subtitle="t('domain.equipment.header')">
+  <card-form
+    :subtitle="t('domain.equipment.header')"
+    :loading="allEquipmentLoading"
+  >
     <template #text>
-      <v-row
-        density="compact"
-        dense
-      >
-        <template v-if="allEquipmentLoading">
-          <v-col
-            cols="12"
-            md="6"
-            lg="4"
-            v-for="el in 5"
-            :key="el"
-          >
-            <v-skeleton-loader type="text" />
-          </v-col>
-        </template>
-        <template v-else>
+      <v-row density="compact">
+        <template v-if="!allEquipmentLoading">
           <v-col
             cols="12"
             md="6"
@@ -25,6 +14,8 @@
             :key="equip.id"
           >
             <v-checkbox
+              v-model="modelValue"
+              :value="equip.id"
               class="w-100 py-0"
               color="accent"
               density="compact"
@@ -91,6 +82,8 @@ import {
 
 const { t } = useI18n();
 
+const modelValue = defineModel<string[]>();
+
 const {
   call: getAllEquipment,
   data: allEquipment,
@@ -106,6 +99,7 @@ const handleCreate = async (newItemName: string) => {
   await createEquipment({
     equipmentRequestDto: {
       name: newItemName,
+      description: "",
       isActive: true,
     },
   });
