@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.appointment;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
@@ -85,8 +86,7 @@ public class AppointmentService {
                     date.plus(offsetOccupancyStart),
                     date.plus(offsetOccupancyEnd),
                     date,
-                    date.plus(offsetAppointmentEnd)
-            );
+                    date.plus(offsetAppointmentEnd));
 
             final Appointment app = new Appointment();
             app.setBooking(booking);

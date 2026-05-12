@@ -4,6 +4,7 @@ import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
+
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
