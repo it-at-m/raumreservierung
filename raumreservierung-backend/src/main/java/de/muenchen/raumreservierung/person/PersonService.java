@@ -1,5 +1,7 @@
 package de.muenchen.raumreservierung.person;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
@@ -8,6 +10,9 @@ import de.muenchen.raumreservierung.person.domain.PersonType;
 import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import java.util.List;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.data.domain.Page;
@@ -16,12 +21,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ClassUtils;
-
-import java.time.LocalDate;
-import java.util.List;
-import java.util.UUID;
-
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @RequiredArgsConstructor
@@ -92,7 +91,7 @@ public class PersonService {
      * Updates the lastModified field on externalPerson to a future date or now
      *
      * @param extPersonId the externalPerson to update
-     * @param futureDate  the new date which should be set, which is at minimum today
+     * @param futureDate the new date which should be set, which is at minimum today
      */
     @Transactional
     public void updateLastModifiedOnExternal(final UUID extPersonId, final LocalDate futureDate) {

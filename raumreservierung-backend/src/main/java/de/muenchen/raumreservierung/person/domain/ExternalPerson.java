@@ -2,11 +2,10 @@ package de.muenchen.raumreservierung.person.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import lombok.Getter;
-import lombok.Setter;
-
 import java.io.Serial;
 import java.time.LocalDate;
+import lombok.Getter;
+import lombok.Setter;
 
 @Entity
 @Getter
