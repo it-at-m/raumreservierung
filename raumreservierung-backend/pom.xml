@@ -5,8 +5,8 @@
     <parent>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
-        <version>3.5.13</version>
-        <relativePath />
+        <version>3.5.14</version>
+        <relativePath/>
     </parent>
 
     <groupId>de.muenchen.raumreservierung</groupId>
@@ -49,7 +49,7 @@
         <hibernate-processor.version>7.2.13.Final</hibernate-processor.version>
 
         <!-- Linting & Formatting -->
-        <spotless-maven-plugin.version>3.1.0</spotless-maven-plugin.version>
+        <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
         <itm-java-codeformat.version>1.0.10</itm-java-codeformat.version>
         <pmd-maven-plugin.version>3.28.0</pmd-maven-plugin.version>
         <spotbugs-maven-plugin.version>4.9.8.3</spotbugs-maven-plugin.version>
@@ -58,7 +58,7 @@
 
         <!-- Testing -->
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
-        <argLine /> <!-- Must be empty, definition needed for integration of Jacoco and Surefire via @{argLine} lazy property evaluation -->
+        <argLine/> <!-- Must be empty, definition needed for integration of Jacoco and Surefire via @{argLine} lazy property evaluation -->
 
         <!-- Release -->
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
@@ -83,9 +83,12 @@
         <flyway.locations>classpath:db/migration/schema,classpath:db/migration/testdata</flyway.locations>
 
         <!-- Spotless P2 Mirror configuration (e.g. required when using company internal registry -->
-        <p2.username /> <!-- must be empty, override via Maven settings.xml if needed -->
-        <p2.password /> <!-- must be empty, override via Maven settings.xml if needed -->
+        <p2.username/> <!-- must be empty, override via Maven settings.xml if needed -->
+        <p2.password/> <!-- must be empty, override via Maven settings.xml if needed -->
         <p2.mirror>download.eclipse.org</p2.mirror>
+
+        <!-- Added to fix CVE-2026-42198 -->
+        <postgresql.version>42.7.11</postgresql.version>
     </properties>
 
 
@@ -431,12 +434,12 @@
                                 </p2Mirror>
                             </p2Mirrors>
                         </eclipse>
-                        <trimTrailingWhitespace />
-                        <endWithNewline />
-                        <importOrder />
-                        <removeUnusedImports />
-                        <forbidWildcardImports />
-                        <formatAnnotations />
+                        <trimTrailingWhitespace/>
+                        <endWithNewline/>
+                        <importOrder/>
+                        <removeUnusedImports/>
+                        <forbidWildcardImports/>
+                        <formatAnnotations/>
                     </java>
                     <lintSuppressions>
                         <!-- Add your own Spotless suppressions, see https://github.com/diffplug/spotless/tree/main/plugin-maven#suppressing-lint-errors -->
