@@ -6,7 +6,7 @@
   >
     <template #text>
       <p v-if="!itemList">
-        {{ t("components.roomResourceManagementCard.emptyList", { domain }) }}
+        {{ t("generics.emptyList", { domain }) }}
       </p>
       <v-chip-group
         v-else
@@ -21,6 +21,7 @@
       </v-chip-group>
       <v-divider class="my-4" />
       <v-text-field
+        color="accent"
         v-model="newItemName"
         :label="t('generics.add', { domain })"
         :disabled="loading"
