@@ -20,7 +20,6 @@ import de.muenchen.raumreservierung.seating.SeatingRepository;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -77,8 +76,8 @@ class RoomControllerIntegrationTest {
                 2000,
                 true,
                 500,
-                Set.of(),
-                Set.of(),
+                List.of(),
+                List.of(),
                 null);
 
         ResponseEntity<RoomDetailsResponseDTO> createResponse = testRestTemplate.postForEntity(
@@ -107,10 +106,11 @@ class RoomControllerIntegrationTest {
 
     @Test
     void testUpdateRoom() {
-        RoomRequestDTO initialRequest = new RoomRequestDTO("Alter Raumname", "1", "Alte Adresse 1", "Es war einmal", 1000, true, 200, Set.of(), Set.of(), null);
+        RoomRequestDTO initialRequest = new RoomRequestDTO("Alter Raumname", "1", "Alte Adresse 1", "Es war einmal", 1000, true, 200, List.of(), List.of(),
+                null);
         RoomDetailsResponseDTO created = testRestTemplate.postForObject(ROOMS_URL, initialRequest, RoomDetailsResponseDTO.class);
 
-        RoomRequestDTO updateRequest = new RoomRequestDTO("Neuer Raumname", "2", "Neue Adresse 2", "Jetzt neu und hier", 1001, true, 202, Set.of(), Set.of(),
+        RoomRequestDTO updateRequest = new RoomRequestDTO("Neuer Raumname", "2", "Neue Adresse 2", "Jetzt neu und hier", 1001, true, 202, List.of(), List.of(),
                 null);
 
         ResponseEntity<RoomDetailsResponseDTO> updateResponse = testRestTemplate.exchange(
@@ -127,7 +127,7 @@ class RoomControllerIntegrationTest {
 
     @Test
     void testDeleteRoom() {
-        RoomRequestDTO request = new RoomRequestDTO("Löschbarer Raum", "0", "Memory Lane 1", "Nicht mehr auffindbar", 5, false, 10, Set.of(), Set.of(), null);
+        RoomRequestDTO request = new RoomRequestDTO("Löschbarer Raum", "0", "Memory Lane 1", "Nicht mehr auffindbar", 5, false, 10, List.of(), List.of(), null);
         RoomDetailsResponseDTO created = testRestTemplate.postForObject(ROOMS_URL, request, RoomDetailsResponseDTO.class);
 
         ResponseEntity<Void> deleteResponse = testRestTemplate.exchange(
@@ -166,8 +166,8 @@ class RoomControllerIntegrationTest {
 
         RoomRequestDTO request = new RoomRequestDTO(
                 "Raum mit allem", "101", "Hier 3", "ganz oben", 10000, true, 600,
-                Set.of(seatingReq),
-                Set.of(equipment.getId()),
+                List.of(seatingReq),
+                List.of(equipment.getId()),
                 person.getId());
 
         ResponseEntity<RoomDetailsResponseDTO> response = testRestTemplate.postForEntity(
@@ -242,12 +242,13 @@ class RoomControllerIntegrationTest {
         person2.setRoleFunction("Chefin");
         person2 = personRepository.save(person2);
 
-        RoomRequestDTO initialReq = new RoomRequestDTO("Raum 1", "1", "Straße 1", "Hier vorne links", 1000, true, 100, Set.of(seatingReq1), Set.of(eq1.getId()),
+        RoomRequestDTO initialReq = new RoomRequestDTO("Raum 1", "1", "Straße 1", "Hier vorne links", 1000, true, 100, List.of(seatingReq1),
+                List.of(eq1.getId()),
                 person1.getId());
         RoomDetailsResponseDTO created = testRestTemplate.postForObject(ROOMS_URL, initialReq, RoomDetailsResponseDTO.class);
 
-        RoomRequestDTO updateReq = new RoomRequestDTO("Raum 1.1", "2", "Straße 1b", "Dort hinten rechts", 2000, true, 200, Set.of(seatingReq2),
-                Set.of(eq2.getId()), person2.getId());
+        RoomRequestDTO updateReq = new RoomRequestDTO("Raum 1.1", "2", "Straße 1b", "Dort hinten rechts", 2000, true, 200, List.of(seatingReq2),
+                List.of(eq2.getId()), person2.getId());
 
         ResponseEntity<RoomDetailsResponseDTO> response = testRestTemplate.exchange(
                 ROOMS_URL + "/" + created.id(),
@@ -287,8 +288,8 @@ class RoomControllerIntegrationTest {
                 2000,
                 true,
                 500,
-                Set.of(),
-                Set.of(),
+                List.of(),
+                List.of(),
                 null);
         final RoomRequestDTO request2 = new RoomRequestDTO(
                 "Raum 2",
@@ -298,8 +299,8 @@ class RoomControllerIntegrationTest {
                 1000,
                 true,
                 400,
-                Set.of(),
-                Set.of(),
+                List.of(),
+                List.of(),
                 null);
         final RoomRequestDTO request3 = new RoomRequestDTO(
                 "Raum 3",
@@ -309,8 +310,8 @@ class RoomControllerIntegrationTest {
                 200,
                 true,
                 50,
-                Set.of(),
-                Set.of(),
+                List.of(),
+                List.of(),
                 null);
 
         ResponseEntity<RoomDetailsResponseDTO> createResponse1 = testRestTemplate.postForEntity(
