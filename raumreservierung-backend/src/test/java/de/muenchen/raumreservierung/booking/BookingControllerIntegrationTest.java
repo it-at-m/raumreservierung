@@ -4,7 +4,6 @@ import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
-
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
@@ -13,7 +12,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
-import org.jspecify.annotations.NonNull;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,6 +51,56 @@ public class BookingControllerIntegrationTest {
 
     @MockitoBean
     private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
+
+    @Test
+    void createBooking_ReturnsCreated_WhenAuthenticatedAndNoRRule() {
+        LocalDateTime now = LocalDateTime.now();
+        BookingRequestDTO request = getBookingRequestDTOWithRrule(now, null);
+
+        HttpEntity<Object> entity = createRequestEntity(request, "anwender");
+
+        ResponseEntity<BookingDetailResponseDTO> response = testRestTemplate.exchange(
+                BOOKINGS_URL, HttpMethod.POST, entity, BookingDetailResponseDTO.class);
+
+        assertEquals("Status codes not equal", HttpStatus.CREATED, response.getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideTestData")
+    void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules(String rrule, int expectedSize, List<LocalDateTime> expectedDates) {
+        LocalDateTime date = LocalDateTime.of(2026, 3, 2, 13, 45);
+        BookingRequestDTO request = getBookingRequestDTOWithRrule(date, rrule);
+        HttpEntity<Object> entity = createRequestEntity(request, "anwender");
+
+        ResponseEntity<BookingDetailResponseDTO> response = testRestTemplate.exchange(
+                BOOKINGS_URL, HttpMethod.POST, entity, BookingDetailResponseDTO.class);
+
+        Assertions.assertNotNull(response.getBody());
+
+        assertThat(response.getBody().appointments())
+                .hasSize(expectedSize)
+                .extracting(r -> r.schedule().occupancyStart())
+                .containsExactlyInAnyOrderElementsOf(expectedDates);
+    }
+
+    private BookingRequestDTO getBookingRequestDTOWithRrule(LocalDateTime now, String recurringRule) {
+        ScheduleTemplate schedule = new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30));
+        return new BookingRequestDTO(
+                "Test",
+                100,
+                null,
+                false,
+                "please clean",
+                "no notes necessary",
+                recurringRule,
+                null,
+                schedule,
+                null);
+    }
 
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
@@ -112,69 +160,5 @@ public class BookingControllerIntegrationTest {
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth("mock-token");
         return new HttpEntity<>(body, headers);
-    }
-
-    @Test
-    void createBooking_ReturnsCreated_WhenAuthenticatedAndNoRRule() {
-        LocalDateTime now = LocalDateTime.now();
-        BookingRequestDTO request = getBookingRequestDTOWithRrule(now, null);
-
-        HttpEntity<Object> entity = createRequestEntity(request, "anwender");
-
-        ResponseEntity<BookingDetailResponseDTO> response = testRestTemplate.exchange(
-                BOOKINGS_URL, HttpMethod.POST, entity, BookingDetailResponseDTO.class);
-
-        assertEquals("Status codes not equal", HttpStatus.CREATED, response.getStatusCode());
-    }
-
-    @Test
-    void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules() {
-        LocalDateTime now = LocalDateTime.now();
-        BookingRequestDTO request = getBookingRequestDTOWithRrule(now, null);
-
-        // Request mit Token und den benötigten Rollen absenden
-        HttpEntity<Object> entity = createRequestEntity(request, "anwender");
-
-        ResponseEntity<BookingDetailResponseDTO> response = testRestTemplate.exchange(
-                BOOKINGS_URL, HttpMethod.POST, entity, BookingDetailResponseDTO.class);
-
-        assertEquals("Status codes not equal", HttpStatus.CREATED, response.getStatusCode());
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideTestData")
-    void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules(String rrule, int expectedSize, List<LocalDateTime> expectedDates) {
-        LocalDateTime date = LocalDateTime.of(2026, 3, 2, 13, 45);
-        BookingRequestDTO request = getBookingRequestDTOWithRrule(date, rrule);
-        HttpEntity<Object> entity = createRequestEntity(request, "anwender");
-
-        ResponseEntity<BookingDetailResponseDTO> response = testRestTemplate.exchange(
-                BOOKINGS_URL, HttpMethod.POST, entity, BookingDetailResponseDTO.class);
-
-        Assertions.assertNotNull(response.getBody());
-
-        assertThat(response.getBody().appointments())
-                .hasSize(expectedSize)
-                .extracting(r -> r.schedule().occupancyStart())
-                .containsExactlyInAnyOrderElementsOf(expectedDates);
-    }
-
-    private @NonNull BookingRequestDTO getBookingRequestDTOWithRrule(LocalDateTime now, String recurringRule) {
-        ScheduleTemplate schedule = new ScheduleTemplate(
-                now,
-                now.plusHours(2),
-                now.plusMinutes(15),
-                now.plusHours(1).plusMinutes(30));
-        return new BookingRequestDTO(
-                "Test",
-                100,
-                null,
-                false,
-                "please clean",
-                "no notes necessary",
-                recurringRule,
-                null,
-                schedule,
-                null);
     }
 }
