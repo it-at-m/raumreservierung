@@ -20,12 +20,15 @@
 
         <template
           #subtitle
-          v-if="slots.subtitle"
+          v-if="subtitle"
         >
-          <slot name="subtitle" />
+          <p class="text-grey-darken-4 my-0">{{ subtitle }}</p>
         </template>
 
-        <template #text>
+        <template
+          #text
+          v-if="slots.default"
+        >
           <slot name="default" />
         </template>
       </v-card>
@@ -38,12 +41,12 @@ import type { VNode } from "vue";
 
 defineProps<{
   title: string;
+  subtitle?: string;
   icon: string;
   loading: boolean;
 }>();
 
 const slots = defineSlots<{
-  subtitle(): VNode[];
   default(): VNode[];
 }>();
 </script>
