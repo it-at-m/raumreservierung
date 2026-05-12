@@ -14,6 +14,9 @@ import HelpView from "@/views/HelpView.vue";
 import HolidaysView from "@/views/HolidaysView.vue";
 import HomeView from "@/views/HomeView.vue";
 import PersonView from "@/views/PersonView.vue";
+import RoomsDetailsView from "@/views/rooms/RoomsDetailsView.vue";
+import RoomsEditView from "@/views/rooms/RoomsEditView.vue";
+import RoomsListView from "@/views/rooms/RoomsListView.vue";
 import SeatingTypeView from "@/views/SeatingTypeView.vue";
 
 const routes: RouteRecordRaw[] = [
@@ -78,6 +81,38 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/rooms",
+    name: ROUTES.ROOMS_LIST,
+    component: RoomsListView,
+    meta: {
+      requiredPrivileges: ["rooms:read", "rooms:write"],
+    },
+  },
+  {
+    path: "/rooms/new",
+    name: ROUTES.ROOMS_CREATE,
+    component: RoomsEditView,
+    meta: {
+      requiredPrivileges: ["rooms:write"],
+    },
+  },
+  {
+    path: "/rooms/:id",
+    name: ROUTES.ROOMS_DETAILS,
+    component: RoomsDetailsView,
+    meta: {
+      requiredPrivileges: ["rooms:read", "rooms:write"],
+    },
+  },
+  {
+    path: "/rooms/:id/edit",
+    name: ROUTES.ROOMS_EDIT,
+    component: RoomsEditView,
+    meta: {
+      requiredPrivileges: ["rooms:read", "rooms:write"],
+    },
+  },
+  {
     path: "/admin/seating",
     name: ROUTES.SEATING,
     component: SeatingTypeView,
@@ -108,7 +143,9 @@ router.beforeEach(async (to) => {
     await userStore.fetchUser();
   }
 
-  if (!to.meta.requiredPrivileges) return;
+  if (!to.meta.requiredPrivileges) {
+    return;
+  }
 
   const convertedPrivileges = Array.isArray(to.meta.requiredPrivileges)
     ? to.meta.requiredPrivileges
