@@ -19,6 +19,6 @@ public record BookingRequestDTO(
         UUID roomId,
         @NotNull ScheduleTemplate schedule,
         UUID contactPersonId
-        //TODO: add status
-        ) {
+//TODO: add status
+) {
 }

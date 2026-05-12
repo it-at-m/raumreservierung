@@ -23,6 +23,6 @@ public record BookingDetailResponseDTO(
         RoomListResponseDTO room,
         @NotNull ScheduleTemplate schedule,
         @NotNull PersonResponseDto contactPerson
-        //TODO: add status
+//TODO: add status
 ) {
 }
