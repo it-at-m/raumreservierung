@@ -5,13 +5,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 import de.muenchen.raumreservierung.equipment.Equipment;
-import de.muenchen.raumreservierung.person.InternalPerson;
-import de.muenchen.raumreservierung.person.Person;
+import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import jakarta.persistence.EntityManager;
+
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;

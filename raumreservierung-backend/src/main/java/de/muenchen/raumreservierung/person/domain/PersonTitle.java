@@ -1,4 +1,4 @@
-package de.muenchen.raumreservierung.person;
+package de.muenchen.raumreservierung.person.domain;
 
 public enum PersonTitle {
     NONE,

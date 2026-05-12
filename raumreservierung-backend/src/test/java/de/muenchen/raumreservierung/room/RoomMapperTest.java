@@ -5,9 +5,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import de.muenchen.raumreservierung.common.ReferenceMapper;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentMapperImpl;
-import de.muenchen.raumreservierung.person.ExternalPerson;
-import de.muenchen.raumreservierung.person.InternalPerson;
-import de.muenchen.raumreservierung.person.Person;
+import de.muenchen.raumreservierung.person.domain.ExternalPerson;
+import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.person.dto.PersonMapper;
 import de.muenchen.raumreservierung.person.dto.PersonMapperImpl;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
@@ -17,8 +17,10 @@ import de.muenchen.raumreservierung.room.dto.RoomRequestDTO;
 import de.muenchen.raumreservierung.room.dto.SeatingCapacityRequestDTO;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.seating.dto.SeatingTypeMapperImpl;
+
 import java.util.Set;
 import java.util.UUID;
+
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;

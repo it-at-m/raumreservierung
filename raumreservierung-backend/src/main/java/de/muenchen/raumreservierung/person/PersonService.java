@@ -3,10 +3,16 @@ package de.muenchen.raumreservierung.person;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 import de.muenchen.raumreservierung.common.NotFoundException;
+import de.muenchen.raumreservierung.person.domain.ExternalPerson;
+import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import de.muenchen.raumreservierung.person.domain.Person;
+import de.muenchen.raumreservierung.person.domain.PersonType;
 import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.transaction.Transactional;
+
 import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.data.domain.Page;

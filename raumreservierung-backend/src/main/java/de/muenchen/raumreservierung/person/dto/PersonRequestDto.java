@@ -2,8 +2,8 @@ package de.muenchen.raumreservierung.person.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import de.muenchen.raumreservierung.person.PersonTitle;
-import de.muenchen.raumreservierung.person.PersonType;
+import de.muenchen.raumreservierung.person.domain.PersonTitle;
+import de.muenchen.raumreservierung.person.domain.PersonType;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -11,10 +11,10 @@ import de.muenchen.raumreservierung.person.PersonType;
         include = JsonTypeInfo.As.EXISTING_PROPERTY
 )
 @JsonSubTypes(
-    {
-            @JsonSubTypes.Type(value = InternalPersonRequestDto.class, name = "INTERNAL"),
-            @JsonSubTypes.Type(value = ExternalPersonRequestDto.class, name = "EXTERNAL")
-    }
+        {
+                @JsonSubTypes.Type(value = InternalPersonRequestDto.class, name = "INTERNAL"),
+                @JsonSubTypes.Type(value = ExternalPersonRequestDto.class, name = "EXTERNAL")
+        }
 )
 public interface PersonRequestDto {
     PersonTitle title();

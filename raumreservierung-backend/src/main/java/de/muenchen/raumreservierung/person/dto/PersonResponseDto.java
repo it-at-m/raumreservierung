@@ -2,8 +2,9 @@ package de.muenchen.raumreservierung.person.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import de.muenchen.raumreservierung.person.PersonTitle;
-import de.muenchen.raumreservierung.person.PersonType;
+import de.muenchen.raumreservierung.person.domain.PersonTitle;
+import de.muenchen.raumreservierung.person.domain.PersonType;
+
 import java.util.UUID;
 
 @JsonTypeInfo(
@@ -13,10 +14,10 @@ import java.util.UUID;
         visible = true
 )
 @JsonSubTypes(
-    {
-            @JsonSubTypes.Type(value = InternalPersonResponseDto.class, name = "INTERNAL"),
-            @JsonSubTypes.Type(value = ExternalPersonResponseDto.class, name = "EXTERNAL")
-    }
+        {
+                @JsonSubTypes.Type(value = InternalPersonResponseDto.class, name = "INTERNAL"),
+                @JsonSubTypes.Type(value = ExternalPersonResponseDto.class, name = "EXTERNAL")
+        }
 )
 @SuppressWarnings("PMD.ShortMethodName")
 public interface PersonResponseDto {

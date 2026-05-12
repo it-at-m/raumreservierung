@@ -1,4 +1,4 @@
-package de.muenchen.raumreservierung.person;
+package de.muenchen.raumreservierung.person.domain;
 
 import de.muenchen.raumreservierung.common.BaseEntity;
 import jakarta.persistence.Column;
@@ -7,7 +7,9 @@ import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Inheritance;
 import jakarta.persistence.InheritanceType;
+
 import java.io.Serial;
+
 import lombok.Getter;
 import lombok.Setter;
 

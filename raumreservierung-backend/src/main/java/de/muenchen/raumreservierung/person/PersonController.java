@@ -1,10 +1,13 @@
 package de.muenchen.raumreservierung.person;
 
+import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
 import de.muenchen.raumreservierung.person.dto.PersonMapper;
 import de.muenchen.raumreservierung.person.dto.PersonRequestDto;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
+
 import java.util.UUID;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -39,7 +42,7 @@ public class PersonController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<PersonResponseDto> getPersonsByPageableAndFilter(@ParameterObject final Pageable pageable,
-            @ParameterObject final PersonFilterDto personFilterDto) {
+                                                                 @ParameterObject final PersonFilterDto personFilterDto) {
         final Page<Person> personPage = personService.getPersonsByPageableAndFilter(pageable, personFilterDto);
 
         return personPage.map(personMapper::toDto);

@@ -1,6 +1,6 @@
 package de.muenchen.raumreservierung.person.dto;
 
-import de.muenchen.raumreservierung.person.PersonType;
+import de.muenchen.raumreservierung.person.domain.PersonType;
 
 public record PersonFilterDto(
         String searchName,
