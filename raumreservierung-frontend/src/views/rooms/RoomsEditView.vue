@@ -353,7 +353,10 @@ const onSuccess = (
     message: msg,
   });
 
-  call.cache.set(newRoomData.id, Promise.resolve(newRoomData));
+  call.cache.set(
+    newRoomData.id,
+    Promise.resolve(newRoomData) as Promise<RoomDetailsResponseDTO>
+  );
 
   router.replace({
     name: ROUTES.ROOMS_DETAILS,
