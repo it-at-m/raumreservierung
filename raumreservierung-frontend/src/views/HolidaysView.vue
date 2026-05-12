@@ -19,11 +19,11 @@
       >
         <template #form="{ item, updateItem, updateValidity }">
           <holiday-form
-            :isPublic="isPublic"
+            :is-public="isPublic"
             :model-value="item"
+            :disabled="updateHolidayLoading || createHolidayLoading"
             @update:model-value="updateItem"
             @is-valid="updateValidity"
-            :disabled="updateHolidayLoading || createHolidayLoading"
           />
         </template>
         <template #table="{ openEdit, openDelete }">
@@ -39,12 +39,12 @@
             <template #[`item.endDate`]="{ item }">
               {{ useDateFormat(item.endDate, DATE_FORMAT_DDMMYY) }}
             </template>
-            <template v-slot:[`item.actions`]="{ item }">
+            <template #[`item.actions`]="{ item }">
               <slot
                 name="itemActions"
                 :item="item"
-                :openEdit="openEdit"
-                :promptDelete="openDelete"
+                :open-edit="openEdit"
+                :prompt-delete="openDelete"
               >
                 <v-row align-content="center">
                   <v-col

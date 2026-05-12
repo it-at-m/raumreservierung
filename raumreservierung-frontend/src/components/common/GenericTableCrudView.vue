@@ -29,8 +29,8 @@
           <slot
             name="form"
             :item="activeItem"
-            :updateItem="updateActiveItem"
-            :updateValidity="updateFormValidity"
+            :update-item="updateActiveItem"
+            :update-validity="updateFormValidity"
           />
         </template>
         <template #confirm="{ props }">
@@ -68,18 +68,18 @@
     >
       <template #action>
         <base-button
-          @click="openCreate"
           :append-icon="mdiPlus"
           :text="t('common.add')"
+          @click="openCreate"
         />
       </template>
 
-      <template v-slot:[`item.actions`]="{ item }">
+      <template #[`item.actions`]="{ item }">
         <slot
           name="itemActions"
           :item="item"
-          :openEdit="openEdit"
-          :promptDelete="promptDelete"
+          :open-edit="openEdit"
+          :prompt-delete="promptDelete"
         >
           <v-row align-content="center">
             <v-col
@@ -110,7 +110,7 @@
       <template
         v-for="(_, slotName) in $slots"
         :key="slotName"
-        v-slot:[slotName]="slotProps"
+        #[slotName]="slotProps"
       >
         <slot
           v-if="slotName !== 'form' && slotName !== 'item.actions'"

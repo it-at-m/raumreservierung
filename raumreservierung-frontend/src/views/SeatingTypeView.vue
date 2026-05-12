@@ -17,9 +17,9 @@
         <template #form="{ item, updateItem, updateValidity }">
           <seating-type-form
             :model-value="item"
+            :disabled="updateSeatingTypeLoading || createSeatingTypeLoading"
             @update:model-value="updateItem"
             @is-valid="updateValidity"
-            :disabled="updateSeatingTypeLoading || createSeatingTypeLoading"
           />
         </template>
         <template #table="{ openEdit, openDelete }">

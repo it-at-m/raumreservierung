@@ -25,7 +25,7 @@
         <template
           v-for="(_, slotName) in $slots"
           :key="slotName"
-          v-slot:[slotName]="slotProps"
+          #[slotName]="slotProps"
         >
           <slot
             :name="slotName"
