@@ -166,8 +166,7 @@ const computedDomain = computed(() =>
 );
 
 const toApiDate = (date: Date): Date => {
-  const d = new Date(date);
-  return new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+  return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
 };
 
 const toApiHoliday = (holiday: HolidayResponseDTO): HolidayRequestDTO => {
@@ -204,13 +203,11 @@ const updateHoliday = async (holiday: Partial<HolidayResponseDTO>) => {
       holidayRequestDTO: toApiHoliday(holiday as HolidayResponseDTO),
     });
     if (!updateHolidayError.value) {
-      const startDate = holiday.startDate ? new Date(holiday.startDate) : null;
-      const year = startDate?.getFullYear();
       await onSuccess(
         t("generics.updated", {
           domain: computedDomain.value,
         }),
-        year
+        holiday.startDate?.getFullYear()
       );
     }
   }
