@@ -8,41 +8,41 @@
       v-model="modelValue.name"
       :label="t('domain.holidays.public.name')"
       :rules="[maxNameLength, minTwoChars]"
-      variant="outlined"
       autofocus
+      variant="outlined"
     />
     <card-form :subtitle="t('domain.holidays.public.date')">
       <template #text>
         <v-row justify="start">
           <v-col
+            class="pr-10 pb-0"
             cols="12"
             sm="6"
-            class="pr-10 pb-0"
           >
             <v-date-input
               ref="startDateInput"
               v-model="modelValue.startDate"
-              :label="isPublic ? '' : t('domain.holidays.school.startDate')"
-              :rules="[datePicked, dateRules('startDate')]"
               :allowed-dates="isDateAllowed('startDate')"
+              :label="isPublic ? '' : t('domain.holidays.school.startDate')"
               :prepend-icon="mdiCalendar"
+              :rules="[datePicked, dateRules('startDate')]"
               variant="underlined"
               @update:model-value="validateDate('endDate')"
             />
           </v-col>
           <v-col
             v-if="!isPublic"
+            class="pr-10 pb-0"
             cols="12"
             sm="6"
-            class="pr-10 pb-0"
           >
             <v-date-input
               ref="endDateInput"
               v-model="modelValue.endDate"
-              :label="t('domain.holidays.school.endDate')"
-              :rules="[datePicked, dateRules('endDate')]"
               :allowed-dates="isDateAllowed('endDate')"
+              :label="t('domain.holidays.school.endDate')"
               :prepend-icon="mdiCalendar"
+              :rules="[datePicked, dateRules('endDate')]"
               variant="underlined"
               @update:model-value="validateDate('startDate')"
             />
