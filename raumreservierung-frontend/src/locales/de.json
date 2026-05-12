@@ -115,6 +115,7 @@
       }
     },
     "person": {
+      "header": "Person",
       "title": "Anrede",
       "titles": {
         "mr": "Herr",

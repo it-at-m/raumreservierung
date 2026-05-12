@@ -3,15 +3,15 @@
     <template #default>
       <year-slider
         v-model="selectedYear"
-        :start-year="currentYear - PREVIOUS_YEARS"
         :end-year="currentYear + NEXT_YEARS"
+        :start-year="currentYear - PREVIOUS_YEARS"
         class="mb-4"
         @update:model-value="updatedYearSelection"
       />
       <crud-card
         ref="tableRef"
-        :empty-item-template="EMPTY_HOLIDAY"
         :domain="computedDomain"
+        :empty-item-template="EMPTY_HOLIDAY"
         :loading="holidayStore.loading || deleteHolidayLoading"
         @create="createHoliday"
         @delete="deleteHoliday"
@@ -19,9 +19,9 @@
       >
         <template #form="{ item, updateItem, updateValidity }">
           <holiday-form
+            :disabled="updateHolidayLoading || createHolidayLoading"
             :is-public="isPublic"
             :model-value="item"
-            :disabled="updateHolidayLoading || createHolidayLoading"
             @update:model-value="updateItem"
             @is-valid="updateValidity"
           />
@@ -41,10 +41,10 @@
             </template>
             <template #[`item.actions`]="{ item }">
               <slot
-                name="itemActions"
                 :item="item"
                 :open-edit="openEdit"
                 :prompt-delete="openDelete"
+                name="itemActions"
               >
                 <v-row align-content="center">
                   <v-col
@@ -53,8 +53,8 @@
                     sm="6"
                   >
                     <action-button
-                      type="edit"
                       class="mr-1"
+                      type="edit"
                       @click="openEdit(item)"
                     />
                   </v-col>
