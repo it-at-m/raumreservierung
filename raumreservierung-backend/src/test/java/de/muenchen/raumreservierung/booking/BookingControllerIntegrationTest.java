@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
 
@@ -9,8 +10,15 @@ import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
+import org.jspecify.annotations.NonNull;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -46,6 +54,48 @@ public class BookingControllerIntegrationTest {
     @MockitoBean
     private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
 
+    private static Stream<Arguments> provideTestData() {
+        return Stream.of(
+                Arguments.of("", 1, List.of(LocalDateTime.of(2026, 3, 2, 13, 45))),
+                Arguments.of("FREQ=DAILY;COUNT=3", 3, List.of(
+                        LocalDateTime.of(2026, 3, 2, 13, 45),
+                        LocalDateTime.of(2026, 3, 3, 13, 45),
+                        LocalDateTime.of(2026, 3, 4, 13, 45))),
+                Arguments.of("FREQ=MONTHLY;COUNT=2", 2, List.of(
+                        LocalDateTime.of(2026, 3, 2, 13, 45),
+                        LocalDateTime.of(2026, 4, 2, 13, 45))),
+                Arguments.of("FREQ=WEEKLY;COUNT=5", 5, List.of(
+                        LocalDateTime.of(2026, 3, 2, 13, 45),
+                        LocalDateTime.of(2026, 3, 9, 13, 45),
+                        LocalDateTime.of(2026, 3, 16, 13, 45),
+                        LocalDateTime.of(2026, 3, 23, 13, 45),
+                        LocalDateTime.of(2026, 3, 30, 13, 45))),
+                Arguments.of("FREQ=WEEKLY;BYDAY=TU,WE;INTERVAL=2;COUNT=4", 4, List.of(
+                        LocalDateTime.of(2026, 3, 3, 13, 45),
+                        LocalDateTime.of(2026, 3, 4, 13, 45),
+                        LocalDateTime.of(2026, 3, 17, 13, 45),
+                        LocalDateTime.of(2026, 3, 18, 13, 45))),
+                Arguments.of("FREQ=MONTHLY;BYDAY=2WE;COUNT=3", 3, List.of(
+                        LocalDateTime.of(2026, 3, 11, 13, 45),
+                        LocalDateTime.of(2026, 4, 8, 13, 45),
+                        LocalDateTime.of(2026, 5, 13, 13, 45))),
+                Arguments.of("FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=15;COUNT=4", 4, List.of(
+                        LocalDateTime.of(2026, 3, 15, 13, 45),
+                        LocalDateTime.of(2026, 5, 15, 13, 45),
+                        LocalDateTime.of(2026, 7, 15, 13, 45),
+                        LocalDateTime.of(2026, 9, 15, 13, 45))),
+                Arguments.of("FREQ=WEEKLY;INTERVAL=6", 9, List.of(
+                        LocalDateTime.of(2026, 3, 2, 13, 45),
+                        LocalDateTime.of(2026, 4, 13, 13, 45),
+                        LocalDateTime.of(2026, 5, 25, 13, 45),
+                        LocalDateTime.of(2026, 7, 6, 13, 45),
+                        LocalDateTime.of(2026, 8, 17, 13, 45),
+                        LocalDateTime.of(2026, 9, 28, 13, 45),
+                        LocalDateTime.of(2026, 11, 9, 13, 45),
+                        LocalDateTime.of(2026, 12, 21, 13, 45),
+                        LocalDateTime.of(2027, 2, 1, 13, 45))));
+    }
+
     private HttpEntity<Object> createRequestEntity(Object body, String... roles) {
         Map<String, Object> clientRoles = Map.of("roles", Arrays.asList(roles));
         Map<String, Object> resourceAccess = Map.of("test-client", clientRoles);
@@ -65,24 +115,22 @@ public class BookingControllerIntegrationTest {
     }
 
     @Test
-    void testCreateBooking_Authenticated() {
+    void createBooking_ReturnsCreated_WhenAuthenticatedAndNoRRule() {
         LocalDateTime now = LocalDateTime.now();
-        ScheduleTemplate schedule = new ScheduleTemplate(
-                now,
-                now.plusHours(2),
-                now.plusMinutes(15),
-                now.plusHours(1).plusMinutes(30));
-        BookingRequestDTO request = new BookingRequestDTO(
-                "Test",
-                100,
-                null,
-                false,
-                "please clean",
-                "no notes necessary",
-                null,
-                null,
-                schedule,
-                null);
+        BookingRequestDTO request = getBookingRequestDTOWithRrule(now, null);
+
+        HttpEntity<Object> entity = createRequestEntity(request, "anwender");
+
+        ResponseEntity<BookingDetailResponseDTO> response = testRestTemplate.exchange(
+                BOOKINGS_URL, HttpMethod.POST, entity, BookingDetailResponseDTO.class);
+
+        assertEquals("Status codes not equal", HttpStatus.CREATED, response.getStatusCode());
+    }
+
+    @Test
+    void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules() {
+        LocalDateTime now = LocalDateTime.now();
+        BookingRequestDTO request = getBookingRequestDTOWithRrule(now, null);
 
         // Request mit Token und den benötigten Rollen absenden
         HttpEntity<Object> entity = createRequestEntity(request, "anwender");
@@ -91,5 +139,42 @@ public class BookingControllerIntegrationTest {
                 BOOKINGS_URL, HttpMethod.POST, entity, BookingDetailResponseDTO.class);
 
         assertEquals("Status codes not equal", HttpStatus.CREATED, response.getStatusCode());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideTestData")
+    void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules(String rrule, int expectedSize, List<LocalDateTime> expectedDates) {
+        LocalDateTime date = LocalDateTime.of(2026, 3, 2, 13, 45);
+        BookingRequestDTO request = getBookingRequestDTOWithRrule(date, rrule);
+        HttpEntity<Object> entity = createRequestEntity(request, "anwender");
+
+        ResponseEntity<BookingDetailResponseDTO> response = testRestTemplate.exchange(
+                BOOKINGS_URL, HttpMethod.POST, entity, BookingDetailResponseDTO.class);
+
+        Assertions.assertNotNull(response.getBody());
+
+        assertThat(response.getBody().appointments())
+                .hasSize(expectedSize)
+                .extracting(r -> r.schedule().occupancyStart())
+                .containsExactlyInAnyOrderElementsOf(expectedDates);
+    }
+
+    private @NonNull BookingRequestDTO getBookingRequestDTOWithRrule(LocalDateTime now, String recurringRule) {
+        ScheduleTemplate schedule = new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30));
+        return new BookingRequestDTO(
+                "Test",
+                100,
+                null,
+                false,
+                "please clean",
+                "no notes necessary",
+                recurringRule,
+                null,
+                schedule,
+                null);
     }
 }
