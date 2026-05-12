@@ -64,6 +64,7 @@
         <v-row>
           <v-col>
             <v-text-field
+              v-model="roomData.name"
               color="accent"
               :label="t('domain.room.name')"
               :rules="[
@@ -78,13 +79,12 @@
                   })
                 ),
               ]"
-              v-model="roomData.name"
             />
           </v-col>
           <v-col>
             <v-text-field
-              color="accent"
               v-model="roomData.location"
+              color="accent"
               :label="t('domain.room.location')"
             />
           </v-col>
@@ -92,6 +92,7 @@
         <v-row>
           <v-col>
             <v-text-field
+              v-model="roomData.number"
               color="accent"
               :label="t('domain.room.number')"
               :rules="[
@@ -106,7 +107,6 @@
                   })
                 ),
               ]"
-              v-model="roomData.number"
             />
           </v-col>
           <v-col>
@@ -132,6 +132,7 @@
         <v-row>
           <v-col>
             <v-textarea
+              v-model="roomData.locationDescription"
               :rules="[
                 rules.maxLength(
                   500,
@@ -144,7 +145,6 @@
               color="accent"
               variant="outlined"
               :label="t('domain.room.locationDescription')"
-              v-model="roomData.locationDescription"
             />
           </v-col>
         </v-row>
@@ -164,23 +164,23 @@
         <v-row>
           <v-col>
             <v-number-input
+              v-model="roomData.area"
               :min="1"
               :suffix="t('common.squareMeterAbr')"
               inset
               color="accent"
               :label="t('domain.room.usableArea')"
-              v-model="roomData.area"
               variant="outlined"
             />
           </v-col>
           <v-col>
             <v-number-input
+              v-model="roomData.capacity"
               :min="1"
               :suffix="t('domain.person.header', { count: roomData.capacity })"
               inset
               color="accent"
               variant="outlined"
-              v-model="roomData.capacity"
               :label="t('domain.room.capacity.max')"
             />
           </v-col>
@@ -188,10 +188,10 @@
         <v-row>
           <v-col>
             <v-text-field
+              v-model="roomData.contactPersonId"
               color="accent"
               readonly
               :label="t('domain.room.contactPerson')"
-              v-model="roomData.contactPersonId"
             />
           </v-col>
         </v-row>

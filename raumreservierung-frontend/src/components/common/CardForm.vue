@@ -6,30 +6,30 @@
     class="border-opacity-25"
   >
     <template
-      #title
       v-if="slots.title"
+      #title
     >
       <slot name="title">
         {{ title }}
       </slot>
     </template>
     <template
-      #subtitle
       v-if="subtitle || slots.subtitle"
+      #subtitle
     >
       <slot name="subtitle">
         {{ subtitle }}
       </slot>
     </template>
     <template
-      #text
       v-if="slots.text"
+      #text
     >
       <slot name="text" />
     </template>
     <template
-      #actions
       v-if="slots.actions"
+      #actions
     >
       <slot name="actions" />
     </template>

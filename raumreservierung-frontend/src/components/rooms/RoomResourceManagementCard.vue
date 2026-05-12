@@ -21,8 +21,8 @@
       </v-chip-group>
       <v-divider class="my-4" />
       <v-text-field
-        color="accent"
         v-model="newItemName"
+        color="accent"
         :label="t('generics.add', { domain })"
         :disabled="loading"
         @keyup.enter="handleCreate"

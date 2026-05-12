@@ -18,12 +18,12 @@
       <v-row>
         <template v-if="getAllRoomLoading">
           <v-col
+            v-for="el in 5"
+            :key="el"
             cols="12"
             sm="6"
             md="4"
             xxl="3"
-            v-for="el in 5"
-            :key="el"
           >
             <v-skeleton-loader
               type="card"
@@ -35,12 +35,12 @@
 
         <template v-else>
           <v-col
+            v-for="room in getAllRoomsData"
+            :key="room.id"
             cols="12"
             sm="6"
             md="4"
             xxl="3"
-            v-for="room in getAllRoomsData"
-            :key="room.id"
           >
             <router-link
               :to="{

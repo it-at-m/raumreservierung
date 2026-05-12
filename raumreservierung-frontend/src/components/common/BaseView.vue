@@ -4,9 +4,9 @@
       <slot name="header">
         <v-row justify="space-between">
           <v-col
+            v-if="slot.headerPrepend"
             cols="auto"
             align-self="center"
-            v-if="slot.headerPrepend"
           >
             <slot name="headerPrepend" />
           </v-col>

@@ -19,15 +19,15 @@
         </template>
 
         <template
-          #subtitle
           v-if="subtitle"
+          #subtitle
         >
           <p class="text-grey-darken-4 my-0">{{ subtitle }}</p>
         </template>
 
         <template
-          #text
           v-if="slots.default"
+          #text
         >
           <slot name="default" />
         </template>

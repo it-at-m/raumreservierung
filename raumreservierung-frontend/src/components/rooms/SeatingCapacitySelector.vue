@@ -6,10 +6,10 @@
     <template #text>
       <v-list density="compact">
         <v-list-item
-          class="mb-2"
-          rounded
           v-for="seatCap in combinedSeatingTypesCapacities"
           :key="seatCap.id"
+          class="mb-2"
+          rounded
         >
           <template #default>
             <seating-capacity-editor

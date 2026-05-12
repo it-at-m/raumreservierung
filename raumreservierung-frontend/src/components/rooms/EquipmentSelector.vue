@@ -7,11 +7,11 @@
       <v-row density="compact">
         <template v-if="!allEquipmentLoading">
           <v-col
+            v-for="equip in allEquipment"
+            :key="equip.id"
             cols="12"
             md="6"
             lg="4"
-            v-for="equip in allEquipment"
-            :key="equip.id"
           >
             <v-checkbox
               v-model="modelValue"
