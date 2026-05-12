@@ -53,7 +53,7 @@
   </v-form>
 </template>
 
-<script lang="ts" setup>
+<script setup lang="ts">
 import type { HolidayRequestDTO } from "@/api/raumreservierung-backend";
 import type { VDateInput } from "vuetify/labs/VDateInput";
 
