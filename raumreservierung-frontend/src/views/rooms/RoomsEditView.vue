@@ -89,7 +89,9 @@
               v-model="roomData.location"
               :rules="[
                 rules.required(
-                  t('common.rules.notEmpty', { field: t('domain.room.number') })
+                  t('common.rules.notEmpty', {
+                    field: t('domain.room.location'),
+                  })
                 ),
                 rules.maxLength(
                   RoomDetailsResponseDTOPropertyValidationAttributesMap.location
