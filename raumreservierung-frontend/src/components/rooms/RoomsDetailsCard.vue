@@ -15,14 +15,14 @@
             :icon="icon"
             color="primary"
           />
-          <p class="text-grey-darken-4 my-0">{{ title }}</p>
+          <p class="text-high-emphasis my-0">{{ title }}</p>
         </template>
 
         <template
           v-if="subtitle"
           #subtitle
         >
-          <p class="text-grey-darken-4 my-0">{{ subtitle }}</p>
+          <p class="text-high-emphasis my-0">{{ subtitle }}</p>
         </template>
 
         <template
