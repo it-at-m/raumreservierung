@@ -9,6 +9,7 @@
     </template>
     <template #headerActions>
       <base-button
+        v-if="canEditRoom"
         :text="t('common.edit')"
         :append-icon="mdiPencil"
         @click="
@@ -200,6 +201,7 @@ import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import RoomsDetailsCard from "@/components/rooms/RoomsDetailsCard.vue";
 import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
+import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
 const router = useRouter();
@@ -212,6 +214,8 @@ const { t } = useI18n();
 const id = computed(() => route.params.id as string | undefined);
 
 const roomData = ref<RoomDetailsResponseDTO>();
+
+const canEditRoom = useIsPrivileged("rooms:write");
 
 const { call, loading: getRoomLoading } = useRoomCache();
 

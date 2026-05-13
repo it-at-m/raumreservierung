@@ -2,6 +2,7 @@
   <base-view header-text="Räume und Details">
     <template #headerActions>
       <base-button
+        v-if="canAddNewRoom"
         text="Hinzufügen"
         :append-icon="mdiPlus"
         @click="
@@ -71,6 +72,7 @@ import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import RoomThumbnail from "@/components/rooms/RoomThumbnail.vue";
 import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
+import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
 const { t } = useI18n();
@@ -81,6 +83,8 @@ const {
 } = useGetAllRooms();
 
 const router = useRouter();
+
+const canAddNewRoom = useIsPrivileged("rooms:write");
 
 onMounted(async () => await getAllRooms());
 </script>

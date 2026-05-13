@@ -109,7 +109,7 @@ const routes: RouteRecordRaw[] = [
     name: ROUTES.ROOMS_EDIT,
     component: RoomsEditView,
     meta: {
-      requiredPrivileges: ["rooms:read", "rooms:write"],
+      requiredPrivileges: ["rooms:write"],
     },
   },
   {
