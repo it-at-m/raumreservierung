@@ -11,30 +11,30 @@
     >
       <template #default>
         <v-text-field
-          variant="outlined"
           :label="t('common.search')"
           clearable
+          variant="outlined"
           @click:clear="fetchPage"
           @update:model-value="updateSearchNameAndLoadPage"
         />
         <crud-card
           ref="crudRef"
-          :empty-item-template="EMPTY_ITEM_TEMPLATE"
           :domain="
             isInternalPath
               ? t('domain.internalPerson.header', { count: 2 })
               : t('domain.externalPerson.header', { count: 2 })
           "
+          :empty-item-template="EMPTY_ITEM_TEMPLATE"
           :loading="personPageLoading || deletePersonLoading"
-          @update:options="updateOptionsAndLoadPage"
           @create="handleCreate"
-          @update="handleUpdate"
           @delete="handleDelete"
+          @update="handleUpdate"
+          @update:options="updateOptionsAndLoadPage"
         >
           <template #form="{ item, updateItem, updateValidity, readOnly }">
             <external-person-form
-              :model-value="item"
               :disabled="updatePersonLoading || createPersonLoading"
+              :model-value="item"
               :readonly="readOnly"
               @update:model-value="updateItem"
               @is-valid="updateValidity"
@@ -42,22 +42,22 @@
           </template>
           <template #tableActions="{ openCreate }">
             <base-button
-              :disabled="isInternalPath"
               :append-icon="mdiPlus"
+              :disabled="isInternalPath"
               :text="t('common.add')"
               @click="openCreate"
             />
           </template>
           <template #table="{ openEdit, openDelete }">
             <v-data-table-server
-              must-sort
-              hover
-              :sort-by="currentPageOptions.sortBy"
-              :items-length="personPageData?.page?.totalElements || 0"
-              :items="personPageData?.content || []"
-              :headers="headers"
-              :loading="personPageLoading"
               :disable-sort="personPageLoading"
+              :headers="headers"
+              :items="personPageData?.content || []"
+              :items-length="personPageData?.page?.totalElements || 0"
+              :loading="personPageLoading"
+              :sort-by="currentPageOptions.sortBy"
+              hover
+              must-sort
               @update:options="updateOptionsAndLoadPage"
               @click:row="handleRowClick"
             >
@@ -76,8 +76,8 @@
                       sm="6"
                     >
                       <action-button
-                        type="edit"
                         class="mr-1"
+                        type="edit"
                         @click="openEdit(item)"
                       />
                     </v-col>
@@ -204,7 +204,7 @@ const handleCreate = async (
   });
   if (!createPersonError.value) {
     await onSuccess(
-      t("generics.created", { domain: t("domain.equipment.header") })
+      t("generics.created", { domain: t("domain.person.header") })
     );
   }
 };
@@ -228,7 +228,7 @@ const handleUpdate = async (
     });
     if (!updatePersonError.value) {
       await onSuccess(
-        t("generics.updated", { domain: t("domain.equipment.header") })
+        t("generics.updated", { domain: t("domain.person.header") })
       );
     }
   }
@@ -238,7 +238,7 @@ const handleDelete = async (id: string) => {
   await deletePerson({ personId: id });
   if (!deletePersonError.value) {
     await onSuccess(
-      t("generics.deleted", { domain: t("domain.equipment.header") })
+      t("generics.deleted", { domain: t("domain.person.header") })
     );
   }
 };
