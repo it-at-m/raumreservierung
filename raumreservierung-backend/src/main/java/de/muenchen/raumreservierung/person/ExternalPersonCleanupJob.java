@@ -16,7 +16,7 @@ public class ExternalPersonCleanupJob {
     private final SchedulingProperties schedulingProperties;
 
     /* package */
-    @Scheduled(cron = "0 0 4 1 * *")
+    @Scheduled(cron = "${raumreservierung.scheduling.ext-person-cleanup}")
     void cleanupExternalPerson() {
         final int monthsCutOff = schedulingProperties.getMaxExtPersonAgeMonths();
 
