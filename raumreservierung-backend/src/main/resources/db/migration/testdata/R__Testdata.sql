@@ -13,7 +13,7 @@ INSERT INTO holiday (name, start_date, end_date, id) VALUES
 ('Weihnachtsferien', '2030-12-24', '2031-01-08', '123e4567-e89b-12d3-a456-426614174010'),
 ('Sommerferien', '2030-08-03', '2030-09-14', '123e4567-e89b-12d3-a456-426614174011');
 
-truncate equipment;
+truncate equipment cascade;
 INSERT INTO equipment (is_active, name, description, id) VALUES
     (true, 'Tisch', 'Ein stabiler Holzschreibtisch mit viel Platz für Arbeiten.', '123e4567-e89b-12d3-a456-426614174000'),
     (true, 'Stuhl', 'Ein ergonomischer Bürostuhl mit verstellbarer Höhe.', '123e4567-e89b-12d3-a456-426614174001'),

@@ -108,7 +108,7 @@ import {
   mdiPlus,
   mdiTrashCanOutline,
 } from "@mdi/js";
-import { computed, ref } from "vue";
+import { computed, ref, toRaw } from "vue";
 import { useI18n } from "vue-i18n";
 
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
@@ -159,12 +159,12 @@ const openCreate = () => {
 };
 
 const openEdit = (item: T) => {
-  activeItem.value = JSON.parse(JSON.stringify(item)) as T;
+  activeItem.value = structuredClone(toRaw(item)) as T;
   dialogMode.value = "edit";
 };
 
 const openRead = (item: T) => {
-  activeItem.value = JSON.parse(JSON.stringify(item)) as T;
+  activeItem.value = structuredClone(toRaw(item)) as T;
   dialogMode.value = "read";
 };
 
