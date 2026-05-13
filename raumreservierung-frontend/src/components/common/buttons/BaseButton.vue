@@ -6,7 +6,7 @@
   >
     <template #default>
       <slot name="default">
-        {{ text }}
+        <p class="text-body-large">{{ text }}</p>
       </slot>
     </template>
     <template #prepend>
