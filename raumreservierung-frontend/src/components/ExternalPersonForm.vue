@@ -9,7 +9,6 @@
       <v-col
         cols="12"
         md="3"
-        class="pb-0 pb-md-3"
       >
         <v-select
           v-model="modelValue.title"
@@ -18,33 +17,37 @@
           item-value="value"
           variant="outlined"
           :label="t('domain.person.title')"
+          hide-details="auto"
         />
       </v-col>
+
       <v-col
         cols="12"
         md="4"
-        class="py-0 py-md-3"
       >
         <v-text-field
           v-model="modelValue.firstName"
           variant="outlined"
           :label="t('domain.person.firstName')"
+          hide-details="auto"
         />
       </v-col>
+
       <v-col
         cols="12"
         md="5"
-        class="pt-0 pt-md-3"
       >
         <v-text-field
           v-model="modelValue.lastName"
           variant="outlined"
           :label="t('domain.person.lastName')"
+          hide-details="auto"
         />
       </v-col>
     </v-row>
     <v-text-field
       v-model="modelValue.company"
+      class="mt-5"
       variant="outlined"
       :label="t('domain.externalPerson.company')"
     />
@@ -64,23 +67,24 @@
       <v-col
         cols="12"
         md="8"
-        class="pb-0 pb-md-3"
       >
         <v-text-field
           v-model="modelValue.streetAddress"
           variant="outlined"
           :label="t('domain.externalPerson.streetAddress')"
+          hide-details="auto"
         />
       </v-col>
+
       <v-col
         cols="12"
         md="4"
-        class="pt-0 pt-md-3"
       >
         <v-text-field
           v-model="modelValue.postalCodeCity"
           variant="outlined"
           :label="t('domain.externalPerson.postalCodeCity')"
+          hide-details="auto"
         />
       </v-col>
     </v-row>
@@ -88,7 +92,7 @@
       v-model="modelValue.note"
       variant="outlined"
       rows="3"
-      class="mb-n4"
+      class="mb-n6 mt-5"
       :counter="MAX_NOTE_LENGTH"
       :rules="[maxNoteLength]"
       :label="t('domain.externalPerson.note')"
