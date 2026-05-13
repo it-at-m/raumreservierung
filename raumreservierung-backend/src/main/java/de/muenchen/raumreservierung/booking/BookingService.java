@@ -12,7 +12,6 @@ import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -56,9 +55,10 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Page<Booking> getOwnBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
         final String email = getUserEmail();
-        final List<Booking> ownBookings = bookingRepository.findByContactPersonEmail(email);
-        log.debug("Found {} bookings", ownBookings.size());
-        return null;
+        final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilter(bookingFilterDto, email);
+        final Page<Booking> ownBookings = bookingRepository.findAll(bookingSpecification, pageable);
+        log.debug("Found {} bookings", ownBookings.getTotalElements());
+        return ownBookings;
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)

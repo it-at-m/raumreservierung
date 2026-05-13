@@ -5,7 +5,6 @@ import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingListResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingMapper;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
-import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +13,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +33,7 @@ public class BookingController {
 
     private final BookingMapper bookingMapper;
 
+    @Transactional(readOnly = true)
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<BookingListResponseDTO> getAllBookingsByPageableAndFilter(@ParameterObject final Pageable pageable,
@@ -41,6 +42,7 @@ public class BookingController {
         return bookingPage.map(bookingMapper::toListDto);
     }
 
+    @Transactional(readOnly = true)
     @GetMapping("/self")
     @ResponseStatus(HttpStatus.OK)
     public Page<BookingListResponseDTO> getOwnBookingsByPageableAndFilter(@ParameterObject final Pageable pageable,
@@ -49,6 +51,7 @@ public class BookingController {
         return bookingPage.map(bookingMapper::toListDto);
     }
 
+    @Transactional(readOnly = true)
     @GetMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
     public BookingDetailResponseDTO getBooking(@PathVariable final UUID bookingId) {

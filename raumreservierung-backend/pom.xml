@@ -87,6 +87,9 @@
         <p2.password/> <!-- must be empty, override via Maven settings.xml if needed -->
         <p2.mirror>download.eclipse.org</p2.mirror>
 
+        <!-- Calendar dependency -->
+        <iCal4j.version>4.2.5</iCal4j.version>
+
         <!-- Added to fix CVE-2026-42198 -->
         <postgresql.version>42.7.11</postgresql.version>
     </properties>
@@ -214,6 +217,11 @@
             <groupId>com.github.therapi</groupId>
             <artifactId>therapi-runtime-javadoc</artifactId>
             <version>${therapi-runtime-javadoc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.mnode.ical4j</groupId>
+            <artifactId>ical4j</artifactId>
+            <version>${iCal4j.version}</version>
         </dependency>
 
         <!-- Testing -->
