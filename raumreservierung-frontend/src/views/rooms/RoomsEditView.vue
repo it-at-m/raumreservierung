@@ -72,10 +72,13 @@
                   t('common.rules.notEmpty', { field: t('domain.room.name') })
                 ),
                 rules.maxLength(
-                  100,
+                  RoomDetailsResponseDTOPropertyValidationAttributesMap.name
+                    ?.maxLength ?? 100,
                   t('common.rules.maxLengthError', {
                     field: t('domain.room.name'),
-                    num: 100,
+                    num:
+                      RoomDetailsResponseDTOPropertyValidationAttributesMap.name
+                        ?.maxLength ?? 100,
                   })
                 ),
               ]"
@@ -84,6 +87,21 @@
           <v-col>
             <v-text-field
               v-model="roomData.location"
+              :rules="[
+                rules.required(
+                  t('common.rules.notEmpty', { field: t('domain.room.number') })
+                ),
+                rules.maxLength(
+                  RoomDetailsResponseDTOPropertyValidationAttributesMap.location
+                    ?.maxLength ?? 255,
+                  t('common.rules.maxLengthError', {
+                    field: t('domain.room.number'),
+                    num:
+                      RoomDetailsResponseDTOPropertyValidationAttributesMap
+                        .location?.maxLength ?? 255,
+                  })
+                ),
+              ]"
               color="accent"
               :label="t('domain.room.location')"
             />
@@ -100,10 +118,13 @@
                   t('common.rules.notEmpty', { field: t('domain.room.number') })
                 ),
                 rules.maxLength(
-                  100,
+                  RoomDetailsResponseDTOPropertyValidationAttributesMap.number
+                    ?.maxLength ?? 100,
                   t('common.rules.maxLengthError', {
                     field: t('domain.room.number'),
-                    num: 100,
+                    num:
+                      RoomDetailsResponseDTOPropertyValidationAttributesMap
+                        .number?.maxLength ?? 100,
                   })
                 ),
               ]"
@@ -111,15 +132,6 @@
           </v-col>
           <v-col>
             <v-file-input
-              :rules="[
-                rules.maxLength(
-                  255,
-                  t('common.rules.maxLengthError', {
-                    field: t('domain.room.number'),
-                    num: 255,
-                  })
-                ),
-              ]"
               color="accent"
               prepend-icon=""
               :prepend-inner-icon="mdiImageOutline"
@@ -135,10 +147,13 @@
               v-model="roomData.locationDescription"
               :rules="[
                 rules.maxLength(
-                  500,
+                  RoomDetailsResponseDTOPropertyValidationAttributesMap
+                    .locationDescription?.maxLength ?? 500,
                   t('common.rules.maxLengthError', {
                     field: t('domain.room.number'),
-                    num: 500,
+                    num:
+                      RoomDetailsResponseDTOPropertyValidationAttributesMap
+                        .locationDescription?.maxLength ?? 500,
                   })
                 ),
               ]"
@@ -248,6 +263,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
+import { RoomDetailsResponseDTOPropertyValidationAttributesMap } from "@/api/raumreservierung-backend";
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
