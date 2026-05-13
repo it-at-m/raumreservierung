@@ -2,10 +2,11 @@ package de.muenchen.raumreservierung.person.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import java.io.Serial;
-import java.time.LocalDate;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serial;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -27,7 +28,7 @@ public class ExternalPerson extends Person {
     @Column
     private String note;
 
-    @Column
+    @Column(nullable = false)
     private LocalDate lastModified;
 
     @Override

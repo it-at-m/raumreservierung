@@ -1,0 +1,2 @@
+ALTER TABLE external_person
+    ADD COLUMN last_modified DATE NOT NULL DEFAULT CURRENT_DATE;
