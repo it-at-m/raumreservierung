@@ -56,6 +56,10 @@ public class PersonService {
     @Transactional
     @PreAuthorize(Authorities.USERS_MANAGE)
     public Person createPerson(final Person person) {
+        if (person instanceof ExternalPerson externalPerson) {
+            externalPerson.updateLastModified(null);
+        }
+
         return personRepository.save(person);
     }
 
