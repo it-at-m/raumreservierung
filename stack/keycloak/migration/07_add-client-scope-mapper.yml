@@ -15,3 +15,15 @@ changes:
         jsonType.label: String
         multivalued: true
         usermodel.clientRoleMapping.clientId: local
+  - addClientScopeMapper:
+      clientScopeName: lhm_core
+      name: lhmObjectID
+      protocol: openid-connect
+      protocolMapper: oidc-usermodel-attribute-mapper
+      config:
+        user.attribute: "lhmObjectID"
+        claim.name: "lhmObjectID"
+        jsonType.label: "String"
+        id.token.claim: true
+        access.token.claim: true
+        userinfo.token.claim: true

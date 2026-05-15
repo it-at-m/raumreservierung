@@ -9,6 +9,9 @@ changes:
       enabled: true
       emailVerified: true
       email: anwender@anwender.de
+      attributes:
+        lhmObjectID:
+          - "0000001"
   - updateUserPassword:
       name: anwender
       password: "anwender"
@@ -20,6 +23,9 @@ changes:
       enabled: true
       emailVerified: true
       email: leseberechtigt@leseberechtigt.de
+      attributes:
+        lhmObjectID:
+          - "0000002"
   - updateUserPassword:
       name: leseberechtigt
       password: "leseberechtigt"
@@ -31,6 +37,9 @@ changes:
       enabled: true
       emailVerified: true
       email: terminorganisator@terminorganisator.de
+      attributes:
+        lhmObjectID:
+          - "0000003"
   - updateUserPassword:
       name: terminorganisator
       password: "terminorganisator"
@@ -42,6 +51,9 @@ changes:
       enabled: true
       emailVerified: true
       email: raumbuchung@raumbuchung.de
+      attributes:
+        lhmObjectID:
+          - "0000004"
   - updateUserPassword:
       name: raumbuchung
       password: "raumbuchung"
@@ -53,6 +65,9 @@ changes:
       enabled: true
       emailVerified: true
       email: raumadmin@raumadmin.de
+      attributes:
+        lhmObjectID:
+          - "0000005"
   - updateUserPassword:
       name: raumadmin
       password: "raumadmin"
