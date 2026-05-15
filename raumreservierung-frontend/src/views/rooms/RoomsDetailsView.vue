@@ -1,0 +1,249 @@
+<template>
+  <base-view :header-text="t('domain.room.details')">
+    <template #headerPrepend>
+      <v-icon
+        size="30"
+        :icon="mdiArrowLeft"
+        @click="router.back()"
+      />
+    </template>
+    <template #headerActions>
+      <base-button
+        v-if="canEditRoom"
+        :text="t('common.edit')"
+        :append-icon="mdiPencil"
+        @click="
+          router.push({
+            name: ROUTES.ROOMS_EDIT,
+            params: { id },
+          })
+        "
+      />
+    </template>
+
+    <template #default>
+      <v-row class="mb-4">
+        <v-col>
+          <v-skeleton-loader
+            :loading="getRoomLoading"
+            type="article"
+          >
+            <v-responsive>
+              <v-card
+                flat
+                :title="roomData?.name"
+                :subtitle="`${roomData?.number} - ${roomData?.location}`"
+                :text="roomData?.locationDescription"
+              />
+            </v-responsive>
+          </v-skeleton-loader>
+        </v-col>
+        <v-col>
+          <v-skeleton-loader
+            :loading="getRoomLoading"
+            class="mb-4"
+            type="image"
+          >
+            <v-responsive>
+              <v-card
+                class="mb-4 d-flex align-center justify-center bg-grey-lighten-4"
+                height="250"
+                flat
+                border
+              >
+                <div class="text-center text-grey">
+                  <v-icon
+                    :icon="mdiImage"
+                    size="48"
+                    class="mb-2"
+                  />
+                </div>
+              </v-card>
+            </v-responsive>
+          </v-skeleton-loader>
+        </v-col>
+      </v-row>
+
+      <div
+        class="w-100 masonry-container"
+        :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'"
+      >
+        <div class="masonry-item w-100 d-inline-block mb-4">
+          <rooms-details-card
+            :title="t('domain.room.contactPerson')"
+            :icon="mdiAccountOutline"
+            :loading="getRoomLoading"
+          >
+            <v-list density="compact">
+              <v-list-item class="py-0">
+                <v-list-item-title>
+                  {{ roomData?.contactPerson?.title }}
+                  {{ roomData?.contactPerson?.firstName }}
+                  {{ roomData?.contactPerson?.lastName }}
+                </v-list-item-title>
+              </v-list-item>
+              <v-list-item
+                :prepend-icon="mdiPhone"
+                class="py-0"
+                :title="roomData?.contactPerson?.telefonNumber"
+              />
+              <v-list-item
+                :prepend-icon="mdiEmail"
+                class="py-0"
+                :title="roomData?.contactPerson?.email"
+              />
+            </v-list>
+          </rooms-details-card>
+        </div>
+        <div class="masonry-item w-100 d-inline-block mb-4">
+          <rooms-details-card
+            :title="t('domain.room.usableArea')"
+            :icon="mdiTextureBox"
+            :loading="getRoomLoading"
+          >
+            <v-list
+              class="mt-0 py-0"
+              density="compact"
+            >
+              <v-list-item>
+                <v-list-item-title>
+                  {{ roomData?.area }} {{ t("common.squareMeterAbr") }}
+                </v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </rooms-details-card>
+        </div>
+        <div class="masonry-item w-100 d-inline-block mb-4">
+          <rooms-details-card
+            :title="t('domain.room.capacity.header')"
+            :subtitle="
+              t('domain.room.capacity.msg', { num: roomData?.capacity })
+            "
+            :icon="mdiHumanCapacityIncrease"
+            :loading="getRoomLoading"
+          >
+            <template #default>
+              <v-list
+                class="mt-0 py-0"
+                density="compact"
+              >
+                <v-list-item
+                  v-for="(capacity, idx) in roomData?.roomSeatingCapacities"
+                  :key="idx"
+                  v-tooltip:end="capacity.seatingType.description"
+                  :title="capacity.seatingType.name"
+                  :subtitle="`${capacity.capacity} Personen`"
+                />
+                <v-list-item
+                  v-if="roomData?.roomSeatingCapacities.length === 0"
+                  :subtitle="
+                    t('generics.emptyList', {
+                      domain: t('domain.seatingType.header'),
+                    })
+                  "
+                />
+              </v-list>
+            </template>
+          </rooms-details-card>
+        </div>
+        <div class="masonry-item w-100 d-inline-block mb-4">
+          <rooms-details-card
+            title="Mögliche Ausstattung"
+            :icon="mdiSofaSingleOutline"
+            :loading="getRoomLoading"
+          >
+            <v-list
+              class="mt-0 py-0"
+              density="compact"
+            >
+              <v-list-item
+                v-for="(eq, idx) in roomData?.equipment"
+                :key="idx"
+                :title="eq.name"
+                :subtitle="eq.description"
+              />
+              <v-list-item
+                v-if="roomData?.equipment.length === 0"
+                :subtitle="
+                  t('generics.emptyList', {
+                    domain: t('domain.equipment.header'),
+                  })
+                "
+              />
+            </v-list>
+          </rooms-details-card>
+        </div>
+      </div>
+    </template>
+  </base-view>
+</template>
+
+<script setup lang="ts">
+import type { RoomDetailsResponseDTO } from "@/api/raumreservierung-backend";
+
+import {
+  mdiAccountOutline,
+  mdiArrowLeft,
+  mdiEmail,
+  mdiHumanCapacityIncrease,
+  mdiImage,
+  mdiPencil,
+  mdiPhone,
+  mdiSofaSingleOutline,
+  mdiTextureBox,
+} from "@mdi/js";
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
+import { useDisplay } from "vuetify/framework";
+
+import BaseView from "@/components/common/BaseView.vue";
+import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RoomsDetailsCard from "@/components/rooms/RoomsDetailsCard.vue";
+import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
+import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
+import { ROUTES } from "@/types/Routes.ts";
+
+const router = useRouter();
+const route = useRoute();
+
+const { mdAndUp } = useDisplay();
+
+const { t } = useI18n();
+
+const id = computed(() => route.params.id as string | undefined);
+
+const roomData = ref<RoomDetailsResponseDTO>();
+
+const canEditRoom = useIsPrivileged("rooms:write");
+
+const { call, loading: getRoomLoading } = useRoomCache();
+
+onMounted(async () => {
+  if (id.value) {
+    const result = await call(id.value);
+
+    if (result) {
+      roomData.value = result as RoomDetailsResponseDTO;
+    }
+  }
+});
+</script>
+
+<style scoped>
+.masonry-container {
+  column-gap: 16px;
+}
+
+.masonry-cols-1 {
+  column-count: 1;
+}
+
+.masonry-cols-2 {
+  column-count: 2;
+}
+
+.masonry-item {
+  break-inside: avoid-column;
+}
+</style>

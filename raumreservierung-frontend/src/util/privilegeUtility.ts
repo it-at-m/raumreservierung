@@ -55,7 +55,7 @@ export const hasPrivileges = (
     ? requiredPrivileges
     : [requiredPrivileges];
 
-  return requiredPrivilegesList.every((r) => givenPrivileges.includes(r));
+  return requiredPrivilegesList.some((r) => givenPrivileges.includes(r));
 };
 
 /**
