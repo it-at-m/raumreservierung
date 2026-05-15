@@ -1,13 +1,14 @@
 package de.muenchen.raumreservierung.booking;
 
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
-import de.muenchen.raumreservierung.person.Person_;
+import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room_;
+import org.springframework.data.jpa.domain.Specification;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-import org.springframework.data.jpa.domain.Specification;
 
 public final class BookingSpecificationBuilder {
 
@@ -15,10 +16,10 @@ public final class BookingSpecificationBuilder {
     }
 
     public static <T extends Booking> Specification<T> fromFilter(final BookingFilterDTO bookingFilterDTO) {
-        return fromFilter(bookingFilterDTO, null);
+        return fromFilterWithPerson(bookingFilterDTO, null);
     }
 
-    public static <T extends Booking> Specification<T> fromFilter(final BookingFilterDTO bookingFilterDTO, final String email) {
+    public static <T extends Booking> Specification<T> fromFilterWithPerson(final BookingFilterDTO bookingFilterDTO, final Person person) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
         if (bookingFilterDTO.roomName() != null && !bookingFilterDTO.roomName().isBlank()) {
@@ -30,9 +31,10 @@ public final class BookingSpecificationBuilder {
         if (bookingFilterDTO.end() != null) {
             specificationList.add(filterForEnd(bookingFilterDTO.end()));
         }
-        if (email != null && !email.isBlank()) {
-            specificationList.add(filterForEmail(email));
+        if (person != null && person.getId() != null) {
+            specificationList.add(filterForPerson(person));
         }
+
         return Specification.allOf(specificationList);
     }
 
@@ -52,7 +54,7 @@ public final class BookingSpecificationBuilder {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyEnd), end);
     }
 
-    private static <T extends Booking> Specification<T> filterForEmail(final String email) {
-        return (root, query, cb) -> cb.equal(root.get(Booking_.contactPerson).get(Person_.email), email);
+    private static <T extends Booking> Specification<T> filterForPerson(final Person person) {
+        return ((root, query, cb) -> cb.equal(root.get(Booking_.contactPerson), person));
     }
 }
