@@ -17,6 +17,7 @@ import de.muenchen.raumreservierung.room.dto.RoomRequestDTO;
 import de.muenchen.raumreservierung.room.dto.SeatingCapacityRequestDTO;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.seating.dto.SeatingTypeMapperImpl;
+import java.util.ArrayList;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -60,7 +61,7 @@ public class RoomMapperTest {
         final UUID personId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         final RoomRequestDTO requestDTO = new RoomRequestDTO("Mittlerer Saal", "102", "Pfad 3, 10101 Dazwischen, Deutschland", "Hinterm Stein links.", 500,
                 true, 100,
-                capacityRequestDTOs, equipmentIds, personId);
+                new ArrayList<>(capacityRequestDTOs), new ArrayList<>(equipmentIds), personId);
 
         // When
         SeatingType seatingTypeOnlyId1 = new SeatingType();

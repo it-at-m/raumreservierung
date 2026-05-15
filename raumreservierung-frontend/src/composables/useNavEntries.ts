@@ -77,13 +77,13 @@ const NAV_ENTRIES: readonly NavEntry[] = [
   {
     kind: "item",
     textKey: "navigationDrawer.viewRoomsAndDetails",
-    to: { name: ROUTES.GETSTARTED },
+    to: { name: ROUTES.ROOMS_LIST },
     requiredPrivilege: "rooms:read",
   },
   {
     kind: "item",
     textKey: "navigationDrawer.manageRooms",
-    to: { name: ROUTES.GETSTARTED },
+    to: { name: ROUTES.ROOMS_LIST },
     requiredPrivilege: "rooms:write",
   },
   {

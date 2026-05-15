@@ -8,10 +8,10 @@
 </template>
 
 <script setup lang="ts">
-import { mdiPencil, mdiTrashCanOutline } from "@mdi/js";
+import { mdiPencil, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
 import { computed } from "vue";
 
-type Type = "edit" | "delete";
+type Type = "edit" | "delete" | "add";
 
 const { type, disabled = false } = defineProps<{
   disabled?: boolean;
@@ -20,6 +20,8 @@ const { type, disabled = false } = defineProps<{
 
 const computedIcon = computed(() => {
   switch (type) {
+    case "add":
+      return mdiPlus;
     case "delete":
       return mdiTrashCanOutline;
     default:

@@ -23,6 +23,7 @@ hs_err_pid*
 replay_pid*
 
 # =============== Maven ================
+raumreservierung-backend/generated-sources
 target/
 pom.xml.tag
 pom.xml.releaseBackup
@@ -73,7 +74,7 @@ typings/
 
 # TypeScript cache
 *.tsbuildinfo
-cache/
+raumreservierung-frontend/cache/
 
 # Optional npm cache directory
 .npm

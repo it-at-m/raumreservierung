@@ -3,11 +3,10 @@
     :color="secondary ? '' : 'secondary'"
     :variant="secondary ? 'outlined' : 'flat'"
     :disabled="disabled"
-    @click="emit('click')"
   >
     <template #default>
       <slot name="default">
-        {{ text }}
+        <p class="text-body-large">{{ text }}</p>
       </slot>
     </template>
     <template #prepend>
@@ -43,8 +42,6 @@ const { secondary = false } = defineProps<{
   secondary?: boolean;
   disabled?: boolean;
 }>();
-
-const emit = defineEmits<(e: "click") => void>();
 
 defineSlots<{
   default(): void;

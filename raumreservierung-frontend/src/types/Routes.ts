@@ -8,4 +8,8 @@ export const ROUTES = {
   EXTERNAL_PERSON: "external_person",
   PUBLIC_HOLIDAYS: "public_holidays",
   SCHOOL_HOLIDAYS: "school_holidays",
+  ROOMS_LIST: "rooms_list",
+  ROOMS_DETAILS: "rooms_details",
+  ROOMS_EDIT: "rooms_edit",
+  ROOMS_CREATE: "rooms_create",
 } as const;

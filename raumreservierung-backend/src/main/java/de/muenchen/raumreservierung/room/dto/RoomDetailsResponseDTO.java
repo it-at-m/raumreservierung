@@ -5,7 +5,7 @@ import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import java.util.Set;
+import java.util.List;
 import java.util.UUID;
 
 @SuppressFBWarnings(value = { "EI_EXPOSE_REP" }, justification = "DTOs are simple data carriers")
@@ -18,7 +18,7 @@ public record RoomDetailsResponseDTO(
         @NotNull int capacity,
         @NotNull boolean isActive,
         @NotNull int area,
-        @NotNull Set<SeatingCapacityResponseDTO> roomSeatingCapacities,
-        @NotNull Set<EquipmentResponseDto> equipment,
+        @NotNull List<SeatingCapacityResponseDTO> roomSeatingCapacities,
+        @NotNull List<EquipmentResponseDto> equipment,
         PersonResponseDto contactPerson) {
 }
