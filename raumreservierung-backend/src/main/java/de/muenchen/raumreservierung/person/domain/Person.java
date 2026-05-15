@@ -1,4 +1,4 @@
-package de.muenchen.raumreservierung.person;
+package de.muenchen.raumreservierung.person.domain;
 
 import de.muenchen.raumreservierung.common.BaseEntity;
 import jakarta.persistence.Column;

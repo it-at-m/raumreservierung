@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.person;
 
+import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
 import de.muenchen.raumreservierung.person.dto.PersonMapper;
 import de.muenchen.raumreservierung.person.dto.PersonRequestDto;
