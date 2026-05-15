@@ -1,21 +1,16 @@
 package de.muenchen.raumreservierung.booking;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
-
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
+import de.muenchen.raumreservierung.person.PersonService;
+import de.muenchen.raumreservierung.person.domain.Person;
+import de.muenchen.raumreservierung.security.AuthUtils;
 import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
 import jakarta.persistence.EntityManager;
-import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -28,6 +23,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -36,6 +40,7 @@ public class BookingService {
     private final EntityManager entityManager;
     private final RoleHierarchy roleHierarchy;
     private final AppointmentService appointmentService;
+    private final PersonService personService;
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
@@ -52,10 +57,18 @@ public class BookingService {
         return allBookings;
     }
 
+    /**
+     * This request can only be done by a internal-person. Therefore we can be shure to get it. TODO: on first login - save this user
+     *
+     * @param pageable
+     * @param bookingFilterDto
+     * @return
+     */
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Page<Booking> getOwnBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
-        final String email = getUserEmail();
-        final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilter(bookingFilterDto, email);
+        final Person internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(AuthUtils.getOrganisationId());
+
+        final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilterWithPerson(bookingFilterDto, internalPerson);
         final Page<Booking> ownBookings = bookingRepository.findAll(bookingSpecification, pageable);
         log.debug("Found {} bookings", ownBookings.getTotalElements());
         return ownBookings;
@@ -80,9 +93,9 @@ public class BookingService {
      * future appointments while preserving the history of past appointments.
      *
      * @param bookingUpdates The booking object containing the updated data.
-     * @param bookingId The unique identifier of the booking to be updated.
+     * @param bookingId      The unique identifier of the booking to be updated.
      * @return The updated and persisted booking entity.
-     * @throws NotFoundException if no booking with the given ID exists.
+     * @throws NotFoundException           if no booking with the given ID exists.
      * @throws UnauthorizedActionException if the user is neither the owner nor an admin.
      */
     @PreAuthorize(Authorities.BOOKING_SELF)
@@ -176,7 +189,7 @@ public class BookingService {
      * OR possesses the required administrative authority.
      *
      * @param booking The booking object to check access for.
-     * @param role The administrative authority name that bypasses ownership checks.
+     * @param role    The administrative authority name that bypasses ownership checks.
      * @throws UnauthorizedActionException if the user is neither the owner nor an admin.
      */
     //rename
