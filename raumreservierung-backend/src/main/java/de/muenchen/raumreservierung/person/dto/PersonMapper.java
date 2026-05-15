@@ -1,8 +1,8 @@
 package de.muenchen.raumreservierung.person.dto;
 
-import de.muenchen.raumreservierung.person.ExternalPerson;
-import de.muenchen.raumreservierung.person.InternalPerson;
-import de.muenchen.raumreservierung.person.Person;
+import de.muenchen.raumreservierung.person.domain.ExternalPerson;
+import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import de.muenchen.raumreservierung.person.domain.Person;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.SubclassExhaustiveStrategy;
