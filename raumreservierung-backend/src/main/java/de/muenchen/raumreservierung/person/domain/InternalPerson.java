@@ -2,9 +2,10 @@ package de.muenchen.raumreservierung.person.domain;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import java.io.Serial;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.io.Serial;
 
 @Entity
 @Getter
@@ -17,7 +18,7 @@ public class InternalPerson extends Person {
     @Column(nullable = false, unique = true)
     private String organisationId;
 
-    @Column(nullable = false)
+    @Column(nullable = false, unique = true)
     private String organisationUnit;
 
     /**
