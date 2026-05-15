@@ -1,7 +1,7 @@
 package de.muenchen.raumreservierung.booking;
 
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
-import de.muenchen.raumreservierung.person.Person_;
+import de.muenchen.raumreservierung.person.domain.Person_;
 import de.muenchen.raumreservierung.room.Room_;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
