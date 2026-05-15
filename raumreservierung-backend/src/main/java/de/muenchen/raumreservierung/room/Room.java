@@ -2,7 +2,7 @@ package de.muenchen.raumreservierung.room;
 
 import de.muenchen.raumreservierung.common.BaseEntity;
 import de.muenchen.raumreservierung.equipment.Equipment;
-import de.muenchen.raumreservierung.person.Person;
+import de.muenchen.raumreservierung.person.domain.Person;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

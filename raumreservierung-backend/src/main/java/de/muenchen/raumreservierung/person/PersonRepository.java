@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.person;
 
+import de.muenchen.raumreservierung.person.domain.Person;
 import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;

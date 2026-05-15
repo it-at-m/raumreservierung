@@ -3,9 +3,15 @@ package de.muenchen.raumreservierung.person;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 import de.muenchen.raumreservierung.common.NotFoundException;
+import de.muenchen.raumreservierung.person.domain.ExternalPerson;
+import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import de.muenchen.raumreservierung.person.domain.Person;
+import de.muenchen.raumreservierung.person.domain.PersonType;
 import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.transaction.Transactional;
+import java.time.LocalDate;
+import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.NotImplementedException;
@@ -50,6 +56,10 @@ public class PersonService {
     @Transactional
     @PreAuthorize(Authorities.USERS_MANAGE)
     public Person createPerson(final Person person) {
+        if (person instanceof ExternalPerson externalPerson) {
+            externalPerson.updateLastModified(null);
+        }
+
         return personRepository.save(person);
     }
 
@@ -79,5 +89,44 @@ public class PersonService {
         return personRepository
                 .findById(personId)
                 .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, personId)));
+    }
+
+    /**
+     * Updates the lastModified field on externalPerson to a future date or now
+     *
+     * @param extPersonId the externalPerson to update
+     * @param futureDate the new date which should be set, which is at minimum today
+     */
+    @Transactional
+    public void updateLastModifiedOnExternal(final UUID extPersonId, final LocalDate futureDate) {
+        final Person person = getPersonOrThrowException(extPersonId);
+
+        if (person instanceof ExternalPerson externalPerson) {
+
+            externalPerson.updateLastModified(futureDate);
+
+            externalPersonRepository.save(externalPerson);
+        }
+    }
+
+    /**
+     * Delete all externalPersons with lastModified before cutOffDate
+     *
+     * @param monthsOld amount of months after which external persons will be deleted
+     * @return the amount of external persons deleted
+     */
+    @Transactional
+    public int deleteExternalPersonsOlderThan(final int monthsOld) {
+        final LocalDate cutOffDate = LocalDate.now().minusMonths(monthsOld);
+
+        final List<ExternalPerson> inactiveExternalPersons = externalPersonRepository.findByLastModifiedBefore(cutOffDate);
+
+        if (inactiveExternalPersons.isEmpty()) {
+            return 0;
+        }
+
+        externalPersonRepository.deleteAllInBatch(inactiveExternalPersons);
+
+        return inactiveExternalPersons.size();
     }
 }

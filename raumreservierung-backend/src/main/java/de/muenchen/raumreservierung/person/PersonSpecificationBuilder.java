@@ -1,5 +1,7 @@
 package de.muenchen.raumreservierung.person;
 
+import de.muenchen.raumreservierung.person.domain.Person;
+import de.muenchen.raumreservierung.person.domain.Person_;
 import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
 import java.util.ArrayList;
 import java.util.List;
