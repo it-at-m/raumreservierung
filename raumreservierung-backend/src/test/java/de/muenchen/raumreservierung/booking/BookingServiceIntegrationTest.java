@@ -4,12 +4,11 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
-import de.muenchen.raumreservierung.person.InternalPerson;
-import de.muenchen.raumreservierung.person.Person;
+import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.security.Roles;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Test;
