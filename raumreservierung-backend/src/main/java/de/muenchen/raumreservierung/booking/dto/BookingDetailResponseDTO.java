@@ -1,6 +1,6 @@
 package de.muenchen.raumreservierung.booking.dto;
 
-import de.muenchen.raumreservierung.appointment.dto.AppointmentWithoutBookingIdResponseDTO;
+import de.muenchen.raumreservierung.appointment.dto.AppointmentMinimalResponseDTO;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
@@ -19,7 +19,7 @@ public record BookingDetailResponseDTO(
         @NotNull boolean cateringNeeded,
         String internalNotes,
         String additionalNotes,
-        @NotNull List<AppointmentWithoutBookingIdResponseDTO> appointments,
+        @NotNull List<AppointmentMinimalResponseDTO> appointments,
         RoomListResponseDTO room,
         @NotNull ScheduleTemplate schedule,
         @NotNull PersonResponseDto contactPerson

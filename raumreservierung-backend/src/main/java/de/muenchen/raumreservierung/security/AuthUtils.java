@@ -38,12 +38,11 @@ public final class AuthUtils {
         return getClaimOrFallback(TOKEN_ORGANISATION_ID);
     }
 
-    private static String getClaimOrFallback(String tokenName) {
+    private static String getClaimOrFallback(final String tokenName) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated()) {
             return NAME_UNAUTHENTICATED_USER;
         }
-
 
         if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
             return (String) jwtAuthenticationToken.getTokenAttributes().getOrDefault(tokenName, null);

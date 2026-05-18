@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -36,18 +37,12 @@ public class BookingController {
     @Transactional(readOnly = true)
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public Page<BookingListResponseDTO> getAllBookingsByPageableAndFilter(@ParameterObject final Pageable pageable,
-            @ParameterObject final BookingFilterDTO bookingFilterDTO) {
-        final Page<Booking> bookingPage = bookingService.getAllBookingsByPageableAndFilter(pageable, bookingFilterDTO);
-        return bookingPage.map(bookingMapper::toListDto);
-    }
-
-    @Transactional(readOnly = true)
-    @GetMapping("/self")
-    @ResponseStatus(HttpStatus.OK)
-    public Page<BookingListResponseDTO> getOwnBookingsByPageableAndFilter(@ParameterObject final Pageable pageable,
-            @ParameterObject final BookingFilterDTO bookingFilterDTO) {
-        final Page<Booking> bookingPage = bookingService.getOwnBookingsByPageableAndFilter(pageable, bookingFilterDTO);
+    public Page<BookingListResponseDTO> getBookingsByPageableAndFilter(@ParameterObject final Pageable pageable,
+            @ParameterObject final BookingFilterDTO bookingFilterDTO,
+            @RequestParam(name = "self", defaultValue = "true") final boolean self) {
+        final Page<Booking> bookingPage = self
+                ? bookingService.getOwnBookingsByPageableAndFilter(pageable, bookingFilterDTO)
+                : bookingService.getAllBookingsByPageableAndFilter(pageable, bookingFilterDTO);
         return bookingPage.map(bookingMapper::toListDto);
     }
 
@@ -74,7 +69,7 @@ public class BookingController {
     }
 
     @DeleteMapping("/{bookingId}")
-    @ResponseStatus(HttpStatus.OK)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteBooking(@Valid @PathVariable("bookingId") final UUID bookingId) {
         bookingService.deleteBooking(bookingId);
     }

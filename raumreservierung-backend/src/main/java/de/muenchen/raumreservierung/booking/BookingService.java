@@ -1,5 +1,8 @@
 package de.muenchen.raumreservierung.booking;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
+
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
@@ -13,25 +16,18 @@ import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
+import java.time.LocalDateTime;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 @Service
 @Slf4j
@@ -46,8 +42,11 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
         final Booking booking = getEntityOrThrowException(bookingId);
-        validateBookingAuthorityOrThrowException(booking, Roles.LESEBERECHTIGT);
-        return booking;
+        if (validateBookingAuthority(booking, Roles.LESEBERECHTIGT)) {
+            return booking;
+        } else {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
     }
 
     @PreAuthorize(Authorities.BOOKING_READ)
@@ -59,7 +58,8 @@ public class BookingService {
     }
 
     /**
-     * This request can only be done by a internal-person. Therefore we can be shure to get it. TODO: on first login - save this user
+     * This request can only be done by a internal-person. Therefore we can be shure to get it. TODO: on
+     * first login - save this user
      *
      * @param pageable
      * @param bookingFilterDto
@@ -94,48 +94,54 @@ public class BookingService {
      * future appointments while preserving the history of past appointments.
      *
      * @param bookingUpdates The booking object containing the updated data.
-     * @param bookingId      The unique identifier of the booking to be updated.
+     * @param bookingId The unique identifier of the booking to be updated.
      * @return The updated and persisted booking entity.
-     * @throws NotFoundException           if no booking with the given ID exists.
+     * @throws NotFoundException if no booking with the given ID exists.
      * @throws UnauthorizedActionException if the user is neither the owner nor an admin.
      */
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
-        validateBookingAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
+        if (validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
 
-        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-            bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
+            if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+                bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
+            }
+
+            if (!Objects.equals(bookingUpdates.getRecurringRule(), existingBooking.getRecurringRule())) {
+                final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
+
+                final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
+                        .filter(a -> a.getSchedule().occupancyStart().isBefore(LocalDateTime.now()))
+                        .collect(Collectors.toSet());
+
+                final Set<Appointment> futureNewAppointments = newAppointments.stream()
+                        .filter(a -> a.getSchedule().occupancyStart().isAfter(LocalDateTime.now()))
+                        .collect(Collectors.toSet());
+
+                pastAppointments.addAll(futureNewAppointments);
+                bookingUpdates.setAppointments(pastAppointments);
+            }
+
+            saveAndDetach(existingBooking, bookingUpdates);
+
+            log.debug("Updated booking with id {}", existingBooking.getId());
+            return getEntityOrThrowException(existingBooking.getId());
+        } else {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
-
-        if (!Objects.equals(bookingUpdates.getRecurringRule(), existingBooking.getRecurringRule())) {
-            final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
-
-            final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
-                    .filter(a -> a.getSchedule().occupancyStart().isBefore(LocalDateTime.now()))
-                    .collect(Collectors.toSet());
-
-            final Set<Appointment> futureNewAppointments = newAppointments.stream()
-                    .filter(a -> a.getSchedule().occupancyStart().isAfter(LocalDateTime.now()))
-                    .collect(Collectors.toSet());
-
-            pastAppointments.addAll(futureNewAppointments);
-            bookingUpdates.setAppointments(pastAppointments);
-        }
-
-        saveAndDetach(existingBooking, bookingUpdates);
-
-        log.debug("Updated booking with id {}", existingBooking.getId());
-        return getEntityOrThrowException(existingBooking.getId());
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public void deleteBooking(final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
 
-        validateBookingAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
-        log.debug("Deleted booking with id {}", bookingId);
-        bookingRepository.deleteById(bookingId);
+        if (validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
+            log.debug("Deleted booking with id {}", bookingId);
+            bookingRepository.deleteById(bookingId);
+        } else {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
     }
 
     private Booking getEntityOrThrowException(final UUID bookingId) {
@@ -156,47 +162,20 @@ public class BookingService {
     }
 
     /**
-     * Extracts the email address from the current security context.
+     * Validates if the current user has the authority to access or modify a booking.
      *
-     * @return The email claim from the JWT if authenticated, otherwise null.
+     * @param booking The booking entity to validate access against.
+     * @param role The specific security role that grants overriding access.
+     * @return true if the user is authorized; false otherwise.
      */
-    public String getUserEmail() {
-        final Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        String email = null;
-        if (auth != null && auth.getPrincipal() instanceof Jwt jwt) {
-            email = jwt.getClaimAsString("email");
-        }
-        return email;
-    }
-
     public boolean validateBookingAuthority(final Booking booking, final String role) {
 
         if (securityContextService.hasAuthority(role)) {
             return true;
         }
-        ;
 
         final InternalPerson internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
 
         return booking.getContactPerson().getId().equals(internalPerson.getId());
-    }
-
-    /**
-     * Validates if the current user has permission to access a specific booking.
-     * Access is granted if the user is the contact person for the booking
-     * OR possesses the required administrative authority.
-     *
-     * @param booking The booking object to check access for.
-     * @param role    The administrative authority name that bypasses ownership checks.
-     * @throws UnauthorizedActionException if the user is neither the owner nor an admin.
-     */
-    //rename
-    public void validateBookingAuthorityOrThrowException(final Booking booking, final String role) {
-
-
-        final String email = getUserEmail();
-        if (!securityContextService.hasAuthority(role) && !booking.getContactPerson().getEmail().equals(email)) {
-            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
-        }
     }
 }

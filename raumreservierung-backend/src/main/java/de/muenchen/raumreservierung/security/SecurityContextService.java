@@ -17,19 +17,16 @@ public class SecurityContextService {
     }
 
     /**
-     * Checks if the currently authenticated user lacks a specific authority.
+     * Checks if the currently authenticated user has a specific authority.
      * This method takes the configured role hierarchy into account.
      *
      * @param role The name of the authority/role to check for.
-     * @return true if the user is not authenticated or does not have the authority.
+     * @return true if the user is authenticated and has the specified authority; false otherwise.
      */
-    public boolean hasAuthority(String role) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null) {
-            return false;
-        }
+    public boolean hasAuthority(final String role) {
+        final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        return roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities())
+        return authentication != null && roleHierarchy.getReachableGrantedAuthorities(authentication.getAuthorities())
                 .stream()
                 .anyMatch(a -> a.getAuthority().equals(role));
     }
