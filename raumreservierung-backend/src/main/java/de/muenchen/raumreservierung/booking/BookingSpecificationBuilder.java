@@ -2,7 +2,7 @@ package de.muenchen.raumreservierung.booking;
 
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.person.domain.Person;
-import de.muenchen.raumreservierung.room.Room;
+import de.muenchen.raumreservierung.room.Room_;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,7 +22,7 @@ public final class BookingSpecificationBuilder {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
         if (bookingFilterDTO.roomId() != null) {
-            specificationList.add(filterForRoom(bookingFilterDTO.roomId()));
+            specificationList.add(filterForRoomId(bookingFilterDTO.roomId()));
         }
         if (bookingFilterDTO.start() != null) {
             specificationList.add(filterForStart(bookingFilterDTO.start()));
@@ -37,10 +37,8 @@ public final class BookingSpecificationBuilder {
         return Specification.allOf(specificationList);
     }
 
-    private static <T extends Booking> Specification<T> filterForRoom(final UUID roomId) {
-        Room roomPlaceholder = new Room();
-        roomPlaceholder.setId(roomId);
-        return (root, query, cb) -> cb.equal(root.get(Booking_.room), roomPlaceholder);
+    private static <T extends Booking> Specification<T> filterForRoomId(final UUID roomId) {
+        return (root, query, cb) -> cb.equal(root.get(Booking_.room).get(Room_.id), roomId);
     }
 
     private static <T extends Booking> Specification<T> filterForStart(final LocalDateTime start) {
@@ -52,6 +50,6 @@ public final class BookingSpecificationBuilder {
     }
 
     private static <T extends Booking> Specification<T> filterForPerson(final Person person) {
-        return ((root, query, cb) -> cb.equal(root.get(Booking_.contactPerson), person));
+        return (root, query, cb) -> cb.equal(root.get(Booking_.contactPerson), person);
     }
 }
