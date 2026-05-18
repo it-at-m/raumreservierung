@@ -1,33 +1,36 @@
 package de.muenchen.raumreservierung.booking;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.when;
 
 import de.muenchen.raumreservierung.appointment.AppointmentService;
-import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
+import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
-import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.security.Roles;
+import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
+import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(
         classes = {
                 BookingService.class,
-                SecurityConfiguration.class
+                SecurityConfiguration.class,
+                SecurityContextService.class
         }
 )
 public class BookingServiceIntegrationTest {
     @Autowired
     private BookingService bookingService;
+    @Autowired
+    private SecurityContextService securityContextService;
     @MockitoBean
     private BookingRepository bookingRepository;
     @MockitoBean
@@ -36,94 +39,60 @@ public class BookingServiceIntegrationTest {
     private EntityManager entityManager;
     @MockitoBean
     private AppointmentService appointmentService;
+    @MockitoBean
+    private PersonService personService;
 
     @Test
-    @WithMockJwt(email = "anwender@anwender.de", authorities = { Roles.ANWENDER })
-    void getUserEmail_ReturnsCorrectEmail() {
-        String email = bookingService.getUserEmail();
-        assertThat(email).isEqualTo("anwender@anwender.de");
-    }
-
-    @Test
-    @WithMockUser
-    void getUserEmail_ReturnsNull_WhenPrincipalIsNotJwt() {
-        String email = bookingService.getUserEmail();
-        assertThat(email).isNull();
-    }
-
-    @Test
-    void getUserEmail_ReturnsNull_WhenNoAuthenticationExists() {
-        String email = bookingService.getUserEmail();
-        assertThat(email).isNull();
-    }
-
-    @Test
-    @WithMockJwt(email = "anwender@anwender.de", authorities = { Roles.ANWENDER })
-    void lacksAuthority_ReturnsTrue_IfRoleMissing() {
-        boolean lacks = bookingService.lacksAuthority(Roles.LESEBERECHTIGT);
-        assertThat(lacks).isTrue();
-    }
-
-    @Test
-    @WithMockJwt(email = "raumadmin@raumadmin.de", authorities = { Roles.RAUM_ADMIN })
-    void lacksAuthority_ShouldReturnFalse_WhenUserHasAdminRole() {
-        boolean lacks = bookingService.lacksAuthority(Roles.RAUM_BUCHUNG);
-        assertFalse(lacks);
-    }
-
-    @Test
-    @WithMockJwt(email = "raumadmin@raumadmin.de", authorities = {})
-    // User hat absolut keine Rollen
-    void lacksAuthority_ReturnsTrue_WhenUserHasNoAuthoritiesAtAll() {
-        boolean lacks = bookingService.lacksAuthority(Roles.ANWENDER);
-        assertThat(lacks).isTrue();
-    }
-
-    @Test
-    void lacksAuthority_ReturnsTrue_WhenContextIsEmpty() {
-        boolean lacks = bookingService.lacksAuthority(Roles.ANWENDER);
-        assertThat(lacks).isTrue();
-    }
-
-    @Test
-    @WithMockJwt(email = "raumadmin@raumadmin.de", authorities = { Roles.RAUM_ADMIN })
-    void validateBookingAccessOrThrowException_ShouldAllowAuthority_WhenAdmin() {
+    @WithMockJwt(lhmObjectID = "987654", authorities = { Roles.RAUM_ADMIN })
+    void validateBookingAccess_ShouldReturnTrue_WhenAdmin() {
         Booking booking = new Booking();
-        Person person = new InternalPerson();
-        person.setEmail("terminorganisator@terminorganisator.de");
+        InternalPerson person = new InternalPerson();
+        person.setOrganisationId("12345");
         booking.setContactPerson(person);
 
-        assertDoesNotThrow(() -> bookingService.validateBookingAuthority(booking, Roles.TERMIN_ORGANISATOR));
+        assertTrue(bookingService.validateBookingAuthority(booking, Roles.TERMIN_ORGANISATOR));
     }
 
     @Test
-    @WithMockJwt(email = "anwender@anwender.de", authorities = { Roles.ANWENDER })
-    void validateBookingAccessOrThrowException_ShouldAllowAuthority_WhenEmailMatches() {
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void validateBookingAccess_ShouldReturnTrue_WhenOIDMatches() {
         Booking booking = new Booking();
-        Person person = new InternalPerson();
-        person.setEmail("anwender@anwender.de");
+        InternalPerson person = new InternalPerson();
+        person.setOrganisationId("000001");
+        person.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
         booking.setContactPerson(person);
 
-        assertDoesNotThrow(() -> bookingService.validateBookingAuthority(booking, Roles.RAUM_BUCHUNG));
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+                .thenReturn(person);
+
+        assertTrue(bookingService.validateBookingAuthority(booking, Roles.RAUM_BUCHUNG));
     }
 
     @Test
-    @WithMockJwt(email = "wrong@user.de", authorities = { Roles.ANWENDER })
-    void validateBookingAuthority_Throws_WhenEmailMismatchesAndNotAdmin() {
+    @WithMockJwt(lhmObjectID = "012345", authorities = { Roles.ANWENDER })
+    void validateBookingAuthority_ShouldReturnFalse_WhenOIDMismatchesAndNotAdmin() {
         Booking booking = new Booking();
-        Person owner = new InternalPerson();
-        owner.setEmail("real@user.de");
+        InternalPerson owner = new InternalPerson();
+        owner.setOrganisationId("987654");
+        owner.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
         booking.setContactPerson(owner);
 
-        assertThrows(UnauthorizedActionException.class, () -> bookingService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
+        InternalPerson currentUser = new InternalPerson();
+        currentUser.setOrganisationId("012345");
+        currentUser.setId(UUID.fromString("99999999-aaaa-bbbb-cccc-dddddddddddd"));
+
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+                .thenReturn(currentUser);
+
+        assertFalse(bookingService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
     }
 
     @Test
-    @WithMockJwt(email = "anwender@anwender.de", authorities = { Roles.ANWENDER })
-    void hasBookingAccessOrThrowException_Throws_WhenBookingEnsureNoOwner() {
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void hasBookingAccess_ShouldThrow_WhenBookingHasNoOwner() {
         Booking booking = new Booking();
         booking.setContactPerson(null);
 
-        assertThrows(RuntimeException.class, () -> bookingService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
+        assertThrows(NullPointerException.class, () -> bookingService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
     }
 }

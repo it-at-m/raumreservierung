@@ -7,7 +7,8 @@ import org.springframework.security.test.context.support.WithSecurityContext;
 @Retention(RetentionPolicy.RUNTIME)
 @WithSecurityContext(factory = WithMockJwtSecurityContextFactory.class)
 public @interface WithMockJwt {
-    String email();
+
+    String lhmObjectID();
 
     String[] authorities();
 }

@@ -19,8 +19,7 @@ public class WithMockJwtSecurityContextFactory implements WithSecurityContextFac
 
         Jwt jwt = Jwt.withTokenValue("mock-token")
                 .header("alg", "none")
-                .claim("email", annotation.email())
-                .claim("sub", annotation.email())
+                .claim("lhmObjectID", annotation.lhmObjectID())
                 .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plusSeconds(3600))
                 .build();
