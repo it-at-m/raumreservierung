@@ -2,13 +2,12 @@ package de.muenchen.raumreservierung.booking;
 
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.person.domain.Person;
-import de.muenchen.raumreservierung.room.Room_;
-import org.springframework.data.jpa.domain.Specification;
-
+import de.muenchen.raumreservierung.room.Room;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
+import java.util.UUID;
+import org.springframework.data.jpa.domain.Specification;
 
 public final class BookingSpecificationBuilder {
 
@@ -22,8 +21,8 @@ public final class BookingSpecificationBuilder {
     public static <T extends Booking> Specification<T> fromFilterWithPerson(final BookingFilterDTO bookingFilterDTO, final Person person) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
-        if (bookingFilterDTO.roomName() != null && !bookingFilterDTO.roomName().isBlank()) {
-            specificationList.add(filterForRoom(bookingFilterDTO.roomName()));
+        if (bookingFilterDTO.roomId() != null) {
+            specificationList.add(filterForRoom(bookingFilterDTO.roomId()));
         }
         if (bookingFilterDTO.start() != null) {
             specificationList.add(filterForStart(bookingFilterDTO.start()));
@@ -38,12 +37,10 @@ public final class BookingSpecificationBuilder {
         return Specification.allOf(specificationList);
     }
 
-    private static String toLikePattern(final String searchName) {
-        return "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
-    }
-
-    private static <T extends Booking> Specification<T> filterForRoom(final String searchName) {
-        return (root, query, cb) -> cb.like(cb.lower(root.get(Booking_.room).get(Room_.name)), toLikePattern(searchName));
+    private static <T extends Booking> Specification<T> filterForRoom(final UUID roomId) {
+        Room roomPlaceholder = new Room();
+        roomPlaceholder.setId(roomId);
+        return (root, query, cb) -> cb.equal(root.get(Booking_.room), roomPlaceholder);
     }
 
     private static <T extends Booking> Specification<T> filterForStart(final LocalDateTime start) {
