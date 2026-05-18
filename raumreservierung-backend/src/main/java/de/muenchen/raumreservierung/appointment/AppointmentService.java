@@ -25,18 +25,12 @@ import org.springframework.stereotype.Service;
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
 
-    @PreAuthorize(Authorities.USERS_MANAGE)
+    @PreAuthorize(Authorities.APPOINTMENT_READ)
     public List<Appointment> getAppointmentsByPeriodAndRoom(final AppointmentFilterDTO appointmentFilterDTO) {
         final UUID roomId = appointmentFilterDTO.roomId();
         final LocalDateTime start = appointmentFilterDTO.startDate().atStartOfDay();
         final LocalDateTime end = appointmentFilterDTO.endDate().atTime(java.time.LocalTime.MAX);
         return appointmentRepository.findAllByBookingRoomIdAndScheduleOccupancyStartBetween(roomId, start, end);
-    }
-
-    @PreAuthorize(Authorities.APPOINTMENT_WRITE)
-    public Appointment createAppointment(final Appointment appointment) {
-        log.debug("Creating appointment {}", appointment);
-        return appointmentRepository.save(appointment);
     }
 
     @PreAuthorize(Authorities.APPOINTMENT_WRITE)
@@ -55,7 +49,7 @@ public class AppointmentService {
 
     /**
      * Calculates the individual appointments for a booking based on its schedule
-     * and an optional recurrence rule.
+     * and an optional recurrence rule and linking them to the booking.
      *
      * @param booking The booking entity containing the base schedule and recurrence rule.
      * @return A Set of Appointment instances representing the calculated dates.
@@ -77,7 +71,9 @@ public class AppointmentService {
         final Recur<LocalDateTime> recur = new Recur<>(booking.getRecurringRule());
 
         final LocalDateTime seed = base.appointmentStart();
-        final LocalDateTime limit = seed.plusYears(1);
+        final LocalDateTime limit = recur.getUntil() != null
+                ? recur.getUntil()
+                : seed.plusYears(1);
 
         final List<LocalDateTime> dates = recur.getDates(seed, seed, limit);
 

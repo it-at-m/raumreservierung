@@ -3,7 +3,7 @@ package de.muenchen.raumreservierung.appointment;
 import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.common.BaseEntity;
-import jakarta.persistence.Column;
+import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToOne;
 import java.io.Serial;
@@ -20,14 +20,13 @@ public class Appointment extends BaseEntity {
     @Serial
     private static final long serialVersionUID = 1L;
 
-    @Column(nullable = false)
+    @Embedded
     private ScheduleTemplate schedule;
 
     @ManyToOne
     private Booking booking;
 
     public void updateFrom(final Appointment appointment) {
-        this.booking = appointment.getBooking();
         this.schedule = appointment.getSchedule();
     }
 }

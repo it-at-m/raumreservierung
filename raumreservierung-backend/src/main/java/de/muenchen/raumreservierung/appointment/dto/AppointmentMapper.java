@@ -10,8 +10,8 @@ public interface AppointmentMapper {
     AppointmentResponseDTO toDto(Appointment appointment);
 
     @Mapping(source = "booking", target = "bookingMinimal")
-    AppointmentSearchResponseDTO toSearchDto(Appointment appointment);
+    AppointmentCalendarResponseDTO toSearchDto(Appointment appointment);
 
     @Mapping(target = "id", ignore = true)
-    Appointment toEntity(AppointmentExistingBookingRequestDTO appointmentExistingBookingRequestDTO);
+    Appointment toEntity(AppointmentRequestDTO appointmentRequestDTO);
 }
