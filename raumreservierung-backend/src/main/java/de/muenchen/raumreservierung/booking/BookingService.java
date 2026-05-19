@@ -75,7 +75,9 @@ public class BookingService {
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
-        if (booking.getBookedBy() instanceof InternalPerson internalPerson) {
+        UUID personId = booking.getBookedBy().getId();
+        Person person = personService.findById(personId);
+        if (person instanceof InternalPerson internalPerson) {
             booking.setOrganisationUnit(internalPerson.getOrganisationUnit());
         }
 

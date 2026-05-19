@@ -13,6 +13,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -33,6 +34,7 @@ public class BookingController {
 
     private final BookingMapper bookingMapper;
 
+    @Transactional(readOnly = true)
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<BookingListResponseDTO> getBookingsByPageableAndFilter(@ParameterObject final Pageable pageable,
@@ -44,18 +46,21 @@ public class BookingController {
         return bookingPage.map(bookingMapper::toListDto);
     }
 
+    @Transactional(readOnly = true)
     @GetMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
     public BookingDetailResponseDTO getBooking(@PathVariable final UUID bookingId) {
         return bookingMapper.toDetailDto(bookingService.getById(bookingId));
     }
 
+    @Transactional
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public BookingDetailResponseDTO createBooking(@Valid @RequestBody final BookingRequestDTO bookingRequestDTO) {
         return bookingMapper.toDetailDto(bookingService.createBooking(bookingMapper.toEntity(bookingRequestDTO)));
     }
 
+    @Transactional
     @PutMapping("/{bookingId}")
     @ResponseStatus(HttpStatus.OK)
     public BookingDetailResponseDTO updateBooking(@Valid @RequestBody final BookingRequestDTO bookingRequestDTO,
