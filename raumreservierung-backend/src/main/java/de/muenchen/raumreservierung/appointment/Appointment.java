@@ -26,6 +26,10 @@ public class Appointment extends BaseEntity {
     @ManyToOne
     private Booking booking;
 
+    /**
+     * Updates only the schedule field.
+     * Appointments have a fixed relation to a booking.
+     */
     public void updateFrom(final Appointment appointment) {
         this.schedule = appointment.getSchedule();
     }

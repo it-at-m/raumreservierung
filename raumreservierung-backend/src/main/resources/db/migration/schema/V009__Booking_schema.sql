@@ -10,10 +10,16 @@ create table booking
     occupancy_end     timestamp    not null,
     appointment_start timestamp    not null,
     appointment_end   timestamp    not null,
-    contact_person_id uuid         not null,
+    booked_by_id      uuid         not null,
+    booked_for_id     uuid,
+    -- TODO: make organisation_unit not null
+    organisation_unit varchar(255),
     room_id           uuid,
     recurring_rule    varchar(255),
-    primary key (id)
+    primary key (id),
+    foreign key (booked_by_id) REFERENCES person (id),
+    foreign key (booked_for_id) REFERENCES person (id),
+    foreign key (room_id) REFERENCES room (id)
 );
 
 CREATE TABLE booking_equipment

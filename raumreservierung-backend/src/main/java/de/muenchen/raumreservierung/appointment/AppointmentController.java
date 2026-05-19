@@ -1,6 +1,6 @@
 package de.muenchen.raumreservierung.appointment;
 
-import de.muenchen.raumreservierung.appointment.dto.AppointmentCalendarResponseDTO;
+import de.muenchen.raumreservierung.appointment.dto.AppointmentDetailsResponseDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentMapper;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentRequestDTO;
@@ -32,20 +32,20 @@ public class AppointmentController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<AppointmentCalendarResponseDTO> getAppointmentsByPeriodAndRoom(@ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
+    public List<AppointmentDetailsResponseDTO> getAppointmentsByPeriodAndRoom(@ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
         return appointmentService.getAppointmentsByPeriodAndRoom(appointmentFilterDTO).stream().map(appointmentMapper::toSearchDto).toList();
     }
 
     @PutMapping("/{appointmentId}")
     @ResponseStatus(HttpStatus.OK)
     public AppointmentResponseDTO updateAppointment(@Valid @RequestBody final AppointmentRequestDTO appointmentRequestDTO,
-            @PathVariable("appointmentId") final UUID appointmentId) {
+            @PathVariable final UUID appointmentId) {
         return appointmentMapper.toDto(appointmentService.updateAppointment(appointmentMapper.toEntity(appointmentRequestDTO), appointmentId));
     }
 
     @DeleteMapping("/{appointmentId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deleteAppointment(@Valid @PathVariable("appointmentId") final UUID appointmentId) {
+    public void deleteAppointment(@PathVariable @Valid final UUID appointmentId) {
         appointmentService.deleteAppointment(appointmentId);
     }
 }

@@ -60,8 +60,14 @@ public class Booking extends BaseEntity {
     @Embedded
     private ScheduleTemplate schedule;
 
+    @ManyToOne(optional = false)
+    private Person bookedBy;
+
     @ManyToOne
-    private Person contactPerson;
+    private Person bookedFor;
+
+    @Column(nullable = false)
+    private String organisationUnit;
 
     //TODO: add status
 
@@ -73,8 +79,10 @@ public class Booking extends BaseEntity {
         this.internalNotes = booking.getInternalNotes();
         this.additionalNotes = booking.getAdditionalNotes();
         this.schedule = booking.getSchedule();
-        this.contactPerson = booking.getContactPerson();
+        this.bookedBy = booking.getBookedBy();
+        this.bookedFor = booking.getBookedFor();
         this.recurringRule = booking.getRecurringRule();
+        this.organisationUnit = booking.getOrganisationUnit();
 
         this.equipment.clear();
         if (booking.getEquipment() != null) {

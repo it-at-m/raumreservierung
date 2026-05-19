@@ -9,7 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface RoomRepository extends JpaRepository<Room, UUID> {
 
-    @EntityGraph(attributePaths = { "roomSeatingCapacities", "roomSeatingCapacities.seatingType", "equipment", "contactPerson" })
+    @EntityGraph(attributePaths = { "roomSeatingCapacities", "roomSeatingCapacities.seatingType", "equipment", "bookedBy" })
     @NonNull @Transactional(readOnly = true)
     Optional<Room> findWithDetailsById(@NonNull UUID id);
 }

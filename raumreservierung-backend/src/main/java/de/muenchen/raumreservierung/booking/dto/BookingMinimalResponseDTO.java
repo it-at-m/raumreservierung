@@ -7,5 +7,6 @@ import java.util.UUID;
 public record BookingMinimalResponseDTO(
         @NotNull UUID id,
         @NotNull String title,
-        @NotNull PersonResponseDto contactPerson) {
+        @NotNull PersonResponseDto bookedBy,
+        PersonResponseDto bookedFor) {
 }

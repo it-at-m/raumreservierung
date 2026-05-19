@@ -48,7 +48,7 @@ public class BookingServiceIntegrationTest {
         Booking booking = new Booking();
         InternalPerson person = new InternalPerson();
         person.setOrganisationId("12345");
-        booking.setContactPerson(person);
+        booking.setBookedBy(person);
 
         assertTrue(bookingService.validateBookingAuthority(booking, Roles.TERMIN_ORGANISATOR));
     }
@@ -60,7 +60,7 @@ public class BookingServiceIntegrationTest {
         InternalPerson person = new InternalPerson();
         person.setOrganisationId("000001");
         person.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
-        booking.setContactPerson(person);
+        booking.setBookedBy(person);
 
         when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(person);
@@ -75,7 +75,7 @@ public class BookingServiceIntegrationTest {
         InternalPerson owner = new InternalPerson();
         owner.setOrganisationId("987654");
         owner.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
-        booking.setContactPerson(owner);
+        booking.setBookedBy(owner);
 
         InternalPerson currentUser = new InternalPerson();
         currentUser.setOrganisationId("012345");
@@ -91,7 +91,7 @@ public class BookingServiceIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void hasBookingAccess_ShouldThrow_WhenBookingHasNoOwner() {
         Booking booking = new Booking();
-        booking.setContactPerson(null);
+        booking.setBookedBy(null);
 
         assertThrows(NullPointerException.class, () -> bookingService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
     }

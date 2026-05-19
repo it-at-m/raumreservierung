@@ -14,7 +14,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 @SpringBootTest(
         classes = {
-                //                BookingService.class,
                 SecurityConfiguration.class,
                 SecurityContextService.class
         }

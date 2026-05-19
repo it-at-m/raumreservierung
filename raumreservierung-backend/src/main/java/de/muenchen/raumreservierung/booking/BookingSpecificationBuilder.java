@@ -50,6 +50,8 @@ public final class BookingSpecificationBuilder {
     }
 
     private static <T extends Booking> Specification<T> filterForPerson(final Person person) {
-        return (root, query, cb) -> cb.equal(root.get(Booking_.contactPerson), person);
+        return (root, query, cb) -> cb.or(
+                cb.equal(root.get(Booking_.bookedBy), person),
+                cb.equal(root.get(Booking_.bookedFor), person));
     }
 }

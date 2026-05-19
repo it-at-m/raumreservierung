@@ -57,14 +57,6 @@ public class BookingService {
         return allBookings;
     }
 
-    /**
-     * This request can only be done by a internal-person. Therefore we can be shure to get it. TODO: on
-     * first login - save this user
-     *
-     * @param pageable
-     * @param bookingFilterDto
-     * @return
-     */
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Page<Booking> getOwnBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
         final Person internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(AuthUtils.getOrganisationId());
@@ -82,6 +74,10 @@ public class BookingService {
         }
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
+
+        if (booking.getBookedBy() instanceof InternalPerson internalPerson) {
+            booking.setOrganisationUnit(internalPerson.getOrganisationUnit());
+        }
 
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
@@ -102,46 +98,45 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
-        if (validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
-
-            if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-                bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
-            }
-
-            if (!Objects.equals(bookingUpdates.getRecurringRule(), existingBooking.getRecurringRule())) {
-                final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
-
-                final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
-                        .filter(a -> a.getSchedule().occupancyStart().isBefore(LocalDateTime.now()))
-                        .collect(Collectors.toSet());
-
-                final Set<Appointment> futureNewAppointments = newAppointments.stream()
-                        .filter(a -> a.getSchedule().occupancyStart().isAfter(LocalDateTime.now()))
-                        .collect(Collectors.toSet());
-
-                pastAppointments.addAll(futureNewAppointments);
-                bookingUpdates.setAppointments(pastAppointments);
-            }
-
-            saveAndDetach(existingBooking, bookingUpdates);
-
-            log.debug("Updated booking with id {}", existingBooking.getId());
-            return getEntityOrThrowException(existingBooking.getId());
-        } else {
+        if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
+
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
+        }
+
+        if (!Objects.equals(bookingUpdates.getRecurringRule(), existingBooking.getRecurringRule())) {
+            final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
+
+            final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
+                    .filter(a -> a.getSchedule().occupancyStart().isBefore(LocalDateTime.now()))
+                    .collect(Collectors.toSet());
+
+            final Set<Appointment> futureNewAppointments = newAppointments.stream()
+                    .filter(a -> a.getSchedule().occupancyStart().isAfter(LocalDateTime.now()))
+                    .collect(Collectors.toSet());
+
+            pastAppointments.addAll(futureNewAppointments);
+            bookingUpdates.setAppointments(pastAppointments);
+        }
+
+        saveAndDetach(existingBooking, bookingUpdates);
+
+        log.debug("Updated booking with id {}", existingBooking.getId());
+        return getEntityOrThrowException(existingBooking.getId());
+
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public void deleteBooking(final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
 
-        if (validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
-            log.debug("Deleted booking with id {}", bookingId);
-            bookingRepository.deleteById(bookingId);
-        } else {
+        if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
+        log.debug("Deleted booking with id {}", bookingId);
+        bookingRepository.deleteById(bookingId);
     }
 
     private Booking getEntityOrThrowException(final UUID bookingId) {
@@ -154,8 +149,8 @@ public class BookingService {
         final Booking savedBooking = bookingRepository.saveAndFlush(bookingToUpdate);
 
         entityManager.detach(savedBooking);
-        if (savedBooking.getContactPerson() != null) {
-            entityManager.detach(savedBooking.getContactPerson());
+        if (savedBooking.getBookedBy() != null) {
+            entityManager.detach(savedBooking.getBookedBy());
         }
 
         return savedBooking;
@@ -176,6 +171,6 @@ public class BookingService {
 
         final InternalPerson internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
 
-        return booking.getContactPerson().getId().equals(internalPerson.getId());
+        return booking.getBookedBy().getId().equals(internalPerson.getId());
     }
 }
