@@ -96,7 +96,7 @@ public class RoomMapperTest {
         roomSeatingCapacity2.setCapacity(200);
         final Set<RoomSeatingCapacity> roomSeatingCapacitySet = Set.of(roomSeatingCapacity1, roomSeatingCapacity2);
 
-        assertThat(result).usingRecursiveComparison().ignoringFields("id", "equipment", "roomSeatingCapacities", "bookedBy").isEqualTo(requestDTO);
+        assertThat(result).usingRecursiveComparison().ignoringFields("id", "equipment", "roomSeatingCapacities", "contactPerson").isEqualTo(requestDTO);
         assertThat(result.getEquipment()).usingRecursiveComparison().isEqualTo(equimentSet);
         assertThat(result.getRoomSeatingCapacities()).usingRecursiveComparison().isEqualTo(roomSeatingCapacitySet);
         assertThat(result.getContactPerson()).usingRecursiveComparison().isEqualTo(contactPerson);
