@@ -5,12 +5,11 @@ import de.muenchen.raumreservierung.common.ReferenceMapper;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentMapper;
 import de.muenchen.raumreservierung.person.dto.PersonMapper;
 import de.muenchen.raumreservierung.room.dto.RoomMapper;
-import java.util.Optional;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class })
+@Mapper(uses = {ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class})
 public interface BookingMapper {
     @Mapping(target = "equipments", source = "equipment")
     BookingDetailResponseDTO toDetailDto(Booking booking);
@@ -30,17 +29,11 @@ public interface BookingMapper {
 
     @Named("hasEquipmentCheck")
     default boolean mapHasEquipment(Booking booking) {
-        return Optional.ofNullable(booking)
-                .map(Booking::getEquipment)
-                .map(equip -> !equip.isEmpty())
-                .orElse(false);
+        return booking.getEquipment().isEmpty();
     }
 
     @Named("isRecurringCheck")
     default boolean mapIsRecurring(Booking booking) {
-        return Optional.ofNullable(booking)
-                .map(Booking::getAppointments)
-                .map(appointments -> appointments.size() > 1)
-                .orElse(false);
+        return booking.getAppointments().size() > 1;
     }
 }

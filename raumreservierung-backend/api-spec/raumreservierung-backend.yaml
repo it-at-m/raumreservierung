@@ -325,8 +325,8 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: OK
+        "204":
+          description: No Content
   /appointments/{appointmentId}:
     put:
       tags:
@@ -343,7 +343,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/AppointmentExistingBookingRequestDTO"
+              $ref: "#/components/schemas/AppointmentRequestDTO"
         required: true
       responses:
         "200":
@@ -364,8 +364,8 @@ paths:
           type: string
           format: uuid
       responses:
-        "200":
-          description: OK
+        "204":
+          description: No Content
   /seating:
     get:
       tags:
@@ -591,7 +591,7 @@ paths:
     get:
       tags:
       - booking-controller
-      operationId: getAllBookingsByPageableAndFilter
+      operationId: getBookingsByPageableAndFilter
       parameters:
       - name: page
         in: query
@@ -618,11 +618,12 @@ paths:
           type: array
           items:
             type: string
-      - name: roomName
+      - name: roomId
         in: query
         required: false
         schema:
           type: string
+          format: uuid
       - name: start
         in: query
         required: false
@@ -635,6 +636,12 @@ paths:
         schema:
           type: string
           format: date-time
+      - name: self
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
       responses:
         "200":
           description: OK
@@ -691,79 +698,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/AppointmentSearchResponseDTO"
-    post:
-      tags:
-      - appointment-controller
-      operationId: createAppointment
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/AppointmentExistingBookingRequestDTO"
-        required: true
-      responses:
-        "201":
-          description: Created
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/AppointmentResponseDTO"
-  /bookings/self:
-    get:
-      tags:
-      - booking-controller
-      operationId: getOwnBookingsByPageableAndFilter
-      parameters:
-      - name: page
-        in: query
-        description: Zero-based page index (0..N)
-        required: false
-        schema:
-          minimum: 0
-          type: integer
-          default: 0
-      - name: size
-        in: query
-        description: The size of the page to be returned
-        required: false
-        schema:
-          minimum: 1
-          type: integer
-          default: 20
-      - name: sort
-        in: query
-        description: "Sorting criteria in the format: property,(asc|desc). Default\
-          \ sort order is ascending. Multiple sort criteria are supported."
-        required: false
-        schema:
-          type: array
-          items:
-            type: string
-      - name: roomName
-        in: query
-        required: false
-        schema:
-          type: string
-      - name: start
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date-time
-      - name: end
-        in: query
-        required: false
-        schema:
-          type: string
-          format: date-time
-      responses:
-        "200":
-          description: OK
-          content:
-            '*/*':
-              schema:
-                $ref: "#/components/schemas/PagedModelBookingListResponseDTO"
+                  $ref: "#/components/schemas/AppointmentDetailsResponseDTO"
   /actuator:
     get:
       tags:
@@ -1307,6 +1242,7 @@ components:
           type: boolean
     BookingRequestDTO:
       required:
+      - bookedById
       - schedule
       - title
       type: object
@@ -1340,10 +1276,16 @@ components:
           format: uuid
         schedule:
           $ref: "#/components/schemas/ScheduleTemplate"
-        contactPersonId:
+        bookedById:
+          type: string
+          format: uuid
+        bookedForId:
           type: string
           format: uuid
     ScheduleTemplate:
+      required:
+      - occupancyEnd
+      - occupancyStart
       type: object
       properties:
         occupancyStart:
@@ -1358,7 +1300,7 @@ components:
         appointmentEnd:
           type: string
           format: date-time
-    AppointmentWithoutBookingIdResponseDTO:
+    AppointmentMinimalResponseDTO:
       required:
       - id
       - schedule
@@ -1372,9 +1314,10 @@ components:
     BookingDetailResponseDTO:
       required:
       - appointments
+      - bookedBy
       - cateringNeeded
-      - contactPerson
       - id
+      - organisationUnit
       - participantCount
       - schedule
       - title
@@ -1401,15 +1344,21 @@ components:
         appointments:
           type: array
           items:
-            $ref: "#/components/schemas/AppointmentWithoutBookingIdResponseDTO"
+            $ref: "#/components/schemas/AppointmentMinimalResponseDTO"
         room:
           $ref: "#/components/schemas/RoomListResponseDTO"
         schedule:
           $ref: "#/components/schemas/ScheduleTemplate"
-        contactPerson:
+        bookedBy:
           oneOf:
           - $ref: "#/components/schemas/ExternalPersonResponseDto"
           - $ref: "#/components/schemas/InternalPersonResponseDto"
+        bookedFor:
+          oneOf:
+          - $ref: "#/components/schemas/ExternalPersonResponseDto"
+          - $ref: "#/components/schemas/InternalPersonResponseDto"
+        organisationUnit:
+          type: string
     RoomListResponseDTO:
       required:
       - isActive
@@ -1430,17 +1379,13 @@ components:
           type: string
         isActive:
           type: boolean
-    AppointmentExistingBookingRequestDTO:
+    AppointmentRequestDTO:
       required:
-      - bookingId
       - schedule
       type: object
       properties:
         schedule:
           $ref: "#/components/schemas/ScheduleTemplate"
-        bookingId:
-          type: string
-          format: uuid
     AppointmentResponseDTO:
       required:
       - bookingId
@@ -1484,7 +1429,7 @@ components:
           $ref: "#/components/schemas/PageMetadata"
     BookingListResponseDTO:
       required:
-      - contactPerson
+      - bookedBy
       - hasEquipment
       - id
       - isRecurring
@@ -1508,7 +1453,11 @@ components:
           type: boolean
         schedule:
           $ref: "#/components/schemas/ScheduleTemplate"
-        contactPerson:
+        bookedBy:
+          oneOf:
+          - $ref: "#/components/schemas/ExternalPersonResponseDto"
+          - $ref: "#/components/schemas/InternalPersonResponseDto"
+        bookedFor:
           oneOf:
           - $ref: "#/components/schemas/ExternalPersonResponseDto"
           - $ref: "#/components/schemas/InternalPersonResponseDto"
@@ -1521,7 +1470,7 @@ components:
             $ref: "#/components/schemas/BookingListResponseDTO"
         page:
           $ref: "#/components/schemas/PageMetadata"
-    AppointmentSearchResponseDTO:
+    AppointmentDetailsResponseDTO:
       required:
       - bookingMinimal
       - id
@@ -1537,7 +1486,7 @@ components:
           $ref: "#/components/schemas/BookingMinimalResponseDTO"
     BookingMinimalResponseDTO:
       required:
-      - contactPerson
+      - bookedBy
       - id
       - title
       type: object
@@ -1547,7 +1496,11 @@ components:
           format: uuid
         title:
           type: string
-        contactPerson:
+        bookedBy:
+          oneOf:
+          - $ref: "#/components/schemas/ExternalPersonResponseDto"
+          - $ref: "#/components/schemas/InternalPersonResponseDto"
+        bookedFor:
           oneOf:
           - $ref: "#/components/schemas/ExternalPersonResponseDto"
           - $ref: "#/components/schemas/InternalPersonResponseDto"

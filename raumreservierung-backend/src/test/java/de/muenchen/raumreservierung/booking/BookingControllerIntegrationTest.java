@@ -1,20 +1,13 @@
 package de.muenchen.raumreservierung.booking;
 
-import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-import static org.springframework.test.util.AssertionErrors.assertEquals;
-
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
-import java.time.LocalDateTime;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.stream.Stream;
+import de.muenchen.raumreservierung.person.PersonService;
+import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
@@ -35,9 +28,24 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
+import java.util.stream.Stream;
+
+import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@ActiveProfiles(profiles = { SPRING_TEST_PROFILE })
+@ActiveProfiles(profiles = {SPRING_TEST_PROFILE})
 public class BookingControllerIntegrationTest {
 
     @Container
@@ -52,7 +60,42 @@ public class BookingControllerIntegrationTest {
     private TestRestTemplate testRestTemplate;
 
     @MockitoBean
+    private PersonService personService;
+
+    @MockitoBean
     private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private BookingRepository bookingRepository;
+
+    @MockitoBean
+    private EntityManager entityManager;
+
+    private Booking savedBookingHolder;
+
+    @BeforeEach
+    void setUp() {
+        InternalPerson mockPerson = new InternalPerson();
+        mockPerson.setId(UUID.randomUUID());
+        mockPerson.setOrganisationUnit("TEST_UNIT");
+
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(any()))
+                .thenReturn(mockPerson);
+
+        doNothing().when(entityManager).detach(any());
+
+        when(bookingRepository.saveAndFlush(any(Booking.class))).thenAnswer(invocation -> {
+            Booking booking = invocation.getArgument(0);
+            if (booking.getId() == null) {
+                booking.setId(UUID.randomUUID());
+            }
+            booking.setBookedBy(mockPerson);
+            savedBookingHolder = booking;
+            return booking;
+        });
+
+        when(bookingRepository.findById(any(UUID.class))).thenAnswer(invocation -> Optional.ofNullable(savedBookingHolder));
+    }
 
     @Test
     void createBooking_ReturnsCreated_WhenAuthenticatedAndNoRRule() {
@@ -154,7 +197,8 @@ public class BookingControllerIntegrationTest {
         org.springframework.security.oauth2.jwt.Jwt mockJwt = org.springframework.security.oauth2.jwt.Jwt.withTokenValue("mock-token")
                 .header("alg", "none")
                 .claim("email", "test@muenchen.de")
-                .claim("resource_access", resourceAccess) // Hier sucht dein Konverter!
+                .claim("oid", "mock-oid-1234")
+                .claim("resource_access", resourceAccess)
                 .subject("test-user")
                 .build();
 
