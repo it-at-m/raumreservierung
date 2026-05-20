@@ -75,10 +75,8 @@ public class BookingService {
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
-        final Person currentPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
-        if (currentPerson instanceof InternalPerson currentInternalPerson) {
-            booking.setOrganisationUnit(currentInternalPerson.getOrganisationUnit());
-        }
+        final InternalPerson currentPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
+        booking.setOrganisationUnit(currentPerson.getOrganisationUnit());
 
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
