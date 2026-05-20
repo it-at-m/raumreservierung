@@ -69,6 +69,7 @@
         <commons-text.version>1.15.0</commons-text.version>
         <mapstruct.version>1.6.3</mapstruct.version>
         <refarch-tools.version>1.2.2</refarch-tools.version>
+        <refarch-email-integration-starter.version>3.0.1</refarch-email-integration-starter.version>
 
         <!-- Additional required dependencies -->
         <lombok-mapstruct-binding.version>0.2.0</lombok-mapstruct-binding.version> <!-- Needed to make MapStruct and Lombok work together -->
@@ -214,6 +215,11 @@
             <groupId>com.github.therapi</groupId>
             <artifactId>therapi-runtime-javadoc</artifactId>
             <version>${therapi-runtime-javadoc.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.muenchen.oss.refarch</groupId>
+            <artifactId>refarch-email-integration-starter</artifactId>
+            <version>${refarch-email-integration-starter.version}</version>
         </dependency>
 
         <!-- Testing -->

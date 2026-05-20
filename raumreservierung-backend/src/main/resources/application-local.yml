@@ -1,6 +1,9 @@
 server:
   port: 8086
 spring:
+  mail:
+    host: localhost
+    port: 1025
   # Spring JPA
   jpa:
     # Logging for database operation
@@ -50,6 +53,11 @@ sso:
   url: http://keycloak:8100
   realm: local_realm
   client: local
+
+refarch:
+  mail:
+    from-address: raumreservierung@example.com
+    default-reply-to-address: no-reply@example.com
 
 raumreservierung:
   security:
