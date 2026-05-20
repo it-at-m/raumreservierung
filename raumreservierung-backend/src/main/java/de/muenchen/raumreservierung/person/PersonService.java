@@ -85,6 +85,12 @@ public class PersonService {
         personRepository.deleteById(personId);
     }
 
+    public InternalPerson getInternalPersonByOrganisationIDOrThrowException(final String organisationID) {
+        return internalPersonRepository
+                .findInternalPersonByOrganisationId(organisationID)
+                .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, organisationID)));
+    }
+
     private Person getPersonOrThrowException(final UUID personId) {
         return personRepository
                 .findById(personId)

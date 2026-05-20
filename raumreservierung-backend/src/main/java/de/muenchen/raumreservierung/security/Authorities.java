@@ -8,13 +8,19 @@ import org.springframework.security.access.prepost.PreAuthorize;
  * {@link org.springframework.stereotype.Service} classes in the method security annotations
  * (e.g. {@link PreAuthorize}).
  */
-@SuppressWarnings({ "PMD.DataClass", "PMD.AvoidDuplicateLiterals" })
+@SuppressWarnings({ "PMD.AvoidDuplicateLiterals", "PMD.DataClass" })
 public final class Authorities {
-    public static final String EQUIPMENT_MANAGE = "hasAnyRole('raumadmin')";
-    public static final String HOLIDAYS_MANAGE = "hasAnyRole('raumadmin')";
-    public static final String SEATING_MANAGE = "hasAnyRole('raumadmin')";
-    public static final String ROOM_MANAGE = "hasAnyRole('raumadmin')";
-    public static final String USERS_MANAGE = "hasAnyRole('raumadmin')";
+    //concatenation with string format
+    public static final String EQUIPMENT_MANAGE = "hasRole('" + Roles.RAUM_ADMIN + "')";
+    public static final String HOLIDAYS_MANAGE = "hasRole('" + Roles.RAUM_ADMIN + "')";
+    public static final String SEATING_MANAGE = "hasRole('" + Roles.RAUM_ADMIN + "')";
+    public static final String ROOM_MANAGE = "hasRole('" + Roles.RAUM_ADMIN + "')";
+    public static final String USERS_MANAGE = "hasRole('" + Roles.RAUM_ADMIN + "')";
+    public static final String BOOKING_WRITE = "hasRole('" + Roles.TERMIN_ORGANISATOR + "')";
+    public static final String BOOKING_READ = "hasRole('" + Roles.LESEBERECHTIGT + "')";
+    public static final String BOOKING_SELF = "hasRole('" + Roles.ANWENDER + "')";
+    public static final String APPOINTMENT_READ = "hasRole('" + Roles.LESEBERECHTIGT + "')";
+    public static final String APPOINTMENT_WRITE = "hasRole('" + Roles.TERMIN_ORGANISATOR + "')";
 
     private Authorities() {
         throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");

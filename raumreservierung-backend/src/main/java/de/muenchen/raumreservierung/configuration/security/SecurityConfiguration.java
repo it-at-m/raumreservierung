@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.configuration.security;
 
+import de.muenchen.raumreservierung.security.Roles;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.access.expression.method.DefaultMethodSecurityExpressionHandler;
+import org.springframework.security.access.expression.method.MethodSecurityExpressionHandler;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,6 +38,13 @@ import org.springframework.security.web.servlet.util.matcher.PathPatternRequestM
 public class SecurityConfiguration {
     private final Optional<KeycloakRolesAuthoritiesConverter> keycloakRolesAuthoritiesConverter;
     private final Optional<KeycloakPermissionsAuthoritiesConverter> keycloakPermissionsAuthoritiesConverter;
+
+    @Bean
+    public MethodSecurityExpressionHandler methodSecurityExpressionHandler(final RoleHierarchy roleHierarchy) {
+        final DefaultMethodSecurityExpressionHandler expressionHandler = new DefaultMethodSecurityExpressionHandler();
+        expressionHandler.setRoleHierarchy(roleHierarchy);
+        return expressionHandler;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
@@ -81,6 +92,20 @@ public class SecurityConfiguration {
                         }));
 
         return http.build();
+    }
+
+    /**
+     * Configures the role hierarchy for the application.
+     * This defines a cascading relationship where higher-level authorities
+     * automatically inherit all permissions of the lower-level authorities.
+     * Hierarchy structure:
+     * RAUM_ADMIN > RAUM_BUCHUNG > TERMIN_ORGANISATOR > LESEBERECHTIGT > ANWENDER
+     *
+     * @return The configured RoleHierarchy bean.
+     */
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        return Roles.buildRoleHierarchy();
     }
 
 }

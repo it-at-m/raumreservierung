@@ -1,0 +1,97 @@
+package de.muenchen.raumreservierung.appointment;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+
+import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
+import de.muenchen.raumreservierung.booking.Booking;
+import de.muenchen.raumreservierung.booking.ScheduleTemplate;
+import de.muenchen.raumreservierung.common.NotFoundException;
+import de.muenchen.raumreservierung.security.Authorities;
+import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import net.fortuna.ical4j.model.Recur;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class AppointmentService {
+    private final AppointmentRepository appointmentRepository;
+
+    @PreAuthorize(Authorities.APPOINTMENT_READ)
+    public List<Appointment> getAppointmentsByPeriodAndRoom(final AppointmentFilterDTO appointmentFilterDTO) {
+        final UUID roomId = appointmentFilterDTO.roomId();
+        final LocalDateTime start = appointmentFilterDTO.startDate().atStartOfDay();
+        final LocalDateTime end = appointmentFilterDTO.endDate().atTime(java.time.LocalTime.MAX);
+        return appointmentRepository.findAllByBookingRoomIdAndScheduleOccupancyStartBetween(roomId, start, end);
+    }
+
+    @PreAuthorize(Authorities.APPOINTMENT_WRITE)
+    public Appointment updateAppointment(final Appointment appointmentUpdates, final UUID appointmentId) {
+        final Appointment existingAppointment = getEntityOrThrowException(appointmentId);
+        existingAppointment.updateFrom(appointmentUpdates);
+        log.debug("Updated appointment with id {}", existingAppointment.getId());
+        return appointmentRepository.save(existingAppointment);
+    }
+
+    @PreAuthorize(Authorities.APPOINTMENT_WRITE)
+    public void deleteAppointment(final UUID appointmentId) {
+        log.debug("Deleted appointment with id {}", appointmentId);
+        appointmentRepository.deleteById(appointmentId);
+    }
+
+    /**
+     * Calculates the individual appointments for a booking based on its schedule
+     * and an optional recurrence rule and linking them to the booking.
+     *
+     * @param booking The booking entity containing the base schedule and recurrence rule.
+     * @return A Set of Appointment instances representing the calculated dates.
+     */
+    public Set<Appointment> generateAndLinkAppointments(final Booking booking) {
+        final ScheduleTemplate base = booking.getSchedule();
+
+        if (booking.getRecurringRule() == null || booking.getRecurringRule().isBlank()) {
+            final Appointment app = new Appointment();
+            app.setBooking(booking);
+            app.setSchedule(base);
+            return Set.of(app);
+        }
+
+        final Duration offsetOccupancyStart = Duration.between(base.appointmentStart(), base.occupancyStart());
+        final Duration offsetOccupancyEnd = Duration.between(base.appointmentStart(), base.occupancyEnd());
+        final Duration offsetAppointmentEnd = Duration.between(base.appointmentStart(), base.appointmentEnd());
+
+        final Recur<LocalDateTime> recur = new Recur<>(booking.getRecurringRule());
+
+        final LocalDateTime seed = base.appointmentStart();
+        final LocalDateTime limit = recur.getUntil() != null
+                ? recur.getUntil()
+                : seed.plusYears(1);
+
+        final List<LocalDateTime> dates = recur.getDates(seed, seed, limit);
+
+        return dates.stream().map(date -> {
+            final ScheduleTemplate newSchedule = new ScheduleTemplate(
+                    date.plus(offsetOccupancyStart),
+                    date.plus(offsetOccupancyEnd),
+                    date,
+                    date.plus(offsetAppointmentEnd));
+
+            final Appointment app = new Appointment();
+            app.setBooking(booking);
+            app.setSchedule(newSchedule);
+            return app;
+        }).collect(Collectors.toSet());
+    }
+
+    private Appointment getEntityOrThrowException(final UUID appointmentId) {
+        return appointmentRepository.findById(appointmentId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, appointmentId)));
+    }
+}

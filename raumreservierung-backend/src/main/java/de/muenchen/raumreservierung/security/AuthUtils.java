@@ -13,27 +13,46 @@ public final class AuthUtils {
     public static final String NAME_UNAUTHENTICATED_USER = "unauthenticated";
 
     private static final String TOKEN_USER_NAME = "preferred_username";
+    private static final String TOKEN_ORGANISATION_ID = "lhmObjectID";
 
     private AuthUtils() {
     }
 
     /**
-     * Extracts the user name from the existing Spring Security Context via
+     * Extracts the preferred_username from the existing Spring Security Context via
      * {@link SecurityContextHolder}.
      *
      * @return the username or an "unauthenticated" if no {@link Authentication} exists
      */
     public static String getUsername() {
+        return getClaimOrFallback(TOKEN_USER_NAME);
+    }
+
+    /**
+     * Extracts the organisationID from the existing Spring Security Context via
+     * {@link SecurityContextHolder}.
+     *
+     * @return the organisationID or an "unauthenticated" if no {@link Authentication} exists
+     */
+    public static String getOrganisationId() {
+        return getClaimOrFallback(TOKEN_ORGANISATION_ID);
+    }
+
+    private static String getClaimOrFallback(final String tokenName) {
         final Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication instanceof JwtAuthenticationToken) {
-            final JwtAuthenticationToken jwtAuth = (JwtAuthenticationToken) authentication;
-            return (String) jwtAuth.getTokenAttributes().getOrDefault(TOKEN_USER_NAME, null);
-        } else if (authentication instanceof UsernamePasswordAuthenticationToken) {
-            final UsernamePasswordAuthenticationToken usernameAuth = (UsernamePasswordAuthenticationToken) authentication;
-            return usernameAuth.getName();
-        } else {
+        if (authentication == null || !authentication.isAuthenticated()) {
             return NAME_UNAUTHENTICATED_USER;
         }
+
+        if (authentication instanceof JwtAuthenticationToken jwtAuthenticationToken) {
+            return (String) jwtAuthenticationToken.getTokenAttributes().getOrDefault(tokenName, null);
+        }
+
+        if (authentication instanceof UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
+            return usernamePasswordAuthenticationToken.getName();
+        }
+
+        return NAME_UNAUTHENTICATED_USER;
     }
 
 }

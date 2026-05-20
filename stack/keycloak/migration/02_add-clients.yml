@@ -14,3 +14,7 @@ changes:
   - assignDefaultClientScope:
       clientId: local
       clientScopeName: openid
+
+  - assignDefaultClientScope:
+      clientId: local
+      clientScopeName: lhm_core
