@@ -77,6 +77,11 @@ public class BookingService {
 
         final InternalPerson currentPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
         booking.setOrganisationUnit(currentPerson.getOrganisationUnit());
+        booking.setBookedBy(currentPerson);
+
+        if (booking.getBookedFor() == null) {
+            booking.setBookedFor(currentPerson);
+        }
 
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
@@ -99,6 +104,10 @@ public class BookingService {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
         if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
+        bookingUpdates.setBookedBy(existingBooking.getBookedBy());
+        if (bookingUpdates.getBookedFor() == null) {
+            bookingUpdates.setBookedFor(existingBooking.getBookedBy());
         }
 
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
@@ -150,6 +159,9 @@ public class BookingService {
         entityManager.detach(savedBooking);
         if (savedBooking.getBookedBy() != null) {
             entityManager.detach(savedBooking.getBookedBy());
+        }
+        if (savedBooking.getBookedFor() != null) {
+            entityManager.detach(savedBooking.getBookedFor());
         }
 
         return savedBooking;
