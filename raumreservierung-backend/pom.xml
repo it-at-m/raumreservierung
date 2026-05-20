@@ -46,7 +46,7 @@
 
         <!-- Core Frameworks -->
         <spring-cloud-dependencies.version>2025.1.1</spring-cloud-dependencies.version> <!-- Must match the chosen Spring Boot version -->
-        <hibernate-processor.version>7.2.14.Final</hibernate-processor.version>
+        <hibernate-processor.version>7.2.15.Final</hibernate-processor.version>
 
         <!-- Linting & Formatting -->
         <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
@@ -115,12 +115,12 @@
             <dependency> <!-- Added to fix CVE-2026-29062-->
                 <groupId>com.fasterxml.jackson.core</groupId>
                 <artifactId>jackson-core</artifactId>
-                <version>2.21.2</version>
+                <version>2.21.3</version>
             </dependency>
             <dependency> <!-- Added to fix CVE-2026-34483, CVE-2026-34486, CVE-2026-34487 -->
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>
-                <version>10.1.54</version>
+                <version>10.1.55</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
