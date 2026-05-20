@@ -5,6 +5,7 @@ import de.muenchen.raumreservierung.common.BaseEntity;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room;
+import de.muenchen.raumreservierung.validation.ValidParticipantCount;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -21,6 +22,7 @@ import lombok.Setter;
 @Entity
 @Setter
 @Getter
+@ValidParticipantCount
 public class Booking extends BaseEntity {
 
     @Serial

@@ -12,4 +12,6 @@ public interface RoomRepository extends JpaRepository<Room, UUID> {
     @EntityGraph(attributePaths = { "roomSeatingCapacities", "roomSeatingCapacities.seatingType", "equipment", "contactPerson" })
     @NonNull @Transactional(readOnly = true)
     Optional<Room> findWithDetailsById(@NonNull UUID id);
+
+    Optional<Room> findFirstByOrderByCapacityDesc();
 }
