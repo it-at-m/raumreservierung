@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(uses = {ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class})
+@Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class })
 public interface BookingMapper {
     @Mapping(target = "equipments", source = "equipment")
     BookingDetailResponseDTO toDetailDto(Booking booking);
@@ -28,12 +28,12 @@ public interface BookingMapper {
     Booking toEntity(BookingRequestDTO bookingRequestDTO);
 
     @Named("hasEquipmentCheck")
-    default boolean mapHasEquipment(Booking booking) {
+    default boolean mapHasEquipment(final Booking booking) {
         return booking.getEquipment().isEmpty();
     }
 
     @Named("isRecurringCheck")
-    default boolean mapIsRecurring(Booking booking) {
+    default boolean mapIsRecurring(final Booking booking) {
         return booking.getAppointments().size() > 1;
     }
 }
