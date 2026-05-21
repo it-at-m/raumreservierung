@@ -22,6 +22,7 @@ public interface BookingMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "bookedFor", source = "bookedForId")
+    @Mapping(target = "bookedBy", source = "bookedById")
     @Mapping(target = "equipment", source = "equipmentIds")
     @Mapping(target = "room", source = "roomId")
     Booking toEntity(BookingRequestDTO bookingRequestDTO);

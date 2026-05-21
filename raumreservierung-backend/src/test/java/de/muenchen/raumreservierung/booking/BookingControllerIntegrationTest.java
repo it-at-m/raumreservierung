@@ -85,7 +85,7 @@ public class BookingControllerIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsCreated_WhenAuthenticatedAndNoRRule() throws Exception {
         LocalDateTime now = LocalDateTime.now();
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, null);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedForAndBookedBy(now, null, null, mockPerson.getId());
 
         mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -98,7 +98,7 @@ public class BookingControllerIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules(String rrule, int expectedSize, List<LocalDateTime> expectedDates) throws Exception {
         LocalDateTime date = LocalDateTime.of(2026, 3, 2, 13, 45);
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(date, rrule, null);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedForAndBookedBy(date, rrule, null, mockPerson.getId());
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -118,7 +118,7 @@ public class BookingControllerIntegrationTest {
                 .containsExactlyInAnyOrderElementsOf(expectedDates);
     }
 
-    private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime now, String recurringRule, UUID bookedForId) {
+    private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedForAndBookedBy(LocalDateTime now, String recurringRule, UUID bookedForId, UUID bookedById) {
         ScheduleTemplate schedule = new ScheduleTemplate(
                 now,
                 now.plusHours(2),
@@ -134,6 +134,7 @@ public class BookingControllerIntegrationTest {
                 recurringRule,
                 null,
                 schedule,
+                bookedById,
                 bookedForId);
     }
 
@@ -183,7 +184,7 @@ public class BookingControllerIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ShouldFallbackToCurrentPerson_WhenBookedForIsMissing() throws Exception {
         LocalDateTime now = LocalDateTime.now();
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, null);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedForAndBookedBy(now, null, null, mockPerson.getId());
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -219,7 +220,7 @@ public class BookingControllerIntegrationTest {
         UUID bookedForId = bookedFor.getId();
 
         LocalDateTime now = LocalDateTime.now();
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, bookedForId);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedForAndBookedBy(now, null, bookedForId, mockPerson.getId());
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -259,7 +260,7 @@ public class BookingControllerIntegrationTest {
         existingBooking.setTitle("TEST_TITLE");
         Booking saved = bookingRepository.save(existingBooking);
 
-        BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime.now(), null, null);
+        BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedForAndBookedBy(LocalDateTime.now(), null, null, mockPerson.getId());
 
         mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
                 .with(csrf())

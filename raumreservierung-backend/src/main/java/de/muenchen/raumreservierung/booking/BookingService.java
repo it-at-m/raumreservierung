@@ -1,11 +1,13 @@
 package de.muenchen.raumreservierung.booking;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_BOOKEDBY_MUST_BE_INTERNAL_PERSON;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
+import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.person.PersonService;
@@ -23,6 +25,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -77,10 +80,14 @@ public class BookingService {
 
         final InternalPerson currentPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
         booking.setOrganisationUnit(currentPerson.getOrganisationUnit());
-        booking.setBookedBy(currentPerson);
 
+        Person bookedBy = booking.getBookedBy();
+        bookedBy = (Person) Hibernate.unproxy(bookedBy);
+        if (!(bookedBy instanceof InternalPerson)) {
+            throw new BadRequestException(MSG_BOOKEDBY_MUST_BE_INTERNAL_PERSON);
+        }
         if (booking.getBookedFor() == null) {
-            booking.setBookedFor(currentPerson);
+            booking.setBookedFor(bookedBy);
         }
 
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
@@ -105,9 +112,14 @@ public class BookingService {
         if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
-        bookingUpdates.setBookedBy(existingBooking.getBookedBy());
+
+        Person bookedBy = bookingUpdates.getBookedBy();
+        bookedBy = (Person) Hibernate.unproxy(bookedBy);
+        if (!(bookedBy instanceof InternalPerson)) {
+            throw new BadRequestException(MSG_BOOKEDBY_MUST_BE_INTERNAL_PERSON);
+        }
         if (bookingUpdates.getBookedFor() == null) {
-            bookingUpdates.setBookedFor(existingBooking.getBookedBy());
+            bookingUpdates.setBookedFor(bookedBy);
         }
 
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {

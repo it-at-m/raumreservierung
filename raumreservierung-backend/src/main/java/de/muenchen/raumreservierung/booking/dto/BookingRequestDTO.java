@@ -18,6 +18,7 @@ public record BookingRequestDTO(
         String recurringRule,
         UUID roomId,
         @NotNull ScheduleTemplate schedule,
+        @NotNull UUID bookedById,
         UUID bookedForId
 //TODO: add status
 ) {
