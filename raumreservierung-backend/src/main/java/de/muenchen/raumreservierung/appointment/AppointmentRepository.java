@@ -6,5 +6,8 @@ import java.util.UUID;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
-    List<Appointment> findAllByBookingRoomIdAndScheduleOccupancyStartBetween(UUID roomId, LocalDateTime start, LocalDateTime end);
+    List<Appointment> findAllByBookingRoomIdAndScheduleOccupancyStartBetweenOrderByScheduleOccupancyStartAsc(UUID roomId, LocalDateTime start,
+            LocalDateTime end);
+
+    List<Appointment> findAllByBookingRoomIdOrderByScheduleOccupancyStartAsc(UUID roomId);
 }

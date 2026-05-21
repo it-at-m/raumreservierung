@@ -7,6 +7,7 @@ import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
+import jakarta.validation.Valid;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -26,11 +27,21 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
 
     @PreAuthorize(Authorities.APPOINTMENT_READ)
-    public List<Appointment> getAppointmentsByPeriodAndRoom(final AppointmentFilterDTO appointmentFilterDTO) {
+    public List<Appointment> getAppointmentsByPeriodAndRoom(@Valid final AppointmentFilterDTO appointmentFilterDTO) {
         final UUID roomId = appointmentFilterDTO.roomId();
-        final LocalDateTime start = appointmentFilterDTO.startDate().atStartOfDay();
-        final LocalDateTime end = appointmentFilterDTO.endDate().atTime(java.time.LocalTime.MAX);
-        return appointmentRepository.findAllByBookingRoomIdAndScheduleOccupancyStartBetween(roomId, start, end);
+        if (appointmentFilterDTO.startDate() == null && appointmentFilterDTO.endDate() == null) {
+            return appointmentRepository.findAllByBookingRoomIdOrderByScheduleOccupancyStartAsc(roomId);
+        }
+
+        final LocalDateTime start = appointmentFilterDTO.startDate() != null
+                ? appointmentFilterDTO.startDate().atStartOfDay()
+                : LocalDateTime.MIN;
+
+        final LocalDateTime end = appointmentFilterDTO.endDate() != null
+                ? appointmentFilterDTO.endDate().atTime(java.time.LocalTime.MAX)
+                : LocalDateTime.MAX;
+
+        return appointmentRepository.findAllByBookingRoomIdAndScheduleOccupancyStartBetweenOrderByScheduleOccupancyStartAsc(roomId, start, end);
     }
 
     @PreAuthorize(Authorities.APPOINTMENT_WRITE)
