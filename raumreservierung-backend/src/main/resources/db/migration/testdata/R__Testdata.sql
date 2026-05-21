@@ -1,51 +1,52 @@
 TRUNCATE holiday;
-INSERT INTO holiday (name, start_date, end_date, id) VALUES
-('Tag der deutschen Einheit', '2026-10-03', '2026-10-03', '123e4567-e89b-12d3-a456-426614174000'),
-('Weihnachten', '2026-12-24', '2026-12-24', '123e4567-e89b-12d3-a456-426614174001'),
-('Weihnachtsferien', '2026-12-24', '2027-01-08', '123e4567-e89b-12d3-a456-426614174002'),
-('Sommerferien', '2026-08-03', '2026-09-14', '123e4567-e89b-12d3-a456-426614174003'),
-('Tag der deutschen Erdbeere', '2025-06-03', '2025-06-03', '123e4567-e89b-12d3-a456-426614174004'),
-('Weihnachten', '2025-12-24', '2025-12-24', '123e4567-e89b-12d3-a456-426614174005'),
-('Weihnachtsferien', '2025-12-24', '2026-01-08', '123e4567-e89b-12d3-a456-426614174006'),
-('Sommerferien', '2025-08-03', '2025-09-14', '123e4567-e89b-12d3-a456-426614174007'),
-('Tag der deutschen Einheit', '2030-10-03', '2030-10-03', '123e4567-e89b-12d3-a456-426614174008'),
-('Weihnachten', '2030-12-24', '2030-12-24', '123e4567-e89b-12d3-a456-426614174009'),
-('Weihnachtsferien', '2030-12-24', '2031-01-08', '123e4567-e89b-12d3-a456-426614174010'),
-('Sommerferien', '2030-08-03', '2030-09-14', '123e4567-e89b-12d3-a456-426614174011');
+INSERT INTO holiday (name, start_date, end_date, id)
+VALUES ('Tag der deutschen Einheit', '2026-10-03', '2026-10-03', '123e4567-e89b-12d3-a456-426614174000'),
+       ('Weihnachten', '2026-12-24', '2026-12-24', '123e4567-e89b-12d3-a456-426614174001'),
+       ('Weihnachtsferien', '2026-12-24', '2027-01-08', '123e4567-e89b-12d3-a456-426614174002'),
+       ('Sommerferien', '2026-08-03', '2026-09-14', '123e4567-e89b-12d3-a456-426614174003'),
+       ('Tag der deutschen Erdbeere', '2025-06-03', '2025-06-03', '123e4567-e89b-12d3-a456-426614174004'),
+       ('Weihnachten', '2025-12-24', '2025-12-24', '123e4567-e89b-12d3-a456-426614174005'),
+       ('Weihnachtsferien', '2025-12-24', '2026-01-08', '123e4567-e89b-12d3-a456-426614174006'),
+       ('Sommerferien', '2025-08-03', '2025-09-14', '123e4567-e89b-12d3-a456-426614174007'),
+       ('Tag der deutschen Einheit', '2030-10-03', '2030-10-03', '123e4567-e89b-12d3-a456-426614174008'),
+       ('Weihnachten', '2030-12-24', '2030-12-24', '123e4567-e89b-12d3-a456-426614174009'),
+       ('Weihnachtsferien', '2030-12-24', '2031-01-08', '123e4567-e89b-12d3-a456-426614174010'),
+       ('Sommerferien', '2030-08-03', '2030-09-14', '123e4567-e89b-12d3-a456-426614174011');
 
 truncate equipment cascade;
-INSERT INTO equipment (is_active, name, description, id) VALUES
-    (true, 'Tisch', 'Ein stabiler Holzschreibtisch mit viel Platz für Arbeiten.', '123e4567-e89b-12d3-a456-426614174000'),
-    (true, 'Stuhl', 'Ein ergonomischer Bürostuhl mit verstellbarer Höhe.', '123e4567-e89b-12d3-a456-426614174001'),
-    (true, 'Whiteboard', 'Ein großes Whiteboard für Präsentationen und Brainstorming.', '123e4567-e89b-12d3-a456-426614174002'),
-    (true, 'Projektor', 'Ein Full-HD Projektor für Präsentationen und Filme.', '123e4567-e89b-12d3-a456-426614174003'),
-    (true, 'Bücherregal', 'Ein hohes Regal aus Holz zur Aufbewahrung von Büchern und Materialien.', '123e4567-e89b-12d3-a456-426614174004'),
-    (true, 'Konferenztisch', 'Ein großer Tisch für Meetings mit Platz für bis zu 12 Personen.', '123e4567-e89b-12d3-a456-426614174005'),
-    (true, 'Laptop', 'Ein tragbarer Laptop für mobile Arbeit und Präsentationen.', '123e4567-e89b-12d3-a456-426614174006'),
-    (true, 'Kopierer', 'Ein Multifunktionsgerät zum Kopieren, Scannen und Drucken.', '123e4567-e89b-12d3-a456-426614174007');
+INSERT INTO equipment (is_active, name, description, id)
+VALUES (true, 'Tisch', 'Ein stabiler Holzschreibtisch mit viel Platz für Arbeiten.', '123e4567-e89b-12d3-a456-426614174000'),
+       (true, 'Stuhl', 'Ein ergonomischer Bürostuhl mit verstellbarer Höhe.', '123e4567-e89b-12d3-a456-426614174001'),
+       (true, 'Whiteboard', 'Ein großes Whiteboard für Präsentationen und Brainstorming.', '123e4567-e89b-12d3-a456-426614174002'),
+       (true, 'Projektor', 'Ein Full-HD Projektor für Präsentationen und Filme.', '123e4567-e89b-12d3-a456-426614174003'),
+       (true, 'Bücherregal', 'Ein hohes Regal aus Holz zur Aufbewahrung von Büchern und Materialien.', '123e4567-e89b-12d3-a456-426614174004'),
+       (true, 'Konferenztisch', 'Ein großer Tisch für Meetings mit Platz für bis zu 12 Personen.', '123e4567-e89b-12d3-a456-426614174005'),
+       (true, 'Laptop', 'Ein tragbarer Laptop für mobile Arbeit und Präsentationen.', '123e4567-e89b-12d3-a456-426614174006'),
+       (true, 'Kopierer', 'Ein Multifunktionsgerät zum Kopieren, Scannen und Drucken.', '123e4567-e89b-12d3-a456-426614174007');
 
 
 truncate seating_type cascade;
-INSERT INTO seating_type (is_active, name, description, id) VALUES
-    (true, 'Reihenbestuhlung', 'Beschreibung von Reihenbestuhlung', '123e4567-e89b-12d3-a456-426614174000'),
-    (true, 'Stadtrats- / Ausschussbestuhlunq', 'Beschreibung von Stadtrats-Ausschussbestuhlung.', '123e4567-e89b-12d3-a456-426614174001'),
-    (true, 'Stehempfang', 'Beschreibung von Stehempfang.', '123e4567-e89b-12d3-a456-426614174002'),
-    (true, 'Parlamentarische Bestuhlung', 'Beschreibung von parlamentarische Bestuhlung', '123e4567-e89b-12d3-a456-426614174003');
+INSERT INTO seating_type (is_active, name, description, id)
+VALUES (true, 'Reihenbestuhlung', 'Beschreibung von Reihenbestuhlung', '123e4567-e89b-12d3-a456-426614174000'),
+       (true, 'Stadtrats- / Ausschussbestuhlunq', 'Beschreibung von Stadtrats-Ausschussbestuhlung.', '123e4567-e89b-12d3-a456-426614174001'),
+       (true, 'Stehempfang', 'Beschreibung von Stehempfang.', '123e4567-e89b-12d3-a456-426614174002'),
+       (true, 'Parlamentarische Bestuhlung', 'Beschreibung von parlamentarische Bestuhlung', '123e4567-e89b-12d3-a456-426614174003');
 
 truncate person cascade;
-insert into person (id, title, first_name, last_name, telefon_number, email) values
+insert into person (id, title, first_name, last_name, telefon_number, email)
+values
     -- externe Personen:
-    ('123e4567-e89b-12d3-a456-426614174010', null,'Max', 'Mustermann', '089-233-12345', 'max.mustermann@muenchen.de'),
+    ('123e4567-e89b-12d3-a456-426614174010', null, 'Max', 'Mustermann', '089-233-12345', 'max.mustermann@muenchen.de'),
     ('123e4567-e89b-12d3-a456-426614174011', null, 'Anna', 'Schmidt', '089-233-54321', 'anna.schmidt@muenchen.de'),
-    ('123e4567-e89b-12d3-a456-426614174012', 'MR','Tom', 'Exzellent', '0171-9876543', 'tom@beispiel-it-gmbh.de'),
-    ('123e4567-e89b-12d3-a456-426614174013', 'MS','Lisa', 'Meyer', null, 'lisa.meyer@externe-berater.de'),
-    ('123e4567-e89b-12d3-a456-426614174014', 'MR','Felix', 'Wagner', '0160-1122334', 'f.wagner@tech-muc.de'),
-    ('123e4567-e89b-12d3-a456-426614174015', 'MS','Sarah', 'Klein', '0151-9988776', 'sklein@agile-coaches.de'),
-    ('123e4567-e89b-12d3-a456-426614174016', 'MR','Michael', 'Bauer', null, 'mbauer@bauplanung-sued.de'),
+    ('123e4567-e89b-12d3-a456-426614174012', 'MR', 'Tom', 'Exzellent', '0171-9876543', 'tom@beispiel-it-gmbh.de'),
+    ('123e4567-e89b-12d3-a456-426614174013', 'MS', 'Lisa', 'Meyer', null, 'lisa.meyer@externe-berater.de'),
+    ('123e4567-e89b-12d3-a456-426614174014', 'MR', 'Felix', 'Wagner', '0160-1122334', 'f.wagner@tech-muc.de'),
+    ('123e4567-e89b-12d3-a456-426614174015', 'MS', 'Sarah', 'Klein', '0151-9988776', 'sklein@agile-coaches.de'),
+    ('123e4567-e89b-12d3-a456-426614174016', 'MR', 'Michael', 'Bauer', null, 'mbauer@bauplanung-sued.de'),
     ('123e4567-e89b-12d3-a456-426614174017', 'NONE', 'Julia', 'Richter', '089-5551234', 'info@richter-legal.com'),
-    ('123e4567-e89b-12d3-a456-426614174018', 'MS','David', 'Becker', '0172-3344556', 'd.becker@cloud-architects.io'),
-    ('123e4567-e89b-12d3-a456-426614174019', 'MR','Elena', 'Weber', null, 'elena.weber@design-studio-muc.de'),
-    ('123e4567-e89b-12d3-a456-426614174020', 'MR','Lukas', 'Hoffmann', '0162-4455667', 'l.hoffmann@event-pro.de'),
+    ('123e4567-e89b-12d3-a456-426614174018', 'MS', 'David', 'Becker', '0172-3344556', 'd.becker@cloud-architects.io'),
+    ('123e4567-e89b-12d3-a456-426614174019', 'MR', 'Elena', 'Weber', null, 'elena.weber@design-studio-muc.de'),
+    ('123e4567-e89b-12d3-a456-426614174020', 'MR', 'Lukas', 'Hoffmann', '0162-4455667', 'l.hoffmann@event-pro.de'),
     -- interne Personen:
     ('123e4567-e89b-12d3-a456-426614174021', 'NONE', 'Anwender', 'Anwender', '089-7778889', 'anwender@anwender.de'),
     ('123e4567-e89b-12d3-a456-426614174022', 'DIVERSE', 'Leseberechtigt', 'Leseberechtigt', '0152-1122334', 'leseberechtigt@leseberechtigt.de'),
@@ -72,43 +73,43 @@ insert into person (id, title, first_name, last_name, telefon_number, email) val
     ('123e4567-e89b-12d3-a456-426614174043', 'DIVERSE', 'Robin', 'Lange', '089-121212', 'r.lange@intern.de');
 
 -- Hier kommen jetzt die spezifischen externen Daten (verknüpft über die gleiche ID):
-insert into external_person (id, company, street_address, postal_code_city, note) values
-    ('123e4567-e89b-12d3-a456-426614174010', 'Ich AG', 'Kreisstraße 3', '80803 München', null),
-    ('123e4567-e89b-12d3-a456-426614174011', 'IT und mehr', 'Linienstraße 4', '80804 München', null),
-    ('123e4567-e89b-12d3-a456-426614174012',  'Beispiel IT GmbH', 'Marienplatz 8', '80331 München', 'Vollständig in die LHM-Systemlandschaft (z.B. SAP, Wilma) eingearbeitet und unterstützt die technische Umsetzung der OZG-Vorgaben.'),
-    ('123e4567-e89b-12d3-a456-426614174013', 'Externe Berater AG', 'Consultingweg 42', '80807 München', null),
-    ('123e4567-e89b-12d3-a456-426614174014', 'Tech MUC GmbH', 'Leopoldstraße 12', '80802 München', 'Sichert durch kontinuierliche Dokumentation den Know-how-Transfer an die internen Projektmitglieder in den Referaten.'),
-    ('123e4567-e89b-12d3-a456-426614174015', 'Agile Coaches DE', 'Rosenheimer Str. 145', '81671 München', 'Optimiert agile städtische Prozesse.'),
-    ('123e4567-e89b-12d3-a456-426614174016', 'Bauplanung Süd', 'Sendlinger Tor Platz 1', '80336 München', 'Verfügt über tiefgehende Kenntnisse der Münchner Bauordnung (BayBO) und unterstützt maßgeblich bei komplexen Genehmigungsverfahren.'),
-    ('123e4567-e89b-12d3-a456-426614174017', 'Richter Legal Kanzlei', 'Nymphenburger Str. 4', '80335 München', 'Ist umfassend in die Sicherheitsrichtlinien und Datenschutzprotokolle (BayDSG) der Stadtverwaltung eingewiesen.'),
-    ('123e4567-e89b-12d3-a456-426614174018', 'Cloud Architects IO', 'Arnulfstraße 21', '80335 München', 'Selten verfügbar.'),
-    ('123e4567-e89b-12d3-a456-426614174019', 'Design Studio MUC', 'Schellingstraße 109', '80798 München', null),
-    ('123e4567-e89b-12d3-a456-426614174020', 'Event Pro', 'Gärtnerplatz 2', '80469 München', null);
+insert into external_person (id, company, street_address, postal_code_city, note)
+values ('123e4567-e89b-12d3-a456-426614174010', 'Ich AG', 'Kreisstraße 3', '80803 München', null),
+       ('123e4567-e89b-12d3-a456-426614174011', 'IT und mehr', 'Linienstraße 4', '80804 München', null),
+       ('123e4567-e89b-12d3-a456-426614174012', 'Beispiel IT GmbH', 'Marienplatz 8', '80331 München', 'Vollständig in die LHM-Systemlandschaft (z.B. SAP, Wilma) eingearbeitet und unterstützt die technische Umsetzung der OZG-Vorgaben.'),
+       ('123e4567-e89b-12d3-a456-426614174013', 'Externe Berater AG', 'Consultingweg 42', '80807 München', null),
+       ('123e4567-e89b-12d3-a456-426614174014', 'Tech MUC GmbH', 'Leopoldstraße 12', '80802 München', 'Sichert durch kontinuierliche Dokumentation den Know-how-Transfer an die internen Projektmitglieder in den Referaten.'),
+       ('123e4567-e89b-12d3-a456-426614174015', 'Agile Coaches DE', 'Rosenheimer Str. 145', '81671 München', 'Optimiert agile städtische Prozesse.'),
+       ('123e4567-e89b-12d3-a456-426614174016', 'Bauplanung Süd', 'Sendlinger Tor Platz 1', '80336 München', 'Verfügt über tiefgehende Kenntnisse der Münchner Bauordnung (BayBO) und unterstützt maßgeblich bei komplexen Genehmigungsverfahren.'),
+       ('123e4567-e89b-12d3-a456-426614174017', 'Richter Legal Kanzlei', 'Nymphenburger Str. 4', '80335 München', 'Ist umfassend in die Sicherheitsrichtlinien und Datenschutzprotokolle (BayDSG) der Stadtverwaltung eingewiesen.'),
+       ('123e4567-e89b-12d3-a456-426614174018', 'Cloud Architects IO', 'Arnulfstraße 21', '80335 München', 'Selten verfügbar.'),
+       ('123e4567-e89b-12d3-a456-426614174019', 'Design Studio MUC', 'Schellingstraße 109', '80798 München', null),
+       ('123e4567-e89b-12d3-a456-426614174020', 'Event Pro', 'Gärtnerplatz 2', '80469 München', null);
 
-insert into internal_person (id, organisation_id, organisation_unit, role_function) values
-    ('123e4567-e89b-12d3-a456-426614174021', '0000001', 'it@M', 'Anwender'),
-    ('123e4567-e89b-12d3-a456-426614174022', '0000002', 'POR', 'Leseberechtigt'),
-    ('123e4567-e89b-12d3-a456-426614174023', '0000003', 'POR', 'Terminorganisator'),
-    ('123e4567-e89b-12d3-a456-426614174024', '0000004', 'it@M', 'Raumbuchung'),
-    ('123e4567-e89b-12d3-a456-426614174025', '0000005', 'POR', 'Raumadmin'),
-    ('123e4567-e89b-12d3-a456-426614174026', '0000006', 'it@M', 'Chef'),
-    ('123e4567-e89b-12d3-a456-426614174027', '0000007', 'Zentrale Buchung', 'Unterchef'),
-    ('123e4567-e89b-12d3-a456-426614174028', '0000008', 'Sekretariat', 'Organisator'),
-    ('123e4567-e89b-12d3-a456-426614174029', '0000009', 'Support', 'First Level'),
-    ('123e4567-e89b-12d3-a456-426614174030', '00000010', 'Bürgerservice', 'Auskunft'),
-    ('123e4567-e89b-12d3-a456-426614174031', '0000011', 'it@M', 'Infrastruktur'),
-    ('123e4567-e89b-12d3-a456-426614174032', '0000012', 'Liegenschaften', 'Verwaltung'),
-    ('123e4567-e89b-12d3-a456-426614174033', '0000013', 'it@M', 'Assistenz'),
-    ('123e4567-e89b-12d3-a456-426614174034', '0000014', 'Personalrat', 'Mitglied'),
-    ('123e4567-e89b-12d3-a456-426614174035', '0000015', 'it@M', 'Softwareentwickler'),
-    ('123e4567-e89b-12d3-a456-426614174036', '0000016', 'Kreisverwaltungsreferat', 'Fachbereichleitung'),
-    ('123e4567-e89b-12d3-a456-426614174037', '0000017', 'it@M', 'System-Engineer'),
-    ('123e4567-e89b-12d3-a456-426614174038', '0000018', 'Standesamt', 'Urkundensachbearbeitung'),
-    ('123e4567-e89b-12d3-a456-426614174039', '0000019', 'it@M', 'Netzwerktechnik'),
-    ('123e4567-e89b-12d3-a456-426614174040', '0000020', 'Zulassungsstelle', 'Schalterdienst'),
-    ('123e4567-e89b-12d3-a456-426614174041', '0000021', 'it@M', 'IT-Sicherheit'),
-    ('123e4567-e89b-12d3-a456-426614174042', '0000022', 'Branddirektion', 'Einsatzplanung'),
-    ('123e4567-e89b-12d3-a456-426614174043', '0000023', 'it@M', 'Projektleiter');
+insert into internal_person (id, organisation_id, organisation_unit, role_function)
+values ('123e4567-e89b-12d3-a456-426614174021', '0000001', 'it@M', 'Anwender'),
+       ('123e4567-e89b-12d3-a456-426614174022', '0000002', 'POR', 'Leseberechtigt'),
+       ('123e4567-e89b-12d3-a456-426614174023', '0000003', 'POR', 'Terminorganisator'),
+       ('123e4567-e89b-12d3-a456-426614174024', '0000004', 'it@M', 'Raumbuchung'),
+       ('123e4567-e89b-12d3-a456-426614174025', '0000005', 'POR', 'Raumadmin'),
+       ('123e4567-e89b-12d3-a456-426614174026', '0000006', 'it@M', 'Chef'),
+       ('123e4567-e89b-12d3-a456-426614174027', '0000007', 'Zentrale Buchung', 'Unterchef'),
+       ('123e4567-e89b-12d3-a456-426614174028', '0000008', 'Sekretariat', 'Organisator'),
+       ('123e4567-e89b-12d3-a456-426614174029', '0000009', 'Support', 'First Level'),
+       ('123e4567-e89b-12d3-a456-426614174030', '00000010', 'Bürgerservice', 'Auskunft'),
+       ('123e4567-e89b-12d3-a456-426614174031', '0000011', 'it@M', 'Infrastruktur'),
+       ('123e4567-e89b-12d3-a456-426614174032', '0000012', 'Liegenschaften', 'Verwaltung'),
+       ('123e4567-e89b-12d3-a456-426614174033', '0000013', 'it@M', 'Assistenz'),
+       ('123e4567-e89b-12d3-a456-426614174034', '0000014', 'Personalrat', 'Mitglied'),
+       ('123e4567-e89b-12d3-a456-426614174035', '0000015', 'it@M', 'Softwareentwickler'),
+       ('123e4567-e89b-12d3-a456-426614174036', '0000016', 'Kreisverwaltungsreferat', 'Fachbereichleitung'),
+       ('123e4567-e89b-12d3-a456-426614174037', '0000017', 'it@M', 'System-Engineer'),
+       ('123e4567-e89b-12d3-a456-426614174038', '0000018', 'Standesamt', 'Urkundensachbearbeitung'),
+       ('123e4567-e89b-12d3-a456-426614174039', '0000019', 'it@M', 'Netzwerktechnik'),
+       ('123e4567-e89b-12d3-a456-426614174040', '0000020', 'Zulassungsstelle', 'Schalterdienst'),
+       ('123e4567-e89b-12d3-a456-426614174041', '0000021', 'it@M', 'IT-Sicherheit'),
+       ('123e4567-e89b-12d3-a456-426614174042', '0000022', 'Branddirektion', 'Einsatzplanung'),
+       ('123e4567-e89b-12d3-a456-426614174043', '0000023', 'it@M', 'Projektleiter');
 
 truncate room cascade;
 insert into room (id, name, number, location, location_description, capacity, is_active, area, contact_person_id)
@@ -202,3 +203,134 @@ values ('f1010001-8b3d-4e92-9a31-111111111111', '2026-05-01 08:00:00', '2026-05-
        ('f4040008-8b3d-4e92-9a31-444444444408', '2026-05-10 08:00:00', '2026-05-10 20:00:00', '2026-05-10 15:15:00', '2026-05-10 16:00:00', '550e8400-e29b-41d4-a716-446655440020'),
        ('f4040009-8b3d-4e92-9a31-444444444409', '2026-05-10 08:00:00', '2026-05-10 20:00:00', '2026-05-10 16:15:00', '2026-05-10 17:00:00', '550e8400-e29b-41d4-a716-446655440020'),
        ('f4040010-8b3d-4e92-9a31-444444444410', '2026-05-10 08:00:00', '2026-05-10 20:00:00', '2026-05-10 17:15:00', '2026-05-10 18:00:00', '550e8400-e29b-41d4-a716-446655440020');
+
+CREATE TEMP TABLE temp_generated_bookings AS
+    -- one booking per row,
+    -- choose amount of linked appointments,
+    -- choose if appointments can be in the past and
+    -- choose if the start and end times can differ from the booking start and end time
+WITH booking_config(amount_appointments, in_past, differ) AS (VALUES (5, true, false),
+                                                                     (5, false, true),
+                                                                     (3, true, true),
+                                                                     (1, false, false)),
+    data_pools AS (SELECT ARRAY ['123e4567-e89b-12d3-a456-426614174017'::UUID,'123e4567-e89b-12d3-a456-426614174018'::UUID,'123e4567-e89b-12d3-a456-426614174019'::UUID,'123e4567-e89b-12d3-a456-426614174020'::UUID,'123e4567-e89b-12d3-a456-426614174021'::UUID,'123e4567-e89b-12d3-a456-426614174022'::UUID, '123e4567-e89b-12d3-a456-426614174023'::UUID, '123e4567-e89b-12d3-a456-426614174024'::UUID] AS booked_for_pool,
+                           ARRAY ['it@M', 'POR', 'HR-Management', 'Finance & Controlling', 'Marketing']                                                                                                                                                                                                                                                                                                      AS org_unit_pool,
+                           ARRAY ['770e8400-e29b-41d4-a716-446655440001'::UUID,'770e8400-e29b-41d4-a716-446655440002'::UUID, '770e8400-e29b-41d4-a716-446655440003'::UUID, '770e8400-e29b-41d4-a716-446655440004'::UUID, NULL]                                                                                                                                                                               AS room_pool,
+                           ARRAY ['Yoga-Kurs', 'Jahresfeier', 'Team-Meeting', 'Sprint Planning', 'Kunden-Workshop', 'Daily Standup']                                                                                                                                                                                                                                                                         AS title_pool,
+                           ARRAY [5, 10, 15, 20, 50, 100]                                                                                                                                                                                                                                                                                                                                                    AS participant_pool,
+                           ARRAY [true, false]                                                                                                                                                                                                                                                                                                                                                               AS catering_pool,
+                           ARRAY ['Reinigung beachten', 'Security benötigt', 'Standard-Setup', 'Keine Besonderheiten']                                                                                                                                                                                                                                                                                       AS internal_notes_pool,
+                           ARRAY ['Matten Schrank 4 ist dreckig', 'DJ-Pult steht zu weit links', 'Gute Laune wird benötigt', 'Bitte Whiteboard bereitstellen', NULL]                                                                                                                                                                                                                                         AS additional_notes_pool,
+                           ARRAY ['123e4567-e89b-12d3-a456-426614174021'::UUID, '123e4567-e89b-12d3-a456-426614174022'::UUID, '123e4567-e89b-12d3-a456-426614174023'::UUID, '123e4567-e89b-12d3-a456-426614174024'::UUID, '123e4567-e89b-12d3-a456-426614174025'::UUID, '123e4567-e89b-12d3-a456-426614174026'::UUID]                                                                                        AS booked_by_pool,
+                           ARRAY [TIME '08:00:00', TIME '10:15:00', TIME '13:00:00', TIME '15:30:00', TIME '17:00:00']                                                                                                                                                                                                                                                                                       AS time_pool,
+                           ARRAY [NULL, 'FREQ=DAILY;COUNT=3', 'FREQ=MONTHLY;COUNT=2', 'FREQ=WEEKLY;COUNT=5', 'FREQ=WEEKLY;BYDAY=TU,WE;INTERVAL=2;COUNT=4', 'FREQ=MONTHLY;BYDAY=2WE;COUNT=3', 'FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=15;COUNT=4', 'FREQ=WEEKLY;INTERVAL=6' ]                                                                                                                                     AS rrule_pool),
+     raw_generated_data AS (SELECT gen_random_uuid()                                                                   AS b_id,
+                                   cfg.amount_appointments,
+                                   cfg.differ,
+                                   CASE
+                                       WHEN cfg.in_past = true
+                                           THEN CURRENT_DATE + (floor(random() * 61) - 50 || ' days')::INTERVAL
+                                       ELSE CURRENT_DATE + (floor(random() * 45) || ' days')::INTERVAL
+                                       END::date                                                                       AS target_date,
+                                   p.time_pool[floor(random() * cardinality(p.time_pool)) + 1]                         AS base_time,
+                                   p.booked_for_pool[floor(random() * cardinality(p.booked_for_pool)) + 1]             AS booked_for_id,
+                                   p.org_unit_pool[floor(random() * cardinality(p.org_unit_pool)) + 1]                 AS organisation_unit,
+                                   p.room_pool[floor(random() * cardinality(p.room_pool)) + 1]                         AS room_id,
+                                   p.title_pool[floor(random() * cardinality(p.title_pool)) + 1]                       AS title,
+                                   p.participant_pool[floor(random() * cardinality(p.participant_pool)) + 1]           AS participant_count,
+                                   p.catering_pool[floor(random() * cardinality(p.catering_pool)) + 1]                 AS catering_needed,
+                                   p.internal_notes_pool[floor(random() * cardinality(p.internal_notes_pool)) + 1]     AS internal_notes,
+                                   p.additional_notes_pool[floor(random() * cardinality(p.additional_notes_pool)) + 1] AS additional_notes,
+                                   p.booked_by_pool[floor(random() * cardinality(p.booked_by_pool)) + 1]               AS booked_by_id,
+                                   p.rrule_pool[floor(random() * cardinality(p.rrule_pool)) + 1]                       AS recurring_rule
+                            FROM booking_config cfg
+                                     CROSS JOIN data_pools p)
+SELECT r.*,
+       r.target_date + r.base_time - INTERVAL '30 minutes'                      AS b_occ_start,
+       r.target_date + r.base_time + INTERVAL '2 hours' + INTERVAL '30 minutes' AS b_occ_end,
+       r.target_date + r.base_time                                              AS b_app_start,
+       r.target_date + r.base_time + INTERVAL '2 hours'                         AS b_app_end
+FROM raw_generated_data r;
+
+
+INSERT INTO booking (id, booked_for_id, organisation_unit, room_id, title, participant_count,
+                     catering_needed, internal_notes, additional_notes, occupancy_start,
+                     occupancy_end, appointment_start, appointment_end, booked_by_id, recurring_rule)
+SELECT b_id,
+       booked_for_id,
+       organisation_unit,
+       room_id,
+       title,
+       participant_count,
+       catering_needed,
+       internal_notes,
+       additional_notes,
+       b_occ_start,
+       b_occ_end,
+       b_app_start,
+       b_app_end,
+       booked_by_id,
+       recurring_rule
+FROM temp_generated_bookings
+ON CONFLICT (id) DO NOTHING;
+
+
+INSERT INTO appointment (id, occupancy_start, occupancy_end, appointment_start, appointment_end, booking_id)
+WITH configured_intervals AS (SELECT t.b_id,
+                                     t.differ,
+                                     t.amount_appointments,
+                                     (ARRAY [
+                                         INTERVAL '1 day',
+                                         INTERVAL '3 days',
+                                         INTERVAL '7 days',
+                                         INTERVAL '14 days'
+                                         ])[floor(random() * 4) + 1] AS chosen_interval
+                              FROM temp_generated_bookings t),
+     expanded_series AS (SELECT t.*,
+                                ((t.target_date + ((seq.idx - 1) * ci.chosen_interval))::date) AS calc_date
+                         FROM temp_generated_bookings t
+                                  JOIN configured_intervals ci ON t.b_id = ci.b_id
+                                  CROSS JOIN LATERAL generate_series(1, t.amount_appointments) AS seq(idx)),
+     base_appointment_datetimes AS (SELECT b_id,
+                                           differ,
+                                           calc_date + base_time - INTERVAL '30 minutes'                      AS base_occ_start,
+                                           calc_date + base_time + INTERVAL '2 hours' + INTERVAL '30 minutes' AS base_occ_end,
+                                           calc_date + base_time                                              AS base_app_start,
+                                           calc_date + base_time + INTERVAL '2 hours'                         AS base_app_end
+                                    FROM expanded_series),
+     calculated_appointments AS (SELECT gen_random_uuid() AS id,
+                                        b_id,
+                                        CASE
+                                            WHEN differ AND random() < 0.20
+                                                THEN base_occ_start + (floor(random() * 16) || ' minutes')::INTERVAL
+                                            ELSE base_occ_start
+                                            END           AS occ_start,
+
+                                        CASE
+                                            WHEN differ AND random() < 0.20
+                                                THEN base_occ_end - (floor(random() * 21) || ' minutes')::INTERVAL
+                                            ELSE base_occ_end
+                                            END           AS occ_end,
+
+                                        CASE
+                                            WHEN differ AND random() < 0.20
+                                                THEN GREATEST(base_app_start + (floor(random() * 11) || ' minutes')::INTERVAL, base_occ_start)
+                                            ELSE base_app_start
+                                            END           AS app_start,
+
+                                        CASE
+                                            WHEN differ AND random() < 0.20
+                                                THEN LEAST(base_app_end - (floor(random() * 21) || ' minutes')::INTERVAL, base_occ_end)
+                                            ELSE base_app_end
+                                            END           AS app_end
+                                 FROM base_appointment_datetimes)
+SELECT id,
+       occ_start,
+       occ_end,
+       app_start,
+       app_end,
+       b_id AS booking_id
+FROM calculated_appointments t
+WHERE EXISTS (SELECT 1 FROM booking b WHERE b.id = t.b_id);
+
+DROP TABLE temp_generated_bookings;
