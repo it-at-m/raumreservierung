@@ -1,13 +1,15 @@
 package de.muenchen.raumreservierung.appointment;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
+import lombok.NonNull;
+import org.jspecify.annotations.Nullable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface AppointmentRepository extends JpaRepository<Appointment, UUID> {
-    List<Appointment> findAllByBookingRoomIdAndScheduleOccupancyStartBetweenOrderByScheduleOccupancyStartAsc(UUID roomId, LocalDateTime start,
-            LocalDateTime end);
-
-    List<Appointment> findAllByBookingRoomIdOrderByScheduleOccupancyStartAsc(UUID roomId);
+public interface AppointmentRepository extends JpaRepository<Appointment, UUID>, JpaSpecificationExecutor<Appointment> {
+    @Override
+    @NonNull Page<Appointment> findAll(@Nullable Specification<Appointment> specification, @NonNull Pageable pageable);
 }

@@ -17,6 +17,9 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.Recur;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -27,21 +30,11 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
 
     @PreAuthorize(Authorities.APPOINTMENT_READ)
-    public List<Appointment> getAppointmentsByPeriodAndRoom(@Valid final AppointmentFilterDTO appointmentFilterDTO) {
-        final UUID roomId = appointmentFilterDTO.roomId();
-        if (appointmentFilterDTO.startDate() == null && appointmentFilterDTO.endDate() == null) {
-            return appointmentRepository.findAllByBookingRoomIdOrderByScheduleOccupancyStartAsc(roomId);
-        }
-
-        final LocalDateTime start = appointmentFilterDTO.startDate() != null
-                ? appointmentFilterDTO.startDate().atStartOfDay()
-                : LocalDateTime.MIN;
-
-        final LocalDateTime end = appointmentFilterDTO.endDate() != null
-                ? appointmentFilterDTO.endDate().atTime(java.time.LocalTime.MAX)
-                : LocalDateTime.MAX;
-
-        return appointmentRepository.findAllByBookingRoomIdAndScheduleOccupancyStartBetweenOrderByScheduleOccupancyStartAsc(roomId, start, end);
+    public Page<Appointment> getAppointmentsByPageableAndFilter(final Pageable pageable, @Valid final AppointmentFilterDTO appointmentFilterDTO) {
+        final Specification<Appointment> appointmentSpecification = AppointmentSpecificationBuilder.fromFilter(appointmentFilterDTO);
+        final Page<Appointment> filteredAppointments = appointmentRepository.findAll(appointmentSpecification, pageable);
+        log.debug("Found {} bookings", filteredAppointments.getTotalElements());
+        return filteredAppointments;
     }
 
     @PreAuthorize(Authorities.APPOINTMENT_WRITE)
