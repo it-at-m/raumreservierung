@@ -1,11 +1,11 @@
 package de.muenchen.raumreservierung.appointment.dto;
 
 import jakarta.validation.constraints.NotNull;
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record AppointmentFilterDTO(
-        LocalDateTime startDate,
-        LocalDateTime endDate,
+        LocalDate startDate,
+        LocalDate endDate,
         @NotNull UUID roomId) {
 }

@@ -5,6 +5,7 @@ import de.muenchen.raumreservierung.booking.Booking_;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate_;
 import de.muenchen.raumreservierung.room.Room_;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -22,10 +23,10 @@ public final class AppointmentSpecificationBuilder {
             specificationList.add(filterForRoomId(appointmentFilterDTO.roomId()));
         }
         if (appointmentFilterDTO.startDate() != null) {
-            specificationList.add(filterForStartDate(appointmentFilterDTO.startDate()));
+            specificationList.add(filterForStartDate(appointmentFilterDTO.startDate().atStartOfDay()));
         }
         if (appointmentFilterDTO.endDate() != null) {
-            specificationList.add(filterForEndDate(appointmentFilterDTO.endDate()));
+            specificationList.add(filterForEndDate(appointmentFilterDTO.endDate().atTime(LocalTime.MAX)));
         }
 
         return Specification.allOf(specificationList);
