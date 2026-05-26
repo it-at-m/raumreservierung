@@ -151,6 +151,12 @@ public class BookingService {
         if (savedBooking.getBookedBy() != null) {
             entityManager.detach(savedBooking.getBookedBy());
         }
+        if (savedBooking.getBookedFor() != null) {
+            entityManager.detach(savedBooking.getBookedFor());
+        }
+        if (savedBooking.getSeatingType() != null) {
+            entityManager.detach(savedBooking.getSeatingType());
+        }
 
         return savedBooking;
     }

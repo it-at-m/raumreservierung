@@ -5,6 +5,7 @@ import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
+import de.muenchen.raumreservierung.seating.SeatingType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -24,7 +25,8 @@ public record BookingDetailResponseDTO(
         @NotNull ScheduleTemplate schedule,
         @NotNull PersonResponseDto bookedBy,
         PersonResponseDto bookedFor,
-        @NotNull String organisationUnit
+        @NotNull String organisationUnit,
+        SeatingType seatingType
 //TODO: add status
 ) {
 }
