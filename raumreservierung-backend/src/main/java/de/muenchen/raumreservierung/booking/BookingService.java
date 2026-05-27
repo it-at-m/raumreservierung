@@ -78,17 +78,7 @@ public class BookingService {
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
-        final InternalPerson currentPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
-        booking.setOrganisationUnit(currentPerson.getOrganisationUnit());
-
-        Person bookedBy = booking.getBookedBy();
-        bookedBy = (Person) Hibernate.unproxy(bookedBy);
-        if (!(bookedBy instanceof InternalPerson)) {
-            throw new BadRequestException(MSG_BOOKEDBY_MUST_BE_INTERNAL_PERSON);
-        }
-        if (booking.getBookedFor() == null) {
-            booking.setBookedFor(bookedBy);
-        }
+        assignBookingContext(booking);
 
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
@@ -113,14 +103,7 @@ public class BookingService {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
 
-        Person bookedBy = bookingUpdates.getBookedBy();
-        bookedBy = (Person) Hibernate.unproxy(bookedBy);
-        if (!(bookedBy instanceof InternalPerson)) {
-            throw new BadRequestException(MSG_BOOKEDBY_MUST_BE_INTERNAL_PERSON);
-        }
-        if (bookingUpdates.getBookedFor() == null) {
-            bookingUpdates.setBookedFor(bookedBy);
-        }
+        assignBookingContext(bookingUpdates);
 
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
@@ -196,4 +179,24 @@ public class BookingService {
 
         return booking.getBookedBy().getId().equals(internalPerson.getId());
     }
+
+    /**
+     * Initializes the booking's organization unit and booked for person if missing.
+     *
+     * @param booking the booking to process and enrich
+     * @throws BadRequestException if the booked by is not an internal person
+     */
+    private void assignBookingContext(final Booking booking) {
+        Person bookedBy = booking.getBookedBy();
+        bookedBy = (Person) Hibernate.unproxy(bookedBy);
+        if (bookedBy instanceof InternalPerson internalBookedBy) {
+            booking.setOrganisationUnit(internalBookedBy.getOrganisationUnit());
+        } else {
+            throw new BadRequestException(MSG_BOOKEDBY_MUST_BE_INTERNAL_PERSON);
+        }
+        if (booking.getBookedFor() == null) {
+            booking.setBookedFor(bookedBy);
+        }
+    }
+
 }
