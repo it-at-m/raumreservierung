@@ -1,11 +1,13 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
+import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.person.PersonService;
@@ -72,6 +74,11 @@ public class BookingService {
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
         }
+
+        if (booking.getRoom() != null && !booking.getRoom().isActive()) {
+            throw new BadRequestException(MSG_ROOM_INACTIVE);
+        }
+
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
@@ -103,6 +110,10 @@ public class BookingService {
 
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
+        }
+
+        if (bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive()) {
+            throw new BadRequestException(MSG_ROOM_INACTIVE);
         }
 
         if (!Objects.equals(bookingUpdates.getRecurringRule(), existingBooking.getRecurringRule())) {
