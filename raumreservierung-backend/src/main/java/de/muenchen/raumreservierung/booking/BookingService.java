@@ -1,16 +1,15 @@
 package de.muenchen.raumreservierung.booking;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_BOOKEDBY_MUST_BE_INTERNAL_PERSON;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
-import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.person.PersonService;
+import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.security.AuthUtils;
@@ -181,22 +180,26 @@ public class BookingService {
     }
 
     /**
-     * Initializes the booking's organization unit and booked for person if missing.
+     * Sets the organization unit and determines who the booking is created by and for.
      *
      * @param booking the booking to process and enrich
-     * @throws BadRequestException if the booked by is not an internal person
+     * @throws NotFoundException if the current user from the security context cannot be found by oid
      */
     private void assignBookingContext(final Booking booking) {
-        Person bookedBy = booking.getBookedBy();
-        bookedBy = (Person) Hibernate.unproxy(bookedBy);
-        if (bookedBy instanceof InternalPerson internalBookedBy) {
-            booking.setOrganisationUnit(internalBookedBy.getOrganisationUnit());
-        } else {
-            throw new BadRequestException(MSG_BOOKEDBY_MUST_BE_INTERNAL_PERSON);
-        }
+        final InternalPerson currentPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
+        booking.setOrganisationUnit(currentPerson.getOrganisationUnit());
+
         if (booking.getBookedFor() == null) {
-            booking.setBookedFor(bookedBy);
+            booking.setBookedFor(currentPerson);
         }
+
+        final Person bookedFor = (Person) Hibernate.unproxy(booking.getBookedFor());
+        if (securityContextService.hasAuthority(Roles.RAUM_ADMIN) && !(bookedFor instanceof ExternalPerson)) {
+            booking.setBookedBy(bookedFor);
+        } else {
+            booking.setBookedBy(currentPerson);
+        }
+
     }
 
 }
