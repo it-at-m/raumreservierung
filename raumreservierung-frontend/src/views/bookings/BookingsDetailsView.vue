@@ -1,43 +1,68 @@
 <template>
   <base-view :header-text="t('views.bookingDetailsView.header')">
+    <template #headerPrepend>
+      <v-icon
+        size="30"
+        :icon="mdiArrowLeft"
+        @click="router.back()"
+      />
+    </template>
+    <template #headerActions>
+      <base-button
+        secondary
+        :append-icon="mdiPencil"
+        :text="t('common.edit')"
+        @click="
+          router.push({
+            name: isMyBooking ? ROUTES.MY_BOOKINGS_EDIT : ROUTES.BOOKINGS_EDIT,
+            params: { id: bookingId },
+          })
+        "
+      />
+    </template>
     <template #default>
-      <v-row class="mb-4">
-        <v-col
-          flat
-          cols="12"
-          md="6"
-        >
-          <v-skeleton-loader
-            :loading="getBookingLoading"
-            type="article"
+      <v-sheet
+        border
+        class="mb-4"
+        rounded
+        elevation="0"
+      >
+        <v-row>
+          <v-col
+            cols="12"
+            sm="6"
           >
-            <v-responsive>
-              <booking-general-info-card
-                :id="getBookingData?.id"
-                :title="getBookingData?.title"
-                :schedule="getBookingData?.schedule"
-              />
-            </v-responsive>
-          </v-skeleton-loader>
-        </v-col>
-        <v-col
-          flat
-          cols="12"
-          md="6"
-        >
-          <v-skeleton-loader
-            :loading="getBookingLoading"
-            type="article"
+            <v-skeleton-loader
+              :loading="getBookingLoading"
+              type="article"
+            >
+              <v-responsive>
+                <booking-general-info-card
+                  :id="getBookingData?.id"
+                  :title="getBookingData?.title"
+                  :schedule="getBookingData?.schedule"
+                />
+              </v-responsive>
+            </v-skeleton-loader>
+          </v-col>
+          <v-col
+            cols="12"
+            sm="6"
           >
-            <v-responsive>
-              <schedule-timeline-card
-                v-if="getBookingData?.schedule"
-                :schedule="getBookingData?.schedule"
-              />
-            </v-responsive>
-          </v-skeleton-loader>
-        </v-col>
-      </v-row>
+            <v-skeleton-loader
+              :loading="getBookingLoading"
+              type="article"
+            >
+              <v-responsive>
+                <schedule-timeline-card
+                  v-if="getBookingData?.schedule"
+                  :schedule="getBookingData?.schedule"
+                />
+              </v-responsive>
+            </v-skeleton-loader>
+          </v-col>
+        </v-row>
+      </v-sheet>
       <div
         class="w-100 masonry-container"
         :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'"
@@ -54,6 +79,7 @@
                 v-for="equipment in getBookingData?.equipments"
                 :key="equipment.id"
                 :title="equipment.name"
+                :subtitle="equipment.description"
               >
               </v-list-item>
             </v-list>
@@ -61,22 +87,31 @@
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
           <details-card
-            title="Bestuhlung"
+            :title="t('domain.seatingType.header')"
             :icon="mdiSofaSingleOutline"
-            :subtitle="'Teilnehmer ' + getBookingData?.participantCount"
+            :subtitle="
+              t('views.bookingDetailsView.participants', {
+                count: getBookingData?.participantCount,
+              })
+            "
             :loading="getBookingLoading"
           >
             <v-list>
               <v-list-item
-                title="Gewählte Bestuhlung"
-                subtitle="HIER STEHT DIE GEWÄHLTE BESTUHLUNG"
+                :title="t('views.bookingDetailsView.chosenSeatingType')"
+                :subtitle="t('common.todo')"
               />
             </v-list>
           </details-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
           <details-card
-            :title="`Gebucht für ${getBookingData?.bookedFor?.firstName} ${getBookingData?.bookedFor?.lastName}`"
+            :title="
+              t('views.bookingDetailsView.bookedFor', {
+                firstName: getBookingData?.bookedFor?.firstName,
+                lastName: getBookingData?.bookedFor?.lastName,
+              })
+            "
             :subtitle="bookedByComputed"
             :icon="mdiAccountOutline"
             :loading="getBookingLoading"
@@ -87,7 +122,7 @@
           class="masonry-item w-100 d-inline-block mb-4"
         >
           <details-card
-            title="Serientermine"
+            :title="t('views.bookingDetailsView.seriesDate')"
             :icon="mdiCalendarRangeOutline"
             :loading="getBookingLoading"
           >
@@ -107,7 +142,7 @@
           class="masonry-item w-100 d-inline-block mb-4"
         >
           <details-card
-            title="Notizen"
+            :title="t('views.bookingDetailsView.notes')"
             :icon="mdiFileDocumentOutline"
             :loading="getBookingLoading"
           >
@@ -124,7 +159,7 @@
           class="masonry-item w-100 d-inline-block mb-4"
         >
           <details-card
-            title="Interne Notizen"
+            :title="t('views.bookingDetailsView.internalNotes')"
             :icon="mdiFileDocumentAlertOutline"
             :loading="getBookingLoading"
           >
@@ -143,10 +178,12 @@
 <script setup lang="ts">
 import {
   mdiAccountOutline,
+  mdiArrowLeft,
   mdiCalendarRangeOutline,
   mdiDoor,
   mdiFileDocumentAlertOutline,
   mdiFileDocumentOutline,
+  mdiPencil,
   mdiSofaSingleOutline,
 } from "@mdi/js";
 import { computed, onMounted } from "vue";
@@ -158,6 +195,7 @@ import AppointmentListItem from "@/components/booking/AppointmentListItem.vue";
 import BookingGeneralInfoCard from "@/components/booking/BookingGeneralInfoCard.vue";
 import ScheduleTimelineCard from "@/components/booking/ScheduleTimelineCard.vue";
 import BaseView from "@/components/common/BaseView.vue";
+import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -216,7 +254,10 @@ const visibleAppointments = computed(() => {
 const bookedByComputed = computed(() =>
   getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
     ? ""
-    : `Gebucht von ${getBookingData?.value?.bookedBy?.firstName} ${getBookingData?.value?.bookedBy?.lastName}`
+    : t("views.bookingDetailsView.bookedBy", {
+        firstName: getBookingData?.value?.bookedBy?.firstName,
+        lastName: getBookingData?.value?.bookedBy?.lastName,
+      })
 );
 </script>
 
