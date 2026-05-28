@@ -1,12 +1,12 @@
 package de.muenchen.raumreservierung.booking.dto;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 public record BookingFilterDTO(
         UUID roomId,
-        LocalDateTime start,
-        LocalDateTime end
+        LocalDate start,
+        LocalDate end
 //TODO: add status filter
 ) {
 }
