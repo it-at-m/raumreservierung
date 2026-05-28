@@ -1,8 +1,10 @@
 package de.muenchen.raumreservierung.room;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_FUTURE_APPOINTMENT;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
+import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
@@ -21,6 +23,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final EntityManager entityManager;
+    private final AppointmentService appointmentService;
 
     public Room getById(final UUID roomId) {
         return getEntityOrThrowException(roomId);
@@ -68,6 +71,9 @@ public class RoomService {
 
         if (toDelete.isActive()) {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, roomId));
+        }
+        if (appointmentService.hasFutureAppointments(roomId)) {
+            throw new ConflictException(String.format(MSG_CANNOT_DELETE_FUTURE_APPOINTMENT, roomId));
         }
 
         log.debug("Deleted room to {}", roomId);

@@ -47,6 +47,11 @@ public class AppointmentService {
         appointmentRepository.deleteById(appointmentId);
     }
 
+    public boolean hasFutureAppointments(final UUID roomId) {
+        final LocalDateTime start = LocalDateTime.now();
+        return appointmentRepository.existsByBookingRoomIdAndScheduleOccupancyEndAfter(roomId, start);
+    }
+
     /**
      * Calculates the individual appointments for a booking based on its schedule
      * and an optional recurrence rule and linking them to the booking.
