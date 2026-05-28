@@ -11,6 +11,7 @@ import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.person.PersonService;
+import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room;
@@ -27,6 +28,7 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -79,8 +81,7 @@ public class BookingService {
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
-        final InternalPerson currentPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
-        booking.setOrganisationUnit(currentPerson.getOrganisationUnit());
+        assignBookingContext(booking);
 
         if (seatingTypeNotAvailableInRoom(booking)) {
             throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
@@ -108,6 +109,8 @@ public class BookingService {
         if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
+
+        assignBookingContext(bookingUpdates);
 
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
@@ -205,4 +208,28 @@ public class BookingService {
                         .noneMatch(capacity -> Objects.equals(capacity.getSeatingType(), booking.getSeatingType())))
                 .orElse(true);
     }
+
+    /**
+     * Sets the organization unit and determines who the booking is created by and for.
+     *
+     * @param booking the booking to process and enrich
+     * @throws NotFoundException if the current user from the security context cannot be found by oid
+     */
+    private void assignBookingContext(final Booking booking) {
+        final InternalPerson currentPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
+        booking.setOrganisationUnit(currentPerson.getOrganisationUnit());
+
+        if (booking.getBookedFor() == null) {
+            booking.setBookedFor(currentPerson);
+        }
+
+        final Person bookedFor = (Person) Hibernate.unproxy(booking.getBookedFor());
+        if (securityContextService.hasAuthority(Roles.RAUM_ADMIN) && !(bookedFor instanceof ExternalPerson)) {
+            booking.setBookedBy(bookedFor);
+        } else {
+            booking.setBookedBy(currentPerson);
+        }
+
+    }
+
 }
