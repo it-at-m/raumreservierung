@@ -6,10 +6,10 @@ create table booking
     catering_needed   boolean default false,
     internal_notes    varchar(500),
     additional_notes  varchar(500),
-    occupancy_start   timestamp    not null,
-    occupancy_end     timestamp    not null,
-    appointment_start timestamp    not null,
-    appointment_end   timestamp    not null,
+    occupancy_start   timestamp with time zone   not null,
+    occupancy_end     timestamp with time zone   not null,
+    appointment_start timestamp with time zone   not null,
+    appointment_end   timestamp with time zone   not null,
     booked_by_id      uuid         not null,
     booked_for_id     uuid,
     -- TODO: make organisation_unit not null
@@ -35,10 +35,10 @@ CREATE TABLE booking_equipment
 create table appointment
 (
     id                uuid      not null,
-    occupancy_start   timestamp not null,
-    occupancy_end     timestamp not null,
-    appointment_start timestamp not null,
-    appointment_end   timestamp not null,
+    occupancy_start   timestamp with time zone not null,
+    occupancy_end     timestamp with time zone not null,
+    appointment_start timestamp with time zone not null,
+    appointment_end   timestamp with time zone not null,
     booking_id        uuid      not null,
     primary key (id),
     foreign key (booking_id) references booking (id) on delete cascade

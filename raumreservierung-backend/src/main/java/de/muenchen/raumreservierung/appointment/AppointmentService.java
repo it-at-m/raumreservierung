@@ -8,7 +8,7 @@ import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -28,8 +28,9 @@ public class AppointmentService {
     @PreAuthorize(Authorities.APPOINTMENT_READ)
     public List<Appointment> getAppointmentsByPeriodAndRoom(final AppointmentFilterDTO appointmentFilterDTO) {
         final UUID roomId = appointmentFilterDTO.roomId();
-        final LocalDateTime start = appointmentFilterDTO.startDate().atStartOfDay();
-        final LocalDateTime end = appointmentFilterDTO.endDate().atTime(java.time.LocalTime.MAX);
+        final java.time.ZoneId zone = java.time.ZoneId.of("Europe/Berlin");
+        final OffsetDateTime start = appointmentFilterDTO.startDate().atStartOfDay(zone).toOffsetDateTime();
+        final OffsetDateTime end = appointmentFilterDTO.endDate().atTime(java.time.LocalTime.MAX).atZone(zone).toOffsetDateTime();
         return appointmentRepository.findAllByBookingRoomIdAndScheduleOccupancyStartBetween(roomId, start, end);
     }
 
@@ -68,14 +69,14 @@ public class AppointmentService {
         final Duration offsetOccupancyEnd = Duration.between(base.appointmentStart(), base.occupancyEnd());
         final Duration offsetAppointmentEnd = Duration.between(base.appointmentStart(), base.appointmentEnd());
 
-        final Recur<LocalDateTime> recur = new Recur<>(booking.getRecurringRule());
+        final Recur<OffsetDateTime> recur = new Recur<>(booking.getRecurringRule());
 
-        final LocalDateTime seed = base.appointmentStart();
-        final LocalDateTime limit = recur.getUntil() != null
+        final OffsetDateTime seed = base.appointmentStart();
+        final OffsetDateTime limit = recur.getUntil() != null
                 ? recur.getUntil()
                 : seed.plusYears(1);
 
-        final List<LocalDateTime> dates = recur.getDates(seed, seed, limit);
+        final List<OffsetDateTime> dates = recur.getDates(seed, seed, limit);
 
         return dates.stream().map(date -> {
             final ScheduleTemplate newSchedule = new ScheduleTemplate(
