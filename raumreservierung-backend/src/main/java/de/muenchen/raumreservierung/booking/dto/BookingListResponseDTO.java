@@ -15,7 +15,7 @@ public record BookingListResponseDTO(
         @NotNull boolean isRecurring,
         @NotNull ScheduleTemplate schedule,
         @NotNull PersonResponseDto bookedBy,
-        PersonResponseDto bookedFor
+        @NotNull PersonResponseDto bookedFor
 //TODO: add status
 ) {
 }
