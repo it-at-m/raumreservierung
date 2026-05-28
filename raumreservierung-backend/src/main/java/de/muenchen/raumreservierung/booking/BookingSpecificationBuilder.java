@@ -3,8 +3,8 @@ package de.muenchen.raumreservierung.booking;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room_;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -21,15 +21,16 @@ public final class BookingSpecificationBuilder {
 
     public static <T extends Booking> Specification<T> fromFilterWithPerson(final BookingFilterDTO bookingFilterDTO, final Person person) {
         final List<Specification<T>> specificationList = new ArrayList<>();
+        final java.time.ZoneId zone = java.time.ZoneId.of("Europe/Berlin");
 
         if (bookingFilterDTO.roomId() != null) {
             specificationList.add(filterForRoomId(bookingFilterDTO.roomId()));
         }
         if (bookingFilterDTO.start() != null) {
-            specificationList.add(filterForStart(bookingFilterDTO.start().atStartOfDay()));
+            specificationList.add(filterForStart(bookingFilterDTO.start().atStartOfDay(zone).toOffsetDateTime()));
         }
         if (bookingFilterDTO.end() != null) {
-            specificationList.add(filterForEnd(bookingFilterDTO.end().atTime(LocalTime.MAX)));
+            specificationList.add(filterForEnd(bookingFilterDTO.end().atTime(LocalTime.MAX).atZone(zone).toOffsetDateTime()));
         }
         if (person != null && person.getId() != null) {
             specificationList.add(filterForPerson(person));
