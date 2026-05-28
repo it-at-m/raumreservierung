@@ -7,6 +7,7 @@ import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
+import jakarta.validation.Valid;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -16,6 +17,9 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.Recur;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -26,12 +30,11 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
 
     @PreAuthorize(Authorities.APPOINTMENT_READ)
-    public List<Appointment> getAppointmentsByPeriodAndRoom(final AppointmentFilterDTO appointmentFilterDTO) {
-        final UUID roomId = appointmentFilterDTO.roomId();
-        final java.time.ZoneId zone = java.time.ZoneId.of("Europe/Berlin");
-        final OffsetDateTime start = appointmentFilterDTO.startDate().atStartOfDay(zone).toOffsetDateTime();
-        final OffsetDateTime end = appointmentFilterDTO.endDate().atTime(java.time.LocalTime.MAX).atZone(zone).toOffsetDateTime();
-        return appointmentRepository.findAllByBookingRoomIdAndScheduleOccupancyStartBetween(roomId, start, end);
+    public Page<Appointment> getAppointmentsByPageableAndFilter(final Pageable pageable, @Valid final AppointmentFilterDTO appointmentFilterDTO) {
+        final Specification<Appointment> appointmentSpecification = AppointmentSpecificationBuilder.fromFilter(appointmentFilterDTO);
+        final Page<Appointment> filteredAppointments = appointmentRepository.findAll(appointmentSpecification, pageable);
+        log.debug("Found {} bookings", filteredAppointments.getTotalElements());
+        return filteredAppointments;
     }
 
     @PreAuthorize(Authorities.APPOINTMENT_WRITE)

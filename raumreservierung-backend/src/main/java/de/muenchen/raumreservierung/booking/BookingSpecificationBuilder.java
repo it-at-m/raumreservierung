@@ -3,7 +3,8 @@ package de.muenchen.raumreservierung.booking;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room_;
-import java.time.OffsetDateTime;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -25,10 +26,10 @@ public final class BookingSpecificationBuilder {
             specificationList.add(filterForRoomId(bookingFilterDTO.roomId()));
         }
         if (bookingFilterDTO.start() != null) {
-            specificationList.add(filterForStart(bookingFilterDTO.start()));
+            specificationList.add(filterForStart(bookingFilterDTO.start().atStartOfDay()));
         }
         if (bookingFilterDTO.end() != null) {
-            specificationList.add(filterForEnd(bookingFilterDTO.end()));
+            specificationList.add(filterForEnd(bookingFilterDTO.end().atTime(LocalTime.MAX)));
         }
         if (person != null && person.getId() != null) {
             specificationList.add(filterForPerson(person));
