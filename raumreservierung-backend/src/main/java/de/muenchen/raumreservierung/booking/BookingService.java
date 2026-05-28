@@ -1,17 +1,20 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
+import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
+import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.security.AuthUtils;
 import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
@@ -19,6 +22,7 @@ import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -79,6 +83,10 @@ public class BookingService {
 
         assignBookingContext(booking);
 
+        if (seatingTypeNotAvailableInRoom(booking)) {
+            throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
+        }
+
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
         log.debug("Created booking with id {}", savedBooking.getId());
@@ -106,6 +114,10 @@ public class BookingService {
 
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
+        }
+
+        if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
+            throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
         }
 
         if (!Objects.equals(bookingUpdates.getRecurringRule(), existingBooking.getRecurringRule())) {
@@ -157,6 +169,9 @@ public class BookingService {
         if (savedBooking.getBookedFor() != null) {
             entityManager.detach(savedBooking.getBookedFor());
         }
+        if (savedBooking.getSeatingType() != null) {
+            entityManager.detach(savedBooking.getSeatingType());
+        }
 
         return savedBooking;
     }
@@ -177,6 +192,21 @@ public class BookingService {
         final InternalPerson internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
 
         return booking.getBookedBy().getId().equals(internalPerson.getId());
+    }
+
+    /**
+     * Validates if the selected seating type is available within the booked room's capacities.
+     *
+     * @param booking Booking containing the room and requested seating type.
+     * @return true if the seating type is not available in selected room or no room is selected; false
+     *         otherwise.
+     */
+    public boolean seatingTypeNotAvailableInRoom(final Booking booking) {
+        return booking.getSeatingType() != null && Optional.ofNullable(booking.getRoom())
+                .map(Room::getRoomSeatingCapacities)
+                .map(capacities -> capacities.stream()
+                        .noneMatch(capacity -> Objects.equals(capacity.getSeatingType(), booking.getSeatingType())))
+                .orElse(true);
     }
 
     /**
