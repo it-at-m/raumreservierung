@@ -15,10 +15,16 @@ import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
 import de.muenchen.raumreservierung.person.PersonRepository;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import de.muenchen.raumreservierung.room.Room;
+import de.muenchen.raumreservierung.room.RoomRepository;
+import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
+import de.muenchen.raumreservierung.seating.SeatingRepository;
+import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.Roles;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
@@ -69,7 +75,16 @@ public class BookingControllerIntegrationTest {
     @Autowired
     private PersonRepository personRepository;
 
+    @Autowired
+    private RoomRepository roomRepository;
+
+    @Autowired
+    private SeatingRepository seatingRepository;
+
     private InternalPerson mockPerson;
+    private Room mockRoom;
+    private SeatingType mockSeatingType1;
+    private SeatingType mockSeatingType2;
 
     @BeforeEach
     void setUp() {
@@ -81,6 +96,30 @@ public class BookingControllerIntegrationTest {
         mockPerson.setEmail("TEST_EMAIL");
         mockPerson.setRoleFunction("anwender");
         mockPerson = personRepository.save(mockPerson);
+
+        mockRoom = new Room();
+        mockRoom.setName("TEST_ROOM_NAME");
+        mockRoom.setNumber("100");
+        mockRoom.setActive(true);
+        mockRoom = roomRepository.save(mockRoom);
+
+        mockSeatingType1 = new SeatingType();
+        mockSeatingType1.setName("TEST_SEATING");
+        mockSeatingType1.setActive(true);
+        mockSeatingType1 = seatingRepository.save(mockSeatingType1);
+
+        mockSeatingType2 = new SeatingType();
+        mockSeatingType2.setName("TEST_SEATING_2");
+        mockSeatingType2.setActive(true);
+        mockSeatingType2 = seatingRepository.save(mockSeatingType2);
+
+        RoomSeatingCapacity mockRoomSeatingCapacity = new RoomSeatingCapacity();
+        mockRoomSeatingCapacity.setRoom(mockRoom);
+        mockRoomSeatingCapacity.setSeatingType(mockSeatingType1);
+        mockRoomSeatingCapacity.setCapacity(5);
+
+        mockRoom.setRoomSeatingCapacities(Set.of(mockRoomSeatingCapacity));
+        roomRepository.save(mockRoom);
     }
 
     @Test
@@ -93,6 +132,61 @@ public class BookingControllerIntegrationTest {
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsCreated_WhenNoRoomAndNoSeatingType() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsCreated_WhenRoomHasRequestedSeatingType() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), mockSeatingType1.getId());
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsCreated_WhenNoSeatingTypeChosen() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), mockSeatingType1.getId());
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsBadRequest_WhenRoomHasNotRequestedSeatingType() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), mockSeatingType2.getId());
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsBadRequest_WhenNoRoomChosenButSeatingType() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(null, mockSeatingType1.getId());
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
     }
 
     @ParameterizedTest
@@ -136,7 +230,32 @@ public class BookingControllerIntegrationTest {
                 recurringRule,
                 null,
                 schedule,
-                bookedForId);
+                bookedForId,
+                null);
+    }
+
+    private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
+            UUID roomId,
+            UUID seatingTypeId) {
+
+        ScheduleTemplate schedule = new ScheduleTemplate(
+                LocalDateTime.now(),
+                LocalDateTime.now().plusHours(2),
+                LocalDateTime.now().plusMinutes(15),
+                LocalDateTime.now().plusHours(1).plusMinutes(30));
+
+        return new BookingRequestDTO(
+                "Test",
+                100,
+                null,
+                false,
+                "please clean",
+                "no notes necessary",
+                null,
+                roomId,
+                schedule,
+                mockPerson.getId(),
+                seatingTypeId);
     }
 
     private static Stream<Arguments> provideTestData() {

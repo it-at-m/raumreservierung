@@ -16,10 +16,12 @@ create table booking
     organisation_unit varchar(255),
     room_id           uuid,
     recurring_rule    varchar(255),
+    seating_type_id   uuid,
     primary key (id),
     foreign key (booked_by_id) REFERENCES person (id),
     foreign key (booked_for_id) REFERENCES person (id),
-    foreign key (room_id) REFERENCES room (id)
+    foreign key (room_id) REFERENCES room (id),
+    foreign key (seating_type_id) REFERENCES seating_type (id)
 );
 
 CREATE TABLE booking_equipment
