@@ -18,16 +18,18 @@ public final class AppointmentSpecificationBuilder {
 
     public static <T extends Appointment> Specification<T> fromFilter(final AppointmentFilterDTO appointmentFilterDTO) {
         final List<Specification<T>> specificationList = new ArrayList<>();
-        final java.time.ZoneId zone = java.time.ZoneId.of("Europe/Berlin");
 
         if (appointmentFilterDTO.roomId() != null) {
             specificationList.add(filterForRoomId(appointmentFilterDTO.roomId()));
         }
-        if (appointmentFilterDTO.startDate() != null) {
-            specificationList.add(filterForStartDate(appointmentFilterDTO.startDate().atStartOfDay(zone).toOffsetDateTime()));
+        final OffsetDateTime start = appointmentFilterDTO.startDate();
+        if (start != null) {
+            specificationList.add(filterForStartDate(appointmentFilterDTO.startDate().toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime()));
         }
-        if (appointmentFilterDTO.endDate() != null) {
-            specificationList.add(filterForEndDate(appointmentFilterDTO.endDate().atTime(LocalTime.MAX).atZone(zone).toOffsetDateTime()));
+        final OffsetDateTime end = appointmentFilterDTO.endDate();
+        if (end != null) {
+            specificationList
+                    .add(filterForEndDate(appointmentFilterDTO.endDate().toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime()));
         }
 
         return Specification.allOf(specificationList);

@@ -149,11 +149,15 @@ values ('550e8400-e29b-41d4-a716-446655449000', '123e4567-e89b-12d3-a456-4266141
        ('550e8400-e29b-41d4-a716-446655449010', '123e4567-e89b-12d3-a456-426614174002', 222, '770e8400-e29b-41d4-a716-446655440004'),
        ('550e8400-e29b-41d4-a716-446655449011', '123e4567-e89b-12d3-a456-426614174003', 333, '770e8400-e29b-41d4-a716-446655440004');
 
+DROP FUNCTION IF EXISTS relative_timestamp(integer, text);
 CREATE OR REPLACE FUNCTION relative_timestamp(day_offset integer, time_str text)
-    RETURNS timestamp AS
+    RETURNS timestamptz AS
 $$
+DECLARE
+    local_datetime timestamp;
 BEGIN
-    RETURN (CURRENT_DATE + (day_offset * INTERVAL '1 day') + time_str::TIME)::timestamp;
+    local_datetime := (CURRENT_DATE + (day_offset * INTERVAL '1 day') + time_str::TIME)::timestamp;
+    RETURN local_datetime AT TIME ZONE 'Europe/Berlin';
 END;
 $$ LANGUAGE plpgsql STABLE;
 

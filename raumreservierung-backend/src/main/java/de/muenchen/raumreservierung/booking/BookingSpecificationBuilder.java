@@ -21,16 +21,17 @@ public final class BookingSpecificationBuilder {
 
     public static <T extends Booking> Specification<T> fromFilterWithPerson(final BookingFilterDTO bookingFilterDTO, final Person person) {
         final List<Specification<T>> specificationList = new ArrayList<>();
-        final java.time.ZoneId zone = java.time.ZoneId.of("Europe/Berlin");
 
         if (bookingFilterDTO.roomId() != null) {
             specificationList.add(filterForRoomId(bookingFilterDTO.roomId()));
         }
-        if (bookingFilterDTO.start() != null) {
-            specificationList.add(filterForStart(bookingFilterDTO.start().atStartOfDay(zone).toOffsetDateTime()));
+        final OffsetDateTime start = bookingFilterDTO.start();
+        if (start != null) {
+            specificationList.add(filterForStart(start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime()));
         }
-        if (bookingFilterDTO.end() != null) {
-            specificationList.add(filterForEnd(bookingFilterDTO.end().atTime(LocalTime.MAX).atZone(zone).toOffsetDateTime()));
+        final OffsetDateTime end = bookingFilterDTO.end();
+        if (end != null) {
+            specificationList.add(filterForEnd(end.toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime()));
         }
         if (person != null && person.getId() != null) {
             specificationList.add(filterForPerson(person));
