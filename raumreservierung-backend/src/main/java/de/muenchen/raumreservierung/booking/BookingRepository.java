@@ -17,10 +17,10 @@ public interface BookingRepository extends JpaRepository<Booking, UUID>, JpaSpec
     Page<Booking> findAll(@Nullable Specification<Booking> spec, @NonNull Pageable pageable);
 
     @Override
-    @NonNull @EntityGraph(attributePaths = { "appointments", "equipment", "bookedBy", "bookedFor", "room" })
+    @NonNull @EntityGraph(attributePaths = { "appointments", "equipment", "bookedBy", "bookedFor", "room", "seatingType" })
     Optional<Booking> findById(@NonNull UUID uuid);
 
     @Override
-    @NonNull @EntityGraph(attributePaths = { "appointments", "equipment", "bookedBy", "bookedFor", "room" })
+    @NonNull @EntityGraph(attributePaths = { "appointments", "equipment", "bookedBy", "bookedFor", "room", "seatingType" })
     <S extends Booking> S saveAndFlush(@NonNull S entity);
 }

@@ -3,7 +3,8 @@ package de.muenchen.raumreservierung.booking;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room_;
-import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,11 +25,13 @@ public final class BookingSpecificationBuilder {
         if (bookingFilterDTO.roomId() != null) {
             specificationList.add(filterForRoomId(bookingFilterDTO.roomId()));
         }
-        if (bookingFilterDTO.start() != null) {
-            specificationList.add(filterForStart(bookingFilterDTO.start()));
+        final OffsetDateTime start = bookingFilterDTO.start();
+        if (start != null) {
+            specificationList.add(filterForStart(start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime()));
         }
-        if (bookingFilterDTO.end() != null) {
-            specificationList.add(filterForEnd(bookingFilterDTO.end()));
+        final OffsetDateTime end = bookingFilterDTO.end();
+        if (end != null) {
+            specificationList.add(filterForEnd(end.toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime()));
         }
         if (person != null && person.getId() != null) {
             specificationList.add(filterForPerson(person));
@@ -41,11 +44,11 @@ public final class BookingSpecificationBuilder {
         return (root, query, cb) -> cb.equal(root.get(Booking_.room).get(Room_.id), roomId);
     }
 
-    private static <T extends Booking> Specification<T> filterForStart(final LocalDateTime start) {
+    private static <T extends Booking> Specification<T> filterForStart(final OffsetDateTime start) {
         return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyStart), start);
     }
 
-    private static <T extends Booking> Specification<T> filterForEnd(final LocalDateTime end) {
+    private static <T extends Booking> Specification<T> filterForEnd(final OffsetDateTime end) {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyEnd), end);
     }
 
