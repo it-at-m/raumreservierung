@@ -19,12 +19,11 @@ export const mapBookingResponseToRequest = (
     cateringNeeded: response.cateringNeeded,
     internalNotes: response.internalNotes,
     additionalNotes: response.additionalNotes,
-
+    seatingTypeId: response.seatingType?.id,
     roomId: response.room?.id,
-    bookedById: response.bookedBy.id ?? "",
     bookedForId: response.bookedFor?.id,
     schedule: response.schedule,
-    recurringRule: undefined,
+    recurringRule: response.recurringRule,
   };
 };
 
@@ -35,9 +34,9 @@ export const EMPTY_BOOKING_REQUEST_DATA: BookingRequestDTO = {
   cateringNeeded: false,
   internalNotes: "",
   additionalNotes: "",
+  seatingTypeId: "",
   recurringRule: undefined,
   roomId: undefined,
-  bookedById: "",
   bookedForId: undefined,
   schedule: {
     occupancyStart: new Date(),
