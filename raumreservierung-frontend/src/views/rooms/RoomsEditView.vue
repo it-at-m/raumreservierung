@@ -54,7 +54,7 @@
       <base-button
         class="ml-4"
         :text="t('common.save')"
-        :append-icon="mdiPencil"
+        :append-icon="mdiContentSaveOutline"
         @click="handleSave"
       />
     </template>
@@ -255,8 +255,8 @@ import type {
 import type { DeepReadonly } from "vue";
 
 import {
+  mdiContentSaveOutline,
   mdiImageOutline,
-  mdiPencil,
   mdiTrashCanOutline,
   mdiWindowClose,
 } from "@mdi/js";
