@@ -2,7 +2,7 @@
   <v-text-field
     v-bind="$attrs"
     :type="type"
-    :model-value="useDateFormat(modelValue, format).value"
+    :model-value="displayValue"
     @update:model-value="updateDate"
   />
 </template>
@@ -34,6 +34,10 @@ const format = computed(() => {
       return DATE_TIME_FORMAT_YYYYMMDDTHHMM;
   }
 });
+
+const dateFormat = useDateFormat(modelValue, format);
+
+const displayValue = computed(() => (modelValue.value ? dateFormat.value : ""));
 
 const applyDatePart = (dateObj: Date, dateString: string) => {
   const [year, month, day] = dateString.split("-").map(Number);
@@ -76,7 +80,6 @@ const updateDate = (value: string | undefined | null) => {
     default: {
       const [datePart, timePart] = value.split("T");
 
-      console.log(datePart, timePart);
       if (datePart && timePart) {
         applyDatePart(baseDate, datePart);
         applyTimePart(baseDate, timePart);

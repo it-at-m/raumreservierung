@@ -4,6 +4,7 @@
     "no": "Nein",
     "cancel": "Abbrechen",
     "delete": "Löschen",
+    "deny": "Ablehnen",
     "save": "Speichern",
     "edit": "Bearbeiten",
     "add": "Hinzufügen",
@@ -13,6 +14,7 @@
     "action": "Aktion | Aktionen",
     "messages": {},
     "squareMeterAbr": "qm",
+    "todo": "TODO",
     "rules": {
       "notEmpty": "{field} darf nicht leer sein.",
       "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
@@ -20,8 +22,14 @@
       "noDateSelected": "Bitte wählen Sie ein Datum.",
       "startAfterEnd": "Beginn liegt nach Ende.",
       "endBeforeStart": "Ende liegt vor Beginn.",
+      "apptStartBeforeOccupancy": "Veranstaltungsbeginn vor Terminbeginn",
+      "apptEndAfterOccupancy": "Veranstaltungsende nach Terminende",
       "invalidEmail": "Die E-Mail Adresse ist nicht valide",
       "invalidTelefonNumber": "Diese Telefonnummer ist nicht valide"
+    },
+    "format": {
+      "idFormat": "#{id}",
+      "dateRange": "{start} - {end}"
     }
   },
   "app": {
@@ -35,6 +43,13 @@
   "components": {
     "roomResourceManagementCard": {
       "subtitle": "Neue {domain} zu bestehender Liste hinzufügen."
+    },
+    "dateDisplay": "{day} den {date}",
+    "scheduleTimelineCard": {
+      "header": "Zeitlicher Ablauf",
+      "end": "Ende",
+      "start": "Start",
+      "event": "Veranstaltung"
     }
   },
   "views": {
@@ -60,6 +75,16 @@
     },
     "roomListView": {
       "bookWORoomMsg": " Wenn Sie keinen konkreten Raum buchen möchten, können Sie auch eine Anfrage ohne Raumauswahl senden"
+    },
+    "bookingDetailsView": {
+      "header": "Buchungsdetails",
+      "participants": "Teilnehmende {count}",
+      "chosenSeatingType": "Gewählte Bestuhlung",
+      "bookedBy": "Gebucht von {firstName} {lastName}",
+      "bookedFor": "Gebucht für {firstName} {lastName}",
+      "seriesDate": "Serientermin",
+      "notes": "Notizen",
+      "internalNotes": "Interne Notizen"
     }
   },
   "generics": {
@@ -85,6 +110,7 @@
       "bookRooms": "über Räume buchen",
       "bookCalendar": "über Kalendar buchen"
     },
+    "bookings": "Buchungen verwalten",
     "personGroup": {
       "groupTitle": "Personen verwalten",
       "internalPersons": "Interne Personen verwalten",
@@ -105,6 +131,10 @@
     "help": "Hilfe"
   },
   "domain": {
+    "booking": {
+      "status": "Status",
+      "date": "Datum"
+    },
     "room": {
       "header": "Raum",
       "details": "Raumdetails",
