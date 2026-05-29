@@ -22,7 +22,8 @@ import de.muenchen.raumreservierung.seating.SeatingRepository;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.Roles;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -125,7 +126,7 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsCreated_WhenAuthenticatedAndNoRRule() throws Exception {
-        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now();
         BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, mockPerson.getId());
 
         mockMvc.perform(post(BOOKINGS_URL)
@@ -192,8 +193,8 @@ public class BookingControllerIntegrationTest {
     @ParameterizedTest
     @MethodSource("provideTestData")
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules(String rrule, int expectedSize, List<LocalDateTime> expectedDates) throws Exception {
-        LocalDateTime date = LocalDateTime.of(2026, 3, 2, 13, 45);
+    void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules(String rrule, int expectedSize, List<OffsetDateTime> expectedDates) throws Exception {
+        OffsetDateTime date = OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2));
         BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(date, rrule, mockPerson.getId());
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL).with(csrf())
@@ -214,7 +215,7 @@ public class BookingControllerIntegrationTest {
                 .containsExactlyInAnyOrderElementsOf(expectedDates);
     }
 
-    private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime now, String recurringRule, UUID bookedForId) {
+    private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime now, String recurringRule, UUID bookedForId) {
         ScheduleTemplate schedule = new ScheduleTemplate(
                 now,
                 now.plusHours(2),
@@ -239,10 +240,10 @@ public class BookingControllerIntegrationTest {
             UUID seatingTypeId) {
 
         ScheduleTemplate schedule = new ScheduleTemplate(
-                LocalDateTime.now(),
-                LocalDateTime.now().plusHours(2),
-                LocalDateTime.now().plusMinutes(15),
-                LocalDateTime.now().plusHours(1).plusMinutes(30));
+                OffsetDateTime.now(),
+                OffsetDateTime.now().plusHours(2),
+                OffsetDateTime.now().plusMinutes(15),
+                OffsetDateTime.now().plusHours(1).plusMinutes(30));
 
         return new BookingRequestDTO(
                 "Test",
@@ -260,50 +261,50 @@ public class BookingControllerIntegrationTest {
 
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
-                Arguments.of("", 1, List.of(LocalDateTime.of(2026, 3, 2, 13, 45))),
+                Arguments.of("", 1, List.of(OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("FREQ=DAILY;COUNT=3", 3, List.of(
-                        LocalDateTime.of(2026, 3, 2, 13, 45),
-                        LocalDateTime.of(2026, 3, 3, 13, 45),
-                        LocalDateTime.of(2026, 3, 4, 13, 45))),
+                        OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 3, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 4, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("FREQ=MONTHLY;COUNT=2", 2, List.of(
-                        LocalDateTime.of(2026, 3, 2, 13, 45),
-                        LocalDateTime.of(2026, 4, 2, 13, 45))),
+                        OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 4, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("FREQ=WEEKLY;COUNT=5", 5, List.of(
-                        LocalDateTime.of(2026, 3, 2, 13, 45),
-                        LocalDateTime.of(2026, 3, 9, 13, 45),
-                        LocalDateTime.of(2026, 3, 16, 13, 45),
-                        LocalDateTime.of(2026, 3, 23, 13, 45),
-                        LocalDateTime.of(2026, 3, 30, 13, 45))),
+                        OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 9, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 16, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 23, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 30, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("FREQ=WEEKLY;BYDAY=TU,WE;INTERVAL=2;COUNT=4", 4, List.of(
-                        LocalDateTime.of(2026, 3, 3, 13, 45),
-                        LocalDateTime.of(2026, 3, 4, 13, 45),
-                        LocalDateTime.of(2026, 3, 17, 13, 45),
-                        LocalDateTime.of(2026, 3, 18, 13, 45))),
+                        OffsetDateTime.of(2026, 3, 3, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 4, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 17, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 18, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("FREQ=MONTHLY;BYDAY=2WE;COUNT=3", 3, List.of(
-                        LocalDateTime.of(2026, 3, 11, 13, 45),
-                        LocalDateTime.of(2026, 4, 8, 13, 45),
-                        LocalDateTime.of(2026, 5, 13, 13, 45))),
+                        OffsetDateTime.of(2026, 3, 11, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 4, 8, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 5, 13, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=15;COUNT=4", 4, List.of(
-                        LocalDateTime.of(2026, 3, 15, 13, 45),
-                        LocalDateTime.of(2026, 5, 15, 13, 45),
-                        LocalDateTime.of(2026, 7, 15, 13, 45),
-                        LocalDateTime.of(2026, 9, 15, 13, 45))),
+                        OffsetDateTime.of(2026, 3, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 5, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 7, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 9, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("FREQ=WEEKLY;INTERVAL=6", 9, List.of(
-                        LocalDateTime.of(2026, 3, 2, 13, 45),
-                        LocalDateTime.of(2026, 4, 13, 13, 45),
-                        LocalDateTime.of(2026, 5, 25, 13, 45),
-                        LocalDateTime.of(2026, 7, 6, 13, 45),
-                        LocalDateTime.of(2026, 8, 17, 13, 45),
-                        LocalDateTime.of(2026, 9, 28, 13, 45),
-                        LocalDateTime.of(2026, 11, 9, 13, 45),
-                        LocalDateTime.of(2026, 12, 21, 13, 45),
-                        LocalDateTime.of(2027, 2, 1, 13, 45))));
+                        OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 4, 13, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 5, 25, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 7, 6, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 8, 17, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 9, 28, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 11, 9, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 12, 21, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2027, 2, 1, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))));
     }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ShouldFallbackToCurrentPerson_WhenBookedForIsMissing() throws Exception {
-        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now();
         BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, null);
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL)
@@ -339,7 +340,7 @@ public class BookingControllerIntegrationTest {
         bookedFor = personRepository.save(bookedFor);
         UUID bookedForId = bookedFor.getId();
 
-        LocalDateTime now = LocalDateTime.now();
+        OffsetDateTime now = OffsetDateTime.now();
         BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, bookedForId);
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL)
@@ -380,7 +381,7 @@ public class BookingControllerIntegrationTest {
         existingBooking.setTitle("TEST_TITLE");
         Booking saved = bookingRepository.save(existingBooking);
 
-        BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime.now(), null, null);
+        BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, null);
 
         mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
                 .with(csrf())
@@ -400,7 +401,7 @@ public class BookingControllerIntegrationTest {
         internalPerson = personRepository.save(internalPerson);
         UUID internalPersonId = internalPerson.getId();
 
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime.now(), null, internalPersonId);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, internalPersonId);
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -421,7 +422,7 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void createBooking_AsRaumAdmin_ShouldSetBookedByToBookedFor_WhenBookedForIsMissing() throws Exception {
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime.now(), null, null);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, null);
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -448,7 +449,7 @@ public class BookingControllerIntegrationTest {
         externalPerson = personRepository.save(externalPerson);
         UUID externalPersonId = externalPerson.getId();
 
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime.now(), null, externalPersonId);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, externalPersonId);
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
