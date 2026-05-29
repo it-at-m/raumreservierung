@@ -1,52 +1,72 @@
 <template>
   <base-view header-text="Buchungen verwalten">
     <template #default>
-      <v-card titel="Anfragen, Reservierungen und Buchungen">
+      <v-sheet
+        class="mb-6"
+        rounded
+      >
+        <v-row>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <room-select
+              v-model="roomId"
+              density="compact"
+              clearable
+              @update:model-value="applyFilters"
+            />
+          </v-col>
+          <v-col
+            cols="12"
+            sm="6"
+            md="3"
+          >
+            <v-date-input
+              v-model="start"
+              label="Zeitraum von"
+              density="compact"
+              variant="outlined"
+              prepend-icon=""
+              :prepend-inner-icon="mdiCalendarStartOutline"
+              clearable
+              hide-details
+              @update:model-value="applyFilters"
+            />
+          </v-col>
+          <v-col
+            cols="12"
+            sm="6"
+            md="3"
+          >
+            <v-date-input
+              v-model="end"
+              prepend-icon=""
+              :prepend-inner-icon="mdiCalendarEndOutline"
+              label="Zeitraum bis"
+              density="compact"
+              variant="outlined"
+              clearable
+              hide-details
+              @update:model-value="applyFilters"
+            />
+          </v-col>
+        </v-row>
+      </v-sheet>
+      <v-card title="Anfragen, Reservierungen und Buchungen">
         <template #text>
-          <v-row>
-            <v-col>
-              <v-select
-                v-model="currentPageFilter.roomId"
-                :loading="getRoomsLoading"
-                :items="allRooms ?? []"
-                item-title="name"
-                item-value="id"
-                clearable
-                label="Raumfilter"
-                variant="outlined"
-                density="compact"
-                @update:model-value="fetchPage"
-              />
-            </v-col>
-            <v-col>
-              <v-date-input
-                v-model="currentPageFilter.start"
-                density="compact"
-                variant="outlined"
-                clearable
-                @update:model-value="fetchPage"
-              />
-            </v-col>
-            <v-col>
-              <v-date-input
-                v-model="currentPageFilter.end"
-                density="compact"
-                variant="outlined"
-                clearable
-                @update:model-value="fetchPage"
-              />
-            </v-col>
-          </v-row>
           <v-data-table-server
+            v-model:sort-by="sortBy"
+            v-model:page="page"
+            v-model:items-per-page="itemsPerPage"
             :headers="headers"
             :items="bookingsPage?.content || []"
             :items-length="bookingsPage?.page?.totalElements || 0"
             :loading="getBookingsLoading"
-            :sort-by="currentPageOptions.sortBy"
-            @update:options="updateOptionsAndLoadPage"
+            @update:options="displayOptions"
             @click:row="handleRowClick"
           >
-            <template #[`item.id`]> STATUS-LALAL </template>
+            <template #[`item.id`]> STATUSLANG </template>
             <template #[`item.hasEquipment`]="{ item }">
               <v-icon :icon="item.hasEquipment ? mdiCheck : mdiMinus" />
             </template>
@@ -122,17 +142,26 @@
 
 <script setup lang="ts">
 import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
+import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import { mdiCalendarEditOutline, mdiCheck, mdiMinus } from "@mdi/js";
+import {
+  mdiCalendarEditOutline,
+  mdiCalendarEndOutline,
+  mdiCalendarStartOutline,
+  mdiCheck,
+  mdiDoor,
+  mdiMinus,
+} from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import RoomSelect from "@/components/rooms/roomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
@@ -149,30 +178,6 @@ const canEditBookings = useIsPrivileged("bookings:manage");
 
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
 
-interface SortItem {
-  key: string;
-  order: "asc" | "desc";
-}
-interface PageFilter {
-  start?: Date;
-  end?: Date;
-  roomId?: string;
-}
-
-interface PageOptions {
-  page: number;
-  itemsPerPage: number;
-  sortBy: SortItem[];
-}
-
-const currentPageOptions = ref<PageOptions>({
-  page: 0,
-  itemsPerPage: 10,
-  sortBy: [],
-});
-
-const currentPageFilter = ref<PageFilter>({});
-
 // ####### Page Filter and Options #########
 const roomId = useRouteQuery("roomId", undefined);
 
@@ -181,28 +186,45 @@ const itemsPerPage = useRouteQuery("itemsPerPage", 10, { transform: Number });
 
 const dateTransform = {
   get: (v: string | null) => (v ? new Date(v) : undefined),
-  set: (v: Date | undefined) => (v ? toApiDate(v) : undefined), // toApiDate formatiert es für die URL/API
+  set: (v: Date | undefined): string | null => (v ? v.toISOString() : null),
 };
 
-const start = useRouteQuery("start", undefined, { transform: dateTransform });
-const end = useRouteQuery("end", undefined, { transform: dateTransform });
-
-const sortBy = useRouteQuery<SortItem[], string>("sort", [], {
-  transform: {
-    // URL-String ("id,asc") zurück in ein Array of Objects für Vuetify verwandeln
-    get: (v) => {
-      if (!v) return [];
-      const [key, order] = v.split(",");
-      return [{ key, order: order as "asc" | "desc" }];
-    },
-    // Vuetify Sortier-Array in einen flachen String für die URL verwandeln
-    set: (v) => {
-      if (!v || v.length === 0) return undefined;
-      return `${v[0].key},${v[0].order}`;
-    },
-  },
+const start = useRouteQuery("start", new Date().toISOString(), {
+  transform: dateTransform,
+});
+const end = useRouteQuery("end", undefined, {
+  transform: dateTransform,
 });
 
+const sortBy = useRouteQuery<string | undefined, SortItem[]>(
+  "sort",
+  undefined,
+  {
+    transform: {
+      get: (v) => {
+        if (!v) {
+          return [];
+        }
+
+        const parts = v.split(",");
+        const key = parts[0];
+        const order = parts[1];
+
+        return !key
+          ? []
+          : [
+              {
+                key,
+                order: order === "desc" ? "desc" : "asc",
+              },
+            ];
+      },
+      set: (v) => {
+        return !v[0] ? undefined : `${v[0].key},${v[0].order}`;
+      },
+    },
+  }
+);
 // ####### Page Filter and Options #########
 
 const {
@@ -218,16 +240,8 @@ const {
 } = useGetAllRooms();
 
 onMounted(async () => {
-  await fetchPage();
-
   await getRooms();
 });
-
-const updateOptionsAndLoadPage = async (options: PageOptions) => {
-  currentPageOptions.value = options;
-
-  await fetchPage();
-};
 
 const handleRowClick = (
   event: PointerEvent,
@@ -241,21 +255,28 @@ const handleRowClick = (
   });
 };
 
+const applyFilters = () => {
+  // Changing the page will trigger a fetchPage sometimes
+  page.value = 1;
+
+  fetchPage();
+};
+
+const displayOptions = () => {
+  fetchPage();
+};
+
 const fetchPage = async () => {
-  const sort =
-    currentPageOptions.value.sortBy.length > 0
-      ? currentPageOptions.value.sortBy.map(
-          (item) => `${item.key},${item.order}`
-        )
-      : [];
+  const firstSort = sortBy.value[0];
+  const sort = firstSort ? [`${firstSort.key},${firstSort.order}`] : [];
 
   await getBookings({
-    page: currentPageOptions.value.page - 1,
-    size: currentPageOptions.value.itemsPerPage,
+    page: (page.value ?? 1) - 1,
+    size: itemsPerPage.value,
     sort,
-    ...currentPageFilter.value,
-    start: toApiDate(currentPageFilter.value.start),
-    end: toApiDate(currentPageFilter.value.start),
+    roomId: roomId.value,
+    start: toApiDate(start.value),
+    end: toApiDate(end.value),
     self: isMyBooking.value,
   });
 };
