@@ -161,7 +161,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import RoomSelect from "@/components/rooms/roomSelect.vue";
+import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";

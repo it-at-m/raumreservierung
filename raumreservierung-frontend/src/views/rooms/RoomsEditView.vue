@@ -172,7 +172,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <seating-capacity-selector
+            <seating-capacity-editor
               v-model="roomData.roomSeatingCapacities!"
               :max-room-capacity="roomData.capacity"
             />
@@ -271,7 +271,7 @@ import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
-import SeatingCapacitySelector from "@/components/rooms/SeatingCapacitySelector.vue";
+import SeatingCapacityEditor from "@/components/rooms/SeatingCapacitySelector.vue";
 import {
   useCreateRoom,
   useDeleteRoom,

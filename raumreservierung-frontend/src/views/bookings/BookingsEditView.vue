@@ -10,7 +10,7 @@
       />
       <base-button
         class="ml-4"
-        :text="t('common.deny')"
+        :text="isPrivileged ? t('common.deny') : 'Stornieren'"
         :append-icon="mdiCalendarRemoveOutline"
         secondary
       />
@@ -34,6 +34,7 @@
             />
           </v-col>
           <v-col
+            v-if="isPrivileged"
             cols="12"
             md="4"
           >
@@ -59,10 +60,15 @@
             md="4"
           >
             <v-number-input
+              v-model="bookingData.participantCount"
               label="Teilnehmer"
               variant="outlined"
+              suffix="Teilnehmer"
             />
           </v-col>
+        </v-row>
+        <v-row>
+          <v-row> </v-row>
         </v-row>
         <v-row>
           <v-col>
@@ -77,12 +83,14 @@
         <v-row>
           <v-col>
             <v-textarea
+              v-model="bookingData.additionalNotes"
               label="Notizen"
               variant="outlined"
             />
           </v-col>
           <v-col v-if="isPrivileged">
             <v-textarea
+              v-model="bookingData.internalNotes"
               label="Interne Notizen"
               variant="outlined"
             />
@@ -91,7 +99,7 @@
         <v-row>
           <v-col
             cols="12"
-            :md="bookingId ? 7 : 12"
+            :md="bookingId && currentAppointments.length > 1 ? 7 : 12"
           >
             <card-form
               subtitle="Datum und Uhrzeit"
@@ -103,13 +111,13 @@
             </card-form>
             <r-rule-editor-card v-model="bookingData.recurringRule" />
           </v-col>
+
           <v-col
-            v-if="bookingId"
+            v-if="bookingId && currentAppointments.length > 1"
             cols="12"
             md="5"
           >
             <appointment-card-list
-              v-if="currentAppointments.length > 1"
               v-model="currentAppointments"
               :schedule="bookingData.schedule"
             />
@@ -143,7 +151,7 @@ import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
-import RoomSelect from "@/components/rooms/roomSelect.vue";
+import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
 import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
