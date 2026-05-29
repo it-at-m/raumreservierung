@@ -670,23 +670,48 @@ paths:
     get:
       tags:
       - appointment-controller
-      operationId: getAppointmentsByPeriodAndRoom
+      operationId: getAppointmentsByPageableAndFilter
       parameters:
+      - name: page
+        in: query
+        description: Zero-based page index (0..N)
+        required: false
+        schema:
+          minimum: 0
+          type: integer
+          default: 0
+      - name: size
+        in: query
+        description: The size of the page to be returned
+        required: false
+        schema:
+          minimum: 1
+          type: integer
+          default: 20
+      - name: sort
+        in: query
+        description: "Sorting criteria in the format: property,(asc|desc). Default\
+          \ sort order is ascending. Multiple sort criteria are supported."
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
       - name: startDate
         in: query
         required: false
         schema:
           type: string
-          format: date
+          format: date-time
       - name: endDate
         in: query
         required: false
         schema:
           type: string
-          format: date
+          format: date-time
       - name: roomId
         in: query
-        required: false
+        required: true
         schema:
           type: string
           format: uuid
@@ -696,9 +721,7 @@ paths:
           content:
             '*/*':
               schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/AppointmentDetailsResponseDTO"
+                $ref: "#/components/schemas/PagedModelAppointmentDetailsResponseDTO"
   /actuator:
     get:
       tags:
@@ -1242,7 +1265,6 @@ components:
           type: boolean
     BookingRequestDTO:
       required:
-      - bookedById
       - schedule
       - title
       type: object
@@ -1276,10 +1298,10 @@ components:
           format: uuid
         schedule:
           $ref: "#/components/schemas/ScheduleTemplate"
-        bookedById:
+        bookedForId:
           type: string
           format: uuid
-        bookedForId:
+        seatingTypeId:
           type: string
           format: uuid
     ScheduleTemplate:
@@ -1315,6 +1337,7 @@ components:
       required:
       - appointments
       - bookedBy
+      - bookedFor
       - cateringNeeded
       - id
       - organisationUnit
@@ -1359,6 +1382,10 @@ components:
           - $ref: "#/components/schemas/InternalPersonResponseDto"
         organisationUnit:
           type: string
+        seatingType:
+          $ref: "#/components/schemas/SeatingType"
+        recurringRule:
+          type: string
     RoomListResponseDTO:
       required:
       - isActive
@@ -1378,6 +1405,18 @@ components:
           minLength: 0
           type: string
         isActive:
+          type: boolean
+    SeatingType:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        active:
           type: boolean
     AppointmentRequestDTO:
       required:
@@ -1430,6 +1469,7 @@ components:
     BookingListResponseDTO:
       required:
       - bookedBy
+      - bookedFor
       - hasEquipment
       - id
       - isRecurring
@@ -1461,6 +1501,8 @@ components:
           oneOf:
           - $ref: "#/components/schemas/ExternalPersonResponseDto"
           - $ref: "#/components/schemas/InternalPersonResponseDto"
+        recurringRule:
+          type: string
     PagedModelBookingListResponseDTO:
       type: object
       properties:
@@ -1487,6 +1529,7 @@ components:
     BookingMinimalResponseDTO:
       required:
       - bookedBy
+      - bookedFor
       - id
       - title
       type: object
@@ -1504,6 +1547,15 @@ components:
           oneOf:
           - $ref: "#/components/schemas/ExternalPersonResponseDto"
           - $ref: "#/components/schemas/InternalPersonResponseDto"
+    PagedModelAppointmentDetailsResponseDTO:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: "#/components/schemas/AppointmentDetailsResponseDTO"
+        page:
+          $ref: "#/components/schemas/PageMetadata"
     Link:
       type: object
       properties:

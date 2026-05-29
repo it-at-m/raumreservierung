@@ -20,7 +20,7 @@ import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -124,11 +124,11 @@ public class BookingService {
             final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
 
             final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
-                    .filter(a -> a.getSchedule().occupancyStart().isBefore(LocalDateTime.now()))
+                    .filter(a -> a.getSchedule().occupancyStart().isBefore(OffsetDateTime.now()))
                     .collect(Collectors.toSet());
 
             final Set<Appointment> futureNewAppointments = newAppointments.stream()
-                    .filter(a -> a.getSchedule().occupancyStart().isAfter(LocalDateTime.now()))
+                    .filter(a -> a.getSchedule().occupancyStart().isAfter(OffsetDateTime.now()))
                     .collect(Collectors.toSet());
 
             pastAppointments.addAll(futureNewAppointments);
