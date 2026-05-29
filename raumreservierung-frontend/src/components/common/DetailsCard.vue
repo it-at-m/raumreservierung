@@ -2,7 +2,7 @@
   <v-skeleton-loader
     elevation="1"
     :loading="loading"
-    type="card"
+    type="image"
   >
     <v-responsive>
       <v-card
