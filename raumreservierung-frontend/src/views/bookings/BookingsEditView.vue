@@ -68,7 +68,11 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-row> </v-row>
+          <v-row>
+            <v-col>
+              <seating-type-selector v-model="bookingData.seatingTypeId" />
+            </v-col>
+          </v-row>
         </v-row>
         <v-row>
           <v-col>
@@ -147,6 +151,7 @@ import { useRoute, useRouter } from "vue-router";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
 import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
+import SeatingTypeSelector from "@/components/booking/SeatingTypeSelector.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
