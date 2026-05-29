@@ -12,8 +12,10 @@ import com.jayway.jsonpath.JsonPath;
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.booking.dto.BookingListResponseDTO;
 import de.muenchen.raumreservierung.security.Roles;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -86,6 +88,37 @@ public class BookingFilterIntegrationTest {
     void getBookings_withTimeRangeFilterNow_shouldReturnOneBookingInPeriod() throws Exception {
         OffsetDateTime start = OffsetDateTime.now();
         OffsetDateTime end = OffsetDateTime.now();
+
+        String responseJson = mockMvc.perform(get(BOOKINGS_URL)
+                .param("start", start.toString())
+                .param("end", end.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String contentJson = JsonPath.read(responseJson, "$.content").toString();
+        List<BookingListResponseDTO> bookings = objectMapper.readValue(
+                contentJson,
+                new TypeReference<>() {
+                });
+
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.size()).isEqualTo(1);
+        assertThat(bookings).allSatisfy(booking -> {
+            assertThat(booking.schedule().occupancyStart()).isAfterOrEqualTo(start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime());
+            assertThat(booking.schedule().occupancyEnd()).isBeforeOrEqualTo(end.toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime());
+        });
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void getBookings_withTimeRangeAndOffsetFilterNow_shouldReturnOneBookingInPeriod() throws Exception {
+        OffsetDateTime start = LocalDateTime.now().atOffset(ZoneOffset.MAX);
+        OffsetDateTime end = LocalDateTime.now().atOffset(ZoneOffset.MIN);
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
                 .param("start", start.toString())

@@ -6,6 +6,7 @@ import de.muenchen.raumreservierung.booking.ScheduleTemplate_;
 import de.muenchen.raumreservierung.room.Room_;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,12 +25,11 @@ public final class AppointmentSpecificationBuilder {
         }
         final OffsetDateTime start = appointmentFilterDTO.startDate();
         if (start != null) {
-            specificationList.add(filterForStartDate(appointmentFilterDTO.startDate().toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime()));
+            specificationList.add(filterForStartDate(start.toLocalDate().atStartOfDay(ZoneOffset.UTC).toOffsetDateTime()));
         }
         final OffsetDateTime end = appointmentFilterDTO.endDate();
         if (end != null) {
-            specificationList
-                    .add(filterForEndDate(appointmentFilterDTO.endDate().toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime()));
+            specificationList.add(filterForEndDate(end.toLocalDate().atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toOffsetDateTime()));
         }
 
         return Specification.allOf(specificationList);
