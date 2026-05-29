@@ -166,6 +166,7 @@ insert into booking (id, booked_for_id, seating_type_id, recurring_rule, organis
 values
     -- Booking with only one appointment in the future
     ('550e8400-e29b-41d4-a716-446655440010', '123e4567-e89b-12d3-a456-426614174016', '123e4567-e89b-12d3-a456-426614174000', null, 'it@M', '770e8400-e29b-41d4-a716-446655440004', 'Jahresfeier', 150, true, 'Security', 'DJ-Pult', relative_timestamp(10, '14:00:00'), relative_timestamp(10, '17:00:00'), relative_timestamp(10, '14:30:00'), relative_timestamp(10, '16:45:00'), '123e4567-e89b-12d3-a456-426614174024'),
+    ('550e8400-e29b-41d4-a716-446655440011', '123e4567-e89b-12d3-a456-426614174016', '123e4567-e89b-12d3-a456-426614174000', null, 'it@M', '770e8400-e29b-41d4-a716-446655440004', 'Halbjahresfeier', 150, true, 'Security', 'DJ-Pult', relative_timestamp(600, '00:00:00'), relative_timestamp(600, '23:59:59'), relative_timestamp(600, '14:30:00'), relative_timestamp(600, '16:45:00'), '123e4567-e89b-12d3-a456-426614174024'),
     -- Booking with only one appointment in the future without room
     ('550e8400-e29b-41d4-a716-446655440020', '123e4567-e89b-12d3-a456-426614174017', '123e4567-e89b-12d3-a456-426614174001', null, 'POR', null, 'Jahresfeier nächstes Jahr', 150, true, 'Security', 'DJ-Pult und gute Laune', relative_timestamp(375, '14:00:00'), relative_timestamp(375, '17:00:00'), relative_timestamp(375, '14:30:00'), relative_timestamp(375, '16:45:00'), '123e4567-e89b-12d3-a456-426614174025'),
     -- Booking with only one appointment in the past
@@ -221,6 +222,8 @@ insert into appointment (id, occupancy_start, occupancy_end, appointment_start, 
 values
     -- Appointment for booking '550e8400-e29b-41d4-a716-446655440010'
     ('990e8400-e29b-41d4-a716-446655440010', relative_timestamp(10, '14:00:00'), relative_timestamp(10, '17:00:00'), relative_timestamp(10, '14:30:00'), relative_timestamp(10, '16:45:00'), '550e8400-e29b-41d4-a716-446655440010'),
+     -- Appointment for booking '550e8400-e29b-41d4-a716-446655440011'
+    ('990e8400-e29b-41d4-a716-446655440011', relative_timestamp(600, '00:00:00'), relative_timestamp(600, '23:59:59'), relative_timestamp(600, '14:30:00'), relative_timestamp(600, '16:45:00'), '550e8400-e29b-41d4-a716-446655440011'),
     -- Appointment for booking '550e8400-e29b-41d4-a716-446655440020'
     ('990e8400-e29b-41d4-a716-446655440020', relative_timestamp(375, '14:00:00'), relative_timestamp(375, '17:00:00'), relative_timestamp(375, '14:30:00'), relative_timestamp(375, '16:45:00'), '550e8400-e29b-41d4-a716-446655440020'),
     -- Appointment for booking '550e8400-e29b-41d4-a716-446655440030'

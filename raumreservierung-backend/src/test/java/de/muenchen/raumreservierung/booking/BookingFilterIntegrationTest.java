@@ -12,6 +12,7 @@ import com.jayway.jsonpath.JsonPath;
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.booking.dto.BookingListResponseDTO;
 import de.muenchen.raumreservierung.security.Roles;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -233,9 +234,71 @@ public class BookingFilterIntegrationTest {
         });
     }
 
+    private OffsetDateTime relativeTimestamp(int dayOffset, int hourOffset, String timeStr) {
+        LocalDate today = LocalDate.now();
+
+        LocalDate targetDate = today.plusDays(dayOffset);
+
+        LocalTime targetTime = LocalTime.parse(timeStr);
+
+        return OffsetDateTime.of(targetDate, targetTime, ZoneOffset.ofHours(hourOffset));
+    }
+
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
-    void getBookings_withNonExistantRoom_shouldReturnNothing() throws Exception {
+    void getBookings_withStartTimeWithDateChangingOffsets_shouldReturnOneBooking() throws Exception {
+        OffsetDateTime start = relativeTimestamp(600, 1, "00:00");
+
+        String responseJson = mockMvc.perform(get(BOOKINGS_URL)
+                .param("start", start.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String contentJson = JsonPath.read(responseJson, "$.content").toString();
+        List<BookingListResponseDTO> bookings = objectMapper.readValue(
+                contentJson,
+                new TypeReference<>() {
+                });
+
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.size()).isEqualTo(1);
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void getBookings_withStartTimeAndEndTimeWithDateChangingOffsets_shouldReturnOneBooking() throws Exception {
+        OffsetDateTime start = relativeTimestamp(600, 1, "00:00");
+        OffsetDateTime end = relativeTimestamp(600, -1, "23:59");
+
+        String responseJson = mockMvc.perform(get(BOOKINGS_URL)
+                .param("start", start.toString())
+                .param("end", end.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String contentJson = JsonPath.read(responseJson, "$.content").toString();
+        List<BookingListResponseDTO> bookings = objectMapper.readValue(
+                contentJson,
+                new TypeReference<>() {
+                });
+
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.size()).isEqualTo(1);
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void getBookings_withNonExistentRoom_shouldReturnNothing() throws Exception {
 
         UUID roomId = UUID.fromString("770e8400-e29b-41d4-a716-446655440005");
 
