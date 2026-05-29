@@ -130,26 +130,46 @@ public class BookingService {
             throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
         }
 
-        if (!Objects.equals(bookingUpdates.getRecurringRule(), existingBooking.getRecurringRule())) {
-            final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
-
-            final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
-                    .filter(a -> a.getSchedule().occupancyStart().isBefore(LocalDateTime.now()))
-                    .collect(Collectors.toSet());
-
-            final Set<Appointment> futureNewAppointments = newAppointments.stream()
-                    .filter(a -> a.getSchedule().occupancyStart().isAfter(LocalDateTime.now()))
-                    .collect(Collectors.toSet());
-
-            pastAppointments.addAll(futureNewAppointments);
-            bookingUpdates.setAppointments(pastAppointments);
-        }
+        updateBookingAppointments(bookingUpdates, existingBooking);
 
         saveAndDetach(existingBooking, bookingUpdates);
 
         log.debug("Updated booking with id {}", existingBooking.getId());
         return getEntityOrThrowException(existingBooking.getId());
 
+    }
+
+    /**
+     * Updates the appointments of a booking when its recurring rule changes.
+     * It preserves all past appointments and merges them with newly generated future appointments based
+     * on the updated rule.
+     *
+     * @param existingBooking the current state of the booking
+     * @param bookingUpdates the updated booking data
+     */
+    public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
+        final boolean ruleChanged = !Objects.equals(
+                existingBooking.getRecurringRule(),
+                bookingUpdates.getRecurringRule());
+
+        if (!ruleChanged) {
+            return;
+        }
+
+        final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
+        final LocalDateTime now = LocalDateTime.now();
+
+        final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
+                .filter(app -> app.getSchedule().occupancyStart().isBefore(now))
+                .collect(Collectors.toSet());
+
+        final Set<Appointment> futureNewAppointments = newAppointments.stream()
+                .filter(app -> app.getSchedule().occupancyStart().isAfter(now))
+                .collect(Collectors.toSet());
+
+        pastAppointments.addAll(futureNewAppointments);
+
+        bookingUpdates.setAppointments(pastAppointments);
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
