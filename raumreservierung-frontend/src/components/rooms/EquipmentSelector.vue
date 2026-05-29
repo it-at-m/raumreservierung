@@ -1,13 +1,13 @@
 <template>
   <card-form
     :subtitle="t('domain.equipment.header')"
-    :loading="allEquipmentLoading"
+    :loading="allEquipmentLoading || loading"
   >
     <template #text>
       <v-row density="compact">
-        <template v-if="!allEquipmentLoading">
+        <template v-if="!(allEquipmentLoading || loading)">
           <v-col
-            v-for="equip in allEquipment"
+            v-for="equip in computedEquipment"
             :key="equip.id"
             cols="12"
             md="6"
@@ -19,6 +19,7 @@
               class="w-100 py-0"
               color="accent"
               density="compact"
+              :disabled="loading"
               hide-details
             >
               <template #label>
@@ -34,7 +35,10 @@
         </template>
       </v-row>
     </template>
-    <template #actions>
+    <template
+      v-if="!disableAddition"
+      #actions
+    >
       <div class="w-100 d-flex justify-end">
         <v-dialog
           max-width="900"
@@ -54,7 +58,9 @@
           <template #default="{ isActive }">
             <room-resource-management-card
               :item-list="allEquipment"
-              :loading="allEquipmentLoading || createEquipmentLoading"
+              :loading="
+                allEquipmentLoading || createEquipmentLoading || loading
+              "
               :domain="t('domain.equipment.header')"
               @update-items="getAllEquipment"
               @close="isActive.value = false"
@@ -68,8 +74,10 @@
 </template>
 
 <script setup lang="ts">
+import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
+
 import { mdiPlus } from "@mdi/js";
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
@@ -85,10 +93,28 @@ const { t } = useI18n();
 const modelValue = defineModel<string[]>();
 
 const {
+  filterIds = [],
+  disableAddition = false,
+  loading = false,
+} = defineProps<{
+  filterIds?: string[];
+  disableAddition?: boolean;
+  loading?: boolean;
+}>();
+
+const {
   call: getAllEquipment,
   data: allEquipment,
   loading: allEquipmentLoading,
 } = useGetAllEquipments();
+
+const computedEquipment = computed<EquipmentResponseDto[]>(() =>
+  filterIds.length === 0
+    ? allEquipment.value
+    : allEquipment.value.filter(
+        (equip) => equip.id && filterIds.includes(equip.id)
+      )
+);
 
 const { call: createEquipment, loading: createEquipmentLoading } =
   useCreateEquipment();
