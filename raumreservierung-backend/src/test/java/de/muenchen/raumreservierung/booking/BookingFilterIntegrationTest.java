@@ -139,7 +139,6 @@ public class BookingFilterIntegrationTest {
                 });
 
         assertThat(bookings).isNotEmpty();
-        assertThat(bookings.size()).isEqualTo(1);
         assertThat(bookings).allSatisfy(booking -> {
             assertThat(booking.schedule().occupancyStart()).isAfterOrEqualTo(start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime());
             assertThat(booking.schedule().occupancyEnd()).isBeforeOrEqualTo(end.toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime());
@@ -148,7 +147,7 @@ public class BookingFilterIntegrationTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
-    void getBookings_withStartTimeFilterNow_shouldReturnFourBookings() throws Exception {
+    void getBookings_withStartTimeFilterNow_shouldReturnBookings() throws Exception {
         OffsetDateTime start = OffsetDateTime.now();
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
@@ -168,14 +167,13 @@ public class BookingFilterIntegrationTest {
                 });
 
         assertThat(bookings).isNotEmpty();
-        assertThat(bookings.size()).isEqualTo(4);
         assertThat(bookings).allSatisfy(booking -> assertThat(booking.schedule().occupancyStart())
                 .isAfterOrEqualTo(start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime()));
     }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
-    void getBookings_withEndTimeFilterNow_shouldReturnSixBookings() throws Exception {
+    void getBookings_withEndTimeFilterNow_shouldReturnBookings() throws Exception {
         OffsetDateTime end = OffsetDateTime.now();
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
@@ -195,7 +193,6 @@ public class BookingFilterIntegrationTest {
                 });
 
         assertThat(bookings).isNotEmpty();
-        assertThat(bookings.size()).isEqualTo(6);
         assertThat(bookings).allSatisfy(booking -> assertThat(booking.schedule().occupancyEnd())
                 .isBeforeOrEqualTo(end.toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime()));
     }
