@@ -21,10 +21,10 @@ public interface BookingMapper {
     BookingMinimalResponseDTO toMinimalDto(Booking booking);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "bookedBy", source = "bookedById")
     @Mapping(target = "bookedFor", source = "bookedForId")
     @Mapping(target = "equipment", source = "equipmentIds")
     @Mapping(target = "room", source = "roomId")
+    @Mapping(target = "seatingType", source = "seatingTypeId")
     Booking toEntity(BookingRequestDTO bookingRequestDTO);
 
     @Named("hasEquipmentCheck")

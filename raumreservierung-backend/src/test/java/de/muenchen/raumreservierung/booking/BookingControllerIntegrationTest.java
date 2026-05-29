@@ -13,12 +13,18 @@ import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
 import de.muenchen.raumreservierung.person.PersonRepository;
+import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.room.RoomRepository;
+import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
+import de.muenchen.raumreservierung.seating.SeatingRepository;
+import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.Roles;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.Assertions;
@@ -72,9 +78,14 @@ public class BookingControllerIntegrationTest {
     @Autowired
     private RoomRepository roomRepository;
 
+    @Autowired
+    private SeatingRepository seatingRepository;
+
     private InternalPerson mockPerson;
     private Room mockRoom;
     private Room mockRoomInactive;
+    private SeatingType mockSeatingType1;
+    private SeatingType mockSeatingType2;
     private Booking mockBooking;
 
     @BeforeEach
@@ -100,19 +111,37 @@ public class BookingControllerIntegrationTest {
         mockRoomInactive.setActive(false);
         mockRoomInactive = roomRepository.save(mockRoomInactive);
 
+        mockSeatingType1 = new SeatingType();
+        mockSeatingType1.setName("TEST_SEATING");
+        mockSeatingType1.setActive(true);
+        mockSeatingType1 = seatingRepository.save(mockSeatingType1);
+
+        mockSeatingType2 = new SeatingType();
+        mockSeatingType2.setName("TEST_SEATING_2");
+        mockSeatingType2.setActive(true);
+        mockSeatingType2 = seatingRepository.save(mockSeatingType2);
+
+
+        RoomSeatingCapacity mockRoomSeatingCapacity = new RoomSeatingCapacity();
+        mockRoomSeatingCapacity.setRoom(mockRoom);
+        mockRoomSeatingCapacity.setSeatingType(mockSeatingType1);
+        mockRoomSeatingCapacity.setCapacity(5);
+
+        mockRoom.setRoomSeatingCapacities(Set.of(mockRoomSeatingCapacity));
+        roomRepository.save(mockRoom);
+
         mockBooking = new Booking();
         mockBooking.setTitle("TEST_BOOKING_TITLE");
         mockBooking.setBookedBy(mockPerson);
         mockBooking.setOrganisationUnit("TEST_UNIT");
         mockBooking = bookingRepository.save(mockBooking);
-
     }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsCreated_WhenAuthenticatedAndNoRRule() throws Exception {
         LocalDateTime now = LocalDateTime.now();
-        BookingRequestDTO request = getBookingRequestDTOWithRrule(now, null);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, mockPerson.getId());
 
         mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -122,8 +151,52 @@ public class BookingControllerIntegrationTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsCreated_WhenNoRoomAndNoSeatingType() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsCreated_WhenRoomHasRequestedSeatingType() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), mockSeatingType1.getId());
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsCreated_WhenNoSeatingTypeChosen() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), mockSeatingType1.getId());
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsBadRequest_WhenRoomHasNotRequestedSeatingType() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), mockSeatingType2.getId());
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsCreated_WhenRoomActive() throws Exception {
-        BookingRequestDTO request = getBookingRequestDTOWithRoom(mockRoom.getId());
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(),null);
 
         mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -134,7 +207,7 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsBadRequest_WhenRoomInactive() throws Exception {
-        BookingRequestDTO request = getBookingRequestDTOWithRoom(mockRoomInactive.getId());
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoomInactive.getId(),null);
 
         mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -145,8 +218,22 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000002", authorities = { Roles.RAUM_ADMIN })
     void updateBooking_ReturnsCreated_WhenRoomActive() throws Exception {
-        BookingRequestDTO request = getBookingRequestDTOWithRoom(mockRoom.getId());
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(),null);
+        mockMvc.perform(put(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated());
+    }
 
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsBadRequest_WhenNoRoomChosenButSeatingType() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(null, mockSeatingType1.getId());
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
         mockMvc.perform(put(BOOKINGS_URL + "/" + mockBooking.getId())
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -169,12 +256,12 @@ public class BookingControllerIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules(String rrule, int expectedSize, List<LocalDateTime> expectedDates) throws Exception {
         LocalDateTime date = LocalDateTime.of(2026, 3, 2, 13, 45);
-        BookingRequestDTO request = getBookingRequestDTOWithRrule(date, rrule);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(date, rrule, mockPerson.getId());
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))).andDo(print())
-                .andExpect(status().isCreated()) // Prüft direkt auf HTTP 201
+                .andExpect(status().isCreated())
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
@@ -189,7 +276,7 @@ public class BookingControllerIntegrationTest {
                 .containsExactlyInAnyOrderElementsOf(expectedDates);
     }
 
-    private BookingRequestDTO getBookingRequestDTOWithRrule(LocalDateTime now, String recurringRule) {
+    private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime now, String recurringRule, UUID bookedForId) {
         ScheduleTemplate schedule = new ScheduleTemplate(
                 now,
                 now.plusHours(2),
@@ -205,11 +292,13 @@ public class BookingControllerIntegrationTest {
                 recurringRule,
                 null,
                 schedule,
-                mockPerson.getId(),
+                bookedForId,
                 null);
     }
 
-    private BookingRequestDTO getBookingRequestDTOWithRoom(UUID roomId) {
+    private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
+            UUID roomId,
+            UUID seatingTypeId) {
 
         ScheduleTemplate schedule = new ScheduleTemplate(
                 LocalDateTime.now(),
@@ -228,7 +317,7 @@ public class BookingControllerIntegrationTest {
                 roomId,
                 schedule,
                 mockPerson.getId(),
-                null);
+                seatingTypeId);
     }
 
     private static Stream<Arguments> provideTestData() {
@@ -273,4 +362,168 @@ public class BookingControllerIntegrationTest {
                         LocalDateTime.of(2027, 2, 1, 13, 45))));
     }
 
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ShouldFallbackToCurrentPerson_WhenBookedForIsMissing() throws Exception {
+        LocalDateTime now = LocalDateTime.now();
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, null);
+
+        String responseJson = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseBody = objectMapper.readValue(responseJson, BookingDetailResponseDTO.class);
+
+        assertThat(responseBody).isNotNull();
+
+        assertThat(responseBody.bookedBy()).isNotNull();
+        assertThat(responseBody.bookedFor()).isNotNull();
+        assertThat(responseBody.bookedFor())
+                .isEqualTo(responseBody.bookedBy());
+        assertThat(responseBody.bookedBy().id()).isEqualTo(mockPerson.getId());
+        assertThat(responseBody.organisationUnit()).isEqualTo(mockPerson.getOrganisationUnit());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ShouldKeepRequestedPerson_WhenBookedForIsProvided() throws Exception {
+        InternalPerson bookedFor = new InternalPerson();
+        bookedFor.setOrganisationId("0000002");
+        bookedFor.setOrganisationUnit("TEST_UNIT2");
+        bookedFor.setEmail("TEST_EMAIL2");
+        bookedFor.setRoleFunction("anwender");
+
+        bookedFor = personRepository.save(bookedFor);
+        UUID bookedForId = bookedFor.getId();
+
+        LocalDateTime now = LocalDateTime.now();
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, bookedForId);
+
+        String responseJson = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseBody = objectMapper.readValue(responseJson, BookingDetailResponseDTO.class);
+
+        assertThat(responseBody).isNotNull();
+
+        assertThat(responseBody.bookedBy()).isNotNull();
+        assertThat(responseBody.bookedFor()).isNotNull();
+        assertThat(responseBody.bookedFor().id())
+                .isNotEqualTo(responseBody.bookedBy().id());
+        assertThat(responseBody.bookedFor().id()).isEqualTo(bookedForId);
+        assertThat(responseBody.bookedBy().id()).isEqualTo(mockPerson.getId());
+        assertThat(responseBody.organisationUnit()).isEqualTo(mockPerson.getOrganisationUnit());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void updateBooking_ShouldReturnForbiddenOrUnauthorized_WhenUserHasNoAuthority() throws Exception {
+        InternalPerson foreignOwner = new InternalPerson();
+        foreignOwner.setOrganisationId("000003");
+        foreignOwner.setOrganisationUnit("FOREIGN_UNIT");
+        foreignOwner.setEmail("FOREIGN_EMAIL");
+        foreignOwner.setRoleFunction("anwender");
+        foreignOwner = personRepository.save(foreignOwner);
+
+        Booking existingBooking = new Booking();
+        existingBooking.setBookedBy(foreignOwner);
+        existingBooking.setOrganisationUnit(foreignOwner.getOrganisationUnit());
+        existingBooking.setTitle("TEST_TITLE");
+        Booking saved = bookingRepository.save(existingBooking);
+
+        BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime.now(), null, null);
+
+        mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updates)))
+                .andExpect(status().isForbidden());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void createBooking_AsRaumAdmin_ShouldSetBookedByToBookedFor_WhenBookedForIsInternalPerson() throws Exception {
+        InternalPerson internalPerson = new InternalPerson();
+        internalPerson.setOrganisationId("000004");
+        internalPerson.setOrganisationUnit("INTERNAL_UNIT");
+        internalPerson.setEmail("INTERNAL_EMAIL");
+        internalPerson.setRoleFunction("anwender");
+        internalPerson = personRepository.save(internalPerson);
+        UUID internalPersonId = internalPerson.getId();
+
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime.now(), null, internalPersonId);
+
+        String responseJson = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseBody = objectMapper.readValue(responseJson, BookingDetailResponseDTO.class);
+
+        assertThat(responseBody.bookedFor().id()).isEqualTo(internalPersonId);
+        assertThat(responseBody.bookedBy().id()).isEqualTo(internalPersonId);
+        assertThat(responseBody.organisationUnit()).isEqualTo(mockPerson.getOrganisationUnit());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void createBooking_AsRaumAdmin_ShouldSetBookedByToBookedFor_WhenBookedForIsMissing() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime.now(), null, null);
+
+        String responseJson = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseBody = objectMapper.readValue(responseJson, BookingDetailResponseDTO.class);
+
+        assertThat(responseBody.bookedFor().id()).isEqualTo(mockPerson.getId());
+        assertThat(responseBody.bookedBy().id()).isEqualTo(mockPerson.getId());
+        assertThat(responseBody.organisationUnit()).isEqualTo(mockPerson.getOrganisationUnit());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void createBooking_AsRaumAdmin_ShouldSetBookedByToCurrentPerson_WhenBookedForIsExternalPerson() throws Exception {
+        ExternalPerson externalPerson = new ExternalPerson();
+        externalPerson.setEmail("EXTERNAL_EMAIL");
+        externalPerson.setLastModified(LocalDate.now());
+        externalPerson = personRepository.save(externalPerson);
+        UUID externalPersonId = externalPerson.getId();
+
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(LocalDateTime.now(), null, externalPersonId);
+
+        String responseJson = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseBody = objectMapper.readValue(responseJson, BookingDetailResponseDTO.class);
+
+        assertThat(responseBody.bookedFor().id()).isEqualTo(externalPersonId);
+        assertThat(responseBody.bookedBy().id()).isEqualTo(mockPerson.getId());
+    }
 }
