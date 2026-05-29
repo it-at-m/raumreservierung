@@ -2,7 +2,7 @@
   <v-btn
     variant="text"
     :disabled="disabled"
-    :icon="computedIcon"
+    :icon="icon ?? computedIcon"
     @click.stop="emit('click')"
   />
 </template>
@@ -15,6 +15,7 @@ type Type = "edit" | "delete" | "add";
 
 const { type, disabled = false } = defineProps<{
   disabled?: boolean;
+  icon?: string;
   type?: Type;
 }>();
 
