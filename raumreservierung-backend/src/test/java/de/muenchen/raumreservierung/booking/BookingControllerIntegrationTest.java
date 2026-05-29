@@ -375,10 +375,16 @@ public class BookingControllerIntegrationTest {
         foreignOwner.setRoleFunction("anwender");
         foreignOwner = personRepository.save(foreignOwner);
 
+        OffsetDateTime now = OffsetDateTime.now();
         Booking existingBooking = new Booking();
         existingBooking.setBookedBy(foreignOwner);
         existingBooking.setOrganisationUnit(foreignOwner.getOrganisationUnit());
         existingBooking.setTitle("TEST_TITLE");
+        existingBooking.setSchedule(new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30)));
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, null);
