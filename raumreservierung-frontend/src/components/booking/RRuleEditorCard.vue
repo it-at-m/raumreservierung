@@ -11,7 +11,6 @@
             v-model="frequency"
             color="accent"
             hide-details
-            @update:model-value="generateRRule"
           >
             <v-radio
               v-for="freq in frequencyOptions"
@@ -30,7 +29,6 @@
             <v-radio-group
               v-model="dailyOption"
               color="accent"
-              @update:model-value="generateRRule"
             >
               <v-radio value="every">
                 <template #label>
@@ -45,7 +43,6 @@
                     control-variant="hidden"
                     :min="1"
                     :max="99"
-                    @update:model-value="generateRRule"
                   />
                   <span class="ml-2">Tag(e)</span>
                 </template>
@@ -70,7 +67,6 @@
                 control-variant="hidden"
                 :min="1"
                 :max="99"
-                @update:model-value="generateRRule"
               />
               <span class="ml-2">Woche(n) an folgenden Tagen:</span>
             </div>
@@ -90,7 +86,6 @@
                   :label="weekday.title"
                   hide-details
                   color="accent"
-                  @update:model-value="generateRRule"
                 />
               </v-col>
             </v-row>
@@ -100,7 +95,6 @@
             <v-radio-group
               v-model="monthlyOption"
               color="accent"
-              @update:model-value="generateRRule"
             >
               <v-radio value="specific_day">
                 <template #label>
@@ -116,7 +110,6 @@
                     :min="1"
                     :max="31"
                     suffix="."
-                    @update:model-value="generateRRule"
                   />
                   <span class="mx-2"> Tag, alle </span>
                   <v-number-input
@@ -129,7 +122,6 @@
                     control-variant="hidden"
                     :min="1"
                     :max="99"
-                    @update:model-value="generateRRule"
                   />
                   <span class="ml-2"> Monat(e) </span>
                 </template>
@@ -150,7 +142,6 @@
                     color="accent"
                     max-width="120px"
                     class="mr-2"
-                    @update:model-value="generateRRule"
                   />
                   <v-select
                     v-model="monthlyRelativeDay"
@@ -161,7 +152,6 @@
                     color="accent"
                     max-width="150px"
                     class="mr-2"
-                    @update:model-value="generateRRule"
                   />
                   <span class="mr-2"> jeden </span>
                   <v-number-input
@@ -174,7 +164,6 @@
                     control-variant="hidden"
                     :min="1"
                     :max="99"
-                    @update:model-value="generateRRule"
                   />
                   <span class="ml-2"> Monat(e) </span>
                 </template>
@@ -188,8 +177,10 @@
 </template>
 
 <script setup lang="ts">
+import type { ByWeekday, Options } from "rrule";
+
 import { RRule, Weekday } from "rrule";
-import { onMounted, ref, watch } from "vue";
+import { nextTick, onMounted, ref, watch } from "vue";
 
 import CardForm from "@/components/common/CardForm.vue";
 
@@ -198,11 +189,14 @@ interface SelectOption<T> {
   title: string;
 }
 
-// Der externe RRule-String (v-model)
-const modelValue = defineModel<string>("");
+const { modelValue } = defineProps<{
+  modelValue?: string;
+}>();
+// --- STATE-FLAGS (Semaphore Pattern) ---
+const isInternalChange = ref(false); // Verhindert, dass wir unsere eigene String-Generierung wieder parsen
+const isParsing = ref(false); // Verhindert, dass das Parsen von außen einen neuen String generiert
 
-const isInternalChange = ref(false);
-
+// --- UI STATE ---
 type FrequencyType = "daily" | "weekly" | "monthly";
 const frequency = ref<FrequencyType>("weekly");
 const frequencyOptions: SelectOption<FrequencyType>[] = [
@@ -211,12 +205,10 @@ const frequencyOptions: SelectOption<FrequencyType>[] = [
   { title: "Monatlich", value: "monthly" },
 ];
 
-// --- DAILY STATE ---
 type DailyOption = "every" | "workdays";
 const dailyOption = ref<DailyOption>("every");
 const dailyInterval = ref<number>(1);
 
-// --- WEEKLY STATE ---
 type DayType = "MO" | "TU" | "WE" | "TH" | "FR" | "SA" | "SU";
 const weeklyInterval = ref(1);
 const weeklyDays = ref<DayType[]>(["MO"]);
@@ -230,7 +222,6 @@ const weekdays: SelectOption<DayType>[] = [
   { title: "Sonntag", value: "SU" },
 ];
 
-// --- MONTHLY STATE ---
 type MonthlyOption = "specific_day" | "relative_day";
 const monthlyOption = ref<MonthlyOption>("specific_day");
 const monthlyDay = ref(1);
@@ -254,7 +245,7 @@ const relativeWeekdayOptions = [
   ...weekdays,
 ];
 
-// Hilfs-Mapping GUI-String -> RRule Weekday Objekt
+// --- HILFSMAPPING ---
 const rruleWeekdayMap: Record<DayType, Weekday> = {
   MO: RRule.MO,
   TU: RRule.TU,
@@ -265,7 +256,6 @@ const rruleWeekdayMap: Record<DayType, Weekday> = {
   SU: RRule.SU,
 };
 
-// Hilfs-Mapping RRule-Zahl (0-6) -> GUI-String
 const numToDayStr: Record<number, DayType> = {
   0: "MO",
   1: "TU",
@@ -276,11 +266,32 @@ const numToDayStr: Record<number, DayType> = {
   6: "SU",
 };
 
-/**
- * Generiert aus dem aktuellen GUI-State das RRule-Objekt und setzt das modelValue.
- */
+const emit = defineEmits<{
+  "update:modelValue": [value: string];
+}>();
+
+// --- LOGIK ---
+// Hilfsfunktion für Typescript: RRule kann Number, String oder Weekday-Objekt liefern
+const extractWeekdayNumber = (day: any): number => {
+  if (typeof day === "number") return day;
+  if (typeof day === "string") {
+    const strMap: Record<string, number> = {
+      MO: 0,
+      TU: 1,
+      WE: 2,
+      TH: 3,
+      FR: 4,
+      SA: 5,
+      SU: 6,
+    };
+    return strMap[day] ?? 0;
+  }
+  // Wenn es ein Objekt ist, nehmen wir das weekday Property
+  return day.weekday ?? 0;
+};
+
 const generateRRule = () => {
-  const options: any = {};
+  const options: Partial<Options> = {}; // TS Fix: Unexpected any entfernt
 
   if (frequency.value === "daily") {
     if (dailyOption.value === "workdays") {
@@ -299,11 +310,11 @@ const generateRRule = () => {
     options.freq = RRule.MONTHLY;
 
     if (monthlyOption.value === "specific_day") {
-      options.bymonthday = monthlyDay.value;
+      options.bymonthday = [monthlyDay.value];
       options.interval = monthlyIntervalOption1.value;
     } else {
       options.interval = monthlyIntervalOption2.value;
-      options.bysetpos = parseInt(monthlyRelativePosition.value);
+      options.bysetpos = [parseInt(monthlyRelativePosition.value)];
 
       if (monthlyRelativeDay.value === "DAY") {
         options.byweekday = [
@@ -329,52 +340,39 @@ const generateRRule = () => {
 
   try {
     const rule = new RRule(options);
-    const newRuleString = rule.toString();
-
-    // 1. Flag setzen: "Die nächste Änderung an modelValue kommt von uns!"
     isInternalChange.value = true;
-
-    // 2. Wert updaten (das triggert den Watcher)
-    modelValue.value = newRuleString;
+    emit("update:modelValue", rule.toString());
   } catch (e) {
     console.error("Fehler beim Generieren der RRule:", e);
   }
 };
 
-/**
- * Zerlegt einen RFC-konformen RRule-String und befüllt den GUI-State.
- */
 const parseIncomingRRule = (rruleString: string) => {
   if (!rruleString) return;
 
   try {
-    // Falls der String noch ein "RRULE:" Präfix enthält, säubern wir ihn für die Library
+    isParsing.value = true; // Sperrt die Generierung, während wir die Refs updaten
+
     const cleanString = rruleString.replace(/^RRULE:/i, "");
     const rule = RRule.fromString(cleanString);
     const orig = rule.origOptions;
-
     const freq = orig.freq;
 
-    // 1. TÄGLICH / ARBEITSTAGE
     if (freq === RRule.DAILY) {
       frequency.value = "daily";
       dailyOption.value = "every";
       dailyInterval.value = orig.interval || 1;
-    }
-
-    // 2. WÖCHENTLICH (und Sonderfall Arbeitstage)
-    else if (freq === RRule.WEEKLY) {
+    } else if (freq === RRule.WEEKLY) {
       const byweekdayArray = orig.byweekday
         ? Array.isArray(orig.byweekday)
           ? orig.byweekday
           : [orig.byweekday]
         : [];
-      // Extrahiere numerische Werte (0 = MO, 6 = SO)
-      const weekdayNums = byweekdayArray
-        .map((d: any) => (typeof d === "number" ? d : d.weekday))
-        .sort();
+      // TS Fix: Type ByWeekday | number
+      const weekdayNums = byweekdayArray.map(extractWeekdayNumber).sort();
+
       const isWorkdays =
-        weekdayNums.length === 5 && weekdayNums.every((v, i) => v === i); // 0,1,2,3,4 -> MO-FR
+        weekdayNums.length === 5 && weekdayNums.every((v, i) => v === i);
 
       if (isWorkdays && (orig.interval === 1 || !orig.interval)) {
         frequency.value = "daily";
@@ -386,13 +384,9 @@ const parseIncomingRRule = (rruleString: string) => {
           .map((num) => numToDayStr[num])
           .filter(Boolean) as DayType[];
       }
-    }
-
-    // 3. MONATLICH
-    else if (freq === RRule.MONTHLY) {
+    } else if (freq === RRule.MONTHLY) {
       frequency.value = "monthly";
 
-      // Unterscheidung spezifisch vs. relativ anhand der Attribute
       if (orig.bysetpos !== undefined || orig.byweekday !== undefined) {
         monthlyOption.value = "relative_day";
         monthlyIntervalOption2.value = orig.interval || 1;
@@ -408,9 +402,7 @@ const parseIncomingRRule = (rruleString: string) => {
           const byweekdayArray = Array.isArray(orig.byweekday)
             ? orig.byweekday
             : [orig.byweekday];
-          const weekdayNums = byweekdayArray
-            .map((d: any) => (typeof d === "number" ? d : d.weekday))
-            .sort();
+          const weekdayNums = byweekdayArray.map(extractWeekdayNumber).sort();
 
           if (weekdayNums.length === 7) {
             monthlyRelativeDay.value = "DAY";
@@ -436,36 +428,64 @@ const parseIncomingRRule = (rruleString: string) => {
           const mday = Array.isArray(orig.bymonthday)
             ? orig.bymonthday[0]
             : orig.bymonthday;
-          monthlyDay.value = mday;
+          monthlyDay.value = mday || 1; // TS Fix: undefined abfangen
         }
       }
     }
   } catch (e) {
     console.error("Fehler beim Parsen der RRule:", e);
+  } finally {
+    // nextTick stellt sicher, dass alle Refs in Vue aktualisiert wurden,
+    // bevor wir das Flag wieder auf false setzen.
+    nextTick(() => {
+      isParsing.value = false;
+    });
   }
 };
 
-// Einmaliges Parsen beim Laden der Komponente
-watch(modelValue, (newValue) => {
-  // Wenn die Änderung durch generateRRule() ausgelöst wurde:
-  if (!isInternalChange.value) {
+// --- WATCHER ---
+
+// Reagiert auf alle internen UI-Änderungen
+watch(
+  [
+    frequency,
+    dailyOption,
+    dailyInterval,
+    weeklyInterval,
+    weeklyDays,
+    monthlyOption,
+    monthlyDay,
+    monthlyIntervalOption1,
+    monthlyIntervalOption2,
+    monthlyRelativePosition,
+    monthlyRelativeDay,
+  ],
+  () => {
+    // Wenn wir gerade von außen Daten einladen, nichts tun!
+    if (isParsing.value) {
+      return;
+    }
+
+    console.log("internal Change");
+
+    generateRRule();
+  },
+  { deep: true }
+);
+
+// Reagiert auf Änderungen von außen am modelValue
+watch(
+  () => modelValue,
+  (newValue) => {
+    if (isInternalChange.value) {
+      isInternalChange.value = false;
+      return;
+    }
+    console.log("external Change");
     parseIncomingRRule(newValue || "");
-    // Flag zurücksetzen und abbrechen – wir müssen nichts parsen!
-  }
-  // Wenn wir hier ankommen, kam der String von außen (Parent-Komponente)
-  console.log("RRule updated");
-  isInternalChange.value = false;
-});
-
-onMounted(() => {
-  console.log("RRule updated", modelValue.value);
-
-  if (modelValue.value) {
-    // Flag hier nicht nötig, da wir beim initialen Parsen modelValue nicht verändern,
-    // sondern nur unsere internen Refs setzen.
-    parseIncomingRRule(modelValue.value);
-  }
-});
+  },
+  { immediate: true }
+);
 </script>
 
 <style scoped></style>

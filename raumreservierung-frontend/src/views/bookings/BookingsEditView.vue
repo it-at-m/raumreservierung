@@ -103,7 +103,7 @@
         <v-row>
           <v-col
             cols="12"
-            :md="bookingId && currentAppointments.length > 1 ? 7 : 12"
+            :xl="bookingId && currentAppointments.length > 1 ? 7 : 12"
           >
             <card-form
               subtitle="Datum und Uhrzeit"
@@ -113,13 +113,14 @@
                 <schedule-template-form v-model="bookingData.schedule" />
               </template>
             </card-form>
+            {{ bookingData.recurringRule }}
             <r-rule-editor-card v-model="bookingData.recurringRule" />
           </v-col>
 
           <v-col
             v-if="bookingId && currentAppointments.length > 1"
             cols="12"
-            md="5"
+            xl="5"
           >
             <appointment-card-list
               v-model="currentAppointments"
