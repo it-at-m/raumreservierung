@@ -48,19 +48,17 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
         final Booking booking = getEntityOrThrowException(bookingId);
-        if (validateBookingAuthority(booking, Roles.LESEBERECHTIGT)) {
-            return booking;
-        } else {
+        if (!validateBookingAuthority(booking, Roles.LESEBERECHTIGT)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
+
+        return booking;
     }
 
     @PreAuthorize(Authorities.BOOKING_READ)
     public Page<Booking> getAllBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
         final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilter(bookingFilterDto);
-        final Page<Booking> allBookings = bookingRepository.findAll(bookingSpecification, pageable);
-        log.debug("Found {} bookings", allBookings.getTotalElements());
-        return allBookings;
+        return findAllAndFilterSensitiveData(pageable, bookingSpecification);
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
@@ -68,9 +66,19 @@ public class BookingService {
         final Person internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(AuthUtils.getOrganisationId());
 
         final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilterWithPerson(bookingFilterDto, internalPerson);
-        final Page<Booking> ownBookings = bookingRepository.findAll(bookingSpecification, pageable);
-        log.debug("Found {} bookings", ownBookings.getTotalElements());
-        return ownBookings;
+        return findAllAndFilterSensitiveData(pageable, bookingSpecification);
+    }
+
+    private Page<Booking> findAllAndFilterSensitiveData(final Pageable pageable, final Specification<Booking> bookingSpecification) {
+        Page<Booking> bookings = bookingRepository.findAll(bookingSpecification, pageable);
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            bookings = bookings.map(booking -> {
+                booking.setInternalNotes(null);
+                return booking;
+            });
+        }
+
+        return bookings;
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
@@ -154,7 +162,11 @@ public class BookingService {
     }
 
     private Booking getEntityOrThrowException(final UUID bookingId) {
-        return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, bookingId)));
+        final Booking foundBooking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, bookingId)));
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            foundBooking.setInternalNotes(null);
+        }
+        return foundBooking;
     }
 
     private Booking saveAndDetach(final Booking bookingToUpdate, final Booking sourceData) {
@@ -191,7 +203,7 @@ public class BookingService {
 
         final InternalPerson internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
 
-        return booking.getBookedBy().getId().equals(internalPerson.getId());
+        return booking.getBookedBy().getId().equals(internalPerson.getId()) || booking.getBookedFor().getId().equals(internalPerson.getId());
     }
 
     /**

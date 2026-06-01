@@ -250,7 +250,7 @@ public class BookingControllerIntegrationTest {
                 100,
                 null,
                 false,
-                "please clean",
+                "secret note",
                 "no notes necessary",
                 null,
                 roomId,
@@ -378,6 +378,7 @@ public class BookingControllerIntegrationTest {
         OffsetDateTime now = OffsetDateTime.now();
         Booking existingBooking = new Booking();
         existingBooking.setBookedBy(foreignOwner);
+        existingBooking.setBookedFor(foreignOwner);
         existingBooking.setOrganisationUnit(foreignOwner.getOrganisationUnit());
         existingBooking.setTitle("TEST_TITLE");
         existingBooking.setSchedule(new ScheduleTemplate(
@@ -471,4 +472,113 @@ public class BookingControllerIntegrationTest {
         assertThat(responseBody.bookedFor().id()).isEqualTo(externalPersonId);
         assertThat(responseBody.bookedBy().id()).isEqualTo(mockPerson.getId());
     }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
+    void createBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnCreateWhenRoleIsLeseberechtigt() throws Exception {
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        String responseContent = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.internalNotes()).isNull();
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
+    void updateBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnUpdateWhenRoleIsLeseberechtigt() throws Exception {
+        OffsetDateTime now = OffsetDateTime.now();
+        Booking existingBooking = new Booking();
+        existingBooking.setBookedBy(mockPerson);
+        existingBooking.setBookedFor(mockPerson);
+        existingBooking.setInternalNotes("secret note not to overwrite and not to read by leseberechtigt");
+        existingBooking.setOrganisationUnit(mockPerson.getOrganisationUnit());
+        existingBooking.setTitle("TEST_TITLE");
+        existingBooking.setSchedule(new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30)));
+        Booking saved = bookingRepository.save(existingBooking);
+
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.internalNotes()).isNull();
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
+    void createBooking_AsLeseberechtigt_shouldNotNullifyInternalNotesOnCreateWhenRoleIsTerminOrganisator() throws Exception {
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        String responseContent = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.internalNotes()).isEqualTo(requestDto.internalNotes());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
+    void updateBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnUpdateWhenRoleIsTerminOrganisator() throws Exception {
+        OffsetDateTime now = OffsetDateTime.now();
+        Booking existingBooking = new Booking();
+        existingBooking.setBookedBy(mockPerson);
+        existingBooking.setBookedFor(mockPerson);
+        existingBooking.setInternalNotes("secret note not to overwrite and not to read by leseberechtigt");
+        existingBooking.setOrganisationUnit(mockPerson.getOrganisationUnit());
+        existingBooking.setTitle("TEST_TITLE");
+        existingBooking.setSchedule(new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30)));
+        Booking saved = bookingRepository.save(existingBooking);
+
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.internalNotes()).isEqualTo(updateDTO.internalNotes());
+    }
+
 }
