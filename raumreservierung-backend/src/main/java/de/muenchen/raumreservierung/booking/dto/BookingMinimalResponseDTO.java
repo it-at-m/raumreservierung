@@ -8,5 +8,6 @@ public record BookingMinimalResponseDTO(
         @NotNull UUID id,
         @NotNull String title,
         @NotNull PersonResponseDto bookedBy,
-        @NotNull PersonResponseDto bookedFor) {
+        @NotNull PersonResponseDto bookedFor,
+        UUID roomId) {
 }
