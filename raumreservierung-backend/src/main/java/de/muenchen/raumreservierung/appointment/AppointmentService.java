@@ -9,7 +9,7 @@ import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.validation.Valid;
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -72,14 +72,14 @@ public class AppointmentService {
         final Duration offsetOccupancyEnd = Duration.between(base.appointmentStart(), base.occupancyEnd());
         final Duration offsetAppointmentEnd = Duration.between(base.appointmentStart(), base.appointmentEnd());
 
-        final Recur<LocalDateTime> recur = new Recur<>(booking.getRecurringRule());
+        final Recur<OffsetDateTime> recur = new Recur<>(booking.getRecurringRule());
 
-        final LocalDateTime seed = base.appointmentStart();
-        final LocalDateTime limit = recur.getUntil() != null
+        final OffsetDateTime seed = base.appointmentStart();
+        final OffsetDateTime limit = recur.getUntil() != null
                 ? recur.getUntil()
                 : seed.plusYears(1);
 
-        final List<LocalDateTime> dates = recur.getDates(seed, seed, limit);
+        final List<OffsetDateTime> dates = recur.getDates(seed, seed, limit);
 
         return dates.stream().map(date -> {
             final ScheduleTemplate newSchedule = new ScheduleTemplate(
