@@ -159,13 +159,13 @@ public class BookingService {
         final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
         final OffsetDateTime now = OffsetDateTime.now();
 
-            final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
-                    .filter(a -> a.getSchedule().occupancyStart().isBefore(now))
-                    .collect(Collectors.toSet());
+        final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
+                .filter(a -> a.getSchedule().occupancyStart().isBefore(now))
+                .collect(Collectors.toSet());
 
-            final Set<Appointment> futureNewAppointments = newAppointments.stream()
-                    .filter(a -> a.getSchedule().occupancyStart().isAfter(now))
-                    .collect(Collectors.toSet());
+        final Set<Appointment> futureNewAppointments = newAppointments.stream()
+                .filter(a -> a.getSchedule().occupancyStart().isAfter(now))
+                .collect(Collectors.toSet());
 
         pastAppointments.addAll(futureNewAppointments);
 
