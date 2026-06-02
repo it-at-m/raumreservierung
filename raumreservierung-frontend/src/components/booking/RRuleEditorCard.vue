@@ -5,11 +5,13 @@
         <v-col
           cols="12"
           md="3"
-          class="border-e-sm"
+          class="pb-2"
+          :class="{ 'border-e-sm': mdAndUp, 'border-b-sm': !mdAndUp }"
         >
           <v-radio-group
             v-model="frequency"
             color="accent"
+            :disabled="disabled"
             hide-details
           >
             <v-radio
@@ -28,6 +30,7 @@
           <template v-if="frequency === 'daily'">
             <v-radio-group
               v-model="dailyOption"
+              :disabled="disabled"
               color="accent"
             >
               <v-radio value="every">
@@ -59,6 +62,7 @@
               <span class="mr-2"> Jeden / Alle </span>
               <v-number-input
                 v-model="weeklyInterval"
+                :disabled="disabled"
                 density="compact"
                 variant="outlined"
                 color="accent"
@@ -81,6 +85,7 @@
               >
                 <v-checkbox
                   v-model="weeklyDays"
+                  :disabled="disabled"
                   :value="weekday.value"
                   density="compact"
                   :label="weekday.title"
@@ -101,6 +106,7 @@
                   <span class="mr-2"> Am </span>
                   <v-number-input
                     v-model="monthlyDay"
+                    :disabled="disabled"
                     density="compact"
                     variant="outlined"
                     color="accent"
@@ -115,6 +121,7 @@
                   <v-number-input
                     v-model="monthlyIntervalOption1"
                     density="compact"
+                    :disabled="disabled"
                     variant="outlined"
                     color="accent"
                     max-width="70px"
@@ -136,6 +143,7 @@
                   <v-select
                     v-model="monthlyRelativePosition"
                     :items="positionOptions"
+                    :disabled="disabled"
                     density="compact"
                     variant="outlined"
                     hide-details
@@ -146,6 +154,7 @@
                   <v-select
                     v-model="monthlyRelativeDay"
                     :items="relativeWeekdayOptions"
+                    :disabled="disabled"
                     density="compact"
                     variant="outlined"
                     hide-details
@@ -158,6 +167,7 @@
                     v-model="monthlyIntervalOption2"
                     density="compact"
                     variant="outlined"
+                    :disabled="disabled"
                     color="accent"
                     max-width="70px"
                     hide-details
@@ -177,10 +187,11 @@
 </template>
 
 <script setup lang="ts">
-import type { ByWeekday, Options } from "rrule";
+import type { Options } from "rrule";
 
 import { RRule, Weekday } from "rrule";
 import { nextTick, onMounted, ref, watch } from "vue";
+import { useDisplay } from "vuetify/framework";
 
 import CardForm from "@/components/common/CardForm.vue";
 
@@ -189,9 +200,14 @@ interface SelectOption<T> {
   title: string;
 }
 
-const { modelValue } = defineProps<{
+const { modelValue, disabled = false } = defineProps<{
   modelValue?: string;
+  disabled?: boolean;
 }>();
+// TODO Seriendauer noch hinzufügen
+
+const { mdAndUp } = useDisplay();
+
 // --- STATE-FLAGS (Semaphore Pattern) ---
 const isInternalChange = ref(false); // Verhindert, dass wir unsere eigene String-Generierung wieder parsen
 const isParsing = ref(false); // Verhindert, dass das Parsen von außen einen neuen String generiert
@@ -428,15 +444,13 @@ const parseIncomingRRule = (rruleString: string) => {
           const mday = Array.isArray(orig.bymonthday)
             ? orig.bymonthday[0]
             : orig.bymonthday;
-          monthlyDay.value = mday || 1; // TS Fix: undefined abfangen
+          monthlyDay.value = mday || 1;
         }
       }
     }
   } catch (e) {
     console.error("Fehler beim Parsen der RRule:", e);
   } finally {
-    // nextTick stellt sicher, dass alle Refs in Vue aktualisiert wurden,
-    // bevor wir das Flag wieder auf false setzen.
     nextTick(() => {
       isParsing.value = false;
     });
@@ -486,6 +500,12 @@ watch(
   },
   { immediate: true }
 );
+
+onMounted(() => {
+  if (!modelValue) {
+    generateRRule();
+  }
+});
 </script>
 
 <style scoped></style>
