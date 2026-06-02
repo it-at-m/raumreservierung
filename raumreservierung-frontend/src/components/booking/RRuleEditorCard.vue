@@ -1,5 +1,8 @@
 <template>
-  <card-form subtitle="Serie bearbeiten">
+  <card-form
+    subtitle="Serienmuster"
+    class="mb-4"
+  >
     <template #text>
       <v-row>
         <v-col
@@ -184,6 +187,53 @@
       </v-row>
     </template>
   </card-form>
+  <card-form subtitle="Seriendauer">
+    <template #text>
+      <v-radio-group
+        v-model="endOption"
+        :disabled="disabled"
+        color="accent"
+        hide-details
+      >
+        <v-radio value="count">
+          <template #label>
+            <span class="mr-2"> Endet nach </span>
+            <v-number-input
+              v-model="endCount"
+              :disabled="disabled || endOption !== 'count'"
+              density="compact"
+              variant="outlined"
+              color="accent"
+              max-width="70px"
+              hide-details
+              control-variant="hidden"
+              :min="1"
+              :max="52"
+            />
+            <span class="ml-2"> Termin(en) </span>
+          </template>
+        </v-radio>
+
+        <v-radio
+          value="until"
+          class="mt-2"
+        >
+          <template #label>
+            <span class="mr-2"> Endet am </span>
+            <date-time-text-field
+              v-model="endDate"
+              :disabled="disabled || endOption !== 'until'"
+              color="accent"
+              type="date"
+              hide-details
+              class="ml-2"
+              style="max-width: 150px"
+            />
+          </template>
+        </v-radio>
+      </v-radio-group>
+    </template>
+  </card-form>
 </template>
 
 <script setup lang="ts">
@@ -194,6 +244,7 @@ import { nextTick, onMounted, ref, watch } from "vue";
 import { useDisplay } from "vuetify/framework";
 
 import CardForm from "@/components/common/CardForm.vue";
+import DateTimeTextField from "@/components/common/date/DateTimeTextField.vue";
 
 interface SelectOption<T> {
   value: T;
@@ -260,6 +311,12 @@ const relativeWeekdayOptions = [
   { title: "Wochenendtag", value: "WEEKENDDAY" },
   ...weekdays,
 ];
+
+// --- UI STATE: SERIENDAUER ---
+type EndOption = "count" | "until";
+const endOption = ref<EndOption>("count");
+const endCount = ref<number>(10);
+const endDate = ref<Date>(new Date());
 
 // --- HILFSMAPPING ---
 const rruleWeekdayMap: Record<DayType, Weekday> = {
@@ -352,6 +409,17 @@ const generateRRule = () => {
         ];
       }
     }
+  }
+
+  // --- SERIENDAUER LOGIK ANHÄNGEN ---
+  if (endOption.value === "count") {
+    if (!endCount.value || endCount.value < 1) {
+      endCount.value = 1;
+    }
+
+    options.count = endCount.value;
+  } else if (endOption.value === "until" && endDate.value) {
+    options.until = endDate.value;
   }
 
   try {
@@ -448,6 +516,20 @@ const parseIncomingRRule = (rruleString: string) => {
         }
       }
     }
+
+    // --- SERIENDAUER PARSEN ---
+    if (orig.count !== undefined && orig.count !== null) {
+      endOption.value = "count";
+      endCount.value = orig.count;
+    } else if (orig.until !== undefined && orig.until !== null) {
+      endOption.value = "until";
+      // orig.until ist bereits ein geparstes Date-Objekt von der rrule Library!
+      endDate.value = orig.until;
+    } else {
+      // Fallback, falls der String unendlich ist (wird durch deine UI quasi nicht generiert)
+      endOption.value = "count";
+      endCount.value = 10;
+    }
   } catch (e) {
     console.error("Fehler beim Parsen der RRule:", e);
   } finally {
@@ -473,6 +555,9 @@ watch(
     monthlyIntervalOption2,
     monthlyRelativePosition,
     monthlyRelativeDay,
+    endOption,
+    endCount,
+    endDate,
   ],
   () => {
     // Wenn wir gerade von außen Daten einladen, nichts tun!
