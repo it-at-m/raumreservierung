@@ -7,5 +7,6 @@ import java.util.UUID;
 public record AppointmentFilterDTO(
         OffsetDateTime startDate,
         OffsetDateTime endDate,
+        UUID bookingId,
         @NotNull UUID roomId) {
 }

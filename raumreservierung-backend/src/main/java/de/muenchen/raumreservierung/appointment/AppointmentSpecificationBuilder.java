@@ -19,6 +19,9 @@ public final class AppointmentSpecificationBuilder {
     public static <T extends Appointment> Specification<T> fromFilter(final AppointmentFilterDTO appointmentFilterDTO) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
+        if (appointmentFilterDTO.bookingId() != null) {
+            specificationList.add(filterForBookingId(appointmentFilterDTO.bookingId()));
+        }
         if (appointmentFilterDTO.roomId() != null) {
             specificationList.add(filterForRoomId(appointmentFilterDTO.roomId()));
         }
@@ -36,6 +39,10 @@ public final class AppointmentSpecificationBuilder {
 
     private static <T extends Appointment> Specification<T> filterForRoomId(final UUID roomId) {
         return (root, query, cb) -> cb.equal(root.get(Appointment_.booking).get(Booking_.room).get(Room_.id), roomId);
+    }
+
+    private static <T extends Appointment> Specification<T> filterForBookingId(final UUID bookingId) {
+        return (root, query, cb) -> cb.equal(root.get(Appointment_.booking).get(Booking_.id), bookingId);
     }
 
     private static <T extends Appointment> Specification<T> filterForStartDate(final OffsetDateTime start) {
