@@ -41,6 +41,7 @@
                   <span class="mr-2"> Jeden / Alle </span>
                   <v-number-input
                     v-model="dailyInterval"
+                    :disabled="disabled || dailyOption !== 'every'"
                     density="compact"
                     variant="outlined"
                     color="accent"
@@ -102,6 +103,7 @@
           <template v-if="frequency === 'monthly'">
             <v-radio-group
               v-model="monthlyOption"
+              :disabled="disabled"
               color="accent"
             >
               <v-radio value="specific_day">
@@ -109,7 +111,7 @@
                   <span class="mr-2"> Am </span>
                   <v-number-input
                     v-model="monthlyDay"
-                    :disabled="disabled"
+                    :disabled="disabled || monthlyOption !== 'specific_day'"
                     density="compact"
                     variant="outlined"
                     color="accent"
@@ -123,8 +125,8 @@
                   <span class="mx-2"> Tag, alle </span>
                   <v-number-input
                     v-model="monthlyIntervalOption1"
+                    :disabled="disabled || monthlyOption !== 'specific_day'"
                     density="compact"
-                    :disabled="disabled"
                     variant="outlined"
                     color="accent"
                     max-width="70px"
@@ -146,7 +148,7 @@
                   <v-select
                     v-model="monthlyRelativePosition"
                     :items="positionOptions"
-                    :disabled="disabled"
+                    :disabled="disabled || monthlyOption !== 'relative_day'"
                     density="compact"
                     variant="outlined"
                     hide-details
@@ -157,7 +159,7 @@
                   <v-select
                     v-model="monthlyRelativeDay"
                     :items="relativeWeekdayOptions"
-                    :disabled="disabled"
+                    :disabled="disabled || monthlyOption !== 'relative_day'"
                     density="compact"
                     variant="outlined"
                     hide-details
@@ -168,9 +170,9 @@
                   <span class="mr-2"> jeden </span>
                   <v-number-input
                     v-model="monthlyIntervalOption2"
+                    :disabled="disabled || monthlyOption !== 'relative_day'"
                     density="compact"
                     variant="outlined"
-                    :disabled="disabled"
                     color="accent"
                     max-width="70px"
                     hide-details
@@ -227,7 +229,6 @@
               type="date"
               hide-details
               class="ml-2"
-              style="max-width: 150px"
             />
           </template>
         </v-radio>
@@ -255,13 +256,12 @@ const { modelValue, disabled = false } = defineProps<{
   modelValue?: string;
   disabled?: boolean;
 }>();
-// TODO Seriendauer noch hinzufügen
 
 const { mdAndUp } = useDisplay();
 
-// --- STATE-FLAGS (Semaphore Pattern) ---
-const isInternalChange = ref(false); // Verhindert, dass wir unsere eigene String-Generierung wieder parsen
-const isParsing = ref(false); // Verhindert, dass das Parsen von außen einen neuen String generiert
+// --- STATE-FLAGS ---
+const isInternalChange = ref(false);
+const isParsing = ref(false);
 
 // --- UI STATE ---
 type FrequencyType = "daily" | "weekly" | "monthly";
@@ -312,13 +312,12 @@ const relativeWeekdayOptions = [
   ...weekdays,
 ];
 
-// --- UI STATE: SERIENDAUER ---
 type EndOption = "count" | "until";
 const endOption = ref<EndOption>("count");
 const endCount = ref<number>(10);
 const endDate = ref<Date>(new Date());
 
-// --- HILFSMAPPING ---
+// --- Mapping ---
 const rruleWeekdayMap: Record<DayType, Weekday> = {
   MO: RRule.MO,
   TU: RRule.TU,
@@ -343,10 +342,11 @@ const emit = defineEmits<{
   "update:modelValue": [value: string];
 }>();
 
-// --- LOGIK ---
-// Hilfsfunktion für Typescript: RRule kann Number, String oder Weekday-Objekt liefern
-const extractWeekdayNumber = (day: any): number => {
-  if (typeof day === "number") return day;
+// --- Logic ---
+const extractWeekdayNumber = (day: unknown): number => {
+  if (typeof day === "number") {
+    return day;
+  }
   if (typeof day === "string") {
     const strMap: Record<string, number> = {
       MO: 0,
@@ -359,179 +359,185 @@ const extractWeekdayNumber = (day: any): number => {
     };
     return strMap[day] ?? 0;
   }
-  // Wenn es ein Objekt ist, nehmen wir das weekday Property
-  return day.weekday ?? 0;
+  if (day && typeof day === "object" && "weekday" in day) {
+    return (day as { weekday: number }).weekday ?? 0;
+  }
+  return 0;
 };
 
 const generateRRule = () => {
-  const options: Partial<Options> = {}; // TS Fix: Unexpected any entfernt
+  const options: Partial<Options> = {};
 
-  if (frequency.value === "daily") {
-    if (dailyOption.value === "workdays") {
-      options.freq = RRule.WEEKLY;
-      options.byweekday = [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR];
-      options.interval = 1;
-    } else {
-      options.freq = RRule.DAILY;
-      options.interval = dailyInterval.value;
-    }
-  } else if (frequency.value === "weekly") {
-    options.freq = RRule.WEEKLY;
-    options.interval = weeklyInterval.value;
-    options.byweekday = weeklyDays.value.map((d) => rruleWeekdayMap[d]);
-  } else if (frequency.value === "monthly") {
-    options.freq = RRule.MONTHLY;
-
-    if (monthlyOption.value === "specific_day") {
-      options.bymonthday = [monthlyDay.value];
-      options.interval = monthlyIntervalOption1.value;
-    } else {
-      options.interval = monthlyIntervalOption2.value;
-      options.bysetpos = [parseInt(monthlyRelativePosition.value)];
-
-      if (monthlyRelativeDay.value === "DAY") {
-        options.byweekday = [
-          RRule.MO,
-          RRule.TU,
-          RRule.WE,
-          RRule.TH,
-          RRule.FR,
-          RRule.SA,
-          RRule.SU,
-        ];
-      } else if (monthlyRelativeDay.value === "WORKDAY") {
+  switch (frequency.value) {
+    case "daily":
+      if (dailyOption.value === "workdays") {
+        options.freq = RRule.WEEKLY;
         options.byweekday = [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR];
-      } else if (monthlyRelativeDay.value === "WEEKENDDAY") {
-        options.byweekday = [RRule.SA, RRule.SU];
+        options.interval = 1;
       } else {
-        options.byweekday = [
-          rruleWeekdayMap[monthlyRelativeDay.value as DayType],
-        ];
+        options.freq = RRule.DAILY;
+        options.interval = dailyInterval.value;
       }
-    }
+      break;
+
+    case "weekly":
+      options.freq = RRule.WEEKLY;
+      options.interval = weeklyInterval.value;
+      options.byweekday = weeklyDays.value.map((d) => rruleWeekdayMap[d]);
+      break;
+
+    case "monthly":
+      options.freq = RRule.MONTHLY;
+      if (monthlyOption.value === "specific_day") {
+        options.bymonthday = [monthlyDay.value];
+        options.interval = monthlyIntervalOption1.value;
+      } else {
+        options.interval = monthlyIntervalOption2.value;
+        options.bysetpos = [parseInt(monthlyRelativePosition.value)];
+
+        switch (monthlyRelativeDay.value) {
+          case "DAY":
+            options.byweekday = [
+              RRule.MO,
+              RRule.TU,
+              RRule.WE,
+              RRule.TH,
+              RRule.FR,
+              RRule.SA,
+              RRule.SU,
+            ];
+            break;
+          case "WORKDAY":
+            options.byweekday = [
+              RRule.MO,
+              RRule.TU,
+              RRule.WE,
+              RRule.TH,
+              RRule.FR,
+            ];
+            break;
+          case "WEEKENDDAY":
+            options.byweekday = [RRule.SA, RRule.SU];
+            break;
+          default:
+            options.byweekday = [
+              rruleWeekdayMap[monthlyRelativeDay.value as DayType],
+            ];
+        }
+      }
+      break;
   }
 
-  // --- SERIENDAUER LOGIK ANHÄNGEN ---
-  if (endOption.value === "count") {
-    if (!endCount.value || endCount.value < 1) {
-      endCount.value = 1;
-    }
-
-    options.count = endCount.value;
-  } else if (endOption.value === "until" && endDate.value) {
-    options.until = endDate.value;
+  switch (endOption.value) {
+    case "count":
+      endCount.value =
+        !endCount.value || endCount.value < 1 ? 1 : endCount.value;
+      options.count = endCount.value;
+      break;
+    case "until":
+      if (endDate.value) options.until = endDate.value;
+      break;
   }
 
-  try {
-    const rule = new RRule(options);
-    isInternalChange.value = true;
-    emit("update:modelValue", rule.toString());
-  } catch (e) {
-    console.error("Fehler beim Generieren der RRule:", e);
-  }
+  const rule = new RRule(options);
+  isInternalChange.value = true;
+  emit("update:modelValue", rule.toString());
 };
 
 const parseIncomingRRule = (rruleString: string) => {
   if (!rruleString) return;
 
   try {
-    isParsing.value = true; // Sperrt die Generierung, während wir die Refs updaten
+    isParsing.value = true;
 
     const cleanString = rruleString.replace(/^RRULE:/i, "");
     const rule = RRule.fromString(cleanString);
     const orig = rule.origOptions;
-    const freq = orig.freq;
 
-    if (freq === RRule.DAILY) {
-      frequency.value = "daily";
-      dailyOption.value = "every";
-      dailyInterval.value = orig.interval || 1;
-    } else if (freq === RRule.WEEKLY) {
-      const byweekdayArray = orig.byweekday
-        ? Array.isArray(orig.byweekday)
-          ? orig.byweekday
-          : [orig.byweekday]
-        : [];
-      // TS Fix: Type ByWeekday | number
-      const weekdayNums = byweekdayArray.map(extractWeekdayNumber).sort();
-
-      const isWorkdays =
-        weekdayNums.length === 5 && weekdayNums.every((v, i) => v === i);
-
-      if (isWorkdays && (orig.interval === 1 || !orig.interval)) {
+    switch (orig.freq) {
+      case RRule.DAILY: {
         frequency.value = "daily";
-        dailyOption.value = "workdays";
-      } else {
-        frequency.value = "weekly";
-        weeklyInterval.value = orig.interval || 1;
-        weeklyDays.value = weekdayNums
-          .map((num) => numToDayStr[num])
-          .filter(Boolean) as DayType[];
+        dailyOption.value = "every";
+        dailyInterval.value = orig.interval || 1;
+        break;
       }
-    } else if (freq === RRule.MONTHLY) {
-      frequency.value = "monthly";
 
-      if (orig.bysetpos !== undefined || orig.byweekday !== undefined) {
-        monthlyOption.value = "relative_day";
-        monthlyIntervalOption2.value = orig.interval || 1;
-
-        if (orig.bysetpos) {
-          const pos = Array.isArray(orig.bysetpos)
-            ? orig.bysetpos[0]
-            : orig.bysetpos;
-          monthlyRelativePosition.value = String(pos);
-        }
-
-        if (orig.byweekday) {
-          const byweekdayArray = Array.isArray(orig.byweekday)
+      case RRule.WEEKLY: {
+        const byweekdayArray = orig.byweekday
+          ? Array.isArray(orig.byweekday)
             ? orig.byweekday
-            : [orig.byweekday];
-          const weekdayNums = byweekdayArray.map(extractWeekdayNumber).sort();
+            : [orig.byweekday]
+          : [];
+        const weekdayNums = byweekdayArray.map(extractWeekdayNumber).sort();
+        const isWorkdays =
+          weekdayNums.length === 5 && weekdayNums.every((v, i) => v === i);
 
-          if (weekdayNums.length === 7) {
-            monthlyRelativeDay.value = "DAY";
-          } else if (
-            weekdayNums.length === 5 &&
-            weekdayNums.every((v, i) => v === i)
-          ) {
-            monthlyRelativeDay.value = "WORKDAY";
-          } else if (
-            weekdayNums.length === 2 &&
-            weekdayNums[0] === 5 &&
-            weekdayNums[1] === 6
-          ) {
-            monthlyRelativeDay.value = "WEEKENDDAY";
-          } else if (weekdayNums.length === 1) {
-            monthlyRelativeDay.value = numToDayStr[weekdayNums[0]] || "MO";
-          }
+        frequency.value =
+          isWorkdays && (!orig.interval || orig.interval === 1)
+            ? "daily"
+            : "weekly";
+
+        if (frequency.value === "daily") {
+          dailyOption.value = "workdays";
+        } else {
+          weeklyInterval.value = orig.interval || 1;
+          weeklyDays.value = weekdayNums
+            .map((num) => numToDayStr[num])
+            .filter(Boolean) as DayType[];
         }
-      } else {
-        monthlyOption.value = "specific_day";
-        monthlyIntervalOption1.value = orig.interval || 1;
-        if (orig.bymonthday) {
-          const mday = Array.isArray(orig.bymonthday)
+        break;
+      }
+
+      case RRule.MONTHLY: {
+        frequency.value = "monthly";
+
+        if (orig.bysetpos !== undefined || orig.byweekday !== undefined) {
+          monthlyOption.value = "relative_day";
+          monthlyIntervalOption2.value = orig.interval || 1;
+          monthlyRelativePosition.value = orig.bysetpos
+            ? String(
+                Array.isArray(orig.bysetpos) ? orig.bysetpos[0] : orig.bysetpos
+              )
+            : "1";
+
+          if (orig.byweekday) {
+            const bwArray = Array.isArray(orig.byweekday)
+              ? orig.byweekday
+              : [orig.byweekday];
+            const wNums = bwArray.map(extractWeekdayNumber).sort();
+
+            if (wNums.length === 7) monthlyRelativeDay.value = "DAY";
+            else if (wNums.length === 5 && wNums.every((v, i) => v === i))
+              monthlyRelativeDay.value = "WORKDAY";
+            else if (wNums.length === 2 && wNums[0] === 5 && wNums[1] === 6)
+              monthlyRelativeDay.value = "WEEKENDDAY";
+            else if (wNums.length === 1)
+              monthlyRelativeDay.value =
+                numToDayStr[wNums[0] as number] || "MO";
+          }
+        } else {
+          monthlyOption.value = "specific_day";
+          monthlyIntervalOption1.value = orig.interval || 1;
+          const parsedMonthDay = Array.isArray(orig.bymonthday)
             ? orig.bymonthday[0]
             : orig.bymonthday;
-          monthlyDay.value = mday || 1;
+
+          monthlyDay.value = parsedMonthDay ?? 1;
         }
+        break;
       }
     }
 
-    // --- SERIENDAUER PARSEN ---
     if (orig.count !== undefined && orig.count !== null) {
       endOption.value = "count";
       endCount.value = orig.count;
     } else if (orig.until !== undefined && orig.until !== null) {
       endOption.value = "until";
-      // orig.until ist bereits ein geparstes Date-Objekt von der rrule Library!
       endDate.value = orig.until;
     } else {
-      // Fallback, falls der String unendlich ist (wird durch deine UI quasi nicht generiert)
       endOption.value = "count";
       endCount.value = 10;
     }
-  } catch (e) {
-    console.error("Fehler beim Parsen der RRule:", e);
   } finally {
     nextTick(() => {
       isParsing.value = false;
@@ -540,8 +546,6 @@ const parseIncomingRRule = (rruleString: string) => {
 };
 
 // --- WATCHER ---
-
-// Reagiert auf alle internen UI-Änderungen
 watch(
   [
     frequency,
@@ -560,19 +564,12 @@ watch(
     endDate,
   ],
   () => {
-    // Wenn wir gerade von außen Daten einladen, nichts tun!
-    if (isParsing.value) {
-      return;
-    }
-
-    console.log("internal Change");
-
+    if (isParsing.value) return;
     generateRRule();
   },
   { deep: true }
 );
 
-// Reagiert auf Änderungen von außen am modelValue
 watch(
   () => modelValue,
   (newValue) => {
@@ -580,16 +577,13 @@ watch(
       isInternalChange.value = false;
       return;
     }
-    console.log("external Change");
     parseIncomingRRule(newValue || "");
   },
   { immediate: true }
 );
 
 onMounted(() => {
-  if (!modelValue) {
-    generateRRule();
-  }
+  if (!modelValue) generateRRule();
 });
 </script>
 
