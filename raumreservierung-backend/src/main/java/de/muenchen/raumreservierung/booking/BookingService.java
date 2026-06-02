@@ -47,7 +47,7 @@ public class BookingService {
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
-        final Booking booking = getEntityOrThrowException(bookingId);
+        final Booking booking = getSanitizedBooking(bookingId);
         if (!validateBookingAuthority(booking, Roles.LESEBERECHTIGT)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
@@ -98,7 +98,7 @@ public class BookingService {
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
         log.debug("Created booking with id {}", savedBooking.getId());
-        return getEntityOrThrowException(savedBooking.getId());
+        return getSanitizedBooking(savedBooking.getId());
     }
 
     /**
@@ -146,7 +146,7 @@ public class BookingService {
         saveAndDetach(existingBooking, bookingUpdates);
 
         log.debug("Updated booking with id {}", existingBooking.getId());
-        return getEntityOrThrowException(existingBooking.getId());
+        return getSanitizedBooking(existingBooking.getId());
 
     }
 
@@ -161,12 +161,20 @@ public class BookingService {
         bookingRepository.deleteById(bookingId);
     }
 
-    private Booking getEntityOrThrowException(final UUID bookingId) {
-        final Booking foundBooking = bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, bookingId)));
+    private Booking getSanitizedBooking(final UUID bookingId) {
+        final Booking booking = getEntityOrThrowException(bookingId);
+        return sanitizeBookingNotes(booking);
+    }
+
+    private Booking sanitizeBookingNotes(final Booking booking) {
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-            foundBooking.setInternalNotes(null);
+            booking.setInternalNotes(null);
         }
-        return foundBooking;
+        return booking;
+    }
+
+    private Booking getEntityOrThrowException(final UUID bookingId) {
+        return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, bookingId)));
     }
 
     private Booking saveAndDetach(final Booking bookingToUpdate, final Booking sourceData) {
