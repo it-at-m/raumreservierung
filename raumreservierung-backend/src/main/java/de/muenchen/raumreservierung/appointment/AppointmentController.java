@@ -34,7 +34,7 @@ public class AppointmentController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<AppointmentDetailsResponseDTO> getAppointmentsByPageableAndFilter(@ParameterObject final Pageable pageable,
-            @ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
+            @Valid @ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
         final Page<Appointment> appointmentPage = appointmentService.getAppointmentsByPageableAndFilter(pageable, appointmentFilterDTO);
         return appointmentPage.map(appointmentMapper::toDetailsDto);
     }

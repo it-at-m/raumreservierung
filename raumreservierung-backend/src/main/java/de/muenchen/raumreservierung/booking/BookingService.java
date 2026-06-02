@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
@@ -86,6 +87,11 @@ public class BookingService {
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
         }
+
+        if (booking.getRoom() != null && !booking.getRoom().isActive()) {
+            throw new BadRequestException(MSG_ROOM_INACTIVE);
+        }
+
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
@@ -124,30 +130,50 @@ public class BookingService {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
         }
 
+        if (bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive()) {
+            throw new BadRequestException(MSG_ROOM_INACTIVE);
+        }
+
         if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
             throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
         }
 
-        if (!Objects.equals(bookingUpdates.getRecurringRule(), existingBooking.getRecurringRule())) {
-            final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
-
-            final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
-                    .filter(a -> a.getSchedule().occupancyStart().isBefore(OffsetDateTime.now()))
-                    .collect(Collectors.toSet());
-
-            final Set<Appointment> futureNewAppointments = newAppointments.stream()
-                    .filter(a -> a.getSchedule().occupancyStart().isAfter(OffsetDateTime.now()))
-                    .collect(Collectors.toSet());
-
-            pastAppointments.addAll(futureNewAppointments);
-            bookingUpdates.setAppointments(pastAppointments);
-        }
+        updateBookingAppointments(bookingUpdates, existingBooking);
 
         saveAndDetach(existingBooking, bookingUpdates);
 
         log.debug("Updated booking with id {}", existingBooking.getId());
         return getSanitizedBooking(existingBooking.getId());
 
+    }
+
+    /**
+     * Updates the appointments of a booking when its recurring rule changes.
+     * It preserves all past appointments and merges them with newly generated future appointments based
+     * on the updated rule.
+     *
+     * @param existingBooking the current state of the booking
+     * @param bookingUpdates the updated booking data
+     */
+    public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
+        if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())) {
+            return;
+        }
+
+        final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
+        final OffsetDateTime now = OffsetDateTime.now();
+
+        final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
+                .filter(a -> a.getSchedule().occupancyStart().isBefore(now))
+                .collect(Collectors.toSet());
+
+        final Set<Appointment> futureNewAppointments = newAppointments.stream()
+                .filter(a -> a.getSchedule().occupancyStart().isAfter(now))
+                .collect(Collectors.toSet());
+
+        pastAppointments.addAll(futureNewAppointments);
+
+        bookingUpdates.setAppointments(pastAppointments);
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
