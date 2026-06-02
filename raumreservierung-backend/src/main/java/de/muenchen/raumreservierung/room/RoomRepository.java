@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.room;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
@@ -12,4 +13,7 @@ public interface RoomRepository extends JpaRepository<Room, UUID> {
     @EntityGraph(attributePaths = { "roomSeatingCapacities", "roomSeatingCapacities.seatingType", "equipment", "contactPerson" })
     @NonNull @Transactional(readOnly = true)
     Optional<Room> findWithDetailsById(@NonNull UUID id);
+
+    List<Room> findByIsActiveTrue();
+
 }
