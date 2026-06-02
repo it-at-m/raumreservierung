@@ -148,11 +148,7 @@ public class BookingService {
      * @param bookingUpdates the updated booking data
      */
     public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
-        final boolean ruleChanged = !Objects.equals(
-                existingBooking.getRecurringRule(),
-                bookingUpdates.getRecurringRule());
-
-        if (!ruleChanged) {
+        if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())) {
             return;
         }
 
