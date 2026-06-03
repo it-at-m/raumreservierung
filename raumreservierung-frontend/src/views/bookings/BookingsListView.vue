@@ -1,5 +1,9 @@
 <template>
-  <base-view header-text="Buchungen verwalten">
+  <base-view
+    :header-text="
+      t('generics.manage', { domain: t('domain.booking.header', { count: 2 }) })
+    "
+  >
     <template #default>
       <v-sheet
         class="mb-6"
@@ -12,6 +16,8 @@
           >
             <room-select
               v-model="roomId"
+              :label="t('generics.filter', { domain: t('domain.room.header') })"
+              :show-inactive="canEditBookings"
               density="compact"
               clearable
               @update:model-value="applyFilters"
@@ -24,7 +30,7 @@
           >
             <v-date-input
               v-model="start"
-              label="Zeitraum von"
+              :label="t('views.bookingListView.periodFrom')"
               density="compact"
               variant="outlined"
               prepend-icon=""
@@ -43,7 +49,7 @@
               v-model="end"
               prepend-icon=""
               :prepend-inner-icon="mdiCalendarEndOutline"
-              label="Zeitraum bis"
+              :label="t('views.bookingListView.periodTo')"
               density="compact"
               variant="outlined"
               clearable
@@ -53,7 +59,7 @@
           </v-col>
         </v-row>
       </v-sheet>
-      <v-card title="Anfragen, Reservierungen und Buchungen">
+      <v-card :title="t('views.bookingListView.tableTitle')">
         <template #text>
           <v-data-table-server
             v-model:sort-by="sortBy"
@@ -66,7 +72,9 @@
             @update:options="displayOptions"
             @click:row="handleRowClick"
           >
-            <template #[`item.id`]> STATUSLANG </template>
+            <template #[`item.id`]>
+              {{ t("views.bookingListView.statusLong") }}
+            </template>
             <template #[`item.hasEquipment`]="{ item }">
               <v-icon :icon="item.hasEquipment ? mdiCheck : mdiMinus" />
             </template>
@@ -150,7 +158,6 @@ import {
   mdiCalendarEndOutline,
   mdiCalendarStartOutline,
   mdiCheck,
-  mdiDoor,
   mdiMinus,
 } from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";

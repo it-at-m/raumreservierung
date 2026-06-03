@@ -74,6 +74,9 @@
     "scheduleTemplateForm": {
       "multiDay": "Mehrtägiger Termin",
       "appointmentDiffers": "Veranstaltungszeit abweichend"
+    },
+    "seatingTypeParticipantsSelector": {
+      "suffix": "Maximale Kapazität {count}"
     }
   },
   "views": {
@@ -119,15 +122,23 @@
       "bookedForOthersCard": "Buchung für andere Person",
       "internalPerson": "Interne Person",
       "dateTimeCard": "Datum und Uhrzeit"
+    },
+    "bookingListView": {
+      "periodFrom": "Zeitraum von",
+      "periodTo": "Zeitraum bis",
+      "tableTitle": "Anfragen, Reservierungen und Buchungen",
+      "statusLong": "STATUSLANG"
     }
   },
   "generics": {
     "manage": "{domain} verwalten",
+    "filter": "{domain} filtern",
     "delete": "{domain} löschen",
     "edit": "{domain} bearbeiten",
     "add": "{domain} hinzufügen",
     "create": "{domain} erstellen",
     "active": "{domain} aktiv",
+    "select": "{domain} auswählen",
     "inActive": "{domain} inaktiv",
     "confirmMsg": "Möchten Sie den \"{domain}\" endgültig löschen?",
     "confirmDelete": "Möchten Sie den Eintrag aus \"{domain}\" endgültig löschen?",
@@ -167,7 +178,7 @@
   "domain": {
     "booking": {
       "title": "Titel",
-      "header": "Buchung",
+      "header": "Buchung | Buchungen",
       "participants": "Teilnehmende | Teilnehmenden",
       "status": "Status",
       "date": "Datum",
