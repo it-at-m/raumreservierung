@@ -77,6 +77,11 @@
     },
     "seatingTypeParticipantsSelector": {
       "suffix": "Maximale Kapazität {count}"
+    },
+    "externalPersonSelect": {
+      "coveredByInternal": "Wird durch interne Person abgedeckt",
+      "searchExternal": "Externe Person suchen",
+      "internalAlreadySelectedHint": "Eine interne Person ist bereits ausgewählt."
     }
   },
   "views": {
