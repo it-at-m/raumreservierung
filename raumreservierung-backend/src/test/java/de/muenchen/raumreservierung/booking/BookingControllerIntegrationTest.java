@@ -84,8 +84,10 @@ public class BookingControllerIntegrationTest {
 
     private InternalPerson mockPerson;
     private Room mockRoom;
+    private Room mockRoomInactive;
     private SeatingType mockSeatingType1;
     private SeatingType mockSeatingType2;
+    private Booking mockBooking;
 
     @BeforeEach
     void setUp() {
@@ -104,6 +106,12 @@ public class BookingControllerIntegrationTest {
         mockRoom.setActive(true);
         mockRoom = roomRepository.save(mockRoom);
 
+        mockRoomInactive = new Room();
+        mockRoomInactive.setName("TEST_ROOM_NAME_2");
+        mockRoomInactive.setNumber("200");
+        mockRoomInactive.setActive(false);
+        mockRoomInactive = roomRepository.save(mockRoomInactive);
+
         mockSeatingType1 = new SeatingType();
         mockSeatingType1.setName("TEST_SEATING");
         mockSeatingType1.setActive(true);
@@ -121,6 +129,13 @@ public class BookingControllerIntegrationTest {
 
         mockRoom.setRoomSeatingCapacities(Set.of(mockRoomSeatingCapacity));
         roomRepository.save(mockRoom);
+
+        mockBooking = new Booking();
+        mockBooking.setTitle("TEST_BOOKING_TITLE");
+        mockBooking.setBookedBy(mockPerson);
+        mockBooking.setOrganisationUnit("TEST_UNIT");
+        mockBooking.setRoom(mockRoom);
+        mockBooking = bookingRepository.save(mockBooking);
     }
 
     @Test
@@ -181,10 +196,57 @@ public class BookingControllerIntegrationTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsCreated_WhenRoomActive() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), null);
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isCreated());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_ReturnsBadRequest_WhenRoomInactive() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoomInactive.getId(), null);
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void updateBooking_ReturnsCreated_WhenRoomActive() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), null);
+        mockMvc.perform(put(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isOk());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsBadRequest_WhenNoRoomChosenButSeatingType() throws Exception {
         BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(null, mockSeatingType1.getId());
 
         mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
+        mockMvc.perform(put(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void updateBooking_ReturnsBadRequest_WhenRoomInactive() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoomInactive.getId(), null);
+
+        mockMvc.perform(put(BOOKINGS_URL + "/" + mockBooking.getId())
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
