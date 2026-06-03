@@ -3,6 +3,7 @@
     "yes": "Ja",
     "no": "Nein",
     "cancel": "Abbrechen",
+    "rescind": "Stornieren",
     "delete": "Löschen",
     "deny": "Ablehnen",
     "save": "Speichern",
@@ -50,6 +51,25 @@
       "end": "Ende",
       "start": "Start",
       "event": "Veranstaltung"
+    },
+    "rruleEditorCard": {
+      "seriesPattern": "Serienmuster",
+      "seriesDuration": "Seriendauer",
+      "daily": {
+        "every": "Jeden {input} Tag | Alle {input} Tage",
+        "workdays": "Jeden Arbeitstag"
+      },
+      "weekly": {
+        "every": "Jede {input} Woche an folgenden Tagen | Alle {input} Wochen an folgenden Tagen"
+      },
+      "monthly": {
+        "specificDay": "Am {day}. Tag, jeden Monat | Am {day}. Tag, alle {interval} Monate",
+        "relativeDay": "Am {position} {day} jeden Monat | Am {position} {day} alle {interval} Monate"
+      },
+      "end": {
+        "afterCount": "Endet nach {count} Termin | Endet nach {count} Terminen",
+        "onDate": "Endet am {date}"
+      }
     }
   },
   "views": {
@@ -85,6 +105,9 @@
       "seriesDate": "Serientermin",
       "notes": "Notizen",
       "internalNotes": "Interne Notizen"
+    },
+    "bookingEditView": {
+      "participantsCount": "Anzahl Teilnehmende"
     }
   },
   "generics": {
@@ -132,8 +155,12 @@
   },
   "domain": {
     "booking": {
+      "title": "Titel",
+      "header": "Buchung",
+      "participants": "Teilnehmende | Teilnehmenden",
       "status": "Status",
-      "date": "Datum"
+      "date": "Datum",
+      "recurrenceRule": "Terminserie"
     },
     "room": {
       "header": "Raum",
