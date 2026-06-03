@@ -1,5 +1,5 @@
 <template>
-  <base-view header-text="Buchung bearbeiten">
+  <base-view :header-text="t('views.bookingEditView.header')">
     <template #headerActions>
       <base-button
         class="ml-4"
@@ -37,11 +37,11 @@
               :rules="[
                 rules.required(
                   t('common.rules.notEmpty', {
-                    field: t('domain.booking.title'),
+                    field: t('views.bookingEditView.eventTitle'),
                   })
                 ),
               ]"
-              label="Name der Veranstaltung"
+              :label="t('views.bookingEditView.eventTitle')"
               hide-details="auto"
             />
           </v-col>
@@ -53,7 +53,7 @@
             <v-select
               disabled
               variant="outlined"
-              label="Status"
+              :label="t('domain.booking.status')"
               hide-details
             />
           </v-col>
@@ -62,7 +62,7 @@
           <v-col>
             <room-select
               v-model="bookingData.roomId"
-              label="Raumauswahl"
+              :label="t('views.bookingEditView.roomSelect')"
               :loading="
                 getRoomLoading || createBookingLoading || updateBookingLoading
               "
@@ -95,7 +95,7 @@
                 :max="currentRoomSeatingTypeLimit"
                 :suffix="
                   t('domain.booking.participants', {
-                    num: 1,
+                    count: 1,
                   })
                 "
               />
@@ -126,7 +126,7 @@
                   color="accent"
                   density="compact"
                   hide-details
-                  label="Catering geplant"
+                  :label="t('views.bookingEditView.cateringPlanned')"
                 />
               </template>
             </card-form>
@@ -134,7 +134,9 @@
         </v-row>
         <v-row>
           <v-col>
-            <card-form subtitle="Buchung für andere Person">
+            <card-form
+              :subtitle="t('views.bookingEditView.bookedForOthersCard')"
+            >
               <template #text>
                 <v-row>
                   <v-col>
@@ -144,7 +146,7 @@
                       variant="outlined"
                       :prepend-inner-icon="mdiAccountSearchOutline"
                       disabled
-                      label="Interne Person"
+                      :label="t('views.bookingEditView.internalPerson')"
                     />
                   </v-col>
                   <v-col>
@@ -161,7 +163,7 @@
             :xl="bookingId && currentAppointments.length > 1 ? 7 : 12"
           >
             <card-form
-              subtitle="Datum und Uhrzeit"
+              :subtitle="t('views.bookingEditView.dateTimeCard')"
               :class="{ 'mb-4': isSeriesBooking }"
             >
               <template #text>
@@ -173,7 +175,7 @@
                     <v-checkbox
                       v-model="isSeriesBooking"
                       color="accent"
-                      label="Serientermin"
+                      :label="t('domain.booking.recurrenceRule')"
                       hide-details
                       density="compact"
                       @update:model-value="updateRRule"
@@ -207,7 +209,7 @@
           >
             <v-textarea
               v-model="bookingData.additionalNotes"
-              label="Notizen"
+              :label="t('domain.booking.notes')"
               hide-details
               variant="outlined"
             />
@@ -219,7 +221,7 @@
           >
             <v-textarea
               v-model="bookingData.internalNotes"
-              label="Interne Notizen"
+              :label="t('domain.booking.internalNotes')"
               hide-details
               variant="outlined"
             />

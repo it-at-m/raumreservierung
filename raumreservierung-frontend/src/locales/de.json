@@ -107,7 +107,14 @@
       "internalNotes": "Interne Notizen"
     },
     "bookingEditView": {
-      "participantsCount": "Anzahl Teilnehmende"
+      "header": "Buchung bearbeiten",
+      "eventTitle": "Name der Veranstaltung",
+      "roomSelect": "Raumauswahl",
+      "participantsCount": "Anzahl Teilnehmende",
+      "cateringPlanned": "Catering geplant",
+      "bookedForOthersCard": "Buchung für andere Person",
+      "internalPerson": "Interne Person",
+      "dateTimeCard": "Datum und Uhrzeit"
     }
   },
   "generics": {
@@ -160,7 +167,9 @@
       "participants": "Teilnehmende | Teilnehmenden",
       "status": "Status",
       "date": "Datum",
-      "recurrenceRule": "Terminserie"
+      "recurrenceRule": "Terminserie",
+      "notes": "Notizen",
+      "internalNotes": "Interne Notizen"
     },
     "room": {
       "header": "Raum",
@@ -171,7 +180,6 @@
         "max": "Maximale Kapazität",
         "msg": "Maximale Kapazität: {num} Personen"
       },
-
       "isActiveHeader": "Raumnutzung",
       "usableArea": "Nutzbare Fläche",
       "locationDescription": "Lagebeschreibung",
