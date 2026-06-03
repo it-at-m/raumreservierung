@@ -141,7 +141,7 @@
           />
         </div>
         <div
-          v-if="visibleAppointments.length > 1"
+          v-if="(appointmentPage?.page?.totalElements || 0) > 1"
           class="masonry-item w-100 d-inline-block mb-4"
         >
           <details-card
@@ -149,17 +149,37 @@
             :icon="mdiCalendarRangeOutline"
             :loading="getBookingLoading"
           >
-            <v-list>
-              <appointment-list-item
-                v-for="appointment in visibleAppointments"
-                :key="appointment.id"
-                class="mb-2"
-                :appointment="appointment"
-                :schedule="getBookingData?.schedule"
-              />
-            </v-list>
+            <v-infinite-scroll
+              class="text-medium-emphasis"
+              :items="appointments"
+              mode="manual"
+              max-height="450px"
+              @load="loadAppointmentPage"
+            >
+              <template #default>
+                <appointment-list-item
+                  v-for="appointment in appointments"
+                  :key="appointment.id"
+                  class="mb-2"
+                  :appointment="appointment"
+                  :schedule="getBookingData?.schedule"
+                />
+              </template>
+              <template #load-more="{ props }">
+                <base-button
+                  v-if="
+                    (appointmentPage.page?.totalPages || 0) >
+                    nextAppointmentPage
+                  "
+                  secondary
+                  text="Weitere Termine laden"
+                  v-bind="props"
+                />
+              </template>
+            </v-infinite-scroll>
           </details-card>
         </div>
+
         <div
           v-if="getBookingData?.additionalNotes"
           class="masonry-item w-100 d-inline-block mb-4"
@@ -199,6 +219,8 @@
 </template>
 
 <script setup lang="ts">
+import type { AppointmentDetailsResponseDTO } from "@/api/raumreservierung-backend";
+
 import {
   mdiAccountOutline,
   mdiArrowLeft,
@@ -212,7 +234,7 @@ import {
   mdiSofaSingleOutline,
 } from "@mdi/js";
 import { RRule } from "rrule";
-import { computed, onMounted } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify/framework";
@@ -223,9 +245,15 @@ import ScheduleTimelineCard from "@/components/booking/ScheduleTimelineCard.vue"
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
+import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
+
+interface InfiniteScrollLoad {
+  side: "start" | "end" | "both";
+  done: (status: "ok" | "empty" | "error") => void;
+}
 
 const { t } = useI18n();
 
@@ -236,6 +264,8 @@ const { mdAndUp } = useDisplay();
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_DETAILS);
 
 const bookingId = computed(() => (route.params.id as string) || undefined);
+const appointments = ref<AppointmentDetailsResponseDTO[]>([]);
+const nextAppointmentPage = ref<number>(0);
 
 const {
   call: getBooking,
@@ -243,6 +273,9 @@ const {
   error: getBookingError,
   loading: getBookingLoading,
 } = useGetBooking();
+
+const { call: getAppointmentPage, data: appointmentPage } =
+  useGetAppointments();
 
 onMounted(async () => {
   if (bookingId.value) {
@@ -257,26 +290,43 @@ onMounted(async () => {
           : ROUTES.BOOKINGS_LIST,
       });
     }
+
+    await getAppointmentPage({
+      page: nextAppointmentPage.value,
+      startDate: new Date(),
+      bookingId: bookingId.value,
+      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+      size: 7,
+    });
+    if (appointmentPage.value && appointmentPage.value.content) {
+      nextAppointmentPage.value = nextAppointmentPage.value + 1;
+      appointments.value.push(...appointmentPage.value.content);
+    }
   }
 });
 
-const visibleAppointments = computed(() => {
-  if (!getBookingData.value) {
-    return [];
+const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
+  const { done } = event;
+  await getAppointmentPage({
+    page: nextAppointmentPage.value,
+    startDate: new Date(),
+    bookingId: bookingId.value,
+    endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+    size: 5,
+  });
+  if (appointmentPage.value && appointmentPage.value.content) {
+    nextAppointmentPage.value = nextAppointmentPage.value + 1;
+    appointments.value.push(...appointmentPage.value.content);
+
+    done(
+      (appointmentPage.value.page?.totalPages || 0) <= nextAppointmentPage.value
+        ? "empty"
+        : "ok"
+    );
+  } else {
+    done("error");
   }
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
-  const firstVisibleIndex = getBookingData?.value.appointments.findIndex(
-    (app) => new Date(app.schedule.occupancyStart) >= today
-  );
-
-  // TODO: getFirstFuture Appointment
-  return getBookingData?.value.appointments.slice(
-    firstVisibleIndex,
-    firstVisibleIndex + 5
-  );
-});
+};
 
 const bookedByComputed = computed(() =>
   getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id

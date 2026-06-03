@@ -1,5 +1,7 @@
 import type {
   AppointmentResponseDTO,
+  GetAppointmentsByPageableAndFilterRequest,
+  PagedModelAppointmentDetailsResponseDTO,
   UpdateAppointmentRequest,
 } from "@/api/raumreservierung-backend";
 
@@ -13,4 +15,13 @@ export const useUpdateAppointment = () => {
   return useApi<UpdateAppointmentRequest, AppointmentResponseDTO>((params) =>
     api.updateAppointment(params)
   );
+};
+
+export const useGetAppointments = () => {
+  const api = ApiFactory.getInstance(AppointmentControllerApi);
+
+  return useApi<
+    GetAppointmentsByPageableAndFilterRequest,
+    PagedModelAppointmentDetailsResponseDTO
+  >((params) => api.getAppointmentsByPageableAndFilter(params));
 };
