@@ -4,10 +4,9 @@
     v-bind="$attrs"
     :prepend-inner-icon="mdiDoor"
     :loading="getRoomsLoading || loading"
-    :items="allRooms ?? []"
+    :items="filteredRooms ?? []"
     item-value="id"
     item-title="name"
-    label="Nach Raum filtern"
     variant="outlined"
     :disabled="getRoomsLoading || loading"
     hide-details
@@ -16,15 +15,23 @@
 
 <script setup lang="ts">
 import { mdiDoor } from "@mdi/js";
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 
 import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
 
 const modelValue = defineModel<string>();
 
-defineProps<{
+const { loading = false, showInactive = false } = defineProps<{
   loading?: boolean;
+  showInactive?: boolean;
 }>();
+
+const filteredRooms = computed(
+  () =>
+    allRooms?.value?.filter(
+      (room) => showInactive || room.isActive || room.id === modelValue.value
+    ) || []
+);
 
 const {
   call: getRooms,
