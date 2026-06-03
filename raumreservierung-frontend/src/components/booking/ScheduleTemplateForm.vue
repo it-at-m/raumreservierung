@@ -4,12 +4,15 @@
       <v-checkbox
         :model-value="multiDay"
         color="accent"
-        label="Mehrtägiger Termin"
+        :label="t('components.scheduleTemplateForm.multiDay')"
         :disabled="disabled"
         hide-details
         density="compact"
         @update:model-value="onMultiDayToggle"
       />
+    </v-col>
+    <v-col>
+      <slot name="checks" />
     </v-col>
   </v-row>
 
@@ -21,7 +24,7 @@
         :disabled="disabled"
         type="date"
         hide-details="auto"
-        label="Datum"
+        :label="t('domain.scheduleTemplate.date')"
         :rules="[requiredRule]"
       />
     </v-col>
@@ -32,7 +35,7 @@
         hide-details="auto"
         :disabled="disabled"
         type="date"
-        label="Enddatum"
+        :label="t('domain.scheduleTemplate.endDate')"
         :rules="[requiredRule]"
       />
     </v-col>
@@ -47,7 +50,7 @@
         hide-details="auto"
         :disabled="disabled"
         type="time"
-        label="Start date"
+        :label="t('domain.scheduleTemplate.startTime')"
         :rules="[requiredRule]"
       />
     </v-col>
@@ -59,7 +62,7 @@
         :disabled="disabled"
         hide-details="auto"
         type="time"
-        label="End date"
+        :label="t('domain.scheduleTemplate.endTime')"
         :rules="[requiredRule, validateOccupancyEndAfterStart]"
       />
     </v-col>
@@ -71,7 +74,7 @@
         :model-value="appointmentDiffers"
         color="accent"
         :disabled="disabled"
-        label="Veranstaltungszeit abweichend"
+        :label="t('components.scheduleTemplateForm.appointmentDiffers')"
         hide-details
         density="compact"
         @update:model-value="onAppointmentDiffers"
@@ -88,7 +91,7 @@
         hide-details="auto"
         :append-inner-icon="multiDay ? '' : mdiClockOutline"
         :type="multiDay ? 'datetime-local' : 'time'"
-        label="Veranstaltungszeitstart"
+        :label="t('domain.scheduleTemplate.appointmentStart')"
         :rules="[requiredRule, validateApptStartWithinOccupancy]"
       />
     </v-col>
@@ -100,7 +103,7 @@
         hide-details="auto"
         :append-inner-icon="multiDay ? '' : mdiClockOutline"
         :type="multiDay ? 'datetime-local' : 'time'"
-        label="Veranstaltungszeitende"
+        :label="t('domain.scheduleTemplate.appointmentEnd')"
         :rules="[requiredRule, validateApptEndWithinOccupancy]"
       />
     </v-col>
@@ -165,7 +168,7 @@ const appointmentEnd = computed({
  * If a switch from multiDay to singleDay occurs, we correct the end-dates and the appointment start-date to the occupancyStart-date
  * @param isMulti determines if booking stretches over multiple days
  */
-const onMultiDayToggle = (isMulti: boolean | null) => {
+const onMultiDayToggle = async (isMulti: boolean | null) => {
   const baseYear = occupancyStart.value.getFullYear();
   const baseMonth = occupancyStart.value.getMonth();
   const baseDate = occupancyStart.value.getDate();
@@ -175,20 +178,24 @@ const onMultiDayToggle = (isMulti: boolean | null) => {
     newDate.setFullYear(baseYear, baseMonth, baseDate);
     return newDate;
   };
+
   if (isMulti || !occupancyStart.value) {
     occupancyEnd.value = new Date(
       occupancyEnd.value.setDate(occupancyEnd.value.getDate() + 1)
     );
   } else {
-    if (occupancyEnd.value) {
-      occupancyEnd.value = syncDatePart(occupancyEnd.value);
-    }
-    if (appointmentDiffers.value && appointmentStart.value) {
-      appointmentStart.value = syncDatePart(appointmentStart.value);
-    }
-    if (appointmentDiffers.value && appointmentEnd.value) {
-      appointmentEnd.value = syncDatePart(appointmentEnd.value);
-    }
+    modelValue.value = {
+      ...modelValue.value,
+      occupancyEnd: syncDatePart(occupancyEnd.value),
+      appointmentStart:
+        appointmentDiffers.value && appointmentStart.value
+          ? syncDatePart(appointmentStart.value)
+          : undefined,
+      appointmentEnd:
+        appointmentDiffers.value && appointmentEnd.value
+          ? syncDatePart(appointmentEnd.value)
+          : undefined,
+    };
   }
 };
 

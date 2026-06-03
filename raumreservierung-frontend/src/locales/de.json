@@ -70,6 +70,10 @@
         "afterCount": "Endet nach {count} Termin | Endet nach {count} Terminen",
         "onDate": "Endet am {date}"
       }
+    },
+    "scheduleTemplateForm": {
+      "multiDay": "Mehrtägiger Termin",
+      "appointmentDiffers": "Veranstaltungszeit abweichend"
     }
   },
   "views": {
@@ -170,6 +174,14 @@
       "recurrenceRule": "Terminserie",
       "notes": "Notizen",
       "internalNotes": "Interne Notizen"
+    },
+    "scheduleTemplate": {
+      "date": "Datum",
+      "endDate": "Enddatum",
+      "startTime": "Startzeit",
+      "endTime": "Endzeit",
+      "appointmentStart": "Veranstaltungsbeginn",
+      "appointmentEnd": "Veranstaltungsende"
     },
     "room": {
       "header": "Raum",
