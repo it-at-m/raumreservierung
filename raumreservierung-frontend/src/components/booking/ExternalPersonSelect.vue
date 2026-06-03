@@ -36,9 +36,11 @@ import type { FindById200Response } from "@/api/raumreservierung-backend";
 import { mdiAccountSearchOutline } from "@mdi/js";
 import { useDebounceFn } from "@vueuse/core";
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { useGetPersonPage } from "@/composables/api/usePersonApi.ts";
 
+const { t } = useI18n();
 const modelValue = defineModel<FindById200Response>();
 
 const isInternalSelected = computed(() => {
