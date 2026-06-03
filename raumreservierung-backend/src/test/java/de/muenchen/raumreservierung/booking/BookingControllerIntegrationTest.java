@@ -272,8 +272,12 @@ public class BookingControllerIntegrationTest {
                 .getContentAsString();
         BookingDetailResponseDTO responseBody = objectMapper.readValue(responseJson, BookingDetailResponseDTO.class);
 
+        OffsetDateTime start = OffsetDateTime.of(2026, 3, 1, 0, 0, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC);
+        OffsetDateTime end = OffsetDateTime.of(2027, 2, 2, 0, 0, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC);
         String appointmentResponseJson = mockMvc.perform(get(APPOINTMENTS_URL).with(csrf())
                 .param("bookingId", responseBody.id().toString())
+                .param("startDate", start.toString())
+                .param("endDate", end.toString())
                 .param("page", "0")
                 .param("size", "10"))
                 .andExpect(status().isOk())
