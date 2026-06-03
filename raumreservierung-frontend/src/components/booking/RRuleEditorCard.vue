@@ -1,6 +1,6 @@
 <template>
   <card-form
-    subtitle="Serienmuster"
+    :subtitle="t('components.rruleEditorCard.seriesPattern')"
     class="mb-4"
   >
     <template #text>
@@ -38,46 +38,60 @@
             >
               <v-radio value="every">
                 <template #label>
-                  <span class="mr-2"> Jeden / Alle </span>
-                  <v-number-input
-                    v-model="dailyInterval"
-                    :disabled="disabled || dailyOption !== 'every'"
-                    density="compact"
-                    variant="outlined"
-                    color="accent"
-                    max-width="70px"
-                    hide-details
-                    control-variant="hidden"
-                    :min="1"
-                    :max="99"
-                  />
-                  <span class="ml-2">Tag(e)</span>
+                  <i18n-t
+                    keypath="components.rruleEditorCard.daily.every"
+                    tag="span"
+                    :plural="dailyInterval"
+                    class="d-flex align-center"
+                  >
+                    <template #input>
+                      <v-number-input
+                        v-model="dailyInterval"
+                        :disabled="disabled || dailyOption !== 'every'"
+                        density="compact"
+                        variant="outlined"
+                        color="accent"
+                        max-width="80px"
+                        hide-details
+                        control-variant="hidden"
+                        :min="1"
+                        :max="99"
+                        class="mx-2"
+                      />
+                    </template>
+                  </i18n-t>
                 </template>
               </v-radio>
               <v-radio
                 value="workdays"
-                label="Jeden Arbeitstag"
+                :label="t('components.rruleEditorCard.daily.workdays')"
               />
             </v-radio-group>
           </template>
 
           <template v-if="frequency === 'weekly'">
-            <div class="d-flex align-center mb-4">
-              <span class="mr-2"> Jeden / Alle </span>
-              <v-number-input
-                v-model="weeklyInterval"
-                :disabled="disabled"
-                density="compact"
-                variant="outlined"
-                color="accent"
-                max-width="70px"
-                hide-details
-                control-variant="hidden"
-                :min="1"
-                :max="99"
-              />
-              <span class="ml-2">Woche(n) an folgenden Tagen:</span>
-            </div>
+            <i18n-t
+              keypath="components.rruleEditorCard.weekly.every"
+              tag="div"
+              :plural="weeklyInterval"
+              class="d-flex align-center mb-4"
+            >
+              <template #input>
+                <v-number-input
+                  v-model="weeklyInterval"
+                  :disabled="disabled"
+                  density="compact"
+                  variant="outlined"
+                  color="accent"
+                  max-width="80px"
+                  hide-details
+                  control-variant="hidden"
+                  :min="1"
+                  :max="99"
+                  class="mx-2"
+                />
+              </template>
+            </i18n-t>
 
             <v-row gap="0">
               <v-col
@@ -108,34 +122,43 @@
             >
               <v-radio value="specific_day">
                 <template #label>
-                  <span class="mr-2"> Am </span>
-                  <v-number-input
-                    v-model="monthlyDay"
-                    :disabled="disabled || monthlyOption !== 'specific_day'"
-                    density="compact"
-                    variant="outlined"
-                    color="accent"
-                    max-width="70px"
-                    hide-details
-                    control-variant="hidden"
-                    :min="1"
-                    :max="31"
-                    suffix="."
-                  />
-                  <span class="mx-2"> Tag, alle </span>
-                  <v-number-input
-                    v-model="monthlyIntervalOption1"
-                    :disabled="disabled || monthlyOption !== 'specific_day'"
-                    density="compact"
-                    variant="outlined"
-                    color="accent"
-                    max-width="70px"
-                    hide-details
-                    control-variant="hidden"
-                    :min="1"
-                    :max="99"
-                  />
-                  <span class="ml-2"> Monat(e) </span>
+                  <i18n-t
+                    keypath="components.rruleEditorCard.monthly.specificDay"
+                    tag="span"
+                    :plural="monthlyIntervalOption1"
+                    class="d-flex align-center w-100"
+                  >
+                    <template #day>
+                      <v-number-input
+                        v-model="monthlyDay"
+                        :disabled="disabled || monthlyOption !== 'specific_day'"
+                        density="compact"
+                        variant="outlined"
+                        color="accent"
+                        max-width="80px"
+                        hide-details
+                        control-variant="hidden"
+                        :min="1"
+                        :max="31"
+                        class="mx-2"
+                      />
+                    </template>
+                    <template #interval>
+                      <v-number-input
+                        v-model="monthlyIntervalOption1"
+                        :disabled="disabled || monthlyOption !== 'specific_day'"
+                        density="compact"
+                        variant="outlined"
+                        color="accent"
+                        max-width="80px"
+                        hide-details
+                        control-variant="hidden"
+                        :min="1"
+                        :max="99"
+                        class="mx-2"
+                      />
+                    </template>
+                  </i18n-t>
                 </template>
               </v-radio>
 
@@ -144,43 +167,54 @@
                 class="mt-2"
               >
                 <template #label>
-                  <span class="mr-2"> Am </span>
-                  <v-select
-                    v-model="monthlyRelativePosition"
-                    :items="positionOptions"
-                    :disabled="disabled || monthlyOption !== 'relative_day'"
-                    density="compact"
-                    variant="outlined"
-                    hide-details
-                    color="accent"
-                    max-width="120px"
-                    class="mr-2"
-                  />
-                  <v-select
-                    v-model="monthlyRelativeDay"
-                    :items="relativeWeekdayOptions"
-                    :disabled="disabled || monthlyOption !== 'relative_day'"
-                    density="compact"
-                    variant="outlined"
-                    hide-details
-                    color="accent"
-                    max-width="150px"
-                    class="mr-2"
-                  />
-                  <span class="mr-2"> jeden </span>
-                  <v-number-input
-                    v-model="monthlyIntervalOption2"
-                    :disabled="disabled || monthlyOption !== 'relative_day'"
-                    density="compact"
-                    variant="outlined"
-                    color="accent"
-                    max-width="70px"
-                    hide-details
-                    control-variant="hidden"
-                    :min="1"
-                    :max="99"
-                  />
-                  <span class="ml-2"> Monat(e) </span>
+                  <i18n-t
+                    keypath="components.rruleEditorCard.monthly.relativeDay"
+                    tag="span"
+                    :plural="monthlyIntervalOption2"
+                    class="d-flex align-center flex-wrap w-100"
+                  >
+                    <template #position>
+                      <v-select
+                        v-model="monthlyRelativePosition"
+                        :items="positionOptions"
+                        :disabled="disabled || monthlyOption !== 'relative_day'"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        color="accent"
+                        max-width="120px"
+                        class="mx-2"
+                      />
+                    </template>
+                    <template #day>
+                      <v-select
+                        v-model="monthlyRelativeDay"
+                        :items="relativeWeekdayOptions"
+                        :disabled="disabled || monthlyOption !== 'relative_day'"
+                        density="compact"
+                        variant="outlined"
+                        hide-details
+                        color="accent"
+                        max-width="150px"
+                        class="mx-2"
+                      />
+                    </template>
+                    <template #interval>
+                      <v-number-input
+                        v-model="monthlyIntervalOption2"
+                        :disabled="disabled || monthlyOption !== 'relative_day'"
+                        density="compact"
+                        variant="outlined"
+                        color="accent"
+                        max-width="80px"
+                        hide-details
+                        control-variant="hidden"
+                        :min="1"
+                        :max="99"
+                        class="mx-2"
+                      />
+                    </template>
+                  </i18n-t>
                 </template>
               </v-radio>
             </v-radio-group>
@@ -189,7 +223,8 @@
       </v-row>
     </template>
   </card-form>
-  <card-form subtitle="Seriendauer">
+
+  <card-form :subtitle="t('components.rruleEditorCard.seriesDuration')">
     <template #text>
       <v-radio-group
         v-model="endOption"
@@ -199,20 +234,28 @@
       >
         <v-radio value="count">
           <template #label>
-            <span class="mr-2"> Endet nach </span>
-            <v-number-input
-              v-model="endCount"
-              :disabled="disabled || endOption !== 'count'"
-              density="compact"
-              variant="outlined"
-              color="accent"
-              max-width="70px"
-              hide-details
-              control-variant="hidden"
-              :min="1"
-              :max="52"
-            />
-            <span class="ml-2"> Termin(en) </span>
+            <i18n-t
+              keypath="components.rruleEditorCard.end.afterCount"
+              tag="span"
+              :plural="endCount"
+              class="d-flex align-center"
+            >
+              <template #count>
+                <v-number-input
+                  v-model="endCount"
+                  :disabled="disabled || endOption !== 'count'"
+                  density="compact"
+                  variant="outlined"
+                  color="accent"
+                  max-width="80px"
+                  hide-details
+                  control-variant="hidden"
+                  :min="1"
+                  :max="52"
+                  class="mx-2"
+                />
+              </template>
+            </i18n-t>
           </template>
         </v-radio>
 
@@ -221,31 +264,40 @@
           class="mt-2"
         >
           <template #label>
-            <span class="mr-2"> Endet am </span>
-            <date-time-text-field
-              v-model="endDate"
-              :disabled="disabled || endOption !== 'until'"
-              color="accent"
-              type="date"
-              hide-details
-              class="ml-2"
-            />
+            <i18n-t
+              keypath="components.rruleEditorCard.end.onDate"
+              tag="span"
+              class="d-flex align-center"
+            >
+              <template #date>
+                <date-time-text-field
+                  v-model="endDate"
+                  :disabled="disabled || endOption !== 'until'"
+                  color="accent"
+                  type="date"
+                  hide-details
+                  class="ml-2"
+                />
+              </template>
+            </i18n-t>
           </template>
         </v-radio>
       </v-radio-group>
     </template>
   </card-form>
 </template>
-
 <script setup lang="ts">
 import type { Options } from "rrule";
 
 import { RRule, Weekday } from "rrule";
 import { nextTick, onMounted, ref, watch } from "vue";
+import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify/framework";
 
 import CardForm from "@/components/common/CardForm.vue";
 import DateTimeTextField from "@/components/common/date/DateTimeTextField.vue";
+
+const { t } = useI18n();
 
 interface SelectOption<T> {
   value: T;
