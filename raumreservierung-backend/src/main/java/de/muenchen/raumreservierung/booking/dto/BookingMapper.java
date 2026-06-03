@@ -18,6 +18,7 @@ public interface BookingMapper {
     @Mapping(target = "isRecurring", source = "booking", qualifiedByName = "isRecurringCheck")
     BookingListResponseDTO toListDto(Booking booking);
 
+    @Mapping(target = "roomId", source = "room.id")
     BookingMinimalResponseDTO toMinimalDto(Booking booking);
 
     @Mapping(target = "id", ignore = true)
