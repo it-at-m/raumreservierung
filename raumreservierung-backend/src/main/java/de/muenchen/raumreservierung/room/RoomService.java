@@ -7,12 +7,14 @@ import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.persistence.EntityManager;
+import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Service
 @Slf4j
@@ -59,6 +61,26 @@ public class RoomService {
         }
 
         log.debug("Updated room with id {}", existingRoom.getId());
+        return getEntityOrThrowException(existingRoom.getId());
+    }
+
+    @PreAuthorize(Authorities.ROOM_MANAGE)
+    public Room updateRoomPicture(final UUID roomId, final MultipartFile file) throws IOException {
+        final Room existingRoom = getEntityOrThrowException(roomId);
+
+        if (file.isEmpty()) {
+            existingRoom.setPicture(null);
+        } else {
+            existingRoom.setPicture(file.getBytes());
+        }
+
+        roomRepository.saveAndFlush(existingRoom);
+        entityManager.detach(existingRoom);
+        if (existingRoom.getContactPerson() != null) {
+            entityManager.detach(existingRoom.getContactPerson());
+        }
+
+        log.debug("Updated picture of room with id {}", existingRoom.getId());
         return getEntityOrThrowException(existingRoom.getId());
     }
 

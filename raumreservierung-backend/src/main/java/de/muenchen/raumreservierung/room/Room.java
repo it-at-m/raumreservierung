@@ -54,6 +54,9 @@ public class Room extends BaseEntity {
     @ManyToMany
     private Set<Equipment> equipment = new HashSet<>();
 
+    @Column
+    private byte[] picture;
+
     public void updateFrom(final Room roomChanges) {
         this.name = roomChanges.getName();
         this.number = roomChanges.getNumber();
