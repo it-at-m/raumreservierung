@@ -115,6 +115,29 @@
             :subtitle="bookedByComputed"
             :icon="mdiAccountOutline"
             :loading="getBookingLoading"
+          >
+            <div
+              v-if="getBookingData?.organisationUnit"
+              class="text-medium-emphasis d-flex align-center"
+            >
+              <v-icon
+                :icon="mdiDomain"
+                size="small"
+                class="mr-2"
+              />
+              {{ getBookingData.organisationUnit }}
+            </div>
+          </details-card>
+        </div>
+        <div
+          v-if="getBookingData?.recurringRule"
+          class="masonry-item w-100 d-inline-block mb-4"
+        >
+          <details-card
+            :title="t('domain.booking.recurrenceRule')"
+            :subtitle="computedRRule"
+            :icon="mdiCalendarSyncOutline"
+            :loading="getBookingLoading"
           />
         </div>
         <div
@@ -147,7 +170,7 @@
             :loading="getBookingLoading"
           >
             <v-list class="py-0">
-              <v-list-item>
+              <v-list-item class="pre-line">
                 {{ getBookingData?.additionalNotes }}
               </v-list-item>
             </v-list>
@@ -164,7 +187,7 @@
             :loading="getBookingLoading"
           >
             <v-list class="py-0">
-              <v-list-item>
+              <v-list-item class="pre-line">
                 {{ getBookingData?.internalNotes }}
               </v-list-item>
             </v-list>
@@ -180,12 +203,15 @@ import {
   mdiAccountOutline,
   mdiArrowLeft,
   mdiCalendarRangeOutline,
+  mdiCalendarSyncOutline,
+  mdiDomain,
   mdiDoor,
   mdiFileDocumentAlertOutline,
   mdiFileDocumentOutline,
   mdiPencil,
   mdiSofaSingleOutline,
 } from "@mdi/js";
+import { RRule } from "rrule";
 import { computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -198,6 +224,7 @@ import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
+import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
 const { t } = useI18n();
@@ -259,6 +286,14 @@ const bookedByComputed = computed(() =>
         lastName: getBookingData?.value?.bookedBy?.lastName,
       })
 );
+
+const computedRRule = computed(() => {
+  if (getBookingData?.value?.recurringRule) {
+    const rrule = RRule.fromString(getBookingData.value.recurringRule);
+    return rrule.toText(rruleGetText, rruleDeLanguage);
+  }
+  return "";
+});
 </script>
 
 <style scoped>
@@ -276,5 +311,9 @@ const bookedByComputed = computed(() =>
 
 .masonry-item {
   break-inside: avoid-column;
+}
+
+.pre-line {
+  white-space: pre-line;
 }
 </style>
