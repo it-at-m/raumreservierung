@@ -22,7 +22,7 @@
           v-if="subtitle"
           #subtitle
         >
-          <p class="text-high-emphasis my-0">{{ subtitle }}</p>
+          <p class="text-high-emphasis my-0 text-capitalize">{{ subtitle }}</p>
         </template>
 
         <template
