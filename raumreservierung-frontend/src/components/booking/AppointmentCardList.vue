@@ -65,7 +65,7 @@
 
 <script setup lang="ts">
 import type {
-  AppointmentMinimalResponseDTO,
+  AppointmentDetailsResponseDTO,
   ScheduleTemplate,
 } from "@/api/raumreservierung-backend";
 
@@ -80,11 +80,11 @@ import DateDisplay from "@/components/common/date/DateDisplay.vue";
 import { useUpdateAppointment } from "@/composables/api/useAppointmentApi.ts";
 
 const isDialogOpen = ref(false);
-const appointmentToEdit = ref<AppointmentMinimalResponseDTO | undefined>(
+const appointmentToEdit = ref<AppointmentDetailsResponseDTO | undefined>(
   undefined
 );
 
-const modelValue = defineModel<AppointmentMinimalResponseDTO[]>({
+const modelValue = defineModel<AppointmentDetailsResponseDTO[]>({
   required: true,
 });
 
@@ -98,7 +98,7 @@ const {
   data: updatedAppointment,
 } = useUpdateAppointment();
 
-const openEditDialog = (appointment: AppointmentMinimalResponseDTO) => {
+const openEditDialog = (appointment: AppointmentDetailsResponseDTO) => {
   appointmentToEdit.value = appointment;
   isDialogOpen.value = true;
 };
