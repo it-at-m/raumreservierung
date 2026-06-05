@@ -6,11 +6,12 @@ import de.muenchen.raumreservierung.appointment.dto.AppointmentMapper;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentRequestDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentResponseDTO;
 import jakarta.validation.Valid;
-import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,8 +33,10 @@ public class AppointmentController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<AppointmentDetailsResponseDTO> getAppointmentsByPeriodAndRoom(@ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
-        return appointmentService.getAppointmentsByPeriodAndRoom(appointmentFilterDTO).stream().map(appointmentMapper::toSearchDto).toList();
+    public Page<AppointmentDetailsResponseDTO> getAppointmentsByPageableAndFilter(@ParameterObject final Pageable pageable,
+            @Valid @ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
+        final Page<Appointment> appointmentPage = appointmentService.getAppointmentsByPageableAndFilter(pageable, appointmentFilterDTO);
+        return appointmentPage.map(appointmentMapper::toDetailsDto);
     }
 
     @PutMapping("/{appointmentId}")

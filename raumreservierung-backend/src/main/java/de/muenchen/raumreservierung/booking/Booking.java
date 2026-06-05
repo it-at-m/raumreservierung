@@ -5,6 +5,7 @@ import de.muenchen.raumreservierung.common.BaseEntity;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room;
+import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.validation.ValidParticipantCount;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -71,6 +72,9 @@ public class Booking extends BaseEntity {
     @Column(nullable = false)
     private String organisationUnit;
 
+    @ManyToOne
+    private SeatingType seatingType;
+
     //TODO: add status
 
     public void updateFrom(final Booking booking) {
@@ -85,6 +89,7 @@ public class Booking extends BaseEntity {
         this.bookedFor = booking.getBookedFor();
         this.recurringRule = booking.getRecurringRule();
         this.organisationUnit = booking.getOrganisationUnit();
+        this.seatingType = booking.getSeatingType();
 
         this.equipment.clear();
         if (booking.getEquipment() != null) {

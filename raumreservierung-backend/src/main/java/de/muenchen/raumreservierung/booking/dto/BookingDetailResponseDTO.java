@@ -1,10 +1,10 @@
 package de.muenchen.raumreservierung.booking.dto;
 
-import de.muenchen.raumreservierung.appointment.dto.AppointmentMinimalResponseDTO;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
+import de.muenchen.raumreservierung.seating.SeatingType;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -19,12 +19,13 @@ public record BookingDetailResponseDTO(
         @NotNull boolean cateringNeeded,
         String internalNotes,
         String additionalNotes,
-        @NotNull List<AppointmentMinimalResponseDTO> appointments,
         RoomListResponseDTO room,
         @NotNull ScheduleTemplate schedule,
         @NotNull PersonResponseDto bookedBy,
-        PersonResponseDto bookedFor,
-        @NotNull String organisationUnit
+        @NotNull PersonResponseDto bookedFor,
+        @NotNull String organisationUnit,
+        SeatingType seatingType,
+        String recurringRule
 //TODO: add status
 ) {
 }
