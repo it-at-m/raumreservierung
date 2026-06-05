@@ -3,13 +3,17 @@ package de.muenchen.raumreservierung.booking;
 import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.jayway.jsonpath.JsonPath;
 import de.muenchen.raumreservierung.TestConstants;
+import de.muenchen.raumreservierung.appointment.dto.AppointmentDetailsResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
 import de.muenchen.raumreservierung.person.PersonRepository;
@@ -28,7 +32,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -60,6 +63,7 @@ public class BookingControllerIntegrationTest {
             DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
 
     private static final String BOOKINGS_URL = "/bookings";
+    private static final String APPOINTMENTS_URL = "/appointments";
 
     @Autowired
     private MockMvc mockMvc;
@@ -254,7 +258,7 @@ public class BookingControllerIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("provideTestData")
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules(String rrule, int expectedSize, List<OffsetDateTime> expectedDates) throws Exception {
         OffsetDateTime date = OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2));
         BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(date, rrule, mockPerson.getId());
@@ -266,12 +270,29 @@ public class BookingControllerIntegrationTest {
                 .andReturn()
                 .getResponse()
                 .getContentAsString();
-
         BookingDetailResponseDTO responseBody = objectMapper.readValue(responseJson, BookingDetailResponseDTO.class);
 
-        Assertions.assertNotNull(responseBody);
+        OffsetDateTime start = OffsetDateTime.of(2026, 3, 1, 0, 0, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC);
+        OffsetDateTime end = OffsetDateTime.of(2027, 2, 2, 0, 0, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC);
+        String appointmentResponseJson = mockMvc.perform(get(APPOINTMENTS_URL).with(csrf())
+                .param("bookingId", responseBody.id().toString())
+                .param("startDate", start.toString())
+                .param("endDate", end.toString())
+                .param("page", "0")
+                .param("size", "10"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
-        assertThat(responseBody.appointments())
+        String contentJson = JsonPath.read(appointmentResponseJson, "$.content").toString();
+        List<AppointmentDetailsResponseDTO> appointments = objectMapper.readValue(
+                contentJson,
+                new TypeReference<>() {
+                });
+
+        assertThat(appointments).isNotEmpty();
+        assertThat(appointments)
                 .hasSize(expectedSize)
                 .extracting(r -> r.schedule().occupancyStart())
                 .containsExactlyInAnyOrderElementsOf(expectedDates);
