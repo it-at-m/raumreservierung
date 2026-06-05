@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_PARTICIPANT_COUNT_INVALID;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
@@ -16,6 +17,7 @@ import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room;
+import de.muenchen.raumreservierung.room.RoomService;
 import de.muenchen.raumreservierung.security.AuthUtils;
 import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
@@ -45,6 +47,7 @@ public class BookingService {
     private final SecurityContextService securityContextService;
     private final AppointmentService appointmentService;
     private final PersonService personService;
+    private final RoomService roomService;
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
@@ -76,22 +79,16 @@ public class BookingService {
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking createBooking(final Booking booking) {
+        bookingIsValidOrThrowException(booking);
+
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
-        }
-
-        if (booking.getRoom() != null && !booking.getRoom().isActive()) {
-            throw new BadRequestException(MSG_ROOM_INACTIVE);
         }
 
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
         assignBookingContext(booking);
-
-        if (seatingTypeNotAvailableInRoom(booking)) {
-            throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
-        }
 
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
@@ -111,6 +108,8 @@ public class BookingService {
      */
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
+        bookingIsValidOrThrowException(bookingUpdates);
+
         final Booking existingBooking = getEntityOrThrowException(bookingId);
         if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
@@ -120,14 +119,6 @@ public class BookingService {
 
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
-        }
-
-        if (bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive()) {
-            throw new BadRequestException(MSG_ROOM_INACTIVE);
-        }
-
-        if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
-            throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
         }
 
         updateBookingAppointments(bookingUpdates, existingBooking);
@@ -256,6 +247,48 @@ public class BookingService {
             booking.setBookedBy(currentPerson);
         }
 
+    }
+
+    /**
+     * Checks if the booking's participant count exceeds the allowed capacity.
+     * A count of 0 is treated as unset and considered valid.
+     *
+     * @param booking the booking to validate
+     * @return true if the count is invalid, false otherwise
+     */
+    private boolean participantCountNotValid(final Booking booking) {
+        final int count = booking.getParticipantCount();
+
+        if (count == 0) {
+            return false;
+        }
+
+        if (booking.getRoom() != null) {
+            final Room room = booking.getRoom();
+            return count > room.getCapacity();
+        } else {
+            final int absoluteMax = roomService.findAbsoluteMaxCapacity();
+            return count > absoluteMax;
+        }
+    }
+
+    /**
+     * Validates the booking updates against room availability, seating types, and capacities.
+     *
+     * @param bookingUpdates the booking data containing the requested updates
+     * @throws BadRequestException if the room is inactive, seating type is missing, or capacity is
+     *             exceeded
+     */
+    private void bookingIsValidOrThrowException(final Booking bookingUpdates) {
+        if (bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive()) {
+            throw new BadRequestException(MSG_ROOM_INACTIVE);
+        }
+        if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
+            throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
+        }
+        if (participantCountNotValid(bookingUpdates)) {
+            throw new BadRequestException(MSG_PARTICIPANT_COUNT_INVALID);
+        }
     }
 
 }

@@ -6,7 +6,6 @@ import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.seating.SeatingType;
-import de.muenchen.raumreservierung.validation.ValidParticipantCount;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
@@ -19,11 +18,11 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Range;
 
 @Entity
 @Setter
 @Getter
-@ValidParticipantCount
 public class Booking extends BaseEntity {
 
     @Serial
@@ -40,6 +39,7 @@ public class Booking extends BaseEntity {
     //          or if no seatingtype selected: <= max capacity of room
     // if no room: <= max capacity of all rooms => roomController?
     @Column
+    @Range(min = 0, max = 999)
     private int participantCount;
 
     @ManyToMany
