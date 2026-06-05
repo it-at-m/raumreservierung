@@ -101,9 +101,8 @@ public class AppointmentService {
     }
 
     private String parse(final String fullLine) {
-        if (fullLine.regionMatches(true, 0, "RRULE:", 0, 6)) {
-            return fullLine.substring(6).trim();
-        }
-        return fullLine;
+        return fullLine.regionMatches(true, 0, "RRULE:", 0, 6)
+                ? fullLine.substring(6).trim()
+                : fullLine;
     }
 }
