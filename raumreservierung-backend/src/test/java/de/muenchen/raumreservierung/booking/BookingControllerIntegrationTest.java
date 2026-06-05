@@ -108,12 +108,14 @@ public class BookingControllerIntegrationTest {
         mockRoom.setName("TEST_ROOM_NAME");
         mockRoom.setNumber("100");
         mockRoom.setActive(true);
+        mockRoom.setCapacity(100);
         mockRoom = roomRepository.save(mockRoom);
 
         mockRoomInactive = new Room();
         mockRoomInactive.setName("TEST_ROOM_NAME_2");
         mockRoomInactive.setNumber("200");
         mockRoomInactive.setActive(false);
+        mockRoomInactive.setCapacity(200);
         mockRoomInactive = roomRepository.save(mockRoomInactive);
 
         mockSeatingType1 = new SeatingType();
