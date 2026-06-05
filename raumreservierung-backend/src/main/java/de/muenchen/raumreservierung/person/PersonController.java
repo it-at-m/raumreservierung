@@ -43,7 +43,7 @@ public class PersonController {
             @ParameterObject final PersonFilterDto personFilterDto) {
         final Page<Person> personPage = personService.getPersonsByPageableAndFilter(pageable, personFilterDto);
 
-        return personPage.map(personMapper::toDto);
+        return personPage.map(personMapper::toFilteredDto);
     }
 
     @PostMapping
