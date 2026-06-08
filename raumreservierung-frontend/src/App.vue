@@ -53,7 +53,7 @@
       <v-container fluid>
         <router-view
           v-slot="{ Component }"
-          :key="route.fullPath"
+          :key="route.path"
         >
           <v-fade-transition mode="out-in">
             <component :is="Component" />

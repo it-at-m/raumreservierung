@@ -130,7 +130,7 @@ public class BookingService {
             throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
         }
 
-        updateBookingAppointments(bookingUpdates, existingBooking);
+        updateBookingAppointments(existingBooking, bookingUpdates);
 
         saveAndDetach(existingBooking, bookingUpdates);
 

@@ -105,6 +105,7 @@ import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 import { useHolidayStore } from "@/stores/holiday.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
+import { toApiDate } from "@/util/timeUtil.ts";
 
 const PREVIOUS_YEARS = 5;
 const NEXT_YEARS = 10;
@@ -164,10 +165,6 @@ const computedDomain = computed(() =>
     ? t("domain.holidays.public.header")
     : t("domain.holidays.school.header")
 );
-
-const toApiDate = (date: Date): Date => {
-  return new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-};
 
 const toApiHoliday = (holiday: HolidayResponseDTO): HolidayRequestDTO => {
   return {

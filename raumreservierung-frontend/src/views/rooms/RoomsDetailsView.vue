@@ -69,7 +69,7 @@
         :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'"
       >
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rooms-details-card
+          <details-card
             :title="t('domain.room.contactPerson')"
             :icon="mdiAccountOutline"
             :loading="getRoomLoading"
@@ -93,10 +93,10 @@
                 :title="roomData?.contactPerson?.email"
               />
             </v-list>
-          </rooms-details-card>
+          </details-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rooms-details-card
+          <details-card
             :title="t('domain.room.usableArea')"
             :icon="mdiTextureBox"
             :loading="getRoomLoading"
@@ -111,10 +111,10 @@
                 </v-list-item-title>
               </v-list-item>
             </v-list>
-          </rooms-details-card>
+          </details-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rooms-details-card
+          <details-card
             :title="t('domain.room.capacity.header')"
             :subtitle="
               t('domain.room.capacity.msg', { num: roomData?.capacity })
@@ -144,10 +144,10 @@
                 />
               </v-list>
             </template>
-          </rooms-details-card>
+          </details-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rooms-details-card
+          <details-card
             title="Mögliche Ausstattung"
             :icon="mdiSofaSingleOutline"
             :loading="getRoomLoading"
@@ -171,7 +171,7 @@
                 "
               />
             </v-list>
-          </rooms-details-card>
+          </details-card>
         </div>
       </div>
     </template>
@@ -199,7 +199,7 @@ import { useDisplay } from "vuetify/framework";
 
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
-import RoomsDetailsCard from "@/components/rooms/RoomsDetailsCard.vue";
+import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -225,6 +225,10 @@ onMounted(async () => {
 
     if (result) {
       roomData.value = result as RoomDetailsResponseDTO;
+    } else {
+      await router.replace({
+        name: ROUTES.ROOMS_LIST,
+      });
     }
   }
 });

@@ -16,8 +16,8 @@ export const useUserStore = defineStore("user", () => {
   const snackbarStore = useSnackbarStore();
 
   const user = computed(() => data.value as User);
-  const privileges = computed(() =>
-    mapSimpleRolesToPrivileges((data.value as User)?.user_roles || [])
+  const privileges = computed(
+    () => mapSimpleRolesToPrivileges((data.value as User)?.user_roles || []) // internally mapped inside the getuserClient!
   );
 
   const fetchUser = async () => {

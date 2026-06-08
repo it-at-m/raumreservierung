@@ -19,13 +19,13 @@ const NAV_ENTRIES: readonly NavEntry[] = [
   {
     kind: "item",
     textKey: "navigationDrawer.myBookings",
-    to: { name: ROUTES.HOME },
+    to: { name: ROUTES.MY_BOOKINGS_LIST },
     requiredPrivilege: "bookings:self",
   },
   {
     kind: "group",
     textKey: "navigationDrawer.bookingGroup.groupTitle",
-    requiredPrivilege: "bookings:manage",
+    requiredPrivilege: "bookings:read",
     children: [
       {
         kind: "item",
@@ -39,6 +39,12 @@ const NAV_ENTRIES: readonly NavEntry[] = [
         requiredPrivilege: "calendar:write",
       },
     ],
+  },
+  {
+    kind: "item",
+    textKey: "navigationDrawer.bookings",
+    to: { name: ROUTES.BOOKINGS_LIST },
+    requiredPrivilege: "bookings:manage", // TODO this needs to change - right? should be array
   },
   {
     kind: "group",

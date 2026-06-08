@@ -5,7 +5,10 @@
     :loading="loading"
   >
     <template #text>
-      <slot name="text">
+      <slot
+        name="text"
+        :disabled="loading"
+      >
         {{ text }}
       </slot>
     </template>
@@ -14,10 +17,12 @@
         <slot
           name="cancel"
           :props="{ onClick: cancel }"
+          :disabled="loading"
         >
           <base-button
             secondary
             class="mr-4"
+            :disabled="loading"
             :prepend-icon="mdiClose"
             :text="t('common.cancel')"
             @click="cancel"
@@ -26,6 +31,7 @@
         <slot
           name="confirm"
           :props="{ onClick: confirm }"
+          :disabled="loading"
         />
       </div>
     </template>
