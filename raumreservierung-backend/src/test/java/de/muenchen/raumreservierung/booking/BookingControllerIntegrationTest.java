@@ -345,34 +345,34 @@ public class BookingControllerIntegrationTest {
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
                 Arguments.of("", 1, List.of(OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=DAILY;COUNT=3", 3, List.of(
+                Arguments.of("RRULE:FREQ=DAILY;COUNT=3", 3, List.of(
                         OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 3, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 4, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=MONTHLY;COUNT=2", 2, List.of(
+                Arguments.of("RRULE:FREQ=MONTHLY;COUNT=2", 2, List.of(
                         OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 4, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=WEEKLY;COUNT=5", 5, List.of(
+                Arguments.of("RRULE:FREQ=WEEKLY;COUNT=5", 5, List.of(
                         OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 9, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 16, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 23, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 30, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=WEEKLY;BYDAY=TU,WE;INTERVAL=2;COUNT=4", 4, List.of(
+                Arguments.of("RRULE:FREQ=WEEKLY;BYDAY=TU,WE;INTERVAL=2;COUNT=4", 4, List.of(
                         OffsetDateTime.of(2026, 3, 3, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 4, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 17, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 18, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=MONTHLY;BYDAY=2WE;COUNT=3", 3, List.of(
+                Arguments.of("RRULE:FREQ=MONTHLY;BYDAY=2WE;COUNT=3", 3, List.of(
                         OffsetDateTime.of(2026, 3, 11, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 4, 8, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 5, 13, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=15;COUNT=4", 4, List.of(
+                Arguments.of("RRULE:FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=15;COUNT=4", 4, List.of(
                         OffsetDateTime.of(2026, 3, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 5, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 7, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 9, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=WEEKLY;INTERVAL=6", 9, List.of(
+                Arguments.of("RRULE:FREQ=WEEKLY;INTERVAL=6", 9, List.of(
                         OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 4, 13, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 5, 25, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
