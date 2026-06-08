@@ -13,19 +13,29 @@
         class="align-center mb-1"
       >
         <v-col cols="8">
-          {{
-            useDateFormat(
-              appointment.schedule.occupancyStart,
-              DATE_FORMAT_DDMMYY
-            ).value
-          }}
-          <span v-if="isMultiDay">
-            -
+          <span v-if="!isMultiDay">
             {{
-              useDateFormat(
-                appointment.schedule.occupancyEnd,
-                DATE_FORMAT_DDMMYY
-              ).value
+              t("common.format.dateSingle", {
+                date: useDateFormat(
+                  appointment.schedule.occupancyStart,
+                  DATE_FORMAT_DDMMYY
+                ).value,
+              })
+            }}
+          </span>
+
+          <span v-else>
+            {{
+              t("common.format.dateRange", {
+                start: useDateFormat(
+                  appointment.schedule.occupancyStart,
+                  DATE_FORMAT_DDMMYY
+                ).value,
+                end: useDateFormat(
+                  appointment.schedule.occupancyEnd,
+                  DATE_FORMAT_DDMMYY
+                ).value,
+              })
             }}
           </span>
         </v-col>
@@ -39,7 +49,7 @@
             size="x-small"
             variant="flat"
           >
-            Abweichende Zeit
+            {{ t("components.appointmentListItem.deviatingTimes") }}
           </v-chip>
         </v-col>
       </v-row>
@@ -56,20 +66,23 @@
           cols="8"
           class="text-medium-emphasis"
         >
-          Belegungszeit:
+          {{ t("domain.booking.occupancy") }}
         </v-col>
         <v-col
           cols="4"
           class="text-high-emphasis text-center"
         >
           {{
-            useDateFormat(appointment.schedule.occupancyStart, TIME_FORMAT_HHMM)
-              .value
-          }}
-          -
-          {{
-            useDateFormat(appointment.schedule.occupancyEnd, TIME_FORMAT_HHMM)
-              .value
+            t("common.format.dateRange", {
+              start: useDateFormat(
+                appointment.schedule.occupancyStart,
+                TIME_FORMAT_HHMM
+              ).value,
+              end: useDateFormat(
+                appointment.schedule.occupancyEnd,
+                TIME_FORMAT_HHMM
+              ).value,
+            })
           }}
         </v-col>
       </v-row>
@@ -83,22 +96,23 @@
           cols="8"
           class="text-medium-emphasis"
         >
-          Veranstaltungszeit:
+          {{ t("domain.booking.appointment") }}
         </v-col>
         <v-col
           cols="4"
           class="text-high-emphasis text-center"
         >
           {{
-            useDateFormat(
-              appointment.schedule.appointmentStart,
-              TIME_FORMAT_HHMM
-            ).value
-          }}
-          -
-          {{
-            useDateFormat(appointment.schedule.appointmentEnd, TIME_FORMAT_HHMM)
-              .value
+            t("common.format.dateRange", {
+              start: useDateFormat(
+                appointment.schedule.appointmentStart,
+                TIME_FORMAT_HHMM
+              ).value,
+              end: useDateFormat(
+                appointment.schedule.appointmentEnd,
+                TIME_FORMAT_HHMM
+              ).value,
+            })
           }}
         </v-col>
       </v-row>
@@ -108,18 +122,21 @@
 
 <script setup lang="ts">
 import type {
-  AppointmentMinimalResponseDTO,
+  AppointmentDetailsResponseDTO,
   ScheduleTemplate,
 } from "@/api/raumreservierung-backend";
 
 import { useDateFormat } from "@vueuse/core";
 import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { dateEquals, timeEquals } from "@/util/timeUtil.ts";
 
+const { t } = useI18n();
+
 const { appointment, schedule } = defineProps<{
-  appointment: AppointmentMinimalResponseDTO;
+  appointment: AppointmentDetailsResponseDTO;
   schedule: ScheduleTemplate;
 }>();
 

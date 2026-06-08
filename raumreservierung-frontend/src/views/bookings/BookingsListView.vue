@@ -79,36 +79,52 @@
               <v-icon :icon="item.hasEquipment ? mdiCheck : mdiMinus" />
             </template>
             <template #[`item.schedule.appointmentStart`]="{ item }">
-              <span>
-                {{
-                  useDateFormat(
-                    item.schedule.occupancyStart,
-                    DATE_FORMAT_DDMMYY
-                  )
-                }}
-              </span>
               <span
                 v-if="
-                  !dateEquals(
+                  dateEquals(
                     item.schedule.occupancyStart,
                     item.schedule.occupancyEnd
                   )
                 "
               >
-                -
                 {{
-                  useDateFormat(item.schedule.occupancyEnd, DATE_FORMAT_DDMMYY)
+                  t("common.format.dateSingle", {
+                    date: useDateFormat(
+                      item.schedule.occupancyStart,
+                      DATE_FORMAT_DDMMYY
+                    ).value,
+                  })
+                }}
+              </span>
+
+              <span v-else>
+                {{
+                  t("common.format.dateRange", {
+                    start: useDateFormat(
+                      item.schedule.occupancyStart,
+                      DATE_FORMAT_DDMMYY
+                    ).value,
+                    end: useDateFormat(
+                      item.schedule.occupancyEnd,
+                      DATE_FORMAT_DDMMYY
+                    ).value,
+                  })
                 }}
               </span>
             </template>
             <template #[`item.schedule.occupancyStart`]="{ item }">
               <span>
                 {{
-                  useDateFormat(item.schedule.occupancyStart, TIME_FORMAT_HHMM)
-                }}
-                -
-                {{
-                  useDateFormat(item.schedule.occupancyEnd, TIME_FORMAT_HHMM)
+                  t("common.format.dateRange", {
+                    start: useDateFormat(
+                      item.schedule.occupancyStart,
+                      TIME_FORMAT_HHMM
+                    ).value,
+                    end: useDateFormat(
+                      item.schedule.occupancyEnd,
+                      TIME_FORMAT_HHMM
+                    ).value,
+                  })
                 }}
               </span>
             </template>
@@ -162,7 +178,7 @@ import {
 } from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -170,7 +186,6 @@ import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
-import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -239,16 +254,6 @@ const {
   data: bookingsPage,
   loading: getBookingsLoading,
 } = useGetBookings();
-
-const {
-  call: getRooms,
-  data: allRooms,
-  loading: getRoomsLoading,
-} = useGetAllRooms();
-
-onMounted(async () => {
-  await getRooms();
-});
 
 const handleRowClick = (
   event: PointerEvent,

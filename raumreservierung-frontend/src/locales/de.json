@@ -30,6 +30,7 @@
     },
     "format": {
       "idFormat": "#{id}",
+      "dateSingle": "{date}",
       "dateRange": "{start} - {end}"
     }
   },
@@ -82,6 +83,9 @@
       "coveredByInternal": "Wird durch interne Person abgedeckt",
       "searchExternal": "Externe Person suchen",
       "internalAlreadySelectedHint": "Eine interne Person ist bereits ausgewählt."
+    },
+    "appointmentListItem": {
+      "deviatingTimes": "Abweichende Zeit"
     }
   },
   "views": {
@@ -182,14 +186,15 @@
   },
   "domain": {
     "booking": {
-      "title": "Titel",
       "header": "Buchung | Buchungen",
       "participants": "Teilnehmende | Teilnehmenden",
       "status": "Status",
       "date": "Datum",
       "recurrenceRule": "Terminserie",
       "notes": "Notizen",
-      "internalNotes": "Interne Notizen"
+      "internalNotes": "Interne Notizen",
+      "appointment": "Veranstaltungszeit",
+      "occupancy": "Belegungszeit"
     },
     "scheduleTemplate": {
       "date": "Datum",
