@@ -220,6 +220,7 @@
 
 <script setup lang="ts">
 import type { AppointmentDetailsResponseDTO } from "@/api/raumreservierung-backend";
+import type { InfiniteScrollLoad } from "@/types/InfiniteScroll.ts";
 
 import {
   mdiAccountOutline,
@@ -249,11 +250,6 @@ import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
-
-interface InfiniteScrollLoad {
-  side: "start" | "end" | "both";
-  done: (status: "ok" | "empty" | "error") => void;
-}
 
 const { t } = useI18n();
 
@@ -291,22 +287,11 @@ onMounted(async () => {
       });
     }
 
-    await getAppointmentPage({
-      page: nextAppointmentPage.value,
-      startDate: new Date(),
-      bookingId: bookingId.value,
-      endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
-      size: 7,
-    });
-    if (appointmentPage.value && appointmentPage.value.content) {
-      nextAppointmentPage.value = nextAppointmentPage.value + 1;
-      appointments.value.push(...appointmentPage.value.content);
-    }
+    await loadAppointmentPage(undefined);
   }
 });
 
-const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
-  const { done } = event;
+const loadAppointmentPage = async (event: InfiniteScrollLoad | undefined) => {
   await getAppointmentPage({
     page: nextAppointmentPage.value,
     startDate: new Date(),
@@ -314,6 +299,13 @@ const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
     endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
     size: 5,
   });
+
+  if (!event) {
+    return;
+  }
+
+  const { done } = event;
+
   if (appointmentPage.value && appointmentPage.value.content) {
     nextAppointmentPage.value = nextAppointmentPage.value + 1;
     appointments.value.push(...appointmentPage.value.content);
