@@ -86,6 +86,13 @@
     },
     "appointmentListItem": {
       "deviatingTimes": "Abweichende Zeit"
+    },
+    "appointmentCardList": {
+      "editSeriesElement": "Serienelement bearbeiten | Serienelemente bearbeiten",
+      "loadMoreSeriesElements": "Weitere Serienelemente laden"
+    },
+    "dateSelectorCard": {
+      "subtitle": "Datum und Uhrzeit"
     }
   },
   "views": {

@@ -6,8 +6,8 @@
 
     <template #subtitle>
       <v-card-subtitle v-if="id && showId">
-        {{ t("common.format.idFormat", { id }) }}</v-card-subtitle
-      >
+        {{ t("common.format.idFormat", { id }) }}
+      </v-card-subtitle>
     </template>
 
     <template #text>

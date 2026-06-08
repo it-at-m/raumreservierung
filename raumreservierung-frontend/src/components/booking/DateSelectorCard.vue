@@ -1,11 +1,11 @@
 <template>
-  <card-form subtitle="Datum und Uhrzeit">
+  <card-form :subtitle="t('components.dateSelectorCard.subtitle')">
     <template #text>
       <v-row>
         <v-checkbox
           v-model="multiDay"
           color="accent"
-          label="Mehrtägiger Termin"
+          :label="t('components.scheduleTemplateForm.multiDay')"
           hide-details
           density="compact"
           @update:model-value="onMultiDayToggle"
@@ -19,7 +19,7 @@
             color="accent"
             type="date"
             hide-details="auto"
-            label="Datum"
+            :label="t('domain.scheduleTemplate.date')"
             :rules="[requiredRule]"
           />
         </v-col>
@@ -29,7 +29,7 @@
             color="accent"
             hide-details="auto"
             type="date"
-            label="Enddatum"
+            :label="t('domain.scheduleTemplate.endDate')"
             :rules="[requiredRule]"
           />
         </v-col>
@@ -43,7 +43,7 @@
             color="accent"
             hide-details="auto"
             type="time"
-            label="Start date"
+            :label="t('domain.scheduleTemplate.startTime')"
             :rules="[requiredRule]"
           />
         </v-col>
@@ -54,7 +54,7 @@
             color="accent"
             hide-details="auto"
             type="time"
-            label="End date"
+            :label="t('domain.scheduleTemplate.endTime')"
             :rules="[requiredRule, validateOccupancyEndAfterStart]"
           />
         </v-col>
@@ -65,7 +65,7 @@
           <v-checkbox
             v-model="appointmentDiffers"
             color="accent"
-            label="Veranstaltungszeit abweichend"
+            :label="t('components.scheduleTemplateForm.appointmentDiffers')"
             hide-details
             density="compact"
             @update:model-value="onAppointmentDiffers"
@@ -81,7 +81,7 @@
             hide-details="auto"
             :append-inner-icon="multiDay ? '' : mdiClockOutline"
             :type="multiDay ? 'datetime-local' : 'time'"
-            label="Veranstaltungszeitstart"
+            :label="t('domain.scheduleTemplate.appointmentStart')"
             :rules="[requiredRule, validateApptStartWithinOccupancy]"
           />
         </v-col>
@@ -92,7 +92,7 @@
             hide-details="auto"
             :append-inner-icon="multiDay ? '' : mdiClockOutline"
             :type="multiDay ? 'datetime-local' : 'time'"
-            label="Veranstaltungszeitende"
+            :label="t('domain.scheduleTemplate.appointmentEnd')"
             :rules="[requiredRule, validateApptEndWithinOccupancy]"
           />
         </v-col>

@@ -1,6 +1,8 @@
 <template>
   <card-form
-    subtitle="Serienelemente bearbeiten"
+    :subtitle="
+      t('components.appointmentCardList.editSeriesElement', { count: 2 })
+    "
     class="h-100"
   >
     <template #text>
@@ -11,7 +13,7 @@
         @after-leave="clearAppointmentData"
       >
         <confirm-card
-          title="Einzeltermin bearbeiten"
+          :title="t('components.appointmentCardList.editSeriesElement')"
           :loading="updateAppointmentLoading"
           @cancel="reset"
         >
@@ -66,13 +68,12 @@
             </v-list-item-title>
           </v-list-item>
         </template>
-        <!-- Load More Button -->
         <template #load-more="{ props }">
           <base-button
             v-if="nextAppointmentPage < totalPages"
             secondary
             :loading="appointmentsLoading"
-            text="Weitere Termine laden"
+            :text="t('components.appointmentCardList.loadMoreSeriesElements')"
             v-bind="props"
           />
         </template>
@@ -90,6 +91,7 @@ import type { InfiniteScrollLoad } from "@/types/InfiniteScroll.ts";
 
 import { mdiPencilOutline } from "@mdi/js";
 import { ref, toRaw, watch } from "vue";
+import { useI18n } from "vue-i18n";
 
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
@@ -100,6 +102,8 @@ import {
   useGetAppointments,
   useUpdateAppointment,
 } from "@/composables/api/useAppointmentApi.ts";
+
+const { t } = useI18n();
 
 const { bookingId } = defineProps<{
   bookingId?: string;
