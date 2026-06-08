@@ -72,7 +72,8 @@ public class AppointmentService {
         final Duration offsetOccupancyEnd = Duration.between(base.appointmentStart(), base.occupancyEnd());
         final Duration offsetAppointmentEnd = Duration.between(base.appointmentStart(), base.appointmentEnd());
 
-        final Recur<OffsetDateTime> recur = new Recur<>(booking.getRecurringRule());
+        final String rrule = parse(booking.getRecurringRule());
+        final Recur<OffsetDateTime> recur = new Recur<>(rrule);
 
         final OffsetDateTime seed = base.appointmentStart();
         final OffsetDateTime limit = recur.getUntil() != null
@@ -97,5 +98,11 @@ public class AppointmentService {
 
     private Appointment getEntityOrThrowException(final UUID appointmentId) {
         return appointmentRepository.findById(appointmentId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, appointmentId)));
+    }
+
+    private String parse(final String fullLine) {
+        return fullLine.regionMatches(true, 0, "RRULE:", 0, 6)
+                ? fullLine.substring(6).trim()
+                : fullLine;
     }
 }
