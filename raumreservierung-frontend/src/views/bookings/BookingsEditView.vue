@@ -160,7 +160,7 @@
         <v-row>
           <v-col
             cols="12"
-            :xl="bookingId && currentAppointments.length > 1 ? 7 : 12"
+            :xl="bookingId && bookingData.recurringRule ? 7 : 12"
           >
             <card-form
               :subtitle="t('views.bookingEditView.dateTimeCard')"
@@ -189,15 +189,16 @@
               v-model="bookingData.recurringRule"
               :disabled="createBookingLoading || updateBookingLoading"
             />
+            {{ bookingData.recurringRule }}
           </v-col>
           <v-col
-            v-if="bookingId && currentAppointments.length > 1"
+            v-if="bookingId && bookingData.recurringRule"
             cols="12"
             xl="5"
           >
             <appointment-card-list
-              v-model="currentAppointments"
               :schedule="bookingData.schedule"
+              :booking-id="bookingId"
             />
           </v-col>
         </v-row>
@@ -234,7 +235,6 @@
 
 <script setup lang="ts">
 import type {
-  AppointmentMinimalResponseDTO,
   BookingRequestDTO,
   FindById200Response,
   RoomRequestDTO,
@@ -277,6 +277,8 @@ import {
 } from "@/util/bookingTypeUtil.ts";
 import { mapResponseToRequest } from "@/util/roomTypeUtil.ts";
 
+const DEFAULT_RRULE = "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO;COUNT=10";
+
 const { t } = useI18n();
 
 const rules = useRules();
@@ -284,12 +286,19 @@ const route = useRoute();
 const router = useRouter();
 
 const isValid = ref<boolean>();
-const isSeriesBooking = ref<boolean>(false);
 
-const currentAppointments = ref<AppointmentMinimalResponseDTO[]>([]);
 const currentRoom = ref<RoomRequestDTO>();
 const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
 const bookedFor = ref<FindById200Response>();
+
+const isSeriesBooking = computed({
+  get: () => {
+    return !!bookingData.value.recurringRule;
+  },
+  set: (isChecked: boolean) => {
+    bookingData.value.recurringRule = isChecked ? DEFAULT_RRULE : undefined;
+  },
+});
 
 const bookingId = computed(() => (route.params.id as string) || undefined);
 
@@ -356,9 +365,7 @@ onMounted(async () => {
 
     bookingData.value = mapBookingResponseToRequest(getBookingData.value);
     bookedFor.value = structuredClone(toRaw(getBookingData.value.bookedFor));
-    currentAppointments.value = structuredClone(
-      toRaw(getBookingData.value.appointments).slice(0, 7)
-    );
+
     if (getBookingData.value.room?.id) {
       await updateRoom(getBookingData.value.room?.id);
     }

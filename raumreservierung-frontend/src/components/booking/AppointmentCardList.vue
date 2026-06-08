@@ -31,34 +31,52 @@
           </template>
         </confirm-card>
       </v-dialog>
-      <v-list>
-        <v-list-item
-          v-for="appointment in modelValue"
-          :key="appointment.id"
-          border
-          rounded
-          class="mb-2 pa-2 pl-4"
-        >
-          <v-list-item-title>
-            <v-row justify="space-between">
-              <v-col align-self="center">
-                <date-display
-                  :display-date="appointment.schedule.occupancyStart"
-                />
-              </v-col>
-              <v-col cols="auto">
-                <base-button
-                  secondary
-                  variant="tonal"
-                  :append-icon="mdiPencilOutline"
-                  text="Bearbeiten"
-                  @click="openEditDialog(appointment)"
-                />
-              </v-col>
-            </v-row>
-          </v-list-item-title>
-        </v-list-item>
-      </v-list>
+      <v-infinite-scroll
+        class="text-medium-emphasis"
+        :items="currentAppointments"
+        mode="manual"
+        max-height="450px"
+        @load="onLoadMore"
+      >
+        <template #default>
+          <v-list-item
+            v-for="appointment in currentAppointments"
+            :key="appointment.id"
+            border
+            rounded
+            class="mb-2 pa-2 pl-4"
+          >
+            <v-list-item-title>
+              <v-row justify="space-between">
+                <v-col align-self="center">
+                  <date-display
+                    :display-date="appointment.schedule.occupancyStart"
+                  />
+                </v-col>
+                <v-col cols="auto">
+                  <base-button
+                    secondary
+                    variant="tonal"
+                    :append-icon="mdiPencilOutline"
+                    text="Bearbeiten"
+                    @click="openEditDialog(appointment)"
+                  />
+                </v-col>
+              </v-row>
+            </v-list-item-title>
+          </v-list-item>
+        </template>
+        <!-- Load More Button -->
+        <template #load-more="{ props }">
+          <base-button
+            v-if="nextAppointmentPage < totalPages"
+            secondary
+            :loading="appointmentsLoading"
+            text="Weitere Termine laden"
+            v-bind="props"
+          />
+        </template>
+      </v-infinite-scroll>
     </template>
   </card-form>
 </template>
@@ -68,29 +86,103 @@ import type {
   AppointmentDetailsResponseDTO,
   ScheduleTemplate,
 } from "@/api/raumreservierung-backend";
+import type { InfiniteScrollLoad } from "@/types/InfiniteScroll.ts";
 
 import { mdiPencilOutline } from "@mdi/js";
-import { ref, toRaw } from "vue";
+import { ref, toRaw, watch } from "vue";
 
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import DateDisplay from "@/components/common/date/DateDisplay.vue";
-import { useUpdateAppointment } from "@/composables/api/useAppointmentApi.ts";
+import {
+  useGetAppointments,
+  useUpdateAppointment,
+} from "@/composables/api/useAppointmentApi.ts";
 
+const { bookingId } = defineProps<{
+  bookingId?: string;
+  schedule: ScheduleTemplate;
+}>();
+
+const currentAppointments = ref<AppointmentDetailsResponseDTO[]>([]);
+
+// Pagination of appointments
+const nextAppointmentPage = ref(0);
+const totalPages = ref(1);
+
+const {
+  call: getAppointmentPage,
+  data: appointmentPage,
+  loading: appointmentsLoading,
+  error: appointmentsError,
+} = useGetAppointments();
+
+const fetchPage = async () => {
+  if (!bookingId) {
+    return;
+  }
+
+  await getAppointmentPage({
+    page: nextAppointmentPage.value,
+    startDate: new Date(),
+    bookingId: bookingId,
+    endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+    size: 5,
+  });
+};
+
+watch(
+  () => bookingId,
+  async (newBookingId) => {
+    if (!newBookingId) {
+      currentAppointments.value = [];
+      nextAppointmentPage.value = 0;
+      return;
+    }
+
+    nextAppointmentPage.value = 0;
+    await fetchPage();
+
+    if (appointmentPage.value?.content && !appointmentsError.value) {
+      currentAppointments.value = structuredClone(
+        toRaw(appointmentPage.value.content)
+      );
+      totalPages.value = appointmentPage.value.page?.totalPages || 1;
+      nextAppointmentPage.value++;
+    }
+  },
+  {
+    immediate: true,
+  }
+);
+
+const onLoadMore = async (event: InfiniteScrollLoad) => {
+  const { done } = event;
+
+  if (!bookingId || nextAppointmentPage.value >= totalPages.value) {
+    done("empty");
+    return;
+  }
+
+  await fetchPage();
+
+  if (appointmentPage.value?.content && !appointmentsError.value) {
+    const newItems = structuredClone(toRaw(appointmentPage.value.content));
+    currentAppointments.value = [...currentAppointments.value, ...newItems];
+    nextAppointmentPage.value++;
+    done("ok");
+  } else {
+    done("error");
+  }
+};
+
+// Appointment editing
 const isDialogOpen = ref(false);
 const appointmentToEdit = ref<AppointmentDetailsResponseDTO | undefined>(
   undefined
 );
-
-const modelValue = defineModel<AppointmentDetailsResponseDTO[]>({
-  required: true,
-});
-
-defineProps<{
-  schedule: ScheduleTemplate;
-}>();
 
 const {
   call: updateAppointment,
@@ -104,26 +196,25 @@ const openEditDialog = (appointment: AppointmentDetailsResponseDTO) => {
 };
 
 const saveAppointment = async () => {
-  if (!appointmentToEdit.value) {
-    return;
-  }
+  if (!appointmentToEdit.value) return;
 
   await updateAppointment({
     appointmentId: appointmentToEdit.value.id,
     appointmentRequestDTO: appointmentToEdit.value,
   });
 
-  const indexToUpdate = modelValue.value.findIndex(
-    (el) => el.id === appointmentToEdit.value?.id
-  );
+  const updatedSchedule = updatedAppointment.value?.schedule;
 
-  if (indexToUpdate !== -1 && updatedAppointment.value) {
-    const updatedList = [...modelValue.value];
-    updatedList[indexToUpdate] = structuredClone(
-      toRaw(updatedAppointment.value)
-    );
-
-    modelValue.value = updatedList;
+  if (updatedSchedule) {
+    currentAppointments.value = currentAppointments.value.map((item) => {
+      if (item.id === appointmentToEdit.value?.id) {
+        return {
+          ...item,
+          schedule: structuredClone(toRaw(updatedSchedule)),
+        };
+      }
+      return item;
+    });
   }
 
   reset();
