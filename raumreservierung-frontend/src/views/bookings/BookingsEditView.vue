@@ -189,7 +189,6 @@
               v-model="bookingData.recurringRule"
               :disabled="createBookingLoading || updateBookingLoading"
             />
-            {{ bookingData.recurringRule }}
           </v-col>
           <v-col
             v-if="bookingId && bookingData.recurringRule"

@@ -262,6 +262,7 @@ const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_DETAILS);
 const bookingId = computed(() => (route.params.id as string) || undefined);
 const appointments = ref<AppointmentDetailsResponseDTO[]>([]);
 const nextAppointmentPage = ref<number>(0);
+const totalPages = ref<number>(1);
 
 const {
   call: getBooking,
@@ -287,11 +288,22 @@ onMounted(async () => {
       });
     }
 
-    await loadAppointmentPage(undefined);
+    nextAppointmentPage.value = 0;
+    await fetchPage();
+
+    if (appointmentPage.value?.content) {
+      appointments.value = [...appointmentPage.value.content];
+      totalPages.value = appointmentPage.value.page?.totalPages || 1;
+      nextAppointmentPage.value++;
+    }
   }
 });
 
-const loadAppointmentPage = async (event: InfiniteScrollLoad | undefined) => {
+const fetchPage = async () => {
+  if (!bookingId.value) {
+    return;
+  }
+
   await getAppointmentPage({
     page: nextAppointmentPage.value,
     startDate: new Date(),
@@ -299,22 +311,22 @@ const loadAppointmentPage = async (event: InfiniteScrollLoad | undefined) => {
     endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
     size: 5,
   });
+};
 
-  if (!event) {
+const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
+  const { done } = event;
+
+  if (!bookingId.value || nextAppointmentPage.value >= totalPages.value) {
+    done("empty");
     return;
   }
 
-  const { done } = event;
+  await fetchPage();
 
-  if (appointmentPage.value && appointmentPage.value.content) {
-    nextAppointmentPage.value = nextAppointmentPage.value + 1;
+  if (appointmentPage.value?.content) {
     appointments.value.push(...appointmentPage.value.content);
-
-    done(
-      (appointmentPage.value.page?.totalPages || 0) <= nextAppointmentPage.value
-        ? "empty"
-        : "ok"
-    );
+    nextAppointmentPage.value++;
+    done("ok");
   } else {
     done("error");
   }
