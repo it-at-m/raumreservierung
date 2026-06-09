@@ -91,6 +91,7 @@
                 v-model="bookingData.participantCount"
                 :label="t('views.bookingEditView.participantsCount')"
                 variant="outlined"
+                hide-details
                 :min="1"
                 :max="currentRoomSeatingTypeLimit"
                 :suffix="
@@ -370,7 +371,13 @@ onMounted(async () => {
     }
   } else {
     // reset to clear maybe filled out data away
-    bookingData.value = EMPTY_BOOKING_REQUEST_DATA;
+    bookingData.value = { ...EMPTY_BOOKING_REQUEST_DATA };
+
+    const queryRoomId = route.query.roomId as string | undefined;
+    if (queryRoomId) {
+      bookingData.value.roomId = queryRoomId;
+      await updateRoom(queryRoomId);
+    }
   }
 });
 

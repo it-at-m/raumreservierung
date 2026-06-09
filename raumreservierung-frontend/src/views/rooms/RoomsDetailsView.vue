@@ -10,12 +10,25 @@
     <template #headerActions>
       <base-button
         v-if="canEditRoom"
+        secondary
         :text="t('common.edit')"
         :append-icon="mdiPencil"
         @click="
           router.push({
             name: ROUTES.ROOMS_EDIT,
             params: { id },
+          })
+        "
+      />
+      <base-button
+        v-if="id"
+        class="ml-4"
+        text="Raum buchen"
+        :append-icon="mdiCalendarQuestionOutline"
+        @click="
+          router.push({
+            name: ROUTES.MY_BOOKINGS_CREATE,
+            query: { roomId: id },
           })
         "
       />
@@ -184,6 +197,7 @@ import type { RoomDetailsResponseDTO } from "@/api/raumreservierung-backend";
 import {
   mdiAccountOutline,
   mdiArrowLeft,
+  mdiCalendarQuestionOutline,
   mdiEmail,
   mdiHumanCapacityIncrease,
   mdiImage,

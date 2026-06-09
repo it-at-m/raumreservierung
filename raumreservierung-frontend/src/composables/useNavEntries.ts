@@ -25,12 +25,12 @@ const NAV_ENTRIES: readonly NavEntry[] = [
   {
     kind: "group",
     textKey: "navigationDrawer.bookingGroup.groupTitle",
-    requiredPrivilege: "bookings:read",
+    requiredPrivilege: "bookings:manage",
     children: [
       {
         kind: "item",
         textKey: "navigationDrawer.bookingGroup.bookRooms",
-        to: { name: ROUTES.GETSTARTED },
+        to: { name: ROUTES.ROOMS_LIST },
       },
       {
         kind: "item",
