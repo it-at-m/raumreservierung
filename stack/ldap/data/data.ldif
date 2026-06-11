@@ -1,0 +1,126 @@
+# Basis-Container für alle User
+dn: o=users,{{ LDAP_BASE_DN }}
+objectClass: lhmObject
+objectClass: organization
+objectClass: top
+o: users
+lhmObjectID: 33000
+
+# ==========================================
+# USERS (Aus Keycloak-Konfiguration)
+# ==========================================
+
+# User 1: anwender
+dn: cn=anwender,o=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: lhmObject
+objectClass: lhmPerson
+objectClass: person
+objectClass: top
+cn: anwender
+sn: anwender
+givenName: anwender
+uid: anwender
+mail: anwender@anwender.de
+lhmObjectID: 0000001
+l: München
+lhmFax: 08923399991
+lhmTitle: Herr
+ou: rbs
+roomNumber: 101
+telephoneNumber: 08923311111
+title: Dr.
+lhmOfficePostalCode: 80331
+lhmOfficeStreetAddress: Marienplatz 8
+
+# User 2: leseberechtigt
+dn: cn=leseberechtigt,o=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: lhmObject
+objectClass: lhmPerson
+objectClass: person
+objectClass: top
+cn: leseberechtigt
+sn: leseberechtigt
+givenName: leseberechtigt
+uid: leseberechtigt
+mail: leseberechtigt@leseberechtigt.de
+lhmObjectID: 0000002
+l: München
+lhmFax: 08923399992
+lhmTitle: Herr
+ou: rbs
+roomNumber: 102
+telephoneNumber: 08923311112
+title: Dr.
+lhmOfficePostalCode: 80331
+lhmOfficeStreetAddress: Marienplatz 8
+
+# User 3: terminorganisator
+dn: cn=terminorganisator,o=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: lhmObject
+objectClass: lhmPerson
+objectClass: person
+objectClass: top
+cn: terminorganisator
+sn: terminorganisator
+givenName: terminorganisator
+uid: terminorganisator
+mail: terminorganisator@terminorganisator.de
+lhmObjectID: 0000003
+l: München
+lhmFax: 08923399993
+lhmTitle: Herr
+ou: rbs
+roomNumber: 103
+telephoneNumber: 08923311113
+title: Dr.
+lhmOfficePostalCode: 80331
+lhmOfficeStreetAddress: Marienplatz 8
+
+# User 4: raumbuchung
+dn: cn=raumbuchung,o=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: lhmObject
+objectClass: lhmPerson
+objectClass: person
+objectClass: top
+cn: raumbuchung
+sn: raumbuchung
+givenName: raumbuchung
+uid: raumbuchung
+mail: raumbuchung@raumbuchung.de
+lhmObjectID: 0000004
+l: München
+lhmFax: 08923399994
+lhmTitle: Herr
+ou: rbs
+roomNumber: 104
+telephoneNumber: 08923311114
+title: Dr.
+lhmOfficePostalCode: 80331
+lhmOfficeStreetAddress: Marienplatz 8
+
+# User 5: raumadmin
+dn: cn=raumadmin,o=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: lhmObject
+objectClass: lhmPerson
+objectClass: person
+objectClass: top
+cn: raumadmin
+sn: raumadmin
+givenName: raumadmin
+uid: raumadmin
+mail: raumadmin@raumadmin.de
+lhmObjectID: 0000005
+l: München
+lhmFax: 08923399995
+lhmTitle: Herr
+ou: rbs
+roomNumber: 105
+telephoneNumber: 08923311115
+title: Dr.
+lhmOfficePostalCode: 80331
+lhmOfficeStreetAddress: Marienplatz 8
