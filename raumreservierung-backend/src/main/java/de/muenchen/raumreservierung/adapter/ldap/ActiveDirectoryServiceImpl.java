@@ -1,5 +1,7 @@
 package de.muenchen.raumreservierung.adapter.ldap;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ldap.core.LdapTemplate;
@@ -8,13 +10,10 @@ import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.ldap.query.SearchScope;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class LdapServiceImpl implements LdapService {
+public class ActiveDirectoryServiceImpl implements LdapService {
 
     private static final String LHM_OBJECT_ID_KEY = "lhmObjectID";
 
@@ -26,8 +25,9 @@ public class LdapServiceImpl implements LdapService {
 
         ContainerCriteria conditionCriteria = LdapQueryBuilder.query()
                 .searchScope(SearchScope.SUBTREE)
-                //.attributes(LdapAttributes.GIVEN_NAME, LdapAttributes.SURNAME, LdapAttributes.TELEPHONE_NUMBER, LdapAttributes.MAIL, LdapAttributes.LHM_OBJECT_ID, LdapAttributes.ORGANISATIONAL_UNIT)
-                .where("objectClass").is("user")
+                .attributes(LdapAttributes.GIVEN_NAME, LdapAttributes.SN, LdapAttributes.TELEPHONE_NUMBER, LdapAttributes.MAIL, LdapAttributes.LHM_OBJECT_ID,
+                        LdapAttributes.ORGANISATIONAL_UNIT)
+                .where("objectClass").is("user") // this is only possible while using Active Directories
                 .and(LHM_OBJECT_ID_KEY).is(objectID);
 
         List<LdapPersonDto> results = ldapTemplate.search(conditionCriteria, new LdapPersonDtoMapper());
