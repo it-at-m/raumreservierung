@@ -25,6 +25,7 @@
         class="ml-4"
         text="Raum buchen"
         :append-icon="mdiCalendarQuestionOutline"
+        :disabled="!roomData?.isActive"
         @click="
           router.push({
             name: ROUTES.MY_BOOKINGS_CREATE,
