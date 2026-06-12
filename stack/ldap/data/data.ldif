@@ -1,4 +1,3 @@
-# Basis-Container für alle User
 dn: o=users,{{ LDAP_BASE_DN }}
 objectClass: organization
 objectClass: top

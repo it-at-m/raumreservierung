@@ -1,4 +1,3 @@
-# Das neue Department-Attribut (simuliert das Active Directory Verhalten)
 attributetype ( 1.3.6.1.4.1.24376.1.999 NAME 'Department'
     DESC 'AD Department Simulation'
     EQUALITY caseIgnoreMatch
@@ -17,5 +16,4 @@ attributetype ( 1.3.6.1.4.1.24376.1.32 NAME 'lhmObjectID'
 objectclass ( 1.3.6.1.4.1.24376.2.7 NAME 'lhmObject'
     SUP top
     AUXILIARY
-    # Hier sagen wir: Ein lhmObject darf lhmObjectID und Department besitzen
     MAY ( lhmObjectID $ Department ) )
