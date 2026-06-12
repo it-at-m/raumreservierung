@@ -334,6 +334,8 @@ onMounted(async () => {
     roomData.value = mapResponseToRequest(
       toRaw(result) as RoomDetailsResponseDTO
     );
+  } else {
+    roomData.value = { ...EMPTY_ROOM_DATA };
   }
 });
 
