@@ -42,12 +42,37 @@
             type="article"
           >
             <v-responsive>
-              <v-card
-                flat
-                :title="roomData?.name"
-                :subtitle="`${roomData?.number} - ${roomData?.location}`"
-                :text="roomData?.locationDescription"
-              />
+              <v-card flat>
+                <v-card-item>
+                  <v-card-title>{{ roomData?.name }}</v-card-title>
+
+                  <v-card-subtitle class="opacity-100">
+                    <span class="text-medium-emphasis">
+                      {{
+                        t("common.format.dateRange", {
+                          start: roomData?.number,
+                          end: roomData?.location,
+                        })
+                      }}
+                    </span>
+
+                    <v-chip
+                      v-if="!roomData?.isActive"
+                      class="ml-2"
+                      color="primary"
+                      :text="
+                        t('generics.inActive', {
+                          domain: t('domain.room.header'),
+                        })
+                      "
+                    />
+                  </v-card-subtitle>
+                </v-card-item>
+
+                <v-card-text>
+                  {{ roomData?.locationDescription }}
+                </v-card-text>
+              </v-card>
             </v-responsive>
           </v-skeleton-loader>
         </v-col>
