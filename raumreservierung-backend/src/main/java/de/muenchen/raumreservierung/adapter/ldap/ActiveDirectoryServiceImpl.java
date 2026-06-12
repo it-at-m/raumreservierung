@@ -1,7 +1,5 @@
 package de.muenchen.raumreservierung.adapter.ldap;
 
-import java.util.List;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ldap.core.LdapTemplate;
@@ -9,6 +7,9 @@ import org.springframework.ldap.query.ContainerCriteria;
 import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.ldap.query.SearchScope;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -21,8 +22,6 @@ public class ActiveDirectoryServiceImpl implements LdapService {
 
     @Override
     public Optional<LdapPersonDto> getPersonByObjectID(final String objectID) {
-        log.debug("Searching AD-USER with lhmObjectID: {}", objectID);
-
         final ContainerCriteria conditionCriteria = LdapQueryBuilder.query()
                 .searchScope(SearchScope.SUBTREE)
                 .attributes(LdapAttributes.GIVEN_NAME, LdapAttributes.SN, LdapAttributes.TELEPHONE_NUMBER, LdapAttributes.MAIL, LdapAttributes.LHM_OBJECT_ID,
