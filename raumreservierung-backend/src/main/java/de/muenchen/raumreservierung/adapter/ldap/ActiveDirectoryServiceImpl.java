@@ -20,17 +20,17 @@ public class ActiveDirectoryServiceImpl implements LdapService {
     private final LdapTemplate ldapTemplate;
 
     @Override
-    public Optional<LdapPersonDto> getPersonByObjectID(String objectID) {
+    public Optional<LdapPersonDto> getPersonByObjectID(final String objectID) {
         log.debug("Searching AD-USER with lhmObjectID: {}", objectID);
 
-        ContainerCriteria conditionCriteria = LdapQueryBuilder.query()
+        final ContainerCriteria conditionCriteria = LdapQueryBuilder.query()
                 .searchScope(SearchScope.SUBTREE)
                 .attributes(LdapAttributes.GIVEN_NAME, LdapAttributes.SN, LdapAttributes.TELEPHONE_NUMBER, LdapAttributes.MAIL, LdapAttributes.LHM_OBJECT_ID,
                         LdapAttributes.ORGANISATIONAL_UNIT)
                 .where("objectClass").is("user") // this is only possible while using Active Directories
                 .and(LHM_OBJECT_ID_KEY).is(objectID);
 
-        List<LdapPersonDto> results = ldapTemplate.search(conditionCriteria, new LdapPersonDtoMapper());
+        final List<LdapPersonDto> results = ldapTemplate.search(conditionCriteria, new LdapPersonDtoMapper());
 
         return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
     }

@@ -1,12 +1,13 @@
 package de.muenchen.raumreservierung.adapter.ldap;
 
 import javax.naming.NamingException;
+import javax.naming.directory.Attribute;
 import javax.naming.directory.Attributes;
 import org.springframework.ldap.core.AttributesMapper;
 
 public class LdapPersonDtoMapper implements AttributesMapper<LdapPersonDto> {
     @Override
-    public LdapPersonDto mapFromAttributes(Attributes attributes) throws NamingException {
+    public LdapPersonDto mapFromAttributes(final Attributes attributes) throws NamingException {
         return new LdapPersonDto(
                 getAttributeValue(attributes, LdapAttributes.GIVEN_NAME),
                 getAttributeValue(attributes, LdapAttributes.SN),
@@ -16,8 +17,8 @@ public class LdapPersonDtoMapper implements AttributesMapper<LdapPersonDto> {
                 getAttributeValue(attributes, LdapAttributes.ORGANISATIONAL_UNIT));
     }
 
-    private String getAttributeValue(Attributes attrs, String attributeName) throws NamingException {
-        var attribute = attrs.get(attributeName);
+    private String getAttributeValue(final Attributes attrs, final String attributeName) throws NamingException {
+        final Attribute attribute = attrs.get(attributeName);
         return attribute != null ? (String) attribute.get() : null;
     }
 }
