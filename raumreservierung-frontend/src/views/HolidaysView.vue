@@ -221,9 +221,20 @@ const deleteHoliday = async (id: string) => {
   }
 };
 
+/**
+ * Executed on successful api call.
+ * Will refresh the holidayCache by loading the year of the currentSelection (when holiday was moved away from this year) and year of the updated/created holiday
+ * @param msg the message to be displayed
+ * @param yearOverride the year to refresh
+ */
 const onSuccess = async (msg: string, yearOverride?: number) => {
-  await holidayStore.loadYear(yearOverride || selectedYear.value, true);
+  await holidayStore.loadYear(selectedYear.value, true);
+  if (yearOverride && yearOverride !== selectedYear.value) {
+    await holidayStore.loadYear(yearOverride, true);
+  }
+
   if (tableRef.value) {
+    selectedYear.value = yearOverride || selectedYear.value;
     tableRef.value.closeDialog();
   }
   snackbar.add({ level: Levels.SUCCESS, message: msg });
