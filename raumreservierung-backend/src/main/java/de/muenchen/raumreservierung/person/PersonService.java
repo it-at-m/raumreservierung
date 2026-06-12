@@ -1,19 +1,26 @@
 package de.muenchen.raumreservierung.person;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND_LDAP;
 
+import de.muenchen.raumreservierung.adapter.ldap.ActiveDirectoryServiceImpl;
+import de.muenchen.raumreservierung.adapter.ldap.LdapPersonDto;
+import de.muenchen.raumreservierung.adapter.ldap.LdapService;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.person.domain.PersonType;
 import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
+import de.muenchen.raumreservierung.person.dto.PersonMapper;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,11 +31,14 @@ import org.springframework.util.ClassUtils;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class PersonService {
 
     private final PersonRepository personRepository;
     private final InternalPersonRepository internalPersonRepository;
     private final ExternalPersonRepository externalPersonRepository;
+    private final LdapService ldapService;
+    private final PersonMapper personMapper;
 
     // TODO consider returning less information here
     public Person findById(final UUID personId) {
@@ -85,10 +95,32 @@ public class PersonService {
         personRepository.deleteById(personId);
     }
 
-    public InternalPerson getInternalPersonByOrganisationIDOrThrowException(final String organisationID) {
-        return internalPersonRepository
-                .findInternalPersonByOrganisationId(organisationID)
-                .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, organisationID)));
+    /**
+     * Resolves an internal person by either looking it up in the {@link InternalPersonRepository} or by
+     * trying to receive it from ldap via {@link ActiveDirectoryServiceImpl}
+     *
+     * @param organisationID the oid of the person to resolve
+     * @return the resolved internal person
+     */
+    public InternalPerson resolveInternalPersonByOrganisationIDOrThrowException(final String organisationID) {
+        if (organisationID == null) {
+            throw new NotFoundException(MSG_NOT_FOUND);
+        }
+
+        final Optional<InternalPerson> internalPersonByOid = internalPersonRepository.findInternalPersonByOrganisationId(organisationID);
+        if (internalPersonByOid.isPresent()) {
+            return internalPersonByOid.get();
+        }
+
+        final LdapPersonDto ldapPersonDto = ldapService.getPersonByObjectID(organisationID)
+                .orElseThrow(() -> new NotFoundException(
+                        String.format(MSG_NOT_FOUND_LDAP, organisationID)));
+
+        log.debug("LDAP Person DTO with oid: {}", ldapPersonDto.organisationId());
+
+        final InternalPerson mappedLdapPerson = personMapper.toInternalPerson(ldapPersonDto);
+
+        return internalPersonRepository.save(mappedLdapPerson);
     }
 
     private Person getPersonOrThrowException(final UUID personId) {
