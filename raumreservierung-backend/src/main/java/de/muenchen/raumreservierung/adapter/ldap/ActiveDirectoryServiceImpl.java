@@ -1,5 +1,7 @@
 package de.muenchen.raumreservierung.adapter.ldap;
 
+import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.ldap.core.LdapTemplate;
@@ -7,9 +9,6 @@ import org.springframework.ldap.query.ContainerCriteria;
 import org.springframework.ldap.query.LdapQueryBuilder;
 import org.springframework.ldap.query.SearchScope;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
