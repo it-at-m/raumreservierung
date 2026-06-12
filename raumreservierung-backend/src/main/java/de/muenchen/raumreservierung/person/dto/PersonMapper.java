@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.person.dto;
 
+import de.muenchen.raumreservierung.adapter.ldap.LdapPersonDto;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
@@ -24,4 +25,6 @@ public interface PersonMapper {
 
     @Mapping(target = "type", constant = "EXTERNAL")
     ExternalPersonResponseDto toExternalDto(ExternalPerson person);
+
+    InternalPerson toInternalPerson(LdapPersonDto ldapPersonDto);
 }
