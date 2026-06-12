@@ -11,6 +11,7 @@ o: users
 dn: cn=anwender,o=users,{{ LDAP_BASE_DN }}
 objectClass: inetOrgPerson
 objectClass: lhmObject
+objectClass: user
 objectClass: top
 cn: anwender
 sn: Anwender
@@ -25,6 +26,7 @@ lhmObjectID: 0000001
 dn: cn=leseberechtigt,o=users,{{ LDAP_BASE_DN }}
 objectClass: inetOrgPerson
 objectClass: lhmObject
+objectClass: user
 objectClass: top
 cn: leseberechtigt
 sn: Leseberechtigt
@@ -39,6 +41,7 @@ lhmObjectID: 0000002
 dn: cn=terminorganisator,o=users,{{ LDAP_BASE_DN }}
 objectClass: inetOrgPerson
 objectClass: lhmObject
+objectClass: user
 objectClass: top
 cn: terminorganisator
 sn: Terminorganisator
@@ -53,6 +56,7 @@ lhmObjectID: 0000003
 dn: cn=raumbuchung,o=users,{{ LDAP_BASE_DN }}
 objectClass: inetOrgPerson
 objectClass: lhmObject
+objectClass: user
 objectClass: top
 cn: raumbuchung
 sn: Raumbuchung
@@ -67,6 +71,7 @@ lhmObjectID: 0000004
 dn: cn=raumadmin,o=users,{{ LDAP_BASE_DN }}
 objectClass: inetOrgPerson
 objectClass: lhmObject
+objectClass: user
 objectClass: top
 cn: raumadmin
 sn: Raumadmin
