@@ -61,7 +61,7 @@ const { t } = useI18n();
 const newItemName = ref("");
 
 const { loading = false } = defineProps<{
-  itemList: readonly T[] | null;
+  itemList: readonly T[] | null | undefined;
   domain: string;
   loading?: boolean;
 }>();

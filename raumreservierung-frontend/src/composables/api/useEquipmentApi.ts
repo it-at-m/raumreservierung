@@ -5,6 +5,8 @@ import type {
   UpdateEquipmentRequest,
 } from "@/api/raumreservierung-backend";
 
+import { useQuery } from "@tanstack/vue-query";
+
 import { EquipmentControllerApi } from "@/api/raumreservierung-backend";
 import { useApi } from "@/composables/api/useApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
@@ -12,8 +14,10 @@ import { ApiFactory } from "@/util/apiFactory.ts";
 export const useGetAllEquipments = () => {
   const api = ApiFactory.getInstance(EquipmentControllerApi);
 
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  return useApi<void, EquipmentResponseDto[]>(() => api.getAllEquipments());
+  return useQuery({
+    queryKey: ["allEquipment"],
+    queryFn: () => api.getAllEquipments(),
+  });
 };
 
 export const useCreateEquipment = () => {
