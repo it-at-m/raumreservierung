@@ -5,7 +5,7 @@
   >
     <template #text>
       <v-row density="compact">
-        <template v-if="!(allEquipmentLoading || loading)">
+        <template v-if="computedEquipment && !(allEquipmentLoading || loading)">
           <v-col
             v-for="equip in computedEquipment"
             :key="equip.id"
@@ -62,7 +62,6 @@
                 allEquipmentLoading || createEquipmentLoading || loading
               "
               :domain="t('domain.equipment.header')"
-              @update-items="getAllEquipment"
               @close="isActive.value = false"
               @create="handleCreate"
             />
@@ -77,7 +76,7 @@
 import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
 
 import { mdiPlus } from "@mdi/js";
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
@@ -102,14 +101,11 @@ const {
   loading?: boolean;
 }>();
 
-const {
-  call: getAllEquipment,
-  data: allEquipment,
-  loading: allEquipmentLoading,
-} = useGetAllEquipments();
+const { data: allEquipment, isPending: allEquipmentLoading } =
+  useGetAllEquipments();
 
-const computedEquipment = computed<EquipmentResponseDto[]>(() =>
-  filterIds.length === 0
+const computedEquipment = computed<EquipmentResponseDto[] | undefined>(() =>
+  filterIds.length === 0 || !allEquipment.value
     ? allEquipment.value
     : allEquipment.value.filter(
         (equip) => equip.id && filterIds.includes(equip.id)
@@ -119,8 +115,6 @@ const computedEquipment = computed<EquipmentResponseDto[]>(() =>
 const { call: createEquipment, loading: createEquipmentLoading } =
   useCreateEquipment();
 
-onMounted(() => getAllEquipment());
-
 const handleCreate = async (newItemName: string) => {
   await createEquipment({
     equipmentRequestDto: {
@@ -129,8 +123,6 @@ const handleCreate = async (newItemName: string) => {
       isActive: true,
     },
   });
-
-  await getAllEquipment();
 };
 </script>
 

@@ -72,7 +72,7 @@
 import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import { onMounted, useTemplateRef } from "vue";
+import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
@@ -99,11 +99,8 @@ const snackbarStore = useSnackbarStore();
 
 const crudRef = useTemplateRef("crudRef");
 
-const {
-  data: allEquipmentsData,
-  call: getAllEquipments,
-  loading: getAllEquipmentLoading,
-} = useGetAllEquipments();
+const { data: allEquipmentsData, isPending: getAllEquipmentLoading } =
+  useGetAllEquipments();
 
 const {
   call: deleteEquipmentCall,
@@ -122,8 +119,6 @@ const {
   loading: updateEquipmentLoading,
   error: updateEquipmentError,
 } = useUpdateEquipment();
-
-onMounted(() => getAllEquipments());
 
 const headers: TableHeader<EquipmentResponseDto>[] = [
   { title: t("domain.equipment.name"), value: "name", sortable: true },
