@@ -1,0 +1,83 @@
+dn: o=users,{{ LDAP_BASE_DN }}
+objectClass: organization
+objectClass: top
+o: users
+
+# ==========================================
+# USERS
+# ==========================================
+
+# User 1: anwender
+dn: cn=anwender,o=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: lhmObject
+objectClass: user
+objectClass: top
+cn: anwender
+sn: Anwender
+givenName: Anwender
+uid: anwender
+mail: anwender@anwender.de
+telephoneNumber: 08923311111
+Department: rbs
+lhmObjectID: 0000001
+
+# User 2: leseberechtigt
+dn: cn=leseberechtigt,o=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: lhmObject
+objectClass: user
+objectClass: top
+cn: leseberechtigt
+sn: Leseberechtigt
+givenName: Leseberechtigt
+uid: leseberechtigt
+mail: leseberechtigt@leseberechtigt.de
+telephoneNumber: 08923311112
+Department: rbs
+lhmObjectID: 0000002
+
+# User 3: terminorganisator
+dn: cn=terminorganisator,o=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: lhmObject
+objectClass: user
+objectClass: top
+cn: terminorganisator
+sn: Terminorganisator
+givenName: Terminorganisator
+uid: terminorganisator
+mail: terminorganisator@terminorganisator.de
+telephoneNumber: 08923311113
+Department: rbs
+lhmObjectID: 0000003
+
+# User 4: raumbuchung
+dn: cn=raumbuchung,o=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: lhmObject
+objectClass: user
+objectClass: top
+cn: raumbuchung
+sn: Raumbuchung
+givenName: Raumbuchung
+uid: raumbuchung
+mail: raumbuchung@raumbuchung.de
+telephoneNumber: 08923311114
+Department: rbs
+lhmObjectID: 0000004
+
+# User 5: raumadmin
+dn: cn=raumadmin,o=users,{{ LDAP_BASE_DN }}
+objectClass: inetOrgPerson
+objectClass: lhmObject
+objectClass: user
+objectClass: top
+cn: raumadmin
+sn: Raumadmin
+givenName: Raumadmin
+uid: raumadmin
+mail: raumadmin@raumadmin.de
+telephoneNumber: 08923311115
+Department: rbs
+lhmObjectID: 0000005

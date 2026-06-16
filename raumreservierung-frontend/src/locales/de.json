@@ -3,7 +3,9 @@
     "yes": "Ja",
     "no": "Nein",
     "cancel": "Abbrechen",
+    "rescind": "Stornieren",
     "delete": "Löschen",
+    "deny": "Ablehnen",
     "save": "Speichern",
     "edit": "Bearbeiten",
     "add": "Hinzufügen",
@@ -13,6 +15,7 @@
     "action": "Aktion | Aktionen",
     "messages": {},
     "squareMeterAbr": "qm",
+    "todo": "TODO",
     "rules": {
       "notEmpty": "{field} darf nicht leer sein.",
       "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
@@ -20,8 +23,15 @@
       "noDateSelected": "Bitte wählen Sie ein Datum.",
       "startAfterEnd": "Beginn liegt nach Ende.",
       "endBeforeStart": "Ende liegt vor Beginn.",
+      "apptStartBeforeOccupancy": "Veranstaltungsbeginn vor Terminbeginn",
+      "apptEndAfterOccupancy": "Veranstaltungsende nach Terminende",
       "invalidEmail": "Die E-Mail Adresse ist nicht valide",
       "invalidTelefonNumber": "Diese Telefonnummer ist nicht valide"
+    },
+    "format": {
+      "idFormat": "#{id}",
+      "dateSingle": "{date}",
+      "dateRange": "{start} - {end}"
     }
   },
   "app": {
@@ -35,6 +45,54 @@
   "components": {
     "roomResourceManagementCard": {
       "subtitle": "Neue {domain} zu bestehender Liste hinzufügen."
+    },
+    "dateDisplay": "{day} den {date}",
+    "scheduleTimelineCard": {
+      "header": "Zeitlicher Ablauf",
+      "end": "Ende",
+      "start": "Start",
+      "event": "Veranstaltung"
+    },
+    "rruleEditorCard": {
+      "seriesPattern": "Serienmuster",
+      "seriesDuration": "Seriendauer",
+      "daily": {
+        "every": "Jeden {input} Tag | Alle {input} Tage",
+        "workdays": "Jeden Arbeitstag"
+      },
+      "weekly": {
+        "every": "Jede {input} Woche an folgenden Tagen | Alle {input} Wochen an folgenden Tagen"
+      },
+      "monthly": {
+        "specificDay": "Am {day}. Tag, jeden Monat | Am {day}. Tag, alle {interval} Monate",
+        "relativeDay": "Am {position} {day} jeden Monat | Am {position} {day} alle {interval} Monate"
+      },
+      "end": {
+        "afterCount": "Endet nach {count} Termin | Endet nach {count} Terminen",
+        "onDate": "Endet am {date}"
+      }
+    },
+    "scheduleTemplateForm": {
+      "multiDay": "Mehrtägiger Termin",
+      "appointmentDiffers": "Veranstaltungszeit abweichend"
+    },
+    "seatingTypeParticipantsSelector": {
+      "suffix": "Maximale Kapazität {count}"
+    },
+    "externalPersonSelect": {
+      "coveredByInternal": "Wird durch interne Person abgedeckt",
+      "searchExternal": "Externe Person suchen",
+      "internalAlreadySelectedHint": "Eine interne Person ist bereits ausgewählt."
+    },
+    "appointmentListItem": {
+      "deviatingTimes": "Abweichende Zeit"
+    },
+    "appointmentCardList": {
+      "editSeriesElement": "Serienelement bearbeiten | Serienelemente bearbeiten",
+      "loadMoreSeriesElements": "Weitere Serienelemente laden"
+    },
+    "dateSelectorCard": {
+      "subtitle": "Datum und Uhrzeit"
     }
   },
   "views": {
@@ -60,15 +118,43 @@
     },
     "roomListView": {
       "bookWORoomMsg": " Wenn Sie keinen konkreten Raum buchen möchten, können Sie auch eine Anfrage ohne Raumauswahl senden"
+    },
+    "bookingDetailsView": {
+      "header": "Buchungsdetails",
+      "participants": "Teilnehmende {count}",
+      "chosenSeatingType": "Gewählte Bestuhlung",
+      "bookedBy": "Gebucht von {firstName} {lastName}",
+      "bookedFor": "Gebucht für {firstName} {lastName}",
+      "seriesDate": "Serientermin",
+      "notes": "Notizen",
+      "internalNotes": "Interne Notizen"
+    },
+    "bookingEditView": {
+      "header": "Buchung bearbeiten",
+      "eventTitle": "Name der Veranstaltung",
+      "roomSelect": "Raumauswahl",
+      "participantsCount": "Anzahl Teilnehmende",
+      "cateringPlanned": "Catering geplant",
+      "bookedForOthersCard": "Buchung für andere Person",
+      "internalPerson": "Interne Person",
+      "dateTimeCard": "Datum und Uhrzeit"
+    },
+    "bookingListView": {
+      "periodFrom": "Zeitraum von",
+      "periodTo": "Zeitraum bis",
+      "tableTitle": "Anfragen, Reservierungen und Buchungen",
+      "statusLong": "STATUSLANG"
     }
   },
   "generics": {
     "manage": "{domain} verwalten",
+    "filter": "{domain} filtern",
     "delete": "{domain} löschen",
     "edit": "{domain} bearbeiten",
     "add": "{domain} hinzufügen",
     "create": "{domain} erstellen",
     "active": "{domain} aktiv",
+    "select": "{domain} auswählen",
     "inActive": "{domain} inaktiv",
     "confirmMsg": "Möchten Sie den \"{domain}\" endgültig löschen?",
     "confirmDelete": "Möchten Sie den Eintrag aus \"{domain}\" endgültig löschen?",
@@ -85,6 +171,7 @@
       "bookRooms": "über Räume buchen",
       "bookCalendar": "über Kalendar buchen"
     },
+    "bookings": "Buchungen verwalten",
     "personGroup": {
       "groupTitle": "Personen verwalten",
       "internalPersons": "Interne Personen verwalten",
@@ -105,6 +192,25 @@
     "help": "Hilfe"
   },
   "domain": {
+    "booking": {
+      "header": "Buchung | Buchungen",
+      "participants": "Teilnehmende | Teilnehmenden",
+      "status": "Status",
+      "date": "Datum",
+      "recurrenceRule": "Terminserie",
+      "notes": "Notizen",
+      "internalNotes": "Interne Notizen",
+      "appointment": "Veranstaltungszeit",
+      "occupancy": "Belegungszeit"
+    },
+    "scheduleTemplate": {
+      "date": "Datum",
+      "endDate": "Enddatum",
+      "startTime": "Startzeit",
+      "endTime": "Endzeit",
+      "appointmentStart": "Veranstaltungsbeginn",
+      "appointmentEnd": "Veranstaltungsende"
+    },
     "room": {
       "header": "Raum",
       "details": "Raumdetails",
@@ -114,7 +220,6 @@
         "max": "Maximale Kapazität",
         "msg": "Maximale Kapazität: {num} Personen"
       },
-
       "isActiveHeader": "Raumnutzung",
       "usableArea": "Nutzbare Fläche",
       "locationDescription": "Lagebeschreibung",

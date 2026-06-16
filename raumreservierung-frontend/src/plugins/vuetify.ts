@@ -28,7 +28,7 @@ export default createVuetify({
   },
   theme: {
     variations: {
-      colors: ["primary", "secondary", "accent"],
+      colors: ["primary", "secondary", "accent", "tertiary"],
       lighten: 3,
       darken: 3,
     },

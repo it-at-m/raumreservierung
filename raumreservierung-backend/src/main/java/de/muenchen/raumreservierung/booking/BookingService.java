@@ -66,7 +66,7 @@ public class BookingService {
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Page<Booking> getOwnBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
-        final Person internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(AuthUtils.getOrganisationId());
+        final Person internalPerson = personService.resolveInternalPersonByOrganisationIDOrThrowException(AuthUtils.getOrganisationId());
 
         final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilterWithPerson(bookingFilterDto, internalPerson);
         final Page<Booking> ownBookings = bookingRepository.findAll(bookingSpecification, pageable);
@@ -130,7 +130,7 @@ public class BookingService {
             throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
         }
 
-        updateBookingAppointments(bookingUpdates, existingBooking);
+        updateBookingAppointments(existingBooking, bookingUpdates);
 
         saveAndDetach(existingBooking, bookingUpdates);
 
@@ -215,7 +215,7 @@ public class BookingService {
             return true;
         }
 
-        final InternalPerson internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
+        final InternalPerson internalPerson = personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
 
         return booking.getBookedBy().getId().equals(internalPerson.getId());
     }
@@ -242,7 +242,7 @@ public class BookingService {
      * @throws NotFoundException if the current user from the security context cannot be found by oid
      */
     private void assignBookingContext(final Booking booking) {
-        final InternalPerson currentPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
+        final InternalPerson currentPerson = personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
         booking.setOrganisationUnit(currentPerson.getOrganisationUnit());
 
         if (booking.getBookedFor() == null) {
