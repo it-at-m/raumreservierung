@@ -5,7 +5,7 @@ import type {
   UpdateEquipmentRequest,
 } from "@/api/raumreservierung-backend";
 
-import { useQuery } from "@tanstack/vue-query";
+import { useMutation, useQuery } from "@tanstack/vue-query";
 
 import { EquipmentControllerApi } from "@/api/raumreservierung-backend";
 import { useApi } from "@/composables/api/useApi.ts";
@@ -21,6 +21,17 @@ export const useGetAllEquipments = () => {
 };
 
 export const useCreateEquipment = () => {
+  const api = ApiFactory.getInstance(EquipmentControllerApi);
+
+  return useMutation({
+    mutationFn: (params: CreateEquipmentRequest) => api.createEquipment(params),
+    onSuccess: () => {
+      qu;
+    },
+  });
+};
+
+export const useCreateEquipmentOld = () => {
   const api = ApiFactory.getInstance(EquipmentControllerApi);
 
   return useApi<CreateEquipmentRequest, EquipmentResponseDto>((params) =>
