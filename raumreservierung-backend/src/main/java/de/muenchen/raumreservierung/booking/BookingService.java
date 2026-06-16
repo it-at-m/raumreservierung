@@ -17,7 +17,9 @@ import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room;
+import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
 import de.muenchen.raumreservierung.room.RoomService;
+import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.AuthUtils;
 import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
@@ -265,6 +267,11 @@ public class BookingService {
 
         if (booking.getRoom() != null) {
             final Room room = booking.getRoom();
+            if (booking.getSeatingType() != null && room.getRoomSeatingCapacities() != null) {
+                final SeatingType seatingType = booking.getSeatingType();
+                final Set<RoomSeatingCapacity> roomSeatingCapacities = room.getRoomSeatingCapacities();
+                return roomSeatingCapacities.stream().filter(rsc -> rsc.getSeatingType().equals(seatingType)).allMatch(rsc -> rsc.getCapacity() < count);
+            }
             return count > room.getCapacity();
         } else {
             final int absoluteMax = roomService.findAbsoluteMaxCapacity();
