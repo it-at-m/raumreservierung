@@ -33,5 +33,4 @@ public interface PersonResponseDto {
     String email();
 
     PersonType type();
-
 }
