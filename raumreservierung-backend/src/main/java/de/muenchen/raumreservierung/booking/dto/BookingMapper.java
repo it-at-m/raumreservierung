@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(uses = {ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class})
+@Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class })
 public interface BookingMapper {
     @Mapping(target = "equipments", source = "equipment")
     BookingDetailResponseDTO toDetailDto(Booking booking);
