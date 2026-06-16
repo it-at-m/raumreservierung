@@ -31,7 +31,7 @@ public interface BookingMapper {
 
     @Named("hasEquipmentCheck")
     default boolean mapHasEquipment(final Booking booking) {
-        return !booking.getEquipment().isEmpty();
+        return !booking.getEquipment().isEmpty() || !booking.getInternalNotes().isEmpty();
     }
 
     @Named("hasNoteCheck")
