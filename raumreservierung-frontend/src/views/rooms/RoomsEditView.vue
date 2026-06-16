@@ -54,7 +54,7 @@
       <base-button
         class="ml-4"
         :text="t('common.save')"
-        :append-icon="mdiPencil"
+        :append-icon="mdiContentSaveOutline"
         @click="handleSave"
       />
     </template>
@@ -172,7 +172,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <seating-capacity-selector
+            <seating-capacity-editor
               v-model="roomData.roomSeatingCapacities!"
               :max-room-capacity="roomData.capacity"
             />
@@ -255,8 +255,8 @@ import type {
 import type { DeepReadonly } from "vue";
 
 import {
+  mdiContentSaveOutline,
   mdiImageOutline,
-  mdiPencil,
   mdiTrashCanOutline,
   mdiWindowClose,
 } from "@mdi/js";
@@ -271,7 +271,7 @@ import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
-import SeatingCapacitySelector from "@/components/rooms/SeatingCapacitySelector.vue";
+import SeatingCapacityEditor from "@/components/rooms/SeatingCapacitySelector.vue";
 import {
   useCreateRoom,
   useDeleteRoom,
@@ -334,6 +334,8 @@ onMounted(async () => {
     roomData.value = mapResponseToRequest(
       toRaw(result) as RoomDetailsResponseDTO
     );
+  } else {
+    roomData.value = { ...EMPTY_ROOM_DATA };
   }
 });
 

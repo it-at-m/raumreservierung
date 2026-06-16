@@ -1,5 +1,8 @@
 <template>
-  <v-card height="250">
+  <v-card
+    height="250"
+    :disabled="!room.isActive"
+  >
     <template #default>
       <div class="w-100 h-75 d-flex justify-center align-center pt-4">
         <v-icon

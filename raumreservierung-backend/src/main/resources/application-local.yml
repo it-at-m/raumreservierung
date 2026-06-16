@@ -16,6 +16,11 @@ spring:
     locations:
       - classpath:db/migration/schema
       - classpath:db/migration/testdata
+  ldap:
+    urls: ldap://localhost:8389
+    username: cn=readonly,dc=example,dc=org
+    password: readonly
+    base: o=users,dc=example,dc=org
   security:
     oauth2:
       resourceserver:

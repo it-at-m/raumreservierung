@@ -108,6 +108,7 @@ import type {
   InternalPersonResponseDto,
   InternalPersonResponseDtoTypeEnum,
 } from "@/api/raumreservierung-backend";
+import type { SortItem } from "@/types/SortItem.ts";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
 import { mdiPlus } from "@mdi/js";
@@ -135,12 +136,6 @@ import { ROUTES } from "@/types/Routes.ts";
 const { t } = useI18n();
 
 const route = useRoute();
-
-interface SortItem {
-  key: string;
-  order: "asc" | "desc";
-}
-
 interface LoadEntriesOptions {
   page: number;
   searchName: string | undefined;

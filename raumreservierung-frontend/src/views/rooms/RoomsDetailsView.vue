@@ -10,12 +10,26 @@
     <template #headerActions>
       <base-button
         v-if="canEditRoom"
+        secondary
         :text="t('common.edit')"
         :append-icon="mdiPencil"
         @click="
           router.push({
             name: ROUTES.ROOMS_EDIT,
             params: { id },
+          })
+        "
+      />
+      <base-button
+        v-if="id"
+        class="ml-4"
+        text="Raum buchen"
+        :append-icon="mdiCalendarQuestionOutline"
+        :disabled="!roomData?.isActive"
+        @click="
+          router.push({
+            name: ROUTES.MY_BOOKINGS_CREATE,
+            query: { roomId: id },
           })
         "
       />
@@ -29,12 +43,37 @@
             type="article"
           >
             <v-responsive>
-              <v-card
-                flat
-                :title="roomData?.name"
-                :subtitle="`${roomData?.number} - ${roomData?.location}`"
-                :text="roomData?.locationDescription"
-              />
+              <v-card flat>
+                <v-card-item>
+                  <v-card-title>{{ roomData?.name }}</v-card-title>
+
+                  <v-card-subtitle class="opacity-100">
+                    <span class="text-medium-emphasis">
+                      {{
+                        t("common.format.dateRange", {
+                          start: roomData?.number,
+                          end: roomData?.location,
+                        })
+                      }}
+                    </span>
+
+                    <v-chip
+                      v-if="!roomData?.isActive"
+                      class="ml-2"
+                      color="primary"
+                      :text="
+                        t('generics.inActive', {
+                          domain: t('domain.room.header'),
+                        })
+                      "
+                    />
+                  </v-card-subtitle>
+                </v-card-item>
+
+                <v-card-text>
+                  {{ roomData?.locationDescription }}
+                </v-card-text>
+              </v-card>
             </v-responsive>
           </v-skeleton-loader>
         </v-col>
@@ -69,7 +108,7 @@
         :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'"
       >
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rooms-details-card
+          <details-card
             :title="t('domain.room.contactPerson')"
             :icon="mdiAccountOutline"
             :loading="getRoomLoading"
@@ -93,10 +132,10 @@
                 :title="roomData?.contactPerson?.email"
               />
             </v-list>
-          </rooms-details-card>
+          </details-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rooms-details-card
+          <details-card
             :title="t('domain.room.usableArea')"
             :icon="mdiTextureBox"
             :loading="getRoomLoading"
@@ -111,10 +150,10 @@
                 </v-list-item-title>
               </v-list-item>
             </v-list>
-          </rooms-details-card>
+          </details-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rooms-details-card
+          <details-card
             :title="t('domain.room.capacity.header')"
             :subtitle="
               t('domain.room.capacity.msg', { num: roomData?.capacity })
@@ -144,10 +183,10 @@
                 />
               </v-list>
             </template>
-          </rooms-details-card>
+          </details-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rooms-details-card
+          <details-card
             title="Mögliche Ausstattung"
             :icon="mdiSofaSingleOutline"
             :loading="getRoomLoading"
@@ -171,7 +210,7 @@
                 "
               />
             </v-list>
-          </rooms-details-card>
+          </details-card>
         </div>
       </div>
     </template>
@@ -184,6 +223,7 @@ import type { RoomDetailsResponseDTO } from "@/api/raumreservierung-backend";
 import {
   mdiAccountOutline,
   mdiArrowLeft,
+  mdiCalendarQuestionOutline,
   mdiEmail,
   mdiHumanCapacityIncrease,
   mdiImage,
@@ -199,7 +239,7 @@ import { useDisplay } from "vuetify/framework";
 
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
-import RoomsDetailsCard from "@/components/rooms/RoomsDetailsCard.vue";
+import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -225,6 +265,10 @@ onMounted(async () => {
 
     if (result) {
       roomData.value = result as RoomDetailsResponseDTO;
+    } else {
+      await router.replace({
+        name: ROUTES.ROOMS_LIST,
+      });
     }
   }
 });

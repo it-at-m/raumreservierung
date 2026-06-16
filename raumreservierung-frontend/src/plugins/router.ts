@@ -8,6 +8,9 @@ import pinia from "@/plugins/pinia";
 import { useUserStore } from "@/stores/user.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { hasPrivileges } from "@/util/privilegeUtility.ts";
+import BookingsDetailsView from "@/views/bookings/BookingsDetailsView.vue";
+import BookingsEditView from "@/views/bookings/BookingsEditView.vue";
+import BookingsListView from "@/views/bookings/BookingsListView.vue";
 import EquipmentView from "@/views/EquipmentView.vue";
 import GetStartedView from "@/views/GetStartedView.vue";
 import HelpView from "@/views/HelpView.vue";
@@ -80,6 +83,7 @@ const routes: RouteRecordRaw[] = [
       requiredPrivileges: ["days:write"],
     },
   },
+  // ROOMS
   {
     path: "/rooms",
     name: ROUTES.ROOMS_LIST,
@@ -110,6 +114,72 @@ const routes: RouteRecordRaw[] = [
     component: RoomsEditView,
     meta: {
       requiredPrivileges: ["rooms:write"],
+    },
+  },
+  // MY BOOKINGS
+  {
+    path: "/mybookings",
+    name: ROUTES.MY_BOOKINGS_LIST,
+    component: BookingsListView,
+    meta: {
+      requiredPrivileges: ["bookings:self"],
+    },
+  },
+  {
+    path: "/mybookings/new",
+    name: ROUTES.MY_BOOKINGS_CREATE,
+    component: BookingsEditView,
+    meta: {
+      requiredPrivileges: ["bookings:self"],
+    },
+  },
+  {
+    path: "/mybookings/:id",
+    name: ROUTES.MY_BOOKINGS_DETAILS,
+    component: BookingsDetailsView,
+    meta: {
+      requiredPrivileges: ["bookings:self"],
+    },
+  },
+  {
+    path: "/mybookings/:id/edit",
+    name: ROUTES.MY_BOOKINGS_EDIT,
+    component: BookingsEditView,
+    meta: {
+      requiredPrivileges: ["bookings:self"],
+    },
+  },
+  // ALL BOOKINGS
+  {
+    path: "/bookings",
+    name: ROUTES.BOOKINGS_LIST,
+    component: BookingsListView,
+    meta: {
+      requiredPrivileges: ["bookings:read"],
+    },
+  },
+  {
+    path: "/bookings/new",
+    name: ROUTES.BOOKINGS_CREATE,
+    component: BookingsEditView,
+    meta: {
+      requiredPrivileges: ["bookings:write"],
+    },
+  },
+  {
+    path: "/bookings/:id",
+    name: ROUTES.BOOKINGS_DETAILS,
+    component: BookingsDetailsView,
+    meta: {
+      requiredPrivileges: ["bookings:read"],
+    },
+  },
+  {
+    path: "/bookings/:id/edit",
+    name: ROUTES.BOOKINGS_EDIT,
+    component: BookingsEditView,
+    meta: {
+      requiredPrivileges: ["bookings:manage"],
     },
   },
   {
