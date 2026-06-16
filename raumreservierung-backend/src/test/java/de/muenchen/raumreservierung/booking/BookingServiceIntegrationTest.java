@@ -75,7 +75,7 @@ public class BookingServiceIntegrationTest {
         person.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
         booking.setBookedBy(person);
 
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(person);
 
         assertTrue(bookingService.validateBookingAuthority(booking, Roles.RAUM_BUCHUNG));
@@ -95,7 +95,7 @@ public class BookingServiceIntegrationTest {
         currentUser.setOrganisationId("012345");
         currentUser.setId(UUID.fromString("99999999-aaaa-bbbb-cccc-dddddddddddd"));
 
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(currentUser);
 
         assertFalse(bookingService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));

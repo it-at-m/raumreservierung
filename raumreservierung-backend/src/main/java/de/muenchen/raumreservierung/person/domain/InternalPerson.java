@@ -23,7 +23,7 @@ public class InternalPerson extends Person {
     /**
      * Role in this application
      */
-    @Column(nullable = false)
+    @Column()
     private String roleFunction;
 
     @Override

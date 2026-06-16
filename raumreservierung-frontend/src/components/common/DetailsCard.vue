@@ -2,7 +2,7 @@
   <v-skeleton-loader
     elevation="1"
     :loading="loading"
-    type="card"
+    type="image"
   >
     <v-responsive>
       <v-card
@@ -22,7 +22,7 @@
           v-if="subtitle"
           #subtitle
         >
-          <p class="text-high-emphasis my-0">{{ subtitle }}</p>
+          <p class="text-high-emphasis my-0 text-capitalize">{{ subtitle }}</p>
         </template>
 
         <template
