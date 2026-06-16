@@ -145,7 +145,7 @@ public class BookingServiceIntegrationTest {
         booking.setBookedFor(person);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(person);
 
         Booking result = bookingService.getById(bookingId);
@@ -170,7 +170,7 @@ public class BookingServiceIntegrationTest {
         stranger.setOrganisationId("99999");
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(stranger);
 
         assertThrows(UnauthorizedActionException.class, () -> bookingService.getById(bookingId));
