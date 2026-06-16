@@ -31,12 +31,12 @@ public interface BookingMapper {
 
     @Named("hasEquipmentCheck")
     default boolean mapHasEquipment(final Booking booking) {
-        return !booking.getEquipment().isEmpty() || !booking.getInternalNotes().isEmpty();
+        return !booking.getEquipment().isEmpty();
     }
 
     @Named("hasNoteCheck")
     default boolean mapHasNote(final Booking booking) {
-        return !booking.getAdditionalNotes().isEmpty();
+        return !booking.getAdditionalNotes().isEmpty() || !booking.getInternalNotes().isEmpty();
     }
 
     @Named("isRecurringCheck")
