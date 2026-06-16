@@ -4,6 +4,7 @@ import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
 import jakarta.validation.constraints.NotNull;
+
 import java.util.UUID;
 
 public record BookingListResponseDTO(
@@ -12,6 +13,7 @@ public record BookingListResponseDTO(
         int participantCount,
         RoomListResponseDTO room,
         @NotNull boolean hasEquipment,
+        @NotNull boolean hasNote,
         @NotNull boolean isRecurring,
         @NotNull ScheduleTemplate schedule,
         @NotNull PersonResponseDto bookedBy,
