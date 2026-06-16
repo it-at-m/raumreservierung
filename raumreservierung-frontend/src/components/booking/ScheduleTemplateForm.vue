@@ -12,6 +12,17 @@
       />
     </v-col>
     <v-col>
+      <v-checkbox
+        :model-value="wholeDay"
+        color="accent"
+        label="Ganztägig"
+        hide-details
+        :disabled="disabled"
+        density="compact"
+        @update:model-value="onWholeDayToggle"
+      />
+    </v-col>
+    <v-col>
       <slot name="checks" />
     </v-col>
   </v-row>
@@ -119,6 +130,7 @@ import { useI18n } from "vue-i18n";
 
 import DateTimeTextField from "@/components/common/date/DateTimeTextField.vue";
 import { useRules } from "@/composables/useRules";
+import { SCHEDULE_DEFAULT_DURATION } from "@/constants.ts";
 import { dateEquals } from "@/util/timeUtil.ts";
 
 const { t } = useI18n();
@@ -135,6 +147,15 @@ const multiDay = computed<boolean>(
     modelValue.value.occupancyStart &&
     modelValue.value.occupancyEnd &&
     !dateEquals(modelValue.value.occupancyStart, modelValue.value.occupancyEnd)
+);
+
+const wholeDay = computed<boolean>(
+  () =>
+    occupancyStart.value &&
+    occupancyEnd.value &&
+    occupancyEnd.value.getHours() === 23 &&
+    occupancyEnd.value.getMinutes() === 59 &&
+    occupancyStart.value.getHours() <= 7
 );
 
 const appointmentDiffers = computed(
@@ -212,6 +233,30 @@ const onMultiDayToggle = async (isMulti: boolean | null) => {
           : undefined,
     };
   }
+};
+
+const onWholeDayToggle = (isWholeDay: boolean | null) => {
+  const referenceDate = occupancyStart.value
+    ? new Date(occupancyStart.value)
+    : new Date();
+
+  const start = new Date(referenceDate);
+  const end = new Date(referenceDate);
+
+  if (isWholeDay) {
+    start.setHours(7, 0, 0, 0);
+    end.setHours(23, 59, 0, 0);
+  } else {
+    const now = new Date();
+    start.setHours(now.getHours(), now.getMinutes(), 0, 0);
+    end.setTime(start.getTime() + SCHEDULE_DEFAULT_DURATION);
+  }
+
+  modelValue.value = {
+    ...modelValue.value,
+    occupancyStart: start,
+    occupancyEnd: end,
+  };
 };
 
 const onAppointmentDiffers = (apptDiffers: boolean | null) => {
