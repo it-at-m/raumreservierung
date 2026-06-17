@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -34,8 +35,8 @@ public class RoomController {
     @Transactional
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public List<RoomListResponseDTO> getAllRooms() {
-        return roomService.findAll().stream().map(roomMapper::toListDTO).toList();
+    public List<RoomListResponseDTO> getAllRooms(@RequestParam(name = "onlyActive", defaultValue = "true") final boolean onlyActive) {
+        return roomService.findAll(onlyActive).stream().map(roomMapper::toListDTO).toList();
     }
 
     @GetMapping({ "/{roomId}" })
