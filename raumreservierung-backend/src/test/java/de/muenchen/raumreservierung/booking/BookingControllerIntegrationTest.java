@@ -562,7 +562,7 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void createBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnCreateWhenRoleIsLeseberechtigt() throws Exception {
-        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null);
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, 100);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -596,7 +596,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(1).plusMinutes(30)));
         Booking saved = bookingRepository.save(existingBooking);
 
-        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, 100);
 
         String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
                 .with(csrf())
@@ -616,7 +616,7 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
     void createBooking_AsLeseberechtigt_shouldNotNullifyInternalNotesOnCreateWhenRoleIsTerminOrganisator() throws Exception {
-        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null);
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, 100);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -650,7 +650,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(1).plusMinutes(30)));
         Booking saved = bookingRepository.save(existingBooking);
 
-        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, 100);
 
         String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
                 .with(csrf())
@@ -665,6 +665,18 @@ public class BookingControllerIntegrationTest {
         BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
 
         assertThat(responseDto.internalNotes()).isEqualTo(updateDTO.internalNotes());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_shouldBeInvalid_WhenParticipantCountExceedsThousand() throws Exception {
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, 10000);
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isBadRequest()).andReturn().getResponse().getContentAsString();
     }
 
 }

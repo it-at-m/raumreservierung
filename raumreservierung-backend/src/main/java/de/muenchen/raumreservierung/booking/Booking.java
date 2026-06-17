@@ -35,7 +35,7 @@ public class Booking extends BaseEntity {
     private String title;
 
     @Column
-    @Range(min = 0, max = 999)
+    @Range(min = 0, max = 99_999)
     private int participantCount;
 
     @ManyToMany

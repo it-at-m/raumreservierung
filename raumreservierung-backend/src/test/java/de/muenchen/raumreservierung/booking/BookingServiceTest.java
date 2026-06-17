@@ -145,6 +145,7 @@ public class BookingServiceTest {
         owner.setOrganisationId("987654");
         owner.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
         booking.setBookedBy(owner);
+        booking.setBookedFor(owner);
 
         InternalPerson currentUser = new InternalPerson();
         currentUser.setOrganisationId("012345");
@@ -254,17 +255,6 @@ public class BookingServiceTest {
 
         assertNotNull(createdBooking);
         assertEquals(0, createdBooking.getParticipantCount());
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void shouldBeValidWhenParticipantCountExceedsThousand() {
-        baseBooking.setParticipantCount(1000);
-        baseBooking.setRoom(null);
-
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingService.createBooking(baseBooking));
-
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_PARTICIPANT_COUNT_INVALID + "\"", exception.getMessage());
     }
 
     @Test
