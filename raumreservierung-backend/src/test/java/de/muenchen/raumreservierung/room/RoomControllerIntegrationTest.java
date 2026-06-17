@@ -353,4 +353,158 @@ class RoomControllerIntegrationTest {
         assertEquals(expectedRooms, Arrays.asList(getResponse.getBody()));
     }
 
+    @Test
+    void getRooms_shouldReturnOnlyActiveRooms() {
+        roomRepository.deleteAll();
+        final RoomRequestDTO request1 = new RoomRequestDTO(
+                "Raum 1",
+                "1",
+                "Straße 1",
+                "Ganz hinten links",
+                2000,
+                true,
+                500,
+                List.of(),
+                List.of(),
+                null);
+        final RoomRequestDTO request2 = new RoomRequestDTO(
+                "Raum 2",
+                "2",
+                "Straße 2",
+                "Ganz hinten links und dann rechts",
+                1000,
+                false,
+                400,
+                List.of(),
+                List.of(),
+                null);
+        ResponseEntity<RoomDetailsResponseDTO> createResponse1 = testRestTemplate.postForEntity(
+                ROOMS_URL,
+                request1,
+                RoomDetailsResponseDTO.class);
+        ResponseEntity<RoomDetailsResponseDTO> createResponse2 = testRestTemplate.postForEntity(
+                ROOMS_URL,
+                request2,
+                RoomDetailsResponseDTO.class);
+
+        assertEquals(HttpStatus.CREATED, createResponse1.getStatusCode());
+        assertEquals(HttpStatus.CREATED, createResponse2.getStatusCode());
+        assertNotNull(createResponse1.getBody());
+        assertNotNull(createResponse2.getBody());
+
+        ResponseEntity<RoomListResponseDTO[]> getResponse = testRestTemplate.getForEntity(
+                ROOMS_URL,
+                RoomListResponseDTO[].class);
+
+        List<RoomListResponseDTO> expectedRooms = List
+                .of(new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive()));
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+
+        assertNotNull(getResponse.getBody());
+        assertEquals(expectedRooms, Arrays.asList(getResponse.getBody()));
+    }
+
+    @Test
+    void getRooms_givenOnlyActiveTrue_shouldReturnOnlyActiveRooms() {
+        roomRepository.deleteAll();
+        final RoomRequestDTO request1 = new RoomRequestDTO(
+                "Raum 1",
+                "1",
+                "Straße 1",
+                "Ganz hinten links",
+                2000,
+                true,
+                500,
+                List.of(),
+                List.of(),
+                null);
+        final RoomRequestDTO request2 = new RoomRequestDTO(
+                "Raum 2",
+                "2",
+                "Straße 2",
+                "Ganz hinten links und dann rechts",
+                1000,
+                false,
+                400,
+                List.of(),
+                List.of(),
+                null);
+        ResponseEntity<RoomDetailsResponseDTO> createResponse1 = testRestTemplate.postForEntity(
+                ROOMS_URL,
+                request1,
+                RoomDetailsResponseDTO.class);
+        ResponseEntity<RoomDetailsResponseDTO> createResponse2 = testRestTemplate.postForEntity(
+                ROOMS_URL,
+                request2,
+                RoomDetailsResponseDTO.class);
+
+        assertEquals(HttpStatus.CREATED, createResponse1.getStatusCode());
+        assertEquals(HttpStatus.CREATED, createResponse2.getStatusCode());
+        assertNotNull(createResponse1.getBody());
+        assertNotNull(createResponse2.getBody());
+
+        ResponseEntity<RoomListResponseDTO[]> getResponse = testRestTemplate.getForEntity(
+                ROOMS_URL + "?onlyActive=true",
+                RoomListResponseDTO[].class);
+
+        List<RoomListResponseDTO> expectedRooms = List
+                .of(new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive()));
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+
+        assertNotNull(getResponse.getBody());
+        assertEquals(expectedRooms, Arrays.asList(getResponse.getBody()));
+    }
+
+    @Test
+    void getRooms_givenOnlyActiveFalse_shouldReturnAllRooms() {
+        roomRepository.deleteAll();
+        final RoomRequestDTO request1 = new RoomRequestDTO(
+                "Raum 1",
+                "1",
+                "Straße 1",
+                "Ganz hinten links",
+                2000,
+                true,
+                500,
+                List.of(),
+                List.of(),
+                null);
+        final RoomRequestDTO request2 = new RoomRequestDTO(
+                "Raum 2",
+                "2",
+                "Straße 2",
+                "Ganz hinten links und dann rechts",
+                1000,
+                false,
+                400,
+                List.of(),
+                List.of(),
+                null);
+        ResponseEntity<RoomDetailsResponseDTO> createResponse1 = testRestTemplate.postForEntity(
+                ROOMS_URL,
+                request1,
+                RoomDetailsResponseDTO.class);
+        ResponseEntity<RoomDetailsResponseDTO> createResponse2 = testRestTemplate.postForEntity(
+                ROOMS_URL,
+                request2,
+                RoomDetailsResponseDTO.class);
+
+        assertEquals(HttpStatus.CREATED, createResponse1.getStatusCode());
+        assertEquals(HttpStatus.CREATED, createResponse2.getStatusCode());
+        assertNotNull(createResponse1.getBody());
+        assertNotNull(createResponse2.getBody());
+
+        ResponseEntity<RoomListResponseDTO[]> getResponse = testRestTemplate.getForEntity(
+                ROOMS_URL + "?onlyActive=false",
+                RoomListResponseDTO[].class);
+
+        List<RoomListResponseDTO> expectedRooms = List.of(
+                new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive()),
+                new RoomListResponseDTO(createResponse2.getBody().id(), request2.name(), request2.number(), request2.isActive()));
+        assertEquals(HttpStatus.OK, getResponse.getStatusCode());
+
+        assertNotNull(getResponse.getBody());
+        assertEquals(expectedRooms, Arrays.asList(getResponse.getBody()));
+    }
+
 }

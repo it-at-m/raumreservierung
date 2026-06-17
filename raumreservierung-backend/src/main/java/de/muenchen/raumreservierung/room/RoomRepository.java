@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.room;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
@@ -14,4 +15,7 @@ public interface RoomRepository extends JpaRepository<Room, UUID> {
     Optional<Room> findWithDetailsById(@NonNull UUID id);
 
     Optional<Room> findFirstByOrderByCapacityDesc();
+
+    List<Room> findByIsActiveTrue();
+
 }
