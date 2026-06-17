@@ -82,16 +82,17 @@ public class BookingServiceTest {
         testRoom.setNumber("TEST_NUMBER");
         testRoom.setActive(true);
 
-        testRoomInactive = new Room();
-        testRoomInactive.setName("TEST_ROOM_INACTIVE");
-        testRoomInactive.setNumber("TEST_NUMBER_INACTIVE");
-        testRoomInactive.setActive(false);
-
         testSeatingType = new SeatingType();
         testSeatingType.setName("TEST_SEATING");
         RoomSeatingCapacity roomSeatingCapacity = new RoomSeatingCapacity();
         roomSeatingCapacity.setCapacity(10);
         roomSeatingCapacity.setSeatingType(testSeatingType);
+
+        testRoomInactive = new Room();
+        testRoomInactive.setName("TEST_ROOM_INACTIVE");
+        testRoomInactive.setNumber("TEST_NUMBER_INACTIVE");
+        testRoomInactive.setActive(false);
+        testRoomInactive.setRoomSeatingCapacities(Set.of(roomSeatingCapacity));
 
         testRoomWithSeatingCapacity = new Room();
         testRoomWithSeatingCapacity.setName("TEST_ROOM_WITH_SEATING_CAPACITY");
@@ -332,7 +333,7 @@ public class BookingServiceTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void shouldBeValidWhenNoRoomAndCountIsWithinSeatingCapacity() {
+    void shouldBeValidWhenCountIsWithinSeatingCapacity() {
         baseBooking.setRoom(testRoomWithSeatingCapacity);
         baseBooking.setParticipantCount(9);
         baseBooking.setSeatingType(testSeatingType);
@@ -364,6 +365,34 @@ public class BookingServiceTest {
         BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingService.createBooking(baseBooking));
 
         assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_SEATINGTYPE_NOT_AVAILABLE + "\"", exception.getMessage());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void shouldBeValidWhenSameRoomEvenIfInactive() {
+        baseBooking.setRoom(testRoomInactive);
+        baseBooking.setParticipantCount(9);
+        baseBooking.setSeatingType(testSeatingType);
+
+        when(bookingRepository.findById(any(UUID.class))).thenReturn(Optional.ofNullable(baseBooking));
+        Booking booking = bookingService.updateBooking(baseBooking, UUID.randomUUID());
+        assertNotNull(booking);
+        assertEquals(9, booking.getParticipantCount());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void shouldBeValidWhenUpdateFromInactiveToActiveRoom() {
+        baseBooking.setRoom(testRoomInactive);
+        baseBooking.setParticipantCount(9);
+        baseBooking.setSeatingType(testSeatingType);
+
+        when(bookingRepository.findById(any(UUID.class))).thenReturn(Optional.ofNullable(baseBooking));
+        baseBooking.setRoom(testRoomWithSeatingCapacity);
+
+        Booking booking = bookingService.updateBooking(baseBooking, UUID.randomUUID());
+        assertNotNull(booking);
+        assertEquals(9, booking.getParticipantCount());
     }
 
 }

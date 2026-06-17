@@ -110,9 +110,9 @@ public class BookingService {
      */
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
-        bookingIsValidOrThrowException(bookingUpdates);
-
         final Booking existingBooking = getEntityOrThrowException(bookingId);
+        bookingIsValidOrThrowException(bookingUpdates, existingBooking);
+
         if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
@@ -287,7 +287,21 @@ public class BookingService {
      *             exceeded
      */
     private void bookingIsValidOrThrowException(final Booking bookingUpdates) {
-        if (bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive()) {
+        bookingIsValidOrThrowException(bookingUpdates, null);
+    }
+
+    /**
+     * Validates the booking updates against room availability, seating types, and capacities,
+     * taking into account an existing booking.
+     *
+     * @param bookingUpdates the booking data containing the requested updates
+     * @param existingBooking the original booking before updates, can be null
+     * @throws BadRequestException if the room is inactive, seating type is missing, or capacity is
+     *             exceeded
+     */
+    private void bookingIsValidOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
+        final boolean noExistingRoomOrNotSameRoom = existingBooking == null || !Objects.equals(bookingUpdates.getRoom(), existingBooking.getRoom());
+        if (noExistingRoomOrNotSameRoom && bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive()) {
             throw new BadRequestException(MSG_ROOM_INACTIVE);
         }
         if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
