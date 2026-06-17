@@ -139,6 +139,7 @@ public class BookingControllerIntegrationTest {
         mockBooking.setBookedBy(mockPerson);
         mockBooking.setOrganisationUnit("TEST_UNIT");
         mockBooking.setRoom(mockRoom);
+        mockBooking.setBookingType(BookingType.NORMAL);
         mockBooking = bookingRepository.save(mockBooking);
     }
 
@@ -315,7 +316,8 @@ public class BookingControllerIntegrationTest {
                 null,
                 schedule,
                 bookedForId,
-                null);
+                null,
+                BookingType.NORMAL);
     }
 
     private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
@@ -339,7 +341,8 @@ public class BookingControllerIntegrationTest {
                 roomId,
                 schedule,
                 mockPerson.getId(),
-                seatingTypeId);
+                seatingTypeId,
+                BookingType.NORMAL);
     }
 
     private static Stream<Arguments> provideTestData() {

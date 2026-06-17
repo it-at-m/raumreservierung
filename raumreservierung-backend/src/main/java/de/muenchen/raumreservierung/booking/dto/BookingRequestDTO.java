@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.booking.dto;
 
+import de.muenchen.raumreservierung.booking.BookingType;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +20,8 @@ public record BookingRequestDTO(
         UUID roomId,
         @NotNull ScheduleTemplate schedule,
         UUID bookedForId,
-        UUID seatingTypeId
+        UUID seatingTypeId,
+        BookingType bookingType
 //TODO: add status
 ) {
 }

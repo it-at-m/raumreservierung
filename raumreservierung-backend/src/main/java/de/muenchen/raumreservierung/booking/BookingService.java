@@ -78,6 +78,7 @@ public class BookingService {
     public Booking createBooking(final Booking booking) {
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
+            booking.setBookingType(BookingType.NORMAL);
         }
 
         if (booking.getRoom() != null && !booking.getRoom().isActive()) {
@@ -120,6 +121,7 @@ public class BookingService {
 
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
+            bookingUpdates.setBookingType(existingBooking.getBookingType());
         }
 
         if (bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive()) {

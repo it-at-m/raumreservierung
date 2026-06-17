@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.booking.dto;
 
+import de.muenchen.raumreservierung.booking.BookingType;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
@@ -25,7 +26,8 @@ public record BookingDetailResponseDTO(
         @NotNull PersonResponseDto bookedFor,
         @NotNull String organisationUnit,
         SeatingType seatingType,
-        String recurringRule
+        String recurringRule,
+        BookingType bookingType
 //TODO: add status
 ) {
 }

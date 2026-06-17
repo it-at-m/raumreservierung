@@ -10,6 +10,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -72,6 +74,10 @@ public class Booking extends BaseEntity {
 
     @ManyToOne
     private SeatingType seatingType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BookingType bookingType;
 
     //TODO: add status
 
