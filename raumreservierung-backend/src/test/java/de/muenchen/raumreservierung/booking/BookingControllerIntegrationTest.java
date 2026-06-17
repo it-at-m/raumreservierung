@@ -181,7 +181,7 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsCreated_WhenNoSeatingTypeChosen() throws Exception {
-        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), mockSeatingType1.getId(), 4);
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), null, 4);
 
         mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
