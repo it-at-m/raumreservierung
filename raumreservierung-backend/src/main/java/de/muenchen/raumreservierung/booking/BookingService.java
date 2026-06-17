@@ -189,10 +189,6 @@ public class BookingService {
 
     private Booking getSanitizedBooking(final UUID bookingId) {
         final Booking booking = getEntityOrThrowException(bookingId);
-        return sanitizeBookingNotes(booking);
-    }
-
-    private Booking sanitizeBookingNotes(final Booking booking) {
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
         }
