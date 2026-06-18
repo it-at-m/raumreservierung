@@ -57,6 +57,8 @@ public class BookingServiceIntegrationTest {
     private PersonService personService;
     @MockitoBean
     private RoomService roomService;
+    @MockitoBean
+    private BookingValidationService bookingValidationService;
 
     @Test
     @WithMockJwt(lhmObjectID = "987654", authorities = { Roles.RAUM_ADMIN })
