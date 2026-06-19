@@ -1,13 +1,11 @@
 package de.muenchen.raumreservierung.room;
 
-import de.muenchen.raumreservierung.common.PictureUploadException;
 import de.muenchen.raumreservierung.room.dto.RoomDetailsResponseDTO;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
 import de.muenchen.raumreservierung.room.dto.RoomMapper;
 import de.muenchen.raumreservierung.room.dto.RoomRequestDTO;
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
-import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -67,17 +64,6 @@ public class RoomController {
                 .toDetailsDto(roomService
                         .updateRoom(roomMapper
                                 .toEntity(roomRequestDTO), roomId));
-    }
-
-    @PutMapping("/{roomId}/picture")
-    @ResponseStatus(HttpStatus.OK)
-    public RoomDetailsResponseDTO uploadPicture(@PathVariable final UUID roomId, @RequestParam("file") final MultipartFile file) {
-        try {
-            roomService.updateRoomPicture(roomId, file);
-            return roomMapper.toDetailsDto(roomService.updateRoomPicture(roomId, file));
-        } catch (IOException e) {
-            throw new PictureUploadException("Fehler beim Lesen der Bilddaten", e);
-        }
     }
 
     @DeleteMapping("/{roomId}")

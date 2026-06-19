@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.room.dto;
 
 import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
+import de.muenchen.raumreservierung.file.dto.FileAttachmentUploadResponse;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.validation.constraints.NotNull;
@@ -20,5 +21,6 @@ public record RoomDetailsResponseDTO(
         @NotNull int area,
         @NotNull List<SeatingCapacityResponseDTO> roomSeatingCapacities,
         @NotNull List<EquipmentResponseDto> equipment,
-        PersonResponseDto contactPerson) {
+        PersonResponseDto contactPerson,
+        FileAttachmentUploadResponse picture) {
 }

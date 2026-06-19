@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.room;
 
+import de.muenchen.raumreservierung.file.FileAttachment;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,10 +11,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 public interface RoomRepository extends JpaRepository<Room, UUID> {
 
-    @EntityGraph(attributePaths = { "roomSeatingCapacities", "roomSeatingCapacities.seatingType", "equipment", "contactPerson" })
+    @EntityGraph(attributePaths = { "roomSeatingCapacities", "roomSeatingCapacities.seatingType", "equipment", "contactPerson", "picture" })
     @NonNull @Transactional(readOnly = true)
     Optional<Room> findWithDetailsById(@NonNull UUID id);
 
     List<Room> findByIsActiveTrue();
 
+    List<Room> findByPicture(FileAttachment picture);
+
+    boolean existsByPicture(FileAttachment picture);
 }

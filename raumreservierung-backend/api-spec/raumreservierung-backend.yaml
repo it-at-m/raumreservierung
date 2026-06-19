@@ -411,6 +411,13 @@ paths:
       tags:
       - room-controller
       operationId: getAllRooms
+      parameters:
+      - name: onlyActive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
       responses:
         "200":
           description: OK
@@ -547,6 +554,29 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/HolidayResponseDTO"
+  /file:
+    post:
+      tags:
+      - file-attachment-controller
+      operationId: uploadFile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/FileAttachmentUploadResponse"
   /equipment:
     get:
       tags:
@@ -666,6 +696,26 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BookingDetailResponseDTO"
+  /file/{fileId}:
+    get:
+      tags:
+      - file-attachment-controller
+      operationId: getFile
+      parameters:
+      - name: fileId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
   /appointments:
     get:
       tags:
@@ -950,6 +1000,9 @@ components:
         contactPersonId:
           type: string
           format: uuid
+        pictureId:
+          type: string
+          format: uuid
     SeatingCapacityRequestDTO:
       required:
       - capacity
@@ -1022,6 +1075,19 @@ components:
             type: string
           note:
             type: string
+    FileAttachmentUploadResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fileName:
+          type: string
+        fileSize:
+          type: integer
+          format: int64
+        contentType:
+          type: string
     InternalPersonResponseDto:
       required:
       - email
@@ -1126,6 +1192,8 @@ components:
           oneOf:
           - $ref: "#/components/schemas/ExternalPersonResponseDto"
           - $ref: "#/components/schemas/InternalPersonResponseDto"
+        picture:
+          $ref: "#/components/schemas/FileAttachmentUploadResponse"
     SeatingCapacityResponseDTO:
       required:
       - capacity
@@ -1398,6 +1466,9 @@ components:
           type: string
         isActive:
           type: boolean
+        pictureId:
+          type: string
+          format: uuid
     SeatingType:
       type: object
       properties:
