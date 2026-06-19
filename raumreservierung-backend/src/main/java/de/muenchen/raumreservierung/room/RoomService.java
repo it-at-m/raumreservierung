@@ -1,18 +1,21 @@
 package de.muenchen.raumreservierung.room;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
+import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.persistence.EntityManager;
-import java.util.List;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.Hibernate;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.UUID;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @Slf4j
@@ -40,13 +43,14 @@ public class RoomService {
         newRoom.updateFrom(room);
 
         final Room savedRoom = roomRepository.saveAndFlush(newRoom);
-        entityManager.detach(savedRoom);
+        Hibernate.initialize(savedRoom.getEquipment());
+        Hibernate.initialize(savedRoom.getRoomSeatingCapacities());
         if (savedRoom.getContactPerson() != null) {
-            entityManager.detach(savedRoom.getContactPerson());
+            savedRoom.setContactPerson((Person) Hibernate.unproxy(savedRoom.getContactPerson()));
         }
 
         log.debug("Saved room with id {}", savedRoom.getId());
-        return getEntityOrThrowException(savedRoom.getId());
+        return savedRoom;
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
@@ -54,14 +58,16 @@ public class RoomService {
         final Room existingRoom = getEntityOrThrowException(roomId);
         existingRoom.updateFrom(roomUpdates);
 
-        roomRepository.saveAndFlush(existingRoom);
-        entityManager.detach(existingRoom);
-        if (existingRoom.getContactPerson() != null) {
-            entityManager.detach(existingRoom.getContactPerson());
+        Room savedRoom = roomRepository.save(existingRoom);
+
+        Hibernate.initialize(savedRoom.getEquipment());
+        Hibernate.initialize(savedRoom.getRoomSeatingCapacities());
+        if (savedRoom.getContactPerson() != null) {
+            savedRoom.setContactPerson((Person) Hibernate.unproxy(savedRoom.getContactPerson()));
         }
 
         log.debug("Updated room with id {}", existingRoom.getId());
-        return getEntityOrThrowException(existingRoom.getId());
+        return savedRoom;
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
