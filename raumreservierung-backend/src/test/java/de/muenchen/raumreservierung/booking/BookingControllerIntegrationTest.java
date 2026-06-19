@@ -669,14 +669,26 @@ public class BookingControllerIntegrationTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void createBooking_shouldBeInvalid_WhenParticipantCountExceedsThousand() throws Exception {
-        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, 10000);
+    void createBooking_shouldBeInvalid_WhenParticipantCountExceeds99_999() throws Exception {
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, 100000);
 
         mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(updateDTO)))
-                .andExpect(status().isBadRequest()).andReturn().getResponse().getContentAsString();
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void createBooking_shouldBeInvalid_WhenParticipantCountIsNegative() throws Exception {
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, -1);
+
+        mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andExpect(status().isBadRequest());
     }
 
 }
