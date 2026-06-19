@@ -45,7 +45,6 @@ public class BookingValidationService {
      */
     private boolean participantCountNotValid(final Booking booking) {
         final int count = booking.getParticipantCount();
-
         if (count == 0) {
             return false;
         }
@@ -62,6 +61,18 @@ public class BookingValidationService {
             final int absoluteMax = roomService.findAbsoluteMaxCapacity();
             return count > absoluteMax;
         }
+    }
+
+    /**
+     * Checks if the room was changed from active to an inactive room.
+     *
+     * @param bookingUpdates The updated booking data.
+     * @param existingBooking The original booking data, can be null.
+     * @return true if the room is changed from active to inactive; false otherwise.
+     */
+    private boolean roomChangedToInactive(final Booking bookingUpdates, final Booking existingBooking) {
+        final boolean noExistingRoomOrNotSameRoom = existingBooking == null || !Objects.equals(bookingUpdates.getRoom(), existingBooking.getRoom());
+        return noExistingRoomOrNotSameRoom && bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive();
     }
 
     /**
@@ -85,8 +96,7 @@ public class BookingValidationService {
      *             exceeded
      */
     public void bookingIsValidOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
-        final boolean noExistingRoomOrNotSameRoom = existingBooking == null || !Objects.equals(bookingUpdates.getRoom(), existingBooking.getRoom());
-        if (noExistingRoomOrNotSameRoom && bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive()) {
+        if (roomChangedToInactive(bookingUpdates, existingBooking)) {
             throw new BadRequestException(MSG_ROOM_INACTIVE);
         }
         if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
