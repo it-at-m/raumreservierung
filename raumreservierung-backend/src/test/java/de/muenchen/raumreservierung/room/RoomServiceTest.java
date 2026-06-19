@@ -8,6 +8,7 @@ import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.seating.SeatingType;
+import jakarta.persistence.EntityManager;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -22,6 +23,9 @@ public class RoomServiceTest {
 
     @Mock
     private RoomRepository roomRepository;
+
+    @Mock
+    private EntityManager entityManager;
 
     @InjectMocks
     private RoomService roomService;
