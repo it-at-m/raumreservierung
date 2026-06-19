@@ -8,7 +8,6 @@ import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.seating.SeatingType;
-import jakarta.persistence.EntityManager;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -23,9 +22,6 @@ public class RoomServiceTest {
 
     @Mock
     private RoomRepository roomRepository;
-
-    @Mock
-    private EntityManager entityManager;
 
     @InjectMocks
     private RoomService roomService;
@@ -60,18 +56,16 @@ public class RoomServiceTest {
         final Room roomRequest = getExampleRoom();
 
         // When
-        final RoomSeatingCapacity seatingCapacityOnlyId1 = getRoomSeatingCapacityOnlyId1(roomRequest);
-        final RoomSeatingCapacity seatingCapacityOnlyId2 = getRoomSeatingCapacityOnlyId2(roomRequest);
+        final RoomSeatingCapacity seatingCapacityOnlyId1 = getRoomSeatingCapacity(roomRequest);
+        final RoomSeatingCapacity seatingCapacityOnlyId2 = getRoomSeatingCapacity2(roomRequest);
 
         final Set<RoomSeatingCapacity> seatingCapacitiesOnlyIds = new HashSet<>(Set.of(seatingCapacityOnlyId1, seatingCapacityOnlyId2));
 
         final Room roomFull = buildExampleRoomWithEquipmentAndSeating(getExampleRoom(), seatingCapacitiesOnlyIds, null);
 
-        // WICHTIG: Dem Mock-Ergebnis eine ID geben!
         final UUID generatedId = UUID.randomUUID();
         roomFull.setId(generatedId);
 
-        // Die neuen Service-Methoden mocken
         when(roomRepository.saveAndFlush(any(Room.class))).thenReturn(roomFull);
         when(roomRepository.findWithDetailsById(generatedId)).thenReturn(java.util.Optional.of(roomFull));
 
@@ -104,13 +98,13 @@ public class RoomServiceTest {
         return roomRequest;
     }
 
-    private SeatingType getSeatingTypeOnlyId1() {
+    private SeatingType getSeatingType1() {
         SeatingType seatingType1 = new SeatingType();
         seatingType1.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174000"));
         return seatingType1;
     }
 
-    private SeatingType getSeatingTypeOnlyId2() {
+    private SeatingType getSeatingType2() {
         SeatingType seatingType2 = new SeatingType();
         seatingType2.setId(UUID.fromString("123e4567-e89b-12d3-a456-426614174002"));
         return seatingType2;
@@ -132,18 +126,18 @@ public class RoomServiceTest {
         return equipment2;
     }
 
-    private RoomSeatingCapacity getRoomSeatingCapacityOnlyId1(Room room) {
+    private RoomSeatingCapacity getRoomSeatingCapacity(Room room) {
         final RoomSeatingCapacity roomSeatingCapacity1 = new RoomSeatingCapacity();
         roomSeatingCapacity1.setRoom(room);
-        roomSeatingCapacity1.setSeatingType(getSeatingTypeOnlyId1());
+        roomSeatingCapacity1.setSeatingType(getSeatingType1());
         roomSeatingCapacity1.setCapacity(100);
         return roomSeatingCapacity1;
     }
 
-    private RoomSeatingCapacity getRoomSeatingCapacityOnlyId2(Room room) {
+    private RoomSeatingCapacity getRoomSeatingCapacity2(Room room) {
         final RoomSeatingCapacity roomSeatingCapacity2 = new RoomSeatingCapacity();
         roomSeatingCapacity2.setRoom(room);
-        roomSeatingCapacity2.setSeatingType(getSeatingTypeOnlyId2());
+        roomSeatingCapacity2.setSeatingType(getSeatingType2());
         roomSeatingCapacity2.setCapacity(200);
         return roomSeatingCapacity2;
     }
