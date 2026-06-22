@@ -49,30 +49,38 @@ public class BookingService {
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
-        final Booking booking = getEntityOrThrowException(bookingId);
-        if (validateBookingAuthority(booking, Roles.LESEBERECHTIGT)) {
-            return booking;
-        } else {
+        final Booking booking = getSanitizedBooking(bookingId);
+        if (!validateBookingAuthority(booking, Roles.LESEBERECHTIGT)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
+
+        return booking;
     }
 
     @PreAuthorize(Authorities.BOOKING_READ)
     public Page<Booking> getAllBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
         final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilter(bookingFilterDto);
-        final Page<Booking> allBookings = bookingRepository.findAll(bookingSpecification, pageable);
-        log.debug("Found {} bookings", allBookings.getTotalElements());
-        return allBookings;
+        return findAllAndFilterSensitiveData(pageable, bookingSpecification);
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Page<Booking> getOwnBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
-        final Person internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(AuthUtils.getOrganisationId());
+        final Person internalPerson = personService.resolveInternalPersonByOrganisationIDOrThrowException(AuthUtils.getOrganisationId());
 
         final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilterWithPerson(bookingFilterDto, internalPerson);
-        final Page<Booking> ownBookings = bookingRepository.findAll(bookingSpecification, pageable);
-        log.debug("Found {} bookings", ownBookings.getTotalElements());
-        return ownBookings;
+        return findAllAndFilterSensitiveData(pageable, bookingSpecification);
+    }
+
+    private Page<Booking> findAllAndFilterSensitiveData(final Pageable pageable, final Specification<Booking> bookingSpecification) {
+        Page<Booking> bookings = bookingRepository.findAll(bookingSpecification, pageable);
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            bookings = bookings.map(booking -> {
+                booking.setInternalNotes(null);
+                return booking;
+            });
+        }
+
+        return bookings;
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
@@ -99,7 +107,7 @@ public class BookingService {
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
         log.debug("Created booking with id {}", savedBooking.getId());
-        return getEntityOrThrowException(savedBooking.getId());
+        return getSanitizedBooking(savedBooking.getId());
     }
 
     /**
@@ -136,12 +144,12 @@ public class BookingService {
             throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
         }
 
-        updateBookingAppointments(bookingUpdates, existingBooking);
+        updateBookingAppointments(existingBooking, bookingUpdates);
 
         saveAndDetach(existingBooking, bookingUpdates);
 
         log.debug("Updated booking with id {}", existingBooking.getId());
-        return getEntityOrThrowException(existingBooking.getId());
+        return getSanitizedBooking(existingBooking.getId());
 
     }
 
@@ -185,6 +193,14 @@ public class BookingService {
         bookingRepository.deleteById(bookingId);
     }
 
+    private Booking getSanitizedBooking(final UUID bookingId) {
+        final Booking booking = getEntityOrThrowException(bookingId);
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            booking.setInternalNotes(null);
+        }
+        return booking;
+    }
+
     private Booking getEntityOrThrowException(final UUID bookingId) {
         return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, bookingId)));
     }
@@ -221,9 +237,9 @@ public class BookingService {
             return true;
         }
 
-        final InternalPerson internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
+        final InternalPerson internalPerson = personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
 
-        return booking.getBookedBy().getId().equals(internalPerson.getId());
+        return booking.getBookedBy().getId().equals(internalPerson.getId()) || booking.getBookedFor().getId().equals(internalPerson.getId());
     }
 
     /**
@@ -248,7 +264,7 @@ public class BookingService {
      * @throws NotFoundException if the current user from the security context cannot be found by oid
      */
     private void assignBookingContext(final Booking booking) {
-        final InternalPerson currentPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
+        final InternalPerson currentPerson = personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
         booking.setOrganisationUnit(currentPerson.getOrganisationUnit());
 
         if (booking.getBookedFor() == null) {

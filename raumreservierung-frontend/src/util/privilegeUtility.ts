@@ -16,6 +16,7 @@ const rolePrivilegeMapping = {
     "rooms:write",
     "bookings:manage",
     "bookings:self",
+    "bookings:read",
     "bookings:write",
     "calendar:write",
     "days:write",

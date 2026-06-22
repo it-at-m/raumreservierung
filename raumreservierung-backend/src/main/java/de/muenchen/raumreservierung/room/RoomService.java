@@ -26,8 +26,10 @@ public class RoomService {
         return getEntityOrThrowException(roomId);
     }
 
-    public List<Room> findAll() {
-        final List<Room> allRooms = roomRepository.findAll();
+    public List<Room> findAll(final boolean onlyActive) {
+
+        final List<Room> allRooms = onlyActive ? roomRepository.findByIsActiveTrue()
+                : roomRepository.findAll();
         log.debug("Found {} equipments", allRooms.size());
         return allRooms;
     }

@@ -699,22 +699,30 @@ paths:
             type: string
       - name: startDate
         in: query
-        required: false
+        required: true
         schema:
           type: string
           format: date-time
       - name: endDate
         in: query
-        required: false
-        schema:
-          type: string
-          format: date-time
-      - name: roomId
-        in: query
         required: true
         schema:
           type: string
+          format: date-time
+      - name: bookingId
+        in: query
+        required: false
+        schema:
+          type: string
           format: uuid
+      - name: roomIds
+        in: query
+        required: false
+        schema:
+          type: array
+          items:
+            type: string
+            format: uuid
       responses:
         "200":
           description: OK
@@ -1322,20 +1330,8 @@ components:
         appointmentEnd:
           type: string
           format: date-time
-    AppointmentMinimalResponseDTO:
-      required:
-      - id
-      - schedule
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-        schedule:
-          $ref: "#/components/schemas/ScheduleTemplate"
     BookingDetailResponseDTO:
       required:
-      - appointments
       - bookedBy
       - bookedFor
       - cateringNeeded
@@ -1364,10 +1360,6 @@ components:
           type: string
         additionalNotes:
           type: string
-        appointments:
-          type: array
-          items:
-            $ref: "#/components/schemas/AppointmentMinimalResponseDTO"
         room:
           $ref: "#/components/schemas/RoomListResponseDTO"
         schedule:
@@ -1547,6 +1539,9 @@ components:
           oneOf:
           - $ref: "#/components/schemas/ExternalPersonResponseDto"
           - $ref: "#/components/schemas/InternalPersonResponseDto"
+        roomId:
+          type: string
+          format: uuid
     PagedModelAppointmentDetailsResponseDTO:
       type: object
       properties:

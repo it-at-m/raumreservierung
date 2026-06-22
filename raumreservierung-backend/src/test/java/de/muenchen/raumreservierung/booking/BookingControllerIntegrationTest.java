@@ -358,7 +358,7 @@ public class BookingControllerIntegrationTest {
                 100,
                 null,
                 false,
-                "please clean",
+                "secret note",
                 "no notes necessary",
                 null,
                 roomId,
@@ -370,34 +370,34 @@ public class BookingControllerIntegrationTest {
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
                 Arguments.of("", 1, List.of(OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=DAILY;COUNT=3", 3, List.of(
+                Arguments.of("RRULE:FREQ=DAILY;COUNT=3", 3, List.of(
                         OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 3, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 4, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=MONTHLY;COUNT=2", 2, List.of(
+                Arguments.of("RRULE:FREQ=MONTHLY;COUNT=2", 2, List.of(
                         OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 4, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=WEEKLY;COUNT=5", 5, List.of(
+                Arguments.of("RRULE:FREQ=WEEKLY;COUNT=5", 5, List.of(
                         OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 9, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 16, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 23, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 30, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=WEEKLY;BYDAY=TU,WE;INTERVAL=2;COUNT=4", 4, List.of(
+                Arguments.of("RRULE:FREQ=WEEKLY;BYDAY=TU,WE;INTERVAL=2;COUNT=4", 4, List.of(
                         OffsetDateTime.of(2026, 3, 3, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 4, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 17, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 3, 18, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=MONTHLY;BYDAY=2WE;COUNT=3", 3, List.of(
+                Arguments.of("RRULE:FREQ=MONTHLY;BYDAY=2WE;COUNT=3", 3, List.of(
                         OffsetDateTime.of(2026, 3, 11, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 4, 8, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 5, 13, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=15;COUNT=4", 4, List.of(
+                Arguments.of("RRULE:FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=15;COUNT=4", 4, List.of(
                         OffsetDateTime.of(2026, 3, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 5, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 7, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 9, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
-                Arguments.of("FREQ=WEEKLY;INTERVAL=6", 9, List.of(
+                Arguments.of("RRULE:FREQ=WEEKLY;INTERVAL=6", 9, List.of(
                         OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 4, 13, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
                         OffsetDateTime.of(2026, 5, 25, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
@@ -486,6 +486,7 @@ public class BookingControllerIntegrationTest {
         OffsetDateTime now = OffsetDateTime.now();
         Booking existingBooking = new Booking();
         existingBooking.setBookedBy(foreignOwner);
+        existingBooking.setBookedFor(foreignOwner);
         existingBooking.setOrganisationUnit(foreignOwner.getOrganisationUnit());
         existingBooking.setTitle("TEST_TITLE");
         existingBooking.setSchedule(new ScheduleTemplate(
@@ -579,4 +580,113 @@ public class BookingControllerIntegrationTest {
         assertThat(responseBody.bookedFor().id()).isEqualTo(externalPersonId);
         assertThat(responseBody.bookedBy().id()).isEqualTo(mockPerson.getId());
     }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
+    void createBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnCreateWhenRoleIsLeseberechtigt() throws Exception {
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        String responseContent = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.internalNotes()).isNull();
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
+    void updateBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnUpdateWhenRoleIsLeseberechtigt() throws Exception {
+        OffsetDateTime now = OffsetDateTime.now();
+        Booking existingBooking = new Booking();
+        existingBooking.setBookedBy(mockPerson);
+        existingBooking.setBookedFor(mockPerson);
+        existingBooking.setInternalNotes("secret note not to overwrite and not to read by leseberechtigt");
+        existingBooking.setOrganisationUnit(mockPerson.getOrganisationUnit());
+        existingBooking.setTitle("TEST_TITLE");
+        existingBooking.setSchedule(new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30)));
+        Booking saved = bookingRepository.save(existingBooking);
+
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.internalNotes()).isNull();
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
+    void createBooking_AsLeseberechtigt_shouldNotNullifyInternalNotesOnCreateWhenRoleIsTerminOrganisator() throws Exception {
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        String responseContent = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.internalNotes()).isEqualTo(requestDto.internalNotes());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
+    void updateBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnUpdateWhenRoleIsTerminOrganisator() throws Exception {
+        OffsetDateTime now = OffsetDateTime.now();
+        Booking existingBooking = new Booking();
+        existingBooking.setBookedBy(mockPerson);
+        existingBooking.setBookedFor(mockPerson);
+        existingBooking.setInternalNotes("secret note not to overwrite and not to read by leseberechtigt");
+        existingBooking.setOrganisationUnit(mockPerson.getOrganisationUnit());
+        existingBooking.setTitle("TEST_TITLE");
+        existingBooking.setSchedule(new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30)));
+        Booking saved = bookingRepository.save(existingBooking);
+
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.internalNotes()).isEqualTo(updateDTO.internalNotes());
+    }
+
 }

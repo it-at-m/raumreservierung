@@ -36,7 +36,7 @@
 
         <template v-else>
           <v-col
-            v-for="room in getAllRoomsData"
+            v-for="room in computedRooms"
             :key="room.id"
             cols="12"
             sm="6"
@@ -64,7 +64,7 @@
 
 <script setup lang="ts">
 import { mdiPlus } from "@mdi/js";
-import { onMounted } from "vue";
+import { computed, onMounted } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
@@ -85,6 +85,12 @@ const {
 const router = useRouter();
 
 const canAddNewRoom = useIsPrivileged("rooms:write");
+
+const computedRooms = computed(() =>
+  (getAllRoomsData.value || []).filter(
+    (room) => room.isActive || canAddNewRoom.value
+  )
+);
 
 onMounted(async () => await getAllRooms());
 </script>

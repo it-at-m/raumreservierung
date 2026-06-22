@@ -129,5 +129,22 @@ services:
       test: ["CMD-SHELL", "/workspace/health-check"]
     security_opt: *security_settings
 
+  openldap:
+    image: osixia/openldap:1.5.0
+    # command: [--copy-service, --loglevel, debug]
+    command: [ --copy-service ]
+    volumes:
+      - ./ldap/lhm.schema:/container/service/slapd/assets/config/bootstrap/schema/lhm.schema
+      - ./ldap/data:/container/service/slapd/assets/config/bootstrap/ldif/custom
+    environment:
+      - LDAP_ORGANISATION=Example Inc.
+      - LDAP_DOMAIN=example.org
+      - LDAP_READONLY_USER=true
+      - LDAP_READONLY_USER_USERNAME=readonly
+      - LDAP_READONLY_USER_PASSWORD=readonly
+    ports:
+      - 8389:389
+      - 8636:636
+
 networks:
   keycloak:
