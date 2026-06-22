@@ -21,8 +21,8 @@ import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
-import java.util.Arrays;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -45,8 +45,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 public class BookingValidationServiceTest {
     @Autowired
     private BookingValidationService bookingValidationService;
-    @Autowired
-    private BookingService bookingService;
     @MockitoBean
     private BookingRepository bookingRepository;
     @MockitoBean
@@ -101,9 +99,11 @@ public class BookingValidationServiceTest {
         testSeatingType = new SeatingType();
         testSeatingType.setName("TEST_SEATING");
         testSeatingType.setActive(true);
+        testSeatingType.setId(UUID.randomUUID());
         testSeatingTypeInactive = new SeatingType();
         testSeatingTypeInactive.setName("TEST_SEATING_2");
         testSeatingTypeInactive.setActive(false);
+        testSeatingTypeInactive.setId(UUID.randomUUID());
         RoomSeatingCapacity roomSeatingCapacity = new RoomSeatingCapacity();
         roomSeatingCapacity.setCapacity(10);
         roomSeatingCapacity.setSeatingType(testSeatingType);
@@ -183,7 +183,7 @@ public class BookingValidationServiceTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void equipmentInactive_ShouldBeValid_WhenUpdatingEquipmentIsNull() {
         baseBooking.setEquipment(new HashSet<>());
-        baseBookingExisting.setEquipment(new HashSet<>(Arrays.asList(testEquipment)));
+        baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipment)));
 
         assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
     }
@@ -199,8 +199,8 @@ public class BookingValidationServiceTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void equipmentInactive_ShouldBeValid_WhenUpdatingFromInactiveEquipmentToSameInactiveEquipment() {
-        baseBooking.setEquipment(new HashSet<>(Arrays.asList(testEquipment, testEquipmentInactive)));
-        baseBookingExisting.setEquipment(new HashSet<>(Arrays.asList(testEquipmentInactive)));
+        baseBooking.setEquipment(new HashSet<>(List.of(testEquipment, testEquipmentInactive)));
+        baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipmentInactive)));
 
         assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
     }
@@ -208,8 +208,8 @@ public class BookingValidationServiceTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void equipmentInactive_ShouldThrow_WhenUpdatingActiveEquipmentToInactiveEquipment() {
-        baseBooking.setEquipment(new HashSet<>(Arrays.asList(testEquipmentInactive)));
-        baseBookingExisting.setEquipment(new HashSet<>(Arrays.asList(testEquipment)));
+        baseBooking.setEquipment(new HashSet<>(List.of(testEquipmentInactive)));
+        baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipment)));
 
         BadRequestException exception = assertThrows(BadRequestException.class,
                 () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
