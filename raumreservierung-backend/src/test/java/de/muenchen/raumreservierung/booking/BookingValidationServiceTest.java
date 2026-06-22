@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 import de.muenchen.raumreservierung.appointment.AppointmentService;
@@ -122,7 +123,7 @@ public class BookingValidationServiceTest {
 
         roomSeatingCapacity.setRoom(testRoomWithSeatingCapacity);
 
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(any()))
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(anyString()))
                 .thenReturn(mockPerson);
 
         when(bookingRepository.findById(any())).thenReturn(Optional.of(baseBooking));
