@@ -28,7 +28,8 @@ class BookingServiceUnitTest {
                 Mockito.mock(EntityManager.class),
                 Mockito.mock(SecurityContextService.class),
                 Mockito.mock(AppointmentService.class),
-                Mockito.mock(PersonService.class));
+                Mockito.mock(PersonService.class),
+                Mockito.mock(BookingValidationService.class));
     }
 
     @Test

@@ -1,6 +1,8 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -132,7 +134,7 @@ public class BookingControllerIntegrationTest {
         mockRoomSeatingCapacity.setCapacity(5);
 
         mockRoom.setRoomSeatingCapacities(Set.of(mockRoomSeatingCapacity));
-        roomRepository.save(mockRoom);
+        mockRoom = roomRepository.save(mockRoom);
 
         mockBooking = new Booking();
         mockBooking.setTitle("TEST_BOOKING_TITLE");
@@ -195,7 +197,9 @@ public class BookingControllerIntegrationTest {
         mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(status().reason(MSG_SEATINGTYPE_NOT_AVAILABLE));
     }
 
     @Test
@@ -217,7 +221,9 @@ public class BookingControllerIntegrationTest {
         mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(status().reason(MSG_ROOM_INACTIVE));
     }
 
     @Test
@@ -231,6 +237,20 @@ public class BookingControllerIntegrationTest {
     }
 
     @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void updateBooking_Throws_WhenRoomIsUpdatedFromActiveToInactive() throws Exception {
+        mockRoom.setActive(false);
+        mockRoom = roomRepository.save(mockRoom);
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), null);
+        mockMvc.perform(put(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf())
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(status().reason(MSG_ROOM_INACTIVE));
+    }
+
+    @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsBadRequest_WhenNoRoomChosenButSeatingType() throws Exception {
         BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(null, mockSeatingType1.getId());
@@ -238,11 +258,14 @@ public class BookingControllerIntegrationTest {
         mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(status().reason(MSG_SEATINGTYPE_NOT_AVAILABLE));
         mockMvc.perform(put(BOOKINGS_URL + "/" + mockBooking.getId())
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
+                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest())
+                .andExpect(status().reason(MSG_SEATINGTYPE_NOT_AVAILABLE));
     }
 
     @Test
@@ -253,7 +276,9 @@ public class BookingControllerIntegrationTest {
         mockMvc.perform(put(BOOKINGS_URL + "/" + mockBooking.getId())
                 .with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request))).andExpect(status().isBadRequest());
+                .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isBadRequest())
+                .andExpect(status().reason(MSG_ROOM_INACTIVE));
     }
 
     @ParameterizedTest
