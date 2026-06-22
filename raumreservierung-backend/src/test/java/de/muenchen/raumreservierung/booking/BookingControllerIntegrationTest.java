@@ -472,6 +472,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(2),
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30)));
+        existingBooking.setBookingType(BookingType.NORMAL);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, null);
@@ -594,6 +595,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(2),
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30)));
+        existingBooking.setBookingType(BookingType.NORMAL);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
@@ -648,6 +650,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(2),
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30)));
+        existingBooking.setBookingType(BookingType.NORMAL);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);

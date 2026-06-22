@@ -94,6 +94,7 @@ public class Booking extends BaseEntity {
         this.recurringRule = booking.getRecurringRule();
         this.organisationUnit = booking.getOrganisationUnit();
         this.seatingType = booking.getSeatingType();
+        this.bookingType = booking.getBookingType();
 
         this.equipment.clear();
         if (booking.getEquipment() != null) {
