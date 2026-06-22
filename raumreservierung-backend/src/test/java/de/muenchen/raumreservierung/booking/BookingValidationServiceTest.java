@@ -123,7 +123,7 @@ public class BookingValidationServiceTest {
 
         roomSeatingCapacity.setRoom(testRoomWithSeatingCapacity);
 
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(anyString()))
+        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(anyString()))
                 .thenReturn(mockPerson);
 
         when(bookingRepository.findById(any())).thenReturn(Optional.of(baseBooking));
