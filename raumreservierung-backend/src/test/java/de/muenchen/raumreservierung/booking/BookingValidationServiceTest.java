@@ -66,8 +66,10 @@ public class BookingValidationServiceTest {
     private Room testRoomWithSeatingCapacity;
     private SeatingType testSeatingType;
     private SeatingType testSeatingTypeInactive;
+    private SeatingType testSeatingType2Inactive;
     private Equipment testEquipment;
     private Equipment testEquipmentInactive;
+    private Equipment testEquipment2Inactive;
 
     @BeforeEach
     void setUp() {
@@ -88,23 +90,38 @@ public class BookingValidationServiceTest {
         testRoom.setNumber("TEST_NUMBER");
         testRoom.setActive(true);
 
+        UUID testEquipmentId = UUID.randomUUID();
         testEquipment = new Equipment();
         testEquipment.setActive(true);
         testEquipment.setName("TEST_EQUIPMENT");
-        testEquipment.setId(UUID.randomUUID());
+        testEquipment.setId(testEquipmentId);
+
         testEquipmentInactive = new Equipment();
         testEquipmentInactive.setActive(false);
-        testEquipmentInactive.setName("TEST_EQUIPMENT_INACTIVE");
-        testEquipmentInactive.setId(UUID.randomUUID());
+        testEquipmentInactive.setName("TEST_EQUIPMENT");
+        testEquipmentInactive.setId(testEquipmentId);
 
+        testEquipment2Inactive = new Equipment();
+        testEquipment2Inactive.setActive(false);
+        testEquipment2Inactive.setName("TEST_EQUIPMENT_2_INACTIVE");
+        testEquipment2Inactive.setId(UUID.randomUUID());
+
+        UUID testSeatingTypeId = UUID.randomUUID();
         testSeatingType = new SeatingType();
         testSeatingType.setName("TEST_SEATING");
         testSeatingType.setActive(true);
-        testSeatingType.setId(UUID.randomUUID());
+        testSeatingType.setId(testSeatingTypeId);
+
         testSeatingTypeInactive = new SeatingType();
-        testSeatingTypeInactive.setName("TEST_SEATING_2");
+        testSeatingTypeInactive.setName("TEST_SEATING");
         testSeatingTypeInactive.setActive(false);
-        testSeatingTypeInactive.setId(UUID.randomUUID());
+        testSeatingTypeInactive.setId(testSeatingTypeId);
+
+        testSeatingType2Inactive = new SeatingType();
+        testSeatingType2Inactive.setName("TEST_SEATING_2");
+        testSeatingType2Inactive.setActive(false);
+        testSeatingType2Inactive.setId(UUID.randomUUID());
+
         RoomSeatingCapacity roomSeatingCapacity = new RoomSeatingCapacity();
         roomSeatingCapacity.setCapacity(10);
         roomSeatingCapacity.setSeatingType(testSeatingType);
@@ -152,8 +169,8 @@ public class BookingValidationServiceTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void seatingTypeInactive_ShouldBeValid_WhenUpdatingWithSameInactiveSeatingType() {
-        baseBooking.setSeatingType(testSeatingTypeInactive);
-        baseBookingExisting.setSeatingType(testSeatingTypeInactive);
+        baseBooking.setSeatingType(testSeatingType2Inactive);
+        baseBookingExisting.setSeatingType(testSeatingType2Inactive);
 
         assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
     }
@@ -161,9 +178,11 @@ public class BookingValidationServiceTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void seatingTypeInactive_ShouldThrow_WhenUpdatingWithInactiveSeatingType() {
+        baseBookingExisting.setSeatingType(testSeatingType);
         baseBooking.setSeatingType(testSeatingTypeInactive);
 
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+        BadRequestException exception = assertThrows(BadRequestException.class,
+                () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
 
         assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_SEATINGTYPE_INACTIVE + "\"", exception.getMessage());
     }
@@ -171,7 +190,7 @@ public class BookingValidationServiceTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void seatingTypeInactive_ShouldThrow_WhenUpdatingFromActiveToInactiveSeatingType() {
-        baseBooking.setSeatingType(testSeatingTypeInactive);
+        baseBooking.setSeatingType(testSeatingType2Inactive);
         baseBookingExisting.setSeatingType(testSeatingType);
 
         BadRequestException exception = assertThrows(BadRequestException.class,
@@ -200,8 +219,8 @@ public class BookingValidationServiceTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void equipmentInactive_ShouldBeValid_WhenUpdatingFromInactiveEquipmentToSameInactiveEquipment() {
-        baseBooking.setEquipment(new HashSet<>(List.of(testEquipment, testEquipmentInactive)));
-        baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipmentInactive)));
+        baseBooking.setEquipment(new HashSet<>(List.of(testEquipment, testEquipment2Inactive)));
+        baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipment2Inactive)));
 
         assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
     }
@@ -209,8 +228,8 @@ public class BookingValidationServiceTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void equipmentInactive_ShouldThrow_WhenUpdatingActiveEquipmentToInactiveEquipment() {
-        baseBooking.setEquipment(new HashSet<>(List.of(testEquipmentInactive)));
         baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipment)));
+        baseBooking.setEquipment(new HashSet<>(List.of(testEquipmentInactive)));
 
         BadRequestException exception = assertThrows(BadRequestException.class,
                 () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
