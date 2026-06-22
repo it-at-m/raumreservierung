@@ -299,52 +299,6 @@ public class BookingControllerIntegrationTest {
                 .containsExactlyInAnyOrderElementsOf(expectedDates);
     }
 
-    private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime now, String recurringRule, UUID bookedForId) {
-        ScheduleTemplate schedule = new ScheduleTemplate(
-                now,
-                now.plusHours(2),
-                now.plusMinutes(15),
-                now.plusHours(1).plusMinutes(30));
-        return new BookingRequestDTO(
-                "Test",
-                100,
-                null,
-                false,
-                "please clean",
-                "no notes necessary",
-                recurringRule,
-                null,
-                schedule,
-                bookedForId,
-                null,
-                BookingType.NORMAL);
-    }
-
-    private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
-            UUID roomId,
-            UUID seatingTypeId) {
-
-        ScheduleTemplate schedule = new ScheduleTemplate(
-                OffsetDateTime.now(),
-                OffsetDateTime.now().plusHours(2),
-                OffsetDateTime.now().plusMinutes(15),
-                OffsetDateTime.now().plusHours(1).plusMinutes(30));
-
-        return new BookingRequestDTO(
-                "Test",
-                100,
-                null,
-                false,
-                "secret note",
-                "no notes necessary",
-                null,
-                roomId,
-                schedule,
-                mockPerson.getId(),
-                seatingTypeId,
-                BookingType.NORMAL);
-    }
-
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
                 Arguments.of("", 1, List.of(OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
@@ -461,18 +415,7 @@ public class BookingControllerIntegrationTest {
         foreignOwner.setRoleFunction("anwender");
         foreignOwner = personRepository.save(foreignOwner);
 
-        OffsetDateTime now = OffsetDateTime.now();
-        Booking existingBooking = new Booking();
-        existingBooking.setBookedBy(foreignOwner);
-        existingBooking.setBookedFor(foreignOwner);
-        existingBooking.setOrganisationUnit(foreignOwner.getOrganisationUnit());
-        existingBooking.setTitle("TEST_TITLE");
-        existingBooking.setSchedule(new ScheduleTemplate(
-                now,
-                now.plusHours(2),
-                now.plusMinutes(15),
-                now.plusHours(1).plusMinutes(30)));
-        existingBooking.setBookingType(BookingType.NORMAL);
+        Booking existingBooking = getExistingBooking(foreignOwner, BookingType.NORMAL);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, null);
@@ -562,7 +505,7 @@ public class BookingControllerIntegrationTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
-    void createBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnCreateWhenRoleIsLeseberechtigt() throws Exception {
+    void createBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnCreate() throws Exception {
         BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
@@ -582,20 +525,8 @@ public class BookingControllerIntegrationTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
-    void updateBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnUpdateWhenRoleIsLeseberechtigt() throws Exception {
-        OffsetDateTime now = OffsetDateTime.now();
-        Booking existingBooking = new Booking();
-        existingBooking.setBookedBy(mockPerson);
-        existingBooking.setBookedFor(mockPerson);
-        existingBooking.setInternalNotes("secret note not to overwrite and not to read by leseberechtigt");
-        existingBooking.setOrganisationUnit(mockPerson.getOrganisationUnit());
-        existingBooking.setTitle("TEST_TITLE");
-        existingBooking.setSchedule(new ScheduleTemplate(
-                now,
-                now.plusHours(2),
-                now.plusMinutes(15),
-                now.plusHours(1).plusMinutes(30)));
-        existingBooking.setBookingType(BookingType.NORMAL);
+    void updateBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnUpdate() throws Exception {
+        Booking existingBooking = getExistingBooking(mockPerson, BookingType.NORMAL);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
@@ -617,7 +548,7 @@ public class BookingControllerIntegrationTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
-    void createBooking_AsLeseberechtigt_shouldNotNullifyInternalNotesOnCreateWhenRoleIsTerminOrganisator() throws Exception {
+    void createBooking_AsTerminorganisator_shouldNotNullifyInternalNotesOnCreate() throws Exception {
         BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
@@ -637,20 +568,8 @@ public class BookingControllerIntegrationTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
-    void updateBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnUpdateWhenRoleIsTerminOrganisator() throws Exception {
-        OffsetDateTime now = OffsetDateTime.now();
-        Booking existingBooking = new Booking();
-        existingBooking.setBookedBy(mockPerson);
-        existingBooking.setBookedFor(mockPerson);
-        existingBooking.setInternalNotes("secret note not to overwrite and not to read by leseberechtigt");
-        existingBooking.setOrganisationUnit(mockPerson.getOrganisationUnit());
-        existingBooking.setTitle("TEST_TITLE");
-        existingBooking.setSchedule(new ScheduleTemplate(
-                now,
-                now.plusHours(2),
-                now.plusMinutes(15),
-                now.plusHours(1).plusMinutes(30)));
-        existingBooking.setBookingType(BookingType.NORMAL);
+    void updateBooking_AsTerminOrganisator_shouldNotNullifyInternalNotesOnUpdate() throws Exception {
+        Booking existingBooking = getExistingBooking(mockPerson, BookingType.NORMAL);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
@@ -670,4 +589,286 @@ public class BookingControllerIntegrationTest {
         assertThat(responseDto.internalNotes()).isEqualTo(updateDTO.internalNotes());
     }
 
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
+    void createBooking_AsTerminorganisator_shouldHaveNormalTypeOnCreate() throws Exception {
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.NORMAL);
+
+        String responseContent = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.bookingType()).isEqualTo(requestDto.bookingType());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
+    void createBooking_AsTerminorganisator_shouldHaveFreeTypeOnCreate() throws Exception {
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.FREE);
+
+        String responseContent = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.bookingType()).isEqualTo(requestDto.bookingType());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
+    void createBooking_AsTerminorganisator_shouldHaveServiceTypeOnCreate() throws Exception {
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.SERVICE);
+
+        String responseContent = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.bookingType()).isEqualTo(requestDto.bookingType());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
+    void updateBooking_AsTerminorganisator_shouldHaveFreeTypeOnUpdateFromNormal() throws Exception {
+        Booking existingBooking = getExistingBooking(mockPerson, BookingType.FREE);
+        Booking saved = bookingRepository.save(existingBooking);
+
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.bookingType()).isEqualTo(updateDTO.bookingType());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
+    void updateBooking_AsTerminorganisator_shouldHaveServiceTypeOnUpdateFromNormal() throws Exception {
+        Booking existingBooking = getExistingBooking(mockPerson, BookingType.SERVICE);
+        Booking saved = bookingRepository.save(existingBooking);
+
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
+
+        String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.bookingType()).isEqualTo(updateDTO.bookingType());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
+    void createBooking_AsLeseberechtigt_shouldHaveNormalTypeOnCreate() throws Exception {
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.NORMAL);
+
+        String responseContent = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.bookingType()).isEqualTo(requestDto.bookingType());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
+    void createBooking_AsLeseberechtigt_shouldHaveNormalTypeThoughFreeOnCreate() throws Exception {
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.FREE);
+
+        String responseContent = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.bookingType()).isEqualTo(BookingType.NORMAL);
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
+    void createBooking_AsLeseberechtigt_shouldHaveNormalTypeThoughServiceOnCreate() throws Exception {
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.SERVICE);
+
+        String responseContent = mockMvc.perform(post(BOOKINGS_URL)
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
+                .andDo(print())
+                .andExpect(status().isCreated())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.bookingType()).isEqualTo(BookingType.NORMAL);
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
+    void updateBooking_AsLeseberechtigt_shouldHaveNormalTypeThoughFreeOnUpdateFromNormal() throws Exception {
+        Booking existingBooking = getExistingBooking(mockPerson, BookingType.NORMAL);
+        Booking saved = bookingRepository.save(existingBooking);
+
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.FREE);
+
+        String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.bookingType()).isEqualTo(BookingType.NORMAL);
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
+    void updateBooking_AsLeseberechtigt_shouldHaveFreeTypeThoughServiceOnUpdateFromFree() throws Exception {
+        Booking existingBooking = getExistingBooking(mockPerson, BookingType.FREE);
+        Booking saved = bookingRepository.save(existingBooking);
+
+        BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.SERVICE);
+
+        String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
+
+        assertThat(responseDto.bookingType()).isEqualTo(BookingType.FREE);
+
+    }
+
+    private Booking getExistingBooking(InternalPerson person, BookingType bookingType) {
+        OffsetDateTime now = OffsetDateTime.now();
+        Booking existingBooking = new Booking();
+        existingBooking.setBookedBy(person);
+        existingBooking.setBookedFor(person);
+        existingBooking.setOrganisationUnit(person.getOrganisationUnit());
+        existingBooking.setTitle("TEST_TITLE");
+        existingBooking.setInternalNotes("secret note not to overwrite and not to read by leseberechtigt");
+        existingBooking.setSchedule(new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30)));
+        existingBooking.setBookingType(bookingType);
+        return existingBooking;
+    }
+
+    private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime now, String recurringRule, UUID bookedForId) {
+        ScheduleTemplate schedule = new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30));
+        return new BookingRequestDTO(
+                "Test",
+                100,
+                null,
+                false,
+                "please clean",
+                "no notes necessary",
+                recurringRule,
+                null,
+                schedule,
+                bookedForId,
+                null,
+                BookingType.NORMAL);
+    }
+
+    private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
+            UUID roomId,
+            UUID seatingTypeId) {
+        return getBookingRequestDTOWithRoomAndSeating(roomId, seatingTypeId, BookingType.NORMAL);
+    }
+
+    private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
+            UUID roomId,
+            UUID seatingTypeId,
+            BookingType bookingType) {
+
+        ScheduleTemplate schedule = new ScheduleTemplate(
+                OffsetDateTime.now(),
+                OffsetDateTime.now().plusHours(2),
+                OffsetDateTime.now().plusMinutes(15),
+                OffsetDateTime.now().plusHours(1).plusMinutes(30));
+
+        return new BookingRequestDTO(
+                "Test",
+                100,
+                null,
+                false,
+                "secret note",
+                "no notes necessary",
+                null,
+                roomId,
+                schedule,
+                mockPerson.getId(),
+                seatingTypeId,
+                bookingType);
+    }
 }
