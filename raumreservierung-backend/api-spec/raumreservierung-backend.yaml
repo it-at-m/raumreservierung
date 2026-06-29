@@ -411,6 +411,13 @@ paths:
       tags:
       - room-controller
       operationId: getAllRooms
+      parameters:
+      - name: onlyActive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
       responses:
         "200":
           description: OK
@@ -636,6 +643,20 @@ paths:
         schema:
           type: string
           format: date-time
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - NEW
+          - ROOM_APPROVED
+          - ROOM_CHANGED
+          - COORDINATION_NEEDED
+          - ORGANIZER_APPROVED
+          - ORGANIZER_CHANGED
+          - UNFEASIBLE
+          - CANCELLED
       - name: self
         in: query
         required: false
@@ -1274,6 +1295,7 @@ components:
     BookingRequestDTO:
       required:
       - schedule
+      - status
       - title
       type: object
       properties:
@@ -1312,6 +1334,17 @@ components:
         seatingTypeId:
           type: string
           format: uuid
+        status:
+          type: string
+          enum:
+          - NEW
+          - ROOM_APPROVED
+          - ROOM_CHANGED
+          - COORDINATION_NEEDED
+          - ORGANIZER_APPROVED
+          - ORGANIZER_CHANGED
+          - UNFEASIBLE
+          - CANCELLED
     ScheduleTemplate:
       required:
       - occupancyEnd
@@ -1339,6 +1372,7 @@ components:
       - organisationUnit
       - participantCount
       - schedule
+      - status
       - title
       type: object
       properties:
@@ -1378,6 +1412,38 @@ components:
           $ref: "#/components/schemas/SeatingType"
         recurringRule:
           type: string
+        status:
+          $ref: "#/components/schemas/BookingStatusDTO"
+    BookingStatusDTO:
+      required:
+      - currentStatus
+      - nextPossibleStatus
+      type: object
+      properties:
+        currentStatus:
+          type: string
+          enum:
+          - NEW
+          - ROOM_APPROVED
+          - ROOM_CHANGED
+          - COORDINATION_NEEDED
+          - ORGANIZER_APPROVED
+          - ORGANIZER_CHANGED
+          - UNFEASIBLE
+          - CANCELLED
+        nextPossibleStatus:
+          type: array
+          items:
+            type: string
+            enum:
+            - NEW
+            - ROOM_APPROVED
+            - ROOM_CHANGED
+            - COORDINATION_NEEDED
+            - ORGANIZER_APPROVED
+            - ORGANIZER_CHANGED
+            - UNFEASIBLE
+            - CANCELLED
     RoomListResponseDTO:
       required:
       - isActive
@@ -1466,6 +1532,7 @@ components:
       - id
       - isRecurring
       - schedule
+      - status
       - title
       type: object
       properties:
@@ -1495,6 +1562,8 @@ components:
           - $ref: "#/components/schemas/InternalPersonResponseDto"
         recurringRule:
           type: string
+        status:
+          $ref: "#/components/schemas/BookingStatusDTO"
     PagedModelBookingListResponseDTO:
       type: object
       properties:

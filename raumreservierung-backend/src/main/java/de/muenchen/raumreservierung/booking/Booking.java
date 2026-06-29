@@ -10,6 +10,8 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -73,7 +75,9 @@ public class Booking extends BaseEntity {
     @ManyToOne
     private SeatingType seatingType;
 
-    //TODO: add status
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BookingStatus status;
 
     public void updateFrom(final Booking booking) {
         this.room = booking.getRoom();
@@ -88,6 +92,7 @@ public class Booking extends BaseEntity {
         this.recurringRule = booking.getRecurringRule();
         this.organisationUnit = booking.getOrganisationUnit();
         this.seatingType = booking.getSeatingType();
+        this.status = booking.getStatus();
 
         this.equipment.clear();
         if (booking.getEquipment() != null) {

@@ -1,10 +1,13 @@
 package de.muenchen.raumreservierung.booking;
 
+import static java.time.temporal.ChronoUnit.MINUTES;
+
 import de.muenchen.raumreservierung.common.BadRequestException;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.OffsetDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
 @Embeddable
@@ -19,6 +22,16 @@ public record ScheduleTemplate(
     public ScheduleTemplate {
         Objects.requireNonNull(occupancyStart);
         Objects.requireNonNull(occupancyEnd);
+
+        final ChronoUnit unit = MINUTES;
+        occupancyStart = occupancyStart.truncatedTo(unit);
+        occupancyEnd = occupancyEnd.truncatedTo(unit);
+        if (appointmentStart != null) {
+            appointmentStart = appointmentStart.truncatedTo(unit);
+        }
+        if (appointmentEnd != null) {
+            appointmentEnd = appointmentEnd.truncatedTo(unit);
+        }
 
         if (occupancyEnd.isBefore(occupancyStart)) {
             throw new BadRequestException(ERROR_OCCUPANCY_END_BEFORE_START);

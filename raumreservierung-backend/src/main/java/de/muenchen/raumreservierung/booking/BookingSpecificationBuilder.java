@@ -15,11 +15,20 @@ public final class BookingSpecificationBuilder {
     private BookingSpecificationBuilder() {
     }
 
+    public static <T extends Booking> Specification<T> fromFilterWithNotNew(final BookingFilterDTO bookingFilterDTO) {
+        return fromFilterWithPersonOrStatusNotNew(bookingFilterDTO, null, true);
+    }
+
     public static <T extends Booking> Specification<T> fromFilter(final BookingFilterDTO bookingFilterDTO) {
-        return fromFilterWithPerson(bookingFilterDTO, null);
+        return fromFilterWithPersonOrStatusNotNew(bookingFilterDTO, null, false);
     }
 
     public static <T extends Booking> Specification<T> fromFilterWithPerson(final BookingFilterDTO bookingFilterDTO, final Person person) {
+        return fromFilterWithPersonOrStatusNotNew(bookingFilterDTO, person, false);
+    }
+
+    public static <T extends Booking> Specification<T> fromFilterWithPersonOrStatusNotNew(final BookingFilterDTO bookingFilterDTO, final Person person,
+            final boolean statusNotNew) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
         if (bookingFilterDTO.roomId() != null) {
@@ -36,6 +45,9 @@ public final class BookingSpecificationBuilder {
         if (person != null && person.getId() != null) {
             specificationList.add(filterForPerson(person));
         }
+        if (statusNotNew) {
+            specificationList.add(filterForStatusNotNew());
+        }
 
         return Specification.allOf(specificationList);
     }
@@ -50,6 +62,10 @@ public final class BookingSpecificationBuilder {
 
     private static <T extends Booking> Specification<T> filterForEnd(final OffsetDateTime end) {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyEnd), end);
+    }
+
+    private static <T extends Booking> Specification<T> filterForStatusNotNew() {
+        return (root, query, cb) -> cb.notEqual(root.get(Booking_.status), BookingStatus.NEW);
     }
 
     private static <T extends Booking> Specification<T> filterForPerson(final Person person) {

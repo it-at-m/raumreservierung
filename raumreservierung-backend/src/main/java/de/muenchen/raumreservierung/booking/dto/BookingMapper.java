@@ -9,13 +9,18 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class })
+@Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class, BookingStatusMapper.class })
 public interface BookingMapper {
+
+    String BOOKING = "booking";
+
     @Mapping(target = "equipments", source = "equipment")
+    @Mapping(target = "status", source = BOOKING)
     BookingDetailResponseDTO toDetailDto(Booking booking);
 
-    @Mapping(target = "hasEquipment", source = "booking", qualifiedByName = "hasEquipmentCheck")
-    @Mapping(target = "isRecurring", source = "booking", qualifiedByName = "isRecurringCheck")
+    @Mapping(target = "hasEquipment", source = BOOKING, qualifiedByName = "hasEquipmentCheck")
+    @Mapping(target = "isRecurring", source = BOOKING, qualifiedByName = "isRecurringCheck")
+    @Mapping(target = "status", source = BOOKING)
     BookingListResponseDTO toListDto(Booking booking);
 
     @Mapping(target = "roomId", source = "room.id")
@@ -37,4 +42,5 @@ public interface BookingMapper {
     default boolean mapIsRecurring(final Booking booking) {
         return booking.getAppointments().size() > 1;
     }
+
 }
