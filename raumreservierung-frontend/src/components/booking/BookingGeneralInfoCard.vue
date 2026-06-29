@@ -47,12 +47,13 @@
             {{ t("domain.booking.status") }}
           </v-list-item-subtitle>
           <v-chip
-            size="small"
-            color="primary"
+            v-if="status?.currentStatus"
+            :color="getStatusStyle(status.currentStatus).color"
             variant="tonal"
             class="font-weight-bold"
+            size="small"
           >
-            {{ t("common.todo") }}
+            {{ getStatusStyle(status.currentStatus).text }}
           </v-chip>
         </v-list-item>
       </v-list>
@@ -61,12 +62,16 @@
 </template>
 
 <script setup lang="ts">
-import type { ScheduleTemplate } from "@/api/raumreservierung-backend";
+import type {
+  BookingStatusDTO,
+  ScheduleTemplate,
+} from "@/api/raumreservierung-backend";
 
 import { useDateFormat } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { useBookingStatusStyles } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 
@@ -74,10 +79,13 @@ const { t } = useI18n();
 
 const showId = useIsPrivileged("bookings:manage");
 
+const { getStatusStyle } = useBookingStatusStyles();
+
 const props = defineProps<{
   id?: string;
   title?: string;
   schedule?: ScheduleTemplate;
+  status?: BookingStatusDTO;
 }>();
 
 const isMultiDay = computed(() => {

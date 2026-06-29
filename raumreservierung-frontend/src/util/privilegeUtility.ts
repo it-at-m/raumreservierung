@@ -27,6 +27,7 @@ const rolePrivilegeMapping = {
   raumbuchung: [
     "bookings:self",
     "bookings:write",
+    "bookings:read",
     "bookings:manage",
     "calendar:write",
     "rooms:read",
@@ -36,6 +37,8 @@ const rolePrivilegeMapping = {
     "calendar:read",
     "rooms:read",
     "bookings:write",
+    "bookings:read",
+    "bookings:manage",
   ],
   leseberechtigt: ["bookings:self", "calendar:read", "rooms:read"],
   anwender: ["bookings:self", "rooms:read"],

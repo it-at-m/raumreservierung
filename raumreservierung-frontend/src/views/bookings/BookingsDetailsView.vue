@@ -41,6 +41,7 @@
                   :id="getBookingData?.id"
                   :title="getBookingData?.title"
                   :schedule="getBookingData?.schedule"
+                  :status="getBookingData?.status"
                 />
               </v-responsive>
             </v-skeleton-loader>

@@ -9,11 +9,19 @@
         @click="router.back()"
       />
       <base-button
+        v-for="btn in transitionButtons"
+        :key="btn.rawStatus"
+        :disabled="!isValid"
         class="ml-4"
-        :text="isPrivileged ? t('common.deny') : t('common.rescind')"
-        :append-icon="mdiCalendarRemoveOutline"
+        :text="btn.text"
         secondary
-      />
+        @click="handleStatusChange(btn.rawStatus)"
+        ><template #append>
+          <v-icon
+            :icon="btn.icon"
+            :color="btn.color"
+          /> </template
+      ></base-button>
       <base-button
         :disabled="!isValid"
         class="ml-4"
@@ -50,11 +58,13 @@
             cols="12"
             md="4"
           >
-            <v-select
-              disabled
-              variant="outlined"
+            <booking-status-select
+              v-model="bookingData.status"
               :label="t('domain.booking.status')"
+              :loading="createBookingLoading || updateBookingLoading"
+              :possible-status="statusFull?.nextPossibleStatus"
               hide-details
+              disabled
             />
           </v-col>
         </v-row>
@@ -236,13 +246,13 @@
 <script setup lang="ts">
 import type {
   BookingRequestDTO,
+  BookingRequestDTOStatusEnum,
   FindById200Response,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
 import {
   mdiAccountSearchOutline,
-  mdiCalendarRemoveOutline,
   mdiContentSaveOutline,
   mdiWindowClose,
 } from "@mdi/js";
@@ -251,7 +261,9 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
+import { type BookingStatusDTO as BookingStatusFull } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
+import BookingStatusSelect from "@/components/booking/BookingStatusSelect.vue";
 import ExternalPersonSelect from "@/components/booking/ExternalPersonSelect.vue";
 import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
@@ -267,6 +279,7 @@ import {
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
 import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
+import { useBookingStatusStyles } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
@@ -290,6 +303,32 @@ const isValid = ref<boolean>();
 const currentRoom = ref<RoomRequestDTO>();
 const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
 const bookedFor = ref<FindById200Response>();
+const statusFull = ref<BookingStatusFull>();
+
+const { getStatusStyle } = useBookingStatusStyles();
+
+const transitionButtons = computed(() => {
+  const possibleStatus = statusFull.value?.nextPossibleStatus;
+  if (!possibleStatus || !Array.isArray(possibleStatus)) return [];
+
+  return possibleStatus.map((status) => {
+    // Nutzt dein bestehendes Composable für Text und Farbe!
+    const style = getStatusStyle(status);
+
+    return {
+      rawStatus: status,
+      text: style.button.text, // "gebucht", "abgelehnt", etc. aus deiner Config
+      color: style.color, // "success", "error", etc.
+      icon: style.button.icon, // Fallback-Icon
+    };
+  });
+});
+
+// Zentrale Funktion für den Statuswechsel
+const handleStatusChange = async (nextStatus: BookingRequestDTOStatusEnum) => {
+  bookingData.value.status = nextStatus;
+  await saveBooking();
+};
 
 const isSeriesBooking = computed({
   get: () => {
@@ -365,6 +404,7 @@ onMounted(async () => {
 
     bookingData.value = mapBookingResponseToRequest(getBookingData.value);
     bookedFor.value = structuredClone(toRaw(getBookingData.value.bookedFor));
+    statusFull.value = getBookingData.value.status;
 
     if (getBookingData.value.room?.id) {
       await updateRoom(getBookingData.value.room?.id);

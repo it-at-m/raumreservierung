@@ -72,8 +72,16 @@
             @update:options="displayOptions"
             @click:row="handleRowClick"
           >
-            <template #[`item.id`]>
-              {{ t("views.bookingListView.statusLong") }}
+            <template #[`item.id`]="{ item }">
+              <v-chip
+                -if="item.status?.currentStatus"
+                :color="getStatusStyle(item.status.currentStatus).color"
+                variant="tonal"
+                class="font-weight-bold"
+                size="small"
+              >
+                {{ getStatusStyle(item.status.currentStatus).text }}
+              </v-chip>
             </template>
             <template #[`item.hasEquipment`]="{ item }">
               <v-icon :icon="item.hasEquipment ? mdiCheck : mdiMinus" />
@@ -186,6 +194,7 @@ import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
+import { useBookingStatusStyles } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -195,6 +204,8 @@ const route = useRoute();
 const router = useRouter();
 
 const { t } = useI18n();
+
+const { getStatusStyle } = useBookingStatusStyles();
 
 const canEditBookings = useIsPrivileged("bookings:manage");
 

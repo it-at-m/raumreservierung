@@ -3,9 +3,7 @@
     "yes": "Ja",
     "no": "Nein",
     "cancel": "Abbrechen",
-    "rescind": "Stornieren",
     "delete": "Löschen",
-    "deny": "Ablehnen",
     "save": "Speichern",
     "edit": "Bearbeiten",
     "add": "Hinzufügen",
@@ -142,8 +140,7 @@
     "bookingListView": {
       "periodFrom": "Zeitraum von",
       "periodTo": "Zeitraum bis",
-      "tableTitle": "Anfragen, Reservierungen und Buchungen",
-      "statusLong": "STATUSLANG"
+      "tableTitle": "Anfragen, Reservierungen und Buchungen"
     }
   },
   "generics": {
