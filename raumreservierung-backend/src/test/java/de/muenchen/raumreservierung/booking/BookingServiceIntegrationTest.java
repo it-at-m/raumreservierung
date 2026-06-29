@@ -1,11 +1,9 @@
 package de.muenchen.raumreservierung.booking;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +33,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 @SpringBootTest(
         classes = {
                 BookingService.class,
+                BookingValidationService.class,
                 SecurityConfiguration.class,
                 SecurityContextService.class
         }
@@ -54,61 +53,8 @@ public class BookingServiceIntegrationTest {
     private AppointmentService appointmentService;
     @MockitoBean
     private PersonService personService;
-
-    @Test
-    @WithMockJwt(lhmObjectID = "987654", authorities = { Roles.RAUM_ADMIN })
-    void validateBookingAccess_ShouldReturnTrue_WhenAdmin() {
-        Booking booking = new Booking();
-        InternalPerson person = new InternalPerson();
-        person.setOrganisationId("12345");
-        booking.setBookedBy(person);
-
-        assertTrue(bookingService.validateBookingAuthority(booking, Roles.TERMIN_ORGANISATOR));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void validateBookingAccess_ShouldReturnTrue_WhenOIDMatches() {
-        Booking booking = new Booking();
-        InternalPerson person = new InternalPerson();
-        person.setOrganisationId("000001");
-        person.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
-        booking.setBookedBy(person);
-
-        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
-                .thenReturn(person);
-
-        assertTrue(bookingService.validateBookingAuthority(booking, Roles.RAUM_BUCHUNG));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "012345", authorities = { Roles.ANWENDER })
-    void validateBookingAuthority_ShouldReturnFalse_WhenOIDMismatchesAndNotAdmin() {
-        Booking booking = new Booking();
-        InternalPerson owner = new InternalPerson();
-        owner.setOrganisationId("987654");
-        owner.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
-        booking.setBookedBy(owner);
-        booking.setBookedFor(owner);
-
-        InternalPerson currentUser = new InternalPerson();
-        currentUser.setOrganisationId("012345");
-        currentUser.setId(UUID.fromString("99999999-aaaa-bbbb-cccc-dddddddddddd"));
-
-        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
-                .thenReturn(currentUser);
-
-        assertFalse(bookingService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void hasBookingAccess_ShouldThrow_WhenBookingHasNoOwner() {
-        Booking booking = new Booking();
-        booking.setBookedBy(null);
-
-        assertThrows(NullPointerException.class, () -> bookingService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
-    }
+    @MockitoBean
+    private BookingTransitionService bookingTransitionService;
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
@@ -180,7 +126,7 @@ public class BookingServiceIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
     void findAllWithSanitizedNotes_ShouldKeepNotes_WhenUserIsOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null);
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, BookingStatus.ORGANIZER_APPROVED);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");
@@ -199,7 +145,7 @@ public class BookingServiceIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void findAllWithSanitizedNotes_ShouldNullNotes_WhenUserIsNotOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null);
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, BookingStatus.ORGANIZER_APPROVED);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");
@@ -218,7 +164,7 @@ public class BookingServiceIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
     void findOwnWithSanitizedNotes_ShouldKeepNotes_WhenUserIsOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null);
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, BookingStatus.ORGANIZER_APPROVED);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");
@@ -237,7 +183,7 @@ public class BookingServiceIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void findOwnWithSanitizedNotes_ShouldNullNotes_WhenUserIsNotOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null);
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, BookingStatus.ORGANIZER_APPROVED);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");

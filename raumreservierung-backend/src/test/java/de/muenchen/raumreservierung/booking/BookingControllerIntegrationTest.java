@@ -139,6 +139,7 @@ public class BookingControllerIntegrationTest {
         mockBooking.setBookedBy(mockPerson);
         mockBooking.setOrganisationUnit("TEST_UNIT");
         mockBooking.setRoom(mockRoom);
+        mockBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         mockBooking = bookingRepository.save(mockBooking);
     }
 
@@ -315,7 +316,8 @@ public class BookingControllerIntegrationTest {
                 null,
                 schedule,
                 bookedForId,
-                null);
+                null,
+                BookingStatus.ORGANIZER_APPROVED);
     }
 
     private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
@@ -339,7 +341,8 @@ public class BookingControllerIntegrationTest {
                 roomId,
                 schedule,
                 mockPerson.getId(),
-                seatingTypeId);
+                seatingTypeId,
+                BookingStatus.ORGANIZER_APPROVED);
     }
 
     private static Stream<Arguments> provideTestData() {
@@ -469,6 +472,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(2),
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30)));
+        existingBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, null);
@@ -591,6 +595,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(2),
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30)));
+        existingBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
@@ -645,6 +650,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(2),
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30)));
+        existingBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
