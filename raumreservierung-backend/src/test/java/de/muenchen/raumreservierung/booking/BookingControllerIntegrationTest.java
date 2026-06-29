@@ -139,7 +139,7 @@ public class BookingControllerIntegrationTest {
         mockBooking.setBookedBy(mockPerson);
         mockBooking.setOrganisationUnit("TEST_UNIT");
         mockBooking.setRoom(mockRoom);
-        mockBooking.setBookingType(BookingType.NORMAL);
+        mockBooking.setBookingType(BookingType.DEFAULT);
         mockBooking = bookingRepository.save(mockBooking);
     }
 
@@ -415,7 +415,7 @@ public class BookingControllerIntegrationTest {
         foreignOwner.setRoleFunction("anwender");
         foreignOwner = personRepository.save(foreignOwner);
 
-        Booking existingBooking = getExistingBooking(foreignOwner, BookingType.NORMAL);
+        Booking existingBooking = getExistingBooking(foreignOwner, BookingType.DEFAULT);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, null);
@@ -526,7 +526,7 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void updateBooking_AsLeseberechtigt_shouldNullifyInternalNotesOnUpdate() throws Exception {
-        Booking existingBooking = getExistingBooking(mockPerson, BookingType.NORMAL);
+        Booking existingBooking = getExistingBooking(mockPerson, BookingType.DEFAULT);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
@@ -569,7 +569,7 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
     void updateBooking_AsTerminOrganisator_shouldNotNullifyInternalNotesOnUpdate() throws Exception {
-        Booking existingBooking = getExistingBooking(mockPerson, BookingType.NORMAL);
+        Booking existingBooking = getExistingBooking(mockPerson, BookingType.DEFAULT);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
@@ -592,7 +592,7 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
     void createBooking_AsTerminorganisator_shouldHaveNormalTypeOnCreate() throws Exception {
-        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.NORMAL);
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.DEFAULT);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -698,7 +698,7 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void createBooking_AsLeseberechtigt_shouldHaveNormalTypeOnCreate() throws Exception {
-        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.NORMAL);
+        BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.DEFAULT);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -732,7 +732,7 @@ public class BookingControllerIntegrationTest {
 
         BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
 
-        assertThat(responseDto.bookingType()).isEqualTo(BookingType.NORMAL);
+        assertThat(responseDto.bookingType()).isEqualTo(BookingType.DEFAULT);
     }
 
     @Test
@@ -752,13 +752,13 @@ public class BookingControllerIntegrationTest {
 
         BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
 
-        assertThat(responseDto.bookingType()).isEqualTo(BookingType.NORMAL);
+        assertThat(responseDto.bookingType()).isEqualTo(BookingType.DEFAULT);
     }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void updateBooking_AsLeseberechtigt_shouldHaveNormalTypeThoughFreeOnUpdateFromNormal() throws Exception {
-        Booking existingBooking = getExistingBooking(mockPerson, BookingType.NORMAL);
+        Booking existingBooking = getExistingBooking(mockPerson, BookingType.DEFAULT);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.FREE);
@@ -775,7 +775,7 @@ public class BookingControllerIntegrationTest {
 
         BookingDetailResponseDTO responseDto = objectMapper.readValue(responseContent, BookingDetailResponseDTO.class);
 
-        assertThat(responseDto.bookingType()).isEqualTo(BookingType.NORMAL);
+        assertThat(responseDto.bookingType()).isEqualTo(BookingType.DEFAULT);
     }
 
     @Test
@@ -837,13 +837,13 @@ public class BookingControllerIntegrationTest {
                 schedule,
                 bookedForId,
                 null,
-                BookingType.NORMAL);
+                BookingType.DEFAULT);
     }
 
     private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
             UUID roomId,
             UUID seatingTypeId) {
-        return getBookingRequestDTOWithRoomAndSeating(roomId, seatingTypeId, BookingType.NORMAL);
+        return getBookingRequestDTOWithRoomAndSeating(roomId, seatingTypeId, BookingType.DEFAULT);
     }
 
     private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
