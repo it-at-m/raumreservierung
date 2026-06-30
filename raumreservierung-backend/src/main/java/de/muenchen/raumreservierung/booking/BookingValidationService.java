@@ -48,7 +48,9 @@ public class BookingValidationService {
         if (count == 0) {
             return false;
         }
-
+        if (count < 0) {
+            return true;
+        }
         if (booking.getRoom() != null) {
             final Room room = booking.getRoom();
             if (booking.getSeatingType() != null && room.getRoomSeatingCapacities() != null) {

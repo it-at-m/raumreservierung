@@ -181,6 +181,16 @@ public class BookingValidationServiceTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void participantCountNotValid_ShouldThrow_WhenParticipantCountIsNegative() {
+        baseBooking.setParticipantCount(-1);
+
+        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+
+        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_PARTICIPANT_COUNT_INVALID + "\"", exception.getMessage());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void participantCountNotValid_ShouldBeValid_WhenCountIsWithinRoomCapacity() {
         testRoom.setCapacity(10);
         baseBooking.setRoom(testRoom);
