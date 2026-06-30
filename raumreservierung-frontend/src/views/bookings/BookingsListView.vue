@@ -128,6 +128,14 @@
                 }}
               </span>
             </template>
+            <template #[`item.bookedBy`]="{ item }">
+              <span>
+                {{ item.bookedFor.firstName }} {{ item.bookedFor.lastName }}
+              </span>
+            </template>
+            <template #[`item.hasNote`]="{ item }">
+              <v-icon :icon="item.hasNote ? mdiCheck : mdiMinus" />
+            </template>
             <template #[`item.actions`]="{ item }">
               <v-row align-content="center">
                 <v-col
@@ -306,7 +314,9 @@ const headers = computed(
       { title: "Veranstaltung", value: "title" },
       { title: "Datum", value: "schedule.appointmentStart", sortable: true },
       { title: "Uhrzeit", value: "schedule.occupancyStart", sortable: true },
+      { title: "Gebucht für", value: "bookedBy", sortable: true },
       { title: "Ausstattung", value: "hasEquipment", align: "center" },
+      { title: "Bemerkung", value: "hasNote", align: "center" },
       ...(canEditBookings
         ? [
             {
