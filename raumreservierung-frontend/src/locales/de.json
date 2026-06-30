@@ -74,6 +74,7 @@
     },
     "scheduleTemplateForm": {
       "multiDay": "Mehrtägiger Termin",
+      "wholeDay": "Ganztägig",
       "appointmentDiffers": "Veranstaltungszeit abweichend"
     },
     "seatingTypeParticipantsSelector": {

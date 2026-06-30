@@ -15,7 +15,7 @@
       <v-checkbox
         :model-value="wholeDay"
         color="accent"
-        label="Ganztägig"
+        :label="t('components.scheduleTemplateForm.wholeDay')"
         hide-details
         :disabled="disabled"
         density="compact"
