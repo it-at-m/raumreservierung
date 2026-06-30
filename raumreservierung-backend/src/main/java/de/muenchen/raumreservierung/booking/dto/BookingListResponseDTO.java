@@ -12,6 +12,7 @@ public record BookingListResponseDTO(
         int participantCount,
         RoomListResponseDTO room,
         @NotNull boolean hasEquipment,
+        @NotNull boolean hasNote,
         @NotNull boolean isRecurring,
         @NotNull ScheduleTemplate schedule,
         @NotNull PersonResponseDto bookedBy,
