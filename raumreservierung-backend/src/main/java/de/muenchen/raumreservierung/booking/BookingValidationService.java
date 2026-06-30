@@ -17,11 +17,29 @@ public class BookingValidationService {
     private final SecurityContextService securityContextService;
     private final PersonService personService;
 
+    /**
+     * Checks if a booking can be canceled by the current user.
+     * Only permitted if the user has role RAUM_BUCHUNG or higher
+     * and the transition to the CANCELLED status is allowed.
+     *
+     * @param booking the booking entity to check
+     * @return true if the user is authorized and the status transition is valid, false otherwise
+     */
     public boolean canCancelBooking(final Booking booking) {
         return validateBookingAuthority(booking, Roles.RAUM_BUCHUNG) &&
                 bookingTransitionService.isTransitionAllowed(booking.getStatus(), BookingStatus.CANCELLED);
     }
 
+    /**
+     * Determines whether the booking status must change automatically.
+     * Automatic changes only in bookings with state COORDINATION_NEEDED, ROOM_APPROVED or
+     * ORGANIZER_APPROVED.
+     * Users with role TERMIN_ORGANISATOR or higher are explicitly excepted from this automation.
+     *
+     * @param booking the booking entity to evaluate
+     * @return true if the booking is in an eligible state and the user is not a coordinator or higher,
+     *         false otherwise
+     */
     public boolean isObligedToAutomaticStatusChange(final Booking booking) {
         return (booking.getStatus() == BookingStatus.COORDINATION_NEEDED
                 || booking.getStatus() == BookingStatus.ROOM_APPROVED
@@ -47,7 +65,7 @@ public class BookingValidationService {
      * @param bookingUpdates the requested booking updates
      * @throws BadRequestException if the status transition or cancellation is invalid
      */
-    public void validateBookingStatusTransition(final Booking existingBooking, final Booking bookingUpdates) {
+    public void validateBookingStatusTransitionOrThrowException(final Booking existingBooking, final Booking bookingUpdates) {
         final boolean isTransitionAllowed = bookingTransitionService.isTransitionAllowed(existingBooking.getStatus(), bookingUpdates.getStatus());
         final boolean isIllegalCancel = bookingUpdates.getStatus() == BookingStatus.CANCELLED && !canCancelBooking(existingBooking);
 

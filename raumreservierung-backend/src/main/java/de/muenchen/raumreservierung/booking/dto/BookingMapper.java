@@ -42,5 +42,4 @@ public interface BookingMapper {
     default boolean mapIsRecurring(final Booking booking) {
         return booking.getAppointments().size() > 1;
     }
-
 }

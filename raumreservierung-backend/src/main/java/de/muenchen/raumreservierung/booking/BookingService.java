@@ -59,12 +59,9 @@ public class BookingService {
 
     @PreAuthorize(Authorities.BOOKING_READ)
     public Page<Booking> getAllBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
-        final Specification<Booking> bookingSpecification;
-        if (securityContextService.hasAuthority(Roles.RAUM_BUCHUNG)) {
-            bookingSpecification = BookingSpecificationBuilder.fromFilter(bookingFilterDto);
-        } else {
-            bookingSpecification = BookingSpecificationBuilder.fromFilterWithNotNew(bookingFilterDto);
-        }
+        final Specification<Booking> bookingSpecification = securityContextService.hasAuthority(Roles.RAUM_BUCHUNG)
+                ? BookingSpecificationBuilder.fromFilter(bookingFilterDto)
+                : BookingSpecificationBuilder.fromFilterWithNotNew(bookingFilterDto);
         return findAllAndFilterSensitiveData(pageable, bookingSpecification);
     }
 
@@ -128,7 +125,7 @@ public class BookingService {
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
 
-        bookingValidationService.validateBookingStatusTransition(existingBooking, bookingUpdates);
+        bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
 
         if (!bookingValidationService.validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
