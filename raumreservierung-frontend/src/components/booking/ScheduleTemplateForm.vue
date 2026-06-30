@@ -12,6 +12,17 @@
       />
     </v-col>
     <v-col>
+      <v-checkbox
+        :model-value="wholeDay"
+        color="accent"
+        :label="t('components.scheduleTemplateForm.wholeDay')"
+        hide-details
+        :disabled="disabled"
+        density="compact"
+        @update:model-value="onWholeDayToggle"
+      />
+    </v-col>
+    <v-col>
       <slot name="checks" />
     </v-col>
   </v-row>
@@ -119,6 +130,7 @@ import { useI18n } from "vue-i18n";
 
 import DateTimeTextField from "@/components/common/date/DateTimeTextField.vue";
 import { useRules } from "@/composables/useRules";
+import { SCHEDULE_DEFAULT_DURATION } from "@/constants.ts";
 import { dateEquals } from "@/util/timeUtil.ts";
 
 const { t } = useI18n();
@@ -137,14 +149,38 @@ const multiDay = computed<boolean>(
     !dateEquals(modelValue.value.occupancyStart, modelValue.value.occupancyEnd)
 );
 
+const wholeDay = computed<boolean>(
+  () =>
+    occupancyStart.value &&
+    occupancyEnd.value &&
+    occupancyEnd.value.getHours() === 23 &&
+    occupancyEnd.value.getMinutes() === 59 &&
+    occupancyStart.value.getHours() <= 7
+);
+
 const appointmentDiffers = computed(
   () => !!modelValue.value.appointmentStart && !!modelValue.value.appointmentEnd
 );
 
 const occupancyStart = computed({
   get: () => modelValue.value.occupancyStart,
-  set: (val) =>
-    (modelValue.value = { ...modelValue.value, occupancyStart: val }),
+  set: (val) => {
+    const updates: Partial<ScheduleTemplate> = { occupancyStart: val };
+
+    if (!multiDay.value && val && occupancyEnd.value) {
+      updates.occupancyEnd = syncDatePart(val, occupancyEnd.value);
+      if (appointmentDiffers.value) {
+        if (appointmentStart.value) {
+          updates.appointmentStart = syncDatePart(val, appointmentStart.value);
+        }
+        if (appointmentEnd.value) {
+          updates.appointmentEnd = syncDatePart(val, appointmentEnd.value);
+        }
+      }
+    }
+
+    modelValue.value = { ...modelValue.value, ...updates };
+  },
 });
 
 const occupancyEnd = computed({
@@ -164,21 +200,21 @@ const appointmentEnd = computed({
     (modelValue.value = { ...modelValue.value, appointmentEnd: val }),
 });
 
+const syncDatePart = (source: Date, target: Date) => {
+  const baseYear = source.getFullYear();
+  const baseMonth = source.getMonth();
+  const baseDate = source.getDate();
+
+  const newDate = new Date(target);
+  newDate.setFullYear(baseYear, baseMonth, baseDate);
+  return newDate;
+};
+
 /**
  * If a switch from multiDay to singleDay occurs, we correct the end-dates and the appointment start-date to the occupancyStart-date
  * @param isMulti determines if booking stretches over multiple days
  */
 const onMultiDayToggle = async (isMulti: boolean | null) => {
-  const baseYear = occupancyStart.value.getFullYear();
-  const baseMonth = occupancyStart.value.getMonth();
-  const baseDate = occupancyStart.value.getDate();
-
-  const syncDatePart = (target: Date) => {
-    const newDate = new Date(target);
-    newDate.setFullYear(baseYear, baseMonth, baseDate);
-    return newDate;
-  };
-
   if (isMulti || !occupancyStart.value) {
     occupancyEnd.value = new Date(
       occupancyEnd.value.setDate(occupancyEnd.value.getDate() + 1)
@@ -186,17 +222,41 @@ const onMultiDayToggle = async (isMulti: boolean | null) => {
   } else {
     modelValue.value = {
       ...modelValue.value,
-      occupancyEnd: syncDatePart(occupancyEnd.value),
+      occupancyEnd: syncDatePart(occupancyStart.value, occupancyEnd.value),
       appointmentStart:
         appointmentDiffers.value && appointmentStart.value
-          ? syncDatePart(appointmentStart.value)
+          ? syncDatePart(occupancyStart.value, appointmentStart.value)
           : undefined,
       appointmentEnd:
         appointmentDiffers.value && appointmentEnd.value
-          ? syncDatePart(appointmentEnd.value)
+          ? syncDatePart(occupancyStart.value, appointmentEnd.value)
           : undefined,
     };
   }
+};
+
+const onWholeDayToggle = (isWholeDay: boolean | null) => {
+  const referenceDate = occupancyStart.value
+    ? new Date(occupancyStart.value)
+    : new Date();
+
+  const start = new Date(referenceDate);
+  const end = new Date(referenceDate);
+
+  if (isWholeDay) {
+    start.setHours(7, 0, 0, 0);
+    end.setHours(23, 59, 0, 0);
+  } else {
+    const now = new Date();
+    start.setHours(now.getHours(), now.getMinutes(), 0, 0);
+    end.setTime(start.getTime() + SCHEDULE_DEFAULT_DURATION);
+  }
+
+  modelValue.value = {
+    ...modelValue.value,
+    occupancyStart: start,
+    occupancyEnd: end,
+  };
 };
 
 const onAppointmentDiffers = (apptDiffers: boolean | null) => {

@@ -441,7 +441,9 @@ const saveBooking = async () => {
 const onSuccess = (msg: string) => {
   snackbarStore.add({ message: msg, level: Levels.SUCCESS });
 
-  router.back();
+  router.replace({
+    name: ROUTES.MY_BOOKINGS_LIST,
+  });
 };
 
 const updateRRule = (value: boolean | null) => {

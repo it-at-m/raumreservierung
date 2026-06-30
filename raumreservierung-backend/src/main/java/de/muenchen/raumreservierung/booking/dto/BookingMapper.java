@@ -15,6 +15,7 @@ public interface BookingMapper {
     BookingDetailResponseDTO toDetailDto(Booking booking);
 
     @Mapping(target = "hasEquipment", source = "booking", qualifiedByName = "hasEquipmentCheck")
+    @Mapping(target = "hasNote", source = "booking", qualifiedByName = "hasNoteCheck")
     @Mapping(target = "isRecurring", source = "booking", qualifiedByName = "isRecurringCheck")
     BookingListResponseDTO toListDto(Booking booking);
 
@@ -30,7 +31,12 @@ public interface BookingMapper {
 
     @Named("hasEquipmentCheck")
     default boolean mapHasEquipment(final Booking booking) {
-        return booking.getEquipment().isEmpty();
+        return !booking.getEquipment().isEmpty();
+    }
+
+    @Named("hasNoteCheck")
+    default boolean mapHasNote(final Booking booking) {
+        return !booking.getAdditionalNotes().isEmpty() || !booking.getInternalNotes().isEmpty();
     }
 
     @Named("isRecurringCheck")
