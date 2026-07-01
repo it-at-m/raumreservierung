@@ -1463,6 +1463,7 @@ components:
       - bookedBy
       - bookedFor
       - hasEquipment
+      - hasNote
       - id
       - isRecurring
       - schedule
@@ -1480,6 +1481,8 @@ components:
         room:
           $ref: "#/components/schemas/RoomListResponseDTO"
         hasEquipment:
+          type: boolean
+        hasNote:
           type: boolean
         isRecurring:
           type: boolean

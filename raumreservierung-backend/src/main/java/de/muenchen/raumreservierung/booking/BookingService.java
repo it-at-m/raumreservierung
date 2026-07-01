@@ -71,18 +71,6 @@ public class BookingService {
         return findAllAndFilterSensitiveData(pageable, bookingSpecification);
     }
 
-    private Page<Booking> findAllAndFilterSensitiveData(final Pageable pageable, final Specification<Booking> bookingSpecification) {
-        Page<Booking> bookings = bookingRepository.findAll(bookingSpecification, pageable);
-        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-            bookings = bookings.map(booking -> {
-                booking.setInternalNotes(null);
-                return booking;
-            });
-        }
-
-        return bookings;
-    }
-
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking createBooking(final Booking booking) {
         bookingValidationService.bookingIsValidOrThrowException(booking);
@@ -153,6 +141,29 @@ public class BookingService {
 
     }
 
+    @PreAuthorize(Authorities.BOOKING_SELF)
+    public void deleteBooking(final UUID bookingId) {
+        final Booking existingBooking = getEntityOrThrowException(bookingId);
+
+        if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
+        log.debug("Deleted booking with id {}", bookingId);
+        bookingRepository.deleteById(bookingId);
+    }
+
+    private Page<Booking> findAllAndFilterSensitiveData(final Pageable pageable, final Specification<Booking> bookingSpecification) {
+        Page<Booking> bookings = bookingRepository.findAll(bookingSpecification, pageable);
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            bookings = bookings.map(booking -> {
+                booking.setInternalNotes(null);
+                return booking;
+            });
+        }
+
+        return bookings;
+    }
+
     /**
      * Updates the appointments of a booking when its recurring rule changes.
      * It preserves all past appointments and merges them with newly generated future appointments based
@@ -180,17 +191,6 @@ public class BookingService {
         pastAppointments.addAll(futureNewAppointments);
 
         bookingUpdates.setAppointments(pastAppointments);
-    }
-
-    @PreAuthorize(Authorities.BOOKING_SELF)
-    public void deleteBooking(final UUID bookingId) {
-        final Booking existingBooking = getEntityOrThrowException(bookingId);
-
-        if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
-            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
-        }
-        log.debug("Deleted booking with id {}", bookingId);
-        bookingRepository.deleteById(bookingId);
     }
 
     private Booking getSanitizedBooking(final UUID bookingId) {
