@@ -8,10 +8,8 @@ import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
 import de.muenchen.raumreservierung.room.RoomService;
-import de.muenchen.raumreservierung.seating.SeatingType;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +35,7 @@ public class BookingValidationService {
     }
 
     /**
-     * Checks if the booking's participant count exceeds the allowed capacity.
+     * Checks if the booking's participant count exceeds the allowed capacity or is negative.
      * A count of 0 is treated as unset and considered valid.
      *
      * @param booking the booking to validate
@@ -45,24 +43,34 @@ public class BookingValidationService {
      */
     private boolean participantCountNotValid(final Booking booking) {
         final int count = booking.getParticipantCount();
-        if (count == 0) {
-            return false;
+        return count != 0 && (count < 0 || count > determineMaxCapacity(booking));
+    }
+
+    /**
+     * Determines the maximum capacity for a booking.
+     * Falls back to global maximum if no room is set, or to the room's base capacity
+     * if no matching seating arrangement is found.
+     *
+     * @param booking the booking containing room and seating type
+     * @return the maximum capacity, or {@code -1} if the requested seating type has no configured
+     *         capacity
+     */
+    private int determineMaxCapacity(final Booking booking) {
+        final Room room = booking.getRoom();
+
+        if (room == null) {
+            return roomService.findAbsoluteMaxCapacity();
         }
-        if (count < 0) {
-            return true;
+
+        if (booking.getSeatingType() != null && room.getRoomSeatingCapacities() != null) {
+            return room.getRoomSeatingCapacities().stream()
+                    .filter(rsc -> rsc.getSeatingType().equals(booking.getSeatingType()))
+                    .mapToInt(RoomSeatingCapacity::getCapacity)
+                    .max()
+                    .orElse(-1);
         }
-        if (booking.getRoom() != null) {
-            final Room room = booking.getRoom();
-            if (booking.getSeatingType() != null && room.getRoomSeatingCapacities() != null) {
-                final SeatingType seatingType = booking.getSeatingType();
-                final Set<RoomSeatingCapacity> roomSeatingCapacities = room.getRoomSeatingCapacities();
-                return roomSeatingCapacities.stream().filter(rsc -> rsc.getSeatingType().equals(seatingType)).allMatch(rsc -> rsc.getCapacity() < count);
-            }
-            return count > room.getCapacity();
-        } else {
-            final int absoluteMax = roomService.findAbsoluteMaxCapacity();
-            return count > absoluteMax;
-        }
+
+        return room.getCapacity();
     }
 
     /**
