@@ -15,6 +15,7 @@ import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import de.muenchen.raumreservierung.room.RoomService;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
@@ -54,6 +55,10 @@ public class BookingServiceIntegrationTest {
     private AppointmentService appointmentService;
     @MockitoBean
     private PersonService personService;
+    @MockitoBean
+    private RoomService roomService;
+    @MockitoBean
+    private BookingValidationService bookingValidationService;
 
     @Test
     @WithMockJwt(lhmObjectID = "987654", authorities = { Roles.RAUM_ADMIN })

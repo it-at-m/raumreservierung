@@ -14,6 +14,8 @@ public interface RoomRepository extends JpaRepository<Room, UUID> {
     @NonNull @Transactional(readOnly = true)
     Optional<Room> findWithDetailsById(@NonNull UUID id);
 
+    Optional<Room> findFirstByOrderByCapacityDesc();
+
     List<Room> findByIsActiveTrue();
 
 }

@@ -82,4 +82,9 @@ public class RoomService {
                 .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, roomId)));
     }
 
+    @PreAuthorize(Authorities.ROOM_READ)
+    public int findAbsoluteMaxCapacity() {
+        return roomRepository.findFirstByOrderByCapacityDesc().map(Room::getCapacity).orElse(0);
+    }
+
 }

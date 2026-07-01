@@ -31,5 +31,6 @@ CREATE TABLE room_seating_capacity
     room_id         UUID    NOT NULL,
 
     PRIMARY KEY (id),
-    FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE CASCADE
+    FOREIGN KEY (room_id) REFERENCES room (id) ON DELETE CASCADE,
+    CONSTRAINT uq_room_seating_type UNIQUE (room_id, seating_type_id)
 );
