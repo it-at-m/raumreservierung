@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import java.io.IOException;
+import java.io.Serial;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import lombok.Getter;
@@ -17,6 +18,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Setter
 @Entity
 public class FileAttachment extends BaseEntity {
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     @Basic(fetch = FetchType.LAZY)
     @Column(nullable = false)
@@ -38,7 +42,7 @@ public class FileAttachment extends BaseEntity {
     @Column(nullable = false)
     private boolean isAttached;
 
-    public void updateFrom(MultipartFile multipartFile) throws IOException {
+    public void updateFrom(final MultipartFile multipartFile) throws IOException {
         this.data = multipartFile.getBytes();
         this.fileName = multipartFile.getOriginalFilename();
         this.contentType = multipartFile.getContentType();
@@ -46,15 +50,13 @@ public class FileAttachment extends BaseEntity {
     }
 
     @Override
-    public boolean equals(Object o) {
+    public boolean equals(final Object o) {
         if (this == o) {
             return true;
         }
-        if (!(o instanceof FileAttachment)) {
+        if (!(o instanceof FileAttachment that)) {
             return false;
         }
-
-        FileAttachment that = (FileAttachment) o;
 
         return getId() != null && Objects.equals(getId(), that.getId());
     }

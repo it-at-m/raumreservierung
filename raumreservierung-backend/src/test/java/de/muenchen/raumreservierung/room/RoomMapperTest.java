@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import de.muenchen.raumreservierung.common.ReferenceMapper;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentMapperImpl;
+import de.muenchen.raumreservierung.file.dto.FileAttachmentMapper;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
@@ -45,6 +46,9 @@ public class RoomMapperTest {
     @MockitoBean
     private ReferenceMapper referenceMapper;
 
+    @MockitoBean
+    private FileAttachmentMapper fileAttachmentMapper;
+
     @Test
     public void givenRequestDTO_thenReturnsCorrectEntity() {
         // Given
@@ -61,7 +65,7 @@ public class RoomMapperTest {
         final UUID personId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         final RoomRequestDTO requestDTO = new RoomRequestDTO("Mittlerer Saal", "102", "Pfad 3, 10101 Dazwischen, Deutschland", "Hinterm Stein links.", 500,
                 true, 100,
-                new ArrayList<>(capacityRequestDTOs), new ArrayList<>(equipmentIds), personId);
+                new ArrayList<>(capacityRequestDTOs), new ArrayList<>(equipmentIds), personId, null);
 
         // When
         SeatingType seatingTypeOnlyId1 = new SeatingType();
@@ -96,7 +100,8 @@ public class RoomMapperTest {
         roomSeatingCapacity2.setCapacity(200);
         final Set<RoomSeatingCapacity> roomSeatingCapacitySet = Set.of(roomSeatingCapacity1, roomSeatingCapacity2);
 
-        assertThat(result).usingRecursiveComparison().ignoringFields("id", "equipment", "roomSeatingCapacities", "contactPerson").isEqualTo(requestDTO);
+        assertThat(result).usingRecursiveComparison().ignoringFields("id", "equipment", "roomSeatingCapacities", "contactPerson", "picture")
+                .isEqualTo(requestDTO);
         assertThat(result.getEquipment()).usingRecursiveComparison().isEqualTo(equimentSet);
         assertThat(result.getRoomSeatingCapacities()).usingRecursiveComparison().isEqualTo(roomSeatingCapacitySet);
         assertThat(result.getContactPerson()).usingRecursiveComparison().isEqualTo(contactPerson);
@@ -142,6 +147,6 @@ public class RoomMapperTest {
         final RoomListResponseDTO result = roomMapper.toListDTO(room);
 
         // Then
-        assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(room);
+        assertThat(result).usingRecursiveComparison().ignoringFields("id", "pictureId").isEqualTo(room);
     }
 }

@@ -83,6 +83,7 @@ class RoomControllerIntegrationTest {
                 500,
                 List.of(),
                 List.of(),
+                null,
                 null);
 
         ResponseEntity<RoomDetailsResponseDTO> createResponse = testRestTemplate.postForEntity(
@@ -112,11 +113,11 @@ class RoomControllerIntegrationTest {
     @Test
     void testUpdateRoom() {
         RoomRequestDTO initialRequest = new RoomRequestDTO("Alter Raumname", "1", "Alte Adresse 1", "Es war einmal", 1000, true, 200, List.of(), List.of(),
-                null);
+                null, null);
         RoomDetailsResponseDTO created = testRestTemplate.postForObject(ROOMS_URL, initialRequest, RoomDetailsResponseDTO.class);
 
         RoomRequestDTO updateRequest = new RoomRequestDTO("Neuer Raumname", "2", "Neue Adresse 2", "Jetzt neu und hier", 1001, true, 202, List.of(), List.of(),
-                null);
+                null, null);
 
         ResponseEntity<RoomDetailsResponseDTO> updateResponse = testRestTemplate.exchange(
                 ROOMS_URL + "/" + created.id(),
@@ -132,7 +133,8 @@ class RoomControllerIntegrationTest {
 
     @Test
     void testDeleteRoom() {
-        RoomRequestDTO request = new RoomRequestDTO("Löschbarer Raum", "0", "Memory Lane 1", "Nicht mehr auffindbar", 5, false, 10, List.of(), List.of(), null);
+        RoomRequestDTO request = new RoomRequestDTO("Löschbarer Raum", "0", "Memory Lane 1", "Nicht mehr auffindbar", 5, false, 10, List.of(), List.of(), null,
+                null);
         RoomDetailsResponseDTO created = testRestTemplate.postForObject(ROOMS_URL, request, RoomDetailsResponseDTO.class);
 
         ResponseEntity<Void> deleteResponse = testRestTemplate.exchange(
@@ -173,7 +175,7 @@ class RoomControllerIntegrationTest {
                 "Raum mit allem", "101", "Hier 3", "ganz oben", 10000, true, 600,
                 List.of(seatingReq),
                 List.of(equipment.getId()),
-                person.getId());
+                person.getId(), null);
 
         ResponseEntity<RoomDetailsResponseDTO> response = testRestTemplate.postForEntity(
                 ROOMS_URL, request, RoomDetailsResponseDTO.class);
@@ -249,11 +251,11 @@ class RoomControllerIntegrationTest {
 
         RoomRequestDTO initialReq = new RoomRequestDTO("Raum 1", "1", "Straße 1", "Hier vorne links", 1000, true, 100, List.of(seatingReq1),
                 List.of(eq1.getId()),
-                person1.getId());
+                person1.getId(), null);
         RoomDetailsResponseDTO created = testRestTemplate.postForObject(ROOMS_URL, initialReq, RoomDetailsResponseDTO.class);
 
         RoomRequestDTO updateReq = new RoomRequestDTO("Raum 1.1", "2", "Straße 1b", "Dort hinten rechts", 2000, true, 200, List.of(seatingReq2),
-                List.of(eq2.getId()), person2.getId());
+                List.of(eq2.getId()), person2.getId(), null);
 
         ResponseEntity<RoomDetailsResponseDTO> response = testRestTemplate.exchange(
                 ROOMS_URL + "/" + created.id(),
@@ -295,7 +297,7 @@ class RoomControllerIntegrationTest {
                 500,
                 List.of(),
                 List.of(),
-                null);
+                null, null);
         final RoomRequestDTO request2 = new RoomRequestDTO(
                 "Raum 2",
                 "2",
@@ -306,7 +308,7 @@ class RoomControllerIntegrationTest {
                 400,
                 List.of(),
                 List.of(),
-                null);
+                null, null);
         final RoomRequestDTO request3 = new RoomRequestDTO(
                 "Raum 3",
                 "3",
@@ -317,7 +319,7 @@ class RoomControllerIntegrationTest {
                 50,
                 List.of(),
                 List.of(),
-                null);
+                null, null);
 
         ResponseEntity<RoomDetailsResponseDTO> createResponse1 = testRestTemplate.postForEntity(
                 ROOMS_URL,
@@ -344,9 +346,9 @@ class RoomControllerIntegrationTest {
                 RoomListResponseDTO[].class);
 
         List<RoomListResponseDTO> expectedRooms = List.of(
-                new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive()),
-                new RoomListResponseDTO(createResponse2.getBody().id(), request2.name(), request2.number(), request2.isActive()),
-                new RoomListResponseDTO(createResponse3.getBody().id(), request3.name(), request3.number(), request3.isActive()));
+                new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive(), null),
+                new RoomListResponseDTO(createResponse2.getBody().id(), request2.name(), request2.number(), request2.isActive(), null),
+                new RoomListResponseDTO(createResponse3.getBody().id(), request3.name(), request3.number(), request3.isActive(), null));
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
 
         assertNotNull(getResponse.getBody());
@@ -366,7 +368,7 @@ class RoomControllerIntegrationTest {
                 500,
                 List.of(),
                 List.of(),
-                null);
+                null, null);
         final RoomRequestDTO request2 = new RoomRequestDTO(
                 "Raum 2",
                 "2",
@@ -377,7 +379,7 @@ class RoomControllerIntegrationTest {
                 400,
                 List.of(),
                 List.of(),
-                null);
+                null, null);
         ResponseEntity<RoomDetailsResponseDTO> createResponse1 = testRestTemplate.postForEntity(
                 ROOMS_URL,
                 request1,
@@ -397,7 +399,7 @@ class RoomControllerIntegrationTest {
                 RoomListResponseDTO[].class);
 
         List<RoomListResponseDTO> expectedRooms = List
-                .of(new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive()));
+                .of(new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive(), null));
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
 
         assertNotNull(getResponse.getBody());
@@ -417,7 +419,7 @@ class RoomControllerIntegrationTest {
                 500,
                 List.of(),
                 List.of(),
-                null);
+                null, null);
         final RoomRequestDTO request2 = new RoomRequestDTO(
                 "Raum 2",
                 "2",
@@ -428,7 +430,7 @@ class RoomControllerIntegrationTest {
                 400,
                 List.of(),
                 List.of(),
-                null);
+                null, null);
         ResponseEntity<RoomDetailsResponseDTO> createResponse1 = testRestTemplate.postForEntity(
                 ROOMS_URL,
                 request1,
@@ -448,7 +450,7 @@ class RoomControllerIntegrationTest {
                 RoomListResponseDTO[].class);
 
         List<RoomListResponseDTO> expectedRooms = List
-                .of(new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive()));
+                .of(new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive(), null));
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
 
         assertNotNull(getResponse.getBody());
@@ -468,7 +470,7 @@ class RoomControllerIntegrationTest {
                 500,
                 List.of(),
                 List.of(),
-                null);
+                null, null);
         final RoomRequestDTO request2 = new RoomRequestDTO(
                 "Raum 2",
                 "2",
@@ -479,7 +481,7 @@ class RoomControllerIntegrationTest {
                 400,
                 List.of(),
                 List.of(),
-                null);
+                null, null);
         ResponseEntity<RoomDetailsResponseDTO> createResponse1 = testRestTemplate.postForEntity(
                 ROOMS_URL,
                 request1,
@@ -499,8 +501,8 @@ class RoomControllerIntegrationTest {
                 RoomListResponseDTO[].class);
 
         List<RoomListResponseDTO> expectedRooms = List.of(
-                new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive()),
-                new RoomListResponseDTO(createResponse2.getBody().id(), request2.name(), request2.number(), request2.isActive()));
+                new RoomListResponseDTO(createResponse1.getBody().id(), request1.name(), request1.number(), request1.isActive(), null),
+                new RoomListResponseDTO(createResponse2.getBody().id(), request2.name(), request2.number(), request2.isActive(), null));
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
 
         assertNotNull(getResponse.getBody());

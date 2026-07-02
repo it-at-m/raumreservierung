@@ -21,19 +21,19 @@ public class FileAttachmentService {
     private final FileAttachmentRepository fileAttachmentRepository;
 
     @Transactional(readOnly = true)
-    public FileAttachment findById(UUID fileId) {
+    public FileAttachment findById(final UUID fileId) {
         log.info("Finding file attachment by id {}", fileId);
         return fileAttachmentRepository.findById(fileId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, fileId)));
     }
 
     @Transactional
-    public FileAttachment createFile(final MultipartFile multipartFile) throws IOException {
+    public FileAttachment createFile(final MultipartFile multipartFile) {
         log.debug("Creating file attachment for {}", multipartFile.getOriginalFilename());
         final FileAttachment fileAttachment = new FileAttachment();
         try {
             fileAttachment.updateFrom(multipartFile);
         } catch (final IOException e) {
-            throw new RuntimeException(MSG_FILE_READING_ERROR);
+            throw new RuntimeException(MSG_FILE_READING_ERROR, e);
         }
 
         return fileAttachmentRepository.save(fileAttachment);
@@ -47,7 +47,7 @@ public class FileAttachmentService {
 
     @Transactional
     public void attachFileAttachment(final UUID fileAttachmentId) {
-        FileAttachment fileAttachment = getEntityOrThrowException(fileAttachmentId);
+        final FileAttachment fileAttachment = getEntityOrThrowException(fileAttachmentId);
         fileAttachment.setAttached(true);
 
         fileAttachmentRepository.save(fileAttachment);
@@ -55,7 +55,7 @@ public class FileAttachmentService {
 
     @Transactional
     public void unAttachFileAttachment(final UUID fileAttachmentId) {
-        FileAttachment fileAttachment = getEntityOrThrowException(fileAttachmentId);
+        final FileAttachment fileAttachment = getEntityOrThrowException(fileAttachmentId);
         fileAttachment.setAttached(false);
 
         fileAttachmentRepository.save(fileAttachment);

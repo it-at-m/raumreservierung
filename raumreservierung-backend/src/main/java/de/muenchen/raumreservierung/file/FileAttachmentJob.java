@@ -16,7 +16,7 @@ public class FileAttachmentJob {
     @Scheduled(cron = "${raumreservierung.scheduling.file-attachment-cleanup}")
     public void cleanupUnAttachedFiles() {
         log.info("Cleaning up un-attached files");
-        OffsetDateTime cleanupAfter = OffsetDateTime.now().minusHours(1);
+        final OffsetDateTime cleanupAfter = OffsetDateTime.now().minusHours(1);
 
         fileAttachmentService.cleanupOrphanedFiles(cleanupAfter);
     }
