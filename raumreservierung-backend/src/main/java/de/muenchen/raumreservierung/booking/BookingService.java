@@ -169,17 +169,13 @@ public class BookingService {
      *         or the service requirement; false otherwise
      */
     private boolean needForAutomaticStatusChange(final Booking existingBooking, final Booking bookingUpdate) {
-        final boolean roomChanged = !Objects.equals(existingBooking.getRoom(), bookingUpdate.getRoom());
-        final boolean scheduleChanged = !Objects.equals(existingBooking.getSchedule(), bookingUpdate.getSchedule());
-        final boolean rruleChanged = !Objects.equals(existingBooking.getRecurringRule(), bookingUpdate.getRecurringRule());
-        final boolean timeOrDateChanged = scheduleChanged || rruleChanged;
-        final boolean equipmentChanged = !Objects.equals(existingBooking.getEquipment(), bookingUpdate.getEquipment());
-        final boolean seatingChanged = !Objects.equals(existingBooking.getSeatingType(), bookingUpdate.getSeatingType());
-        final boolean participantCountChanged = existingBooking.getParticipantCount() != bookingUpdate.getParticipantCount();
-        final boolean cateringChanged = existingBooking.isCateringNeeded() != bookingUpdate.isCateringNeeded();
-        final boolean serviceChanged = equipmentChanged || seatingChanged || cateringChanged || participantCountChanged;
-
-        return roomChanged || timeOrDateChanged || serviceChanged;
+        return !Objects.equals(existingBooking.getRoom(), bookingUpdate.getRoom()) // room changed
+                || !Objects.equals(existingBooking.getEquipment(), bookingUpdate.getEquipment()) // service changed
+                || !Objects.equals(existingBooking.getSeatingType(), bookingUpdate.getSeatingType())
+                || existingBooking.getParticipantCount() != bookingUpdate.getParticipantCount()
+                || existingBooking.isCateringNeeded() != bookingUpdate.isCateringNeeded()
+                || !Objects.equals(existingBooking.getRecurringRule(), bookingUpdate.getRecurringRule()) // schedule changed
+                || !Objects.equals(existingBooking.getSchedule(), bookingUpdate.getSchedule());
     }
 
     /**

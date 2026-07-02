@@ -74,14 +74,15 @@
           >
             <template #[`item.id`]="{ item }">
               <v-chip
-                -if="item.status?.currentStatus"
-                :color="getStatusStyle(item.status.currentStatus).color"
-                variant="tonal"
-                class="font-weight-bold"
+                v-if="item.status?.currentStatus"
+                :color="statusConfig.get(item.status.currentStatus).color"
+                variant="outlined"
+                class="font-weight-bold justify-space-evenly"
+                style="width: 100px"
                 size="small"
-              >
-                {{ getStatusStyle(item.status.currentStatus).text }}
-              </v-chip>
+                :prepend-icon="statusConfig.get(item.status.currentStatus).icon"
+                :text="statusConfig.get(item.status.currentStatus).text"
+              />
             </template>
             <template #[`item.hasEquipment`]="{ item }">
               <v-icon :icon="item.hasEquipment ? mdiCheck : mdiMinus" />
@@ -194,7 +195,7 @@ import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
-import { useBookingStatusStyles } from "@/composables/useBookingStatus.ts";
+import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -205,7 +206,7 @@ const router = useRouter();
 
 const { t } = useI18n();
 
-const { getStatusStyle } = useBookingStatusStyles();
+const { statusConfig } = useBookingStatusConfig();
 
 const canEditBookings = useIsPrivileged("bookings:manage");
 

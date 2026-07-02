@@ -9,17 +9,14 @@
         @click="router.back()"
       />
       <base-button
-        v-for="btn in transitionButtons"
-        :key="btn.rawStatus"
-        :disabled="!isValid"
         class="ml-4"
-        :text="btn.text"
+        text="Stornieren"
         secondary
-        @click="handleStatusChange(btn.rawStatus)"
-        ><template #append>
+        @click="handleStatusChange('CANCELLED')"
+        ><template #prepend>
           <v-icon
-            :icon="btn.icon"
-            :color="btn.color"
+            :icon="mdiCalendarRemoveOutline"
+            color="canceled"
           /> </template
       ></base-button>
       <base-button
@@ -64,7 +61,6 @@
               :loading="createBookingLoading || updateBookingLoading"
               :possible-status="statusFull?.nextPossibleStatus"
               hide-details
-              disabled
             />
           </v-col>
         </v-row>
@@ -253,6 +249,7 @@ import type {
 
 import {
   mdiAccountSearchOutline,
+  mdiCalendarRemoveOutline,
   mdiContentSaveOutline,
   mdiWindowClose,
 } from "@mdi/js";
@@ -279,7 +276,6 @@ import {
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
 import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
-import { useBookingStatusStyles } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
@@ -305,26 +301,6 @@ const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
 const bookedFor = ref<FindById200Response>();
 const statusFull = ref<BookingStatusFull>();
 
-const { getStatusStyle } = useBookingStatusStyles();
-
-const transitionButtons = computed(() => {
-  const possibleStatus = statusFull.value?.nextPossibleStatus;
-  if (!possibleStatus || !Array.isArray(possibleStatus)) return [];
-
-  return possibleStatus.map((status) => {
-    // Nutzt dein bestehendes Composable für Text und Farbe!
-    const style = getStatusStyle(status);
-
-    return {
-      rawStatus: status,
-      text: style.button.text, // "gebucht", "abgelehnt", etc. aus deiner Config
-      color: style.color, // "success", "error", etc.
-      icon: style.button.icon, // Fallback-Icon
-    };
-  });
-});
-
-// Zentrale Funktion für den Statuswechsel
 const handleStatusChange = async (nextStatus: BookingRequestDTOStatusEnum) => {
   bookingData.value.status = nextStatus;
   await saveBooking();

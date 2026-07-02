@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.booking;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_OCCUPANCY_END_BEFORE_START;
 import static java.time.temporal.ChronoUnit.MINUTES;
 
 import de.muenchen.raumreservierung.common.BadRequestException;
@@ -17,8 +18,6 @@ public record ScheduleTemplate(
         OffsetDateTime appointmentStart,
         OffsetDateTime appointmentEnd) implements Serializable {
 
-    private static final String ERROR_OCCUPANCY_END_BEFORE_START = "occupancyEnd cannot be before occupancyStart";
-
     public ScheduleTemplate {
         Objects.requireNonNull(occupancyStart);
         Objects.requireNonNull(occupancyEnd);
@@ -34,7 +33,7 @@ public record ScheduleTemplate(
         }
 
         if (occupancyEnd.isBefore(occupancyStart)) {
-            throw new BadRequestException(ERROR_OCCUPANCY_END_BEFORE_START);
+            throw new BadRequestException(MSG_OCCUPANCY_END_BEFORE_START);
         }
 
         if (appointmentStart == null || appointmentStart.isBefore(occupancyStart) || appointmentStart.isAfter(occupancyEnd)) {

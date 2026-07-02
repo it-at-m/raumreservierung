@@ -5,6 +5,7 @@ import de.muenchen.raumreservierung.seating.SeatingType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
@@ -30,12 +31,14 @@ public class RoomSeatingCapacity extends BaseEntity {
     private static final long serialVersionUID = 1L;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "seating_type_id")
     private SeatingType seatingType;
 
     @Column(nullable = false)
     private int capacity;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "room_id")
     private Room room;
 
 }

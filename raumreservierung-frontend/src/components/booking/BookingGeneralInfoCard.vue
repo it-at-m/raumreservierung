@@ -71,7 +71,7 @@ import { useDateFormat } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { useBookingStatusStyles } from "@/composables/useBookingStatus.ts";
+import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 
@@ -79,7 +79,7 @@ const { t } = useI18n();
 
 const showId = useIsPrivileged("bookings:manage");
 
-const { getStatusStyle } = useBookingStatusStyles();
+const { getStatusStyle } = useBookingStatusConfig();
 
 const props = defineProps<{
   id?: string;
