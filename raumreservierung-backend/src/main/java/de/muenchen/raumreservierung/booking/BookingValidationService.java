@@ -1,18 +1,18 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_EQUIPMENT_INACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_PARTICIPANT_COUNT_INVALID;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.equipment.Equipment;
-import de.muenchen.raumreservierung.seating.SeatingType;
-import java.util.Collections;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
 import de.muenchen.raumreservierung.room.RoomService;
+import de.muenchen.raumreservierung.seating.SeatingType;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -103,7 +103,8 @@ public class BookingValidationService {
     }
 
     /**
-     * Validates the booking updates against room availability, seating types, capacities and changed resources,
+     * Validates the booking updates against room availability, seating types, capacities and changed
+     * resources,
      * taking into account an existing booking.
      *
      * @param bookingUpdates the booking data containing the requested updates
@@ -112,20 +113,24 @@ public class BookingValidationService {
      *             exceeded, newly added equipment or seating type is inactive
      */
     public void bookingIsValidOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
-        if (roomChangedToInactive(bookingUpdates, existingBooking)) {
-            throw new BadRequestException(MSG_ROOM_INACTIVE);
-            }
-        if (equipmentInactive(bookingUpdates, existingBooking)) {
-            throw new BadRequestException(MSG_EQUIPMENT_INACTIVE);
-        }
+        resourcesActiveOrThrowException(bookingUpdates, existingBooking);
         if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
             throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
-            }
-        if (seatingTypeInactive(bookingUpdates, existingBooking)) {
-            throw new BadRequestException(MSG_SEATINGTYPE_INACTIVE);
         }
         if (participantCountNotValid(bookingUpdates)) {
             throw new BadRequestException(MSG_PARTICIPANT_COUNT_INVALID);
+        }
+    }
+
+    public void resourcesActiveOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
+        if (roomChangedToInactive(bookingUpdates, existingBooking)) {
+            throw new BadRequestException(MSG_ROOM_INACTIVE);
+        }
+        if (equipmentInactive(bookingUpdates, existingBooking)) {
+            throw new BadRequestException(MSG_EQUIPMENT_INACTIVE);
+        }
+        if (seatingTypeInactive(bookingUpdates, existingBooking)) {
+            throw new BadRequestException(MSG_SEATINGTYPE_INACTIVE);
         }
     }
 

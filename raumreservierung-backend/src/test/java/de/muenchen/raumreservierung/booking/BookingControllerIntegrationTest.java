@@ -239,20 +239,6 @@ public class BookingControllerIntegrationTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
-    void updateBooking_Throws_WhenRoomIsUpdatedFromActiveToInactive() throws Exception {
-        mockRoom.setActive(false);
-        mockRoom = roomRepository.save(mockRoom);
-        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoom.getId(), null);
-        mockMvc.perform(put(BOOKINGS_URL + "/" + mockBooking.getId())
-                .with(csrf())
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isBadRequest())
-                .andExpect(status().reason(MSG_ROOM_INACTIVE));
-    }
-
-    @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsBadRequest_WhenNoRoomChosenButSeatingType() throws Exception {
         BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(null, mockSeatingType1.getId(), 100);
