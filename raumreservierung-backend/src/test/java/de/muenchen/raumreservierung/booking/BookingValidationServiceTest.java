@@ -74,7 +74,6 @@ public class BookingValidationServiceTest {
     private Room testRoomInactive;
     private Room testRoomWithSeatingCapacity;
     private SeatingType testSeatingType;
-    private SeatingType testSeatingTypeInactive;
     private SeatingType testSeatingType2Inactive;
     private Equipment testEquipment;
     private Equipment testEquipmentInactive;
@@ -116,7 +115,7 @@ public class BookingValidationServiceTest {
         testSeatingType.setActive(true);
         testSeatingType.setId(testSeatingTypeId);
 
-        testSeatingTypeInactive = new SeatingType();
+        SeatingType testSeatingTypeInactive = new SeatingType();
         testSeatingTypeInactive.setName("TEST_SEATING");
         testSeatingTypeInactive.setActive(false);
         testSeatingTypeInactive.setId(testSeatingTypeId);
