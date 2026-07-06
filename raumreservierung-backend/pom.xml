@@ -46,7 +46,7 @@
 
         <!-- Core Frameworks -->
         <spring-cloud-dependencies.version>2025.1.2</spring-cloud-dependencies.version> <!-- Must match the chosen Spring Boot version -->
-        <hibernate-processor.version>7.2.19.Final</hibernate-processor.version>
+        <hibernate-processor.version>7.2.22.Final</hibernate-processor.version>
 
         <!-- Linting & Formatting -->
         <spotless-maven-plugin.version>3.4.0</spotless-maven-plugin.version>
