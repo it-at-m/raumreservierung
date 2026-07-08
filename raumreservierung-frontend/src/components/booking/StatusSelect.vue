@@ -3,13 +3,12 @@
     v-model="model"
     :items="statusOptions"
     :label="label"
-    :disabled="disabled || loading"
-    :loading="loading"
-    hide-selected
     item-value="value"
     item-title="title"
     variant="outlined"
     hide-details
+    multiple
+    :prepend-inner-icon="mdiLabelMultipleOutline"
   >
     <template #selection="{ item }">
       <v-chip
@@ -17,7 +16,8 @@
         :color="item.color"
         variant="outlined"
         class="font-weight-bold justify-space-evenly"
-        style="width: 145px"
+        style="width: 105px"
+        size="x-small"
         :prepend-icon="item.icon"
         :text="item.title"
       />
@@ -35,6 +35,7 @@
             variant="outlined"
             class="font-weight-bold justify-space-evenly"
             style="width: 135px"
+            size="small"
             :prepend-icon="item.icon"
             :text="item.title"
           />
@@ -52,36 +53,27 @@
 </template>
 
 <script setup lang="ts">
+import type { GetBookingsByPageableAndFilterStatusEnum } from "@/api/raumreservierung-backend";
+
+import { mdiLabelMultipleOutline } from "@mdi/js";
 import { computed } from "vue";
 
-import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 
-const model = defineModel<BookingStatusDTOCurrentStatusEnum>({
-  required: true,
-});
+const model = defineModel<
+  GetBookingsByPageableAndFilterStatusEnum[] | undefined
+>({});
 
-const {
-  label = "",
-  disabled = false,
-  loading = false,
-  possibleStatus = [],
-} = defineProps<{
+const { label = "", status = [] } = defineProps<{
   label?: string;
-  disabled?: boolean;
-  loading?: boolean;
-  possibleStatus?: BookingStatusDTOCurrentStatusEnum[];
+  status?: GetBookingsByPageableAndFilterStatusEnum[];
 }>();
 
 const { statusConfig } = useBookingStatusConfig();
 
 const statusOptions = computed(() => {
-  const baseList =
-    possibleStatus && possibleStatus.length > 0 ? possibleStatus : [];
-  const filteredList = baseList.filter(
-    (status: string) => status !== BookingStatusDTOCurrentStatusEnum.CANCELED
-  );
-  return filteredList.map((status: string | undefined) => {
+  const baseList = status && status.length > 0 ? status : [];
+  return baseList.map((status) => {
     const style = statusConfig.value.get(status);
     return {
       value: status,

@@ -42,6 +42,10 @@ public final class BookingSpecificationBuilder {
         if (end != null) {
             specificationList.add(filterForEnd(end.toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime()));
         }
+        final List<BookingStatus> statusList = bookingFilterDTO.status();
+        if (statusList != null && !statusList.isEmpty()) {
+            specificationList.add(filterForStatus(statusList));
+        }
         if (person != null && person.getId() != null) {
             specificationList.add(filterForPerson(person));
         }
@@ -66,6 +70,10 @@ public final class BookingSpecificationBuilder {
 
     private static <T extends Booking> Specification<T> filterForStatusNotNew() {
         return (root, query, cb) -> cb.notEqual(root.get(Booking_.status), BookingStatus.NEW);
+    }
+
+    private static <T extends Booking> Specification<T> filterForStatus(final List<BookingStatus> status) {
+        return (root, query, cb) -> root.get(Booking_.status).in(status);
     }
 
     private static <T extends Booking> Specification<T> filterForPerson(final Person person) {

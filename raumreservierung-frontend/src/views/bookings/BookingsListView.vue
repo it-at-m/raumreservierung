@@ -12,7 +12,7 @@
         <v-row>
           <v-col
             cols="12"
-            md="6"
+            md="4"
           >
             <room-select
               v-model="roomId"
@@ -25,8 +25,25 @@
           </v-col>
           <v-col
             cols="12"
+            md="4"
+          >
+            <status-select
+              v-model="statusFilter"
+              density="compact"
+              clearable
+              label="Status filtern"
+              :status="
+                Object.values(
+                  StatusEnum
+                ) as GetBookingsByPageableAndFilterStatusEnum[]
+              "
+              @update:model-value="applyFilters"
+            />
+          </v-col>
+          <v-col
+            cols="12"
             sm="6"
-            md="3"
+            md="2"
           >
             <v-date-input
               v-model="start"
@@ -43,7 +60,7 @@
           <v-col
             cols="12"
             sm="6"
-            md="3"
+            md="2"
           >
             <v-date-input
               v-model="end"
@@ -72,13 +89,13 @@
             @update:options="displayOptions"
             @click:row="handleRowClick"
           >
-            <template #[`item.id`]="{ item }">
+            <template #[`item.status`]="{ item }">
               <v-chip
                 v-if="item.status?.currentStatus"
                 :color="statusConfig.get(item.status.currentStatus).color"
                 variant="outlined"
                 class="font-weight-bold justify-space-evenly"
-                style="width: 100px"
+                style="width: 120px"
                 size="small"
                 :prepend-icon="statusConfig.get(item.status.currentStatus).icon"
                 :text="statusConfig.get(item.status.currentStatus).text"
@@ -174,7 +191,10 @@
 </template>
 
 <script setup lang="ts">
-import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
+import type {
+  BookingListResponseDTO,
+  GetBookingsByPageableAndFilterStatusEnum,
+} from "@/api/raumreservierung-backend";
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
@@ -191,6 +211,8 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
+import { GetBookingsByPageableAndFilterStatusEnum as StatusEnum } from "@/api/raumreservierung-backend";
+import StatusSelect from "@/components/booking/StatusSelect.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
@@ -206,11 +228,11 @@ const router = useRouter();
 
 const { t } = useI18n();
 
+const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
+
 const { statusConfig } = useBookingStatusConfig();
 
 const canEditBookings = useIsPrivileged("bookings:manage");
-
-const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
 
 // ####### Page Filter and Options #########
 const roomId = useRouteQuery("roomId", undefined);
@@ -302,6 +324,7 @@ const fetchPage = async () => {
     start: toApiDate(start.value),
     end: toApiDate(end.value),
     self: isMyBooking.value,
+    status: statusFilter.value,
   });
 };
 
@@ -310,7 +333,7 @@ const headers = computed(
     [
       {
         title: "Status",
-        value: "id",
+        value: "status",
         sortable: true,
       },
       { title: "Raumname", value: "room.name" },
@@ -330,6 +353,23 @@ const headers = computed(
         : []),
     ] as TableHeader<BookingListResponseDTO>[]
 );
+
+const statusFilter = useRouteQuery<
+  string | undefined,
+  StatusEnum[] | undefined
+>("status", undefined, {
+  transform: {
+    get: (v) => {
+      if (!v) return undefined;
+      const stringValue = Array.isArray(v) ? v[0] : v;
+      return stringValue ? (stringValue.split(",") as StatusEnum[]) : undefined;
+    },
+    set: (v) => {
+      if (!v || v.length === 0) return undefined;
+      return v.join(",");
+    },
+  },
+});
 </script>
 
 <style scoped></style>
