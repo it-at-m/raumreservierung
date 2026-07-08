@@ -4,6 +4,9 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.booking.Booking;
+import de.muenchen.raumreservierung.booking.BookingService;
+import de.muenchen.raumreservierung.booking.BookingStatus;
+import de.muenchen.raumreservierung.booking.BookingValidationService;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
@@ -11,6 +14,7 @@ import jakarta.validation.Valid;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,6 +32,8 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
+    private final BookingValidationService bookingValidationService;
+    private final BookingService bookingService;
 
     @PreAuthorize(Authorities.APPOINTMENT_READ)
     public Page<Appointment> getAppointmentsByPageableAndFilter(final Pageable pageable, @Valid final AppointmentFilterDTO appointmentFilterDTO) {
@@ -42,7 +48,19 @@ public class AppointmentService {
         final Appointment existingAppointment = getEntityOrThrowException(appointmentId);
         existingAppointment.updateFrom(appointmentUpdates);
         log.debug("Updated appointment with id {}", existingAppointment.getId());
-        return appointmentRepository.save(existingAppointment);
+        final Appointment savedAppointment = appointmentRepository.save(existingAppointment);
+
+        if (!Objects.equals(existingAppointment, appointmentUpdates)) {
+            final UUID bookingId = existingAppointment.getBooking().getId();
+            final Booking existingBooking = bookingService.getById(bookingId);
+            if (bookingValidationService.isObligedToAutomaticStatusChange(existingBooking)) {
+                existingBooking.setStatus(BookingStatus.ROOM_CHANGED);
+                bookingService.updateBooking(existingBooking, bookingId);
+            }
+        }
+
+        return savedAppointment;
+
     }
 
     @PreAuthorize(Authorities.APPOINTMENT_WRITE)
