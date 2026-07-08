@@ -52,6 +52,16 @@ export default createVuetify({
           canceled: "#D54234",
         },
       },
+      dark: {
+        colors: {
+          // Status colors
+          new: "#909090",
+          requested: "#668bdf",
+          approved: "#809C00",
+          coordination: "#af64d4",
+          canceled: "#D54234",
+        },
+      },
     },
   },
   locale: {
