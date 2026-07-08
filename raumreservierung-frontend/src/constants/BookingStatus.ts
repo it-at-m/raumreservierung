@@ -35,7 +35,7 @@ const UNFEASIBLE_STATUS_STYLE: ChipConfig = {
   text: "Abgelehnt",
   icon: mdiCalendarRemoveOutline,
 };
-const CANCELLED_STATUS_STYLE: ChipConfig = {
+const CANCELED_STATUS_STYLE: ChipConfig = {
   color: OBSOLETE_COLOR,
   text: "Storniert",
   icon: mdiCalendarRemoveOutline,
@@ -65,7 +65,7 @@ const ADMIN_STATUS_STYLES: Record<BookingStatus, ChipConfig> = {
     icon: mdiCalendarEditOutline,
   },
   UNFEASIBLE: UNFEASIBLE_STATUS_STYLE,
-  CANCELLED: CANCELLED_STATUS_STYLE,
+  CANCELED: CANCELED_STATUS_STYLE,
 };
 
 export const ROLE_STATUS_STYLES: Record<
@@ -75,11 +75,7 @@ export const ROLE_STATUS_STYLES: Record<
   raumadmin: ADMIN_STATUS_STYLES,
   raumbuchung: ADMIN_STATUS_STYLES,
   terminorganisator: {
-    NEW: {
-      color: NEW_COLOR,
-      text: "should not be visible",
-      icon: mdiCalendarBlankOutline,
-    },
+    NEW: NEW_STATUS_STYLE,
     ROOM_APPROVED: {
       color: IN_PROGRESS_COLOR,
       text: "Neu",
@@ -102,7 +98,7 @@ export const ROLE_STATUS_STYLES: Record<
       icon: mdiCalendarEditOutline,
     },
     UNFEASIBLE: UNFEASIBLE_STATUS_STYLE,
-    CANCELLED: CANCELLED_STATUS_STYLE,
+    CANCELED: CANCELED_STATUS_STYLE,
   },
   leseberechtigt: {
     NEW: NEW_STATUS_STYLE,
@@ -128,7 +124,7 @@ export const ROLE_STATUS_STYLES: Record<
       icon: mdiCalendarEditOutline,
     },
     UNFEASIBLE: UNFEASIBLE_STATUS_STYLE,
-    CANCELLED: CANCELLED_STATUS_STYLE,
+    CANCELED: CANCELED_STATUS_STYLE,
   },
   anwender: {
     NEW: NEW_STATUS_STYLE,
@@ -154,6 +150,6 @@ export const ROLE_STATUS_STYLES: Record<
       icon: mdiTimerSand,
     },
     UNFEASIBLE: UNFEASIBLE_STATUS_STYLE,
-    CANCELLED: CANCELLED_STATUS_STYLE,
+    CANCELED: CANCELED_STATUS_STYLE,
   },
 };
