@@ -15,3 +15,5 @@ export const DATE_FORMAT_YYYYMMDD = "YYYY-MM-DD";
 export const DATE_TIME_FORMAT_YYYYMMDDTHHMM = "YYYY-MM-DDTHH:mm";
 
 export const TIME_FORMAT_HHMM = "HH:mm";
+
+export const SCHEDULE_DEFAULT_DURATION = 15 * 60 * 1000; // 15min

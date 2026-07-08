@@ -13,20 +13,17 @@ import java.io.Serial;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
-import lombok.experimental.FieldNameConstants;
 
 @Getter
 @Setter
 @Entity
 @EqualsAndHashCode(callSuper = false)
-@FieldNameConstants
 @Table(
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = { "room_id", "seating_type_id" })
         }
 )
 public class RoomSeatingCapacity extends BaseEntity {
-
     @Serial
     private static final long serialVersionUID = 1L;
 

@@ -15,5 +15,7 @@ public class ExceptionMessageConstants {
     public static final String MSG_ROOM_INACTIVE = "Booking of inactive rooms is not possible";
     public static final String MSG_STATUS_CHANGE_NOT_POSSIBLE = "This status change is not possible";
     public static final String MSG_OCCUPANCY_END_BEFORE_START = "occupancyEnd cannot be before occupancyStart";
-
+    public static final String MSG_PARTICIPANT_COUNT_INVALID = "Participant count is invalid";
+    public static final String MSG_EQUIPMENT_INACTIVE = "Booking of inactive equipment is not possible";
+    public static final String MSG_SEATINGTYPE_INACTIVE = "Booking of inactive seating type is not possible";
 }

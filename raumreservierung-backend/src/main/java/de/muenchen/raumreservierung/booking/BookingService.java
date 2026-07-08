@@ -88,22 +88,17 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking createBooking(final Booking booking) {
         booking.setStatus(BookingStatus.NEW);
+
+        bookingValidationService.bookingIsValidOrThrowException(booking);
+
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
-        }
-
-        if (booking.getRoom() != null && !booking.getRoom().isActive()) {
-            throw new BadRequestException(MSG_ROOM_INACTIVE);
         }
 
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
         assignBookingContext(booking);
-
-        if (seatingTypeNotAvailableInRoom(booking)) {
-            throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
-        }
 
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
@@ -124,6 +119,8 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
+
+        bookingValidationService.bookingIsValidOrThrowException(bookingUpdates, existingBooking);
 
         bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
 
