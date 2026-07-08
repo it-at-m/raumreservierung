@@ -9,7 +9,6 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
@@ -247,12 +246,12 @@ public class BookingStatusTest {
                 Arguments.of(BookingStatus.UNFEASIBLE, Roles.TERMIN_ORGANISATOR),
                 Arguments.of(BookingStatus.UNFEASIBLE, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.UNFEASIBLE, Roles.RAUM_ADMIN),
-                // CANCELLED
-                Arguments.of(BookingStatus.CANCELLED, Roles.ANWENDER),
-                Arguments.of(BookingStatus.CANCELLED, Roles.LESEBERECHTIGT),
-                Arguments.of(BookingStatus.CANCELLED, Roles.TERMIN_ORGANISATOR),
-                Arguments.of(BookingStatus.CANCELLED, Roles.RAUM_BUCHUNG),
-                Arguments.of(BookingStatus.CANCELLED, Roles.RAUM_ADMIN));
+                // CANCELED
+                Arguments.of(BookingStatus.CANCELED, Roles.ANWENDER),
+                Arguments.of(BookingStatus.CANCELED, Roles.LESEBERECHTIGT),
+                Arguments.of(BookingStatus.CANCELED, Roles.TERMIN_ORGANISATOR),
+                Arguments.of(BookingStatus.CANCELED, Roles.RAUM_BUCHUNG),
+                Arguments.of(BookingStatus.CANCELED, Roles.RAUM_ADMIN));
     }
 
     @ParameterizedTest
@@ -290,11 +289,11 @@ public class BookingStatusTest {
                 Arguments.of(BookingStatus.NEW, BookingStatus.NEW, Roles.TERMIN_ORGANISATOR),
                 Arguments.of(BookingStatus.NEW, BookingStatus.NEW, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.NEW, BookingStatus.NEW, Roles.RAUM_ADMIN),
-                Arguments.of(BookingStatus.NEW, BookingStatus.CANCELLED, Roles.ANWENDER),
-                Arguments.of(BookingStatus.NEW, BookingStatus.CANCELLED, Roles.LESEBERECHTIGT),
-                Arguments.of(BookingStatus.NEW, BookingStatus.CANCELLED, Roles.TERMIN_ORGANISATOR),
-                Arguments.of(BookingStatus.NEW, BookingStatus.CANCELLED, Roles.RAUM_BUCHUNG),
-                Arguments.of(BookingStatus.NEW, BookingStatus.CANCELLED, Roles.RAUM_ADMIN),
+                Arguments.of(BookingStatus.NEW, BookingStatus.CANCELED, Roles.ANWENDER),
+                Arguments.of(BookingStatus.NEW, BookingStatus.CANCELED, Roles.LESEBERECHTIGT),
+                Arguments.of(BookingStatus.NEW, BookingStatus.CANCELED, Roles.TERMIN_ORGANISATOR),
+                Arguments.of(BookingStatus.NEW, BookingStatus.CANCELED, Roles.RAUM_BUCHUNG),
+                Arguments.of(BookingStatus.NEW, BookingStatus.CANCELED, Roles.RAUM_ADMIN),
                 Arguments.of(BookingStatus.NEW, BookingStatus.ROOM_APPROVED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.NEW, BookingStatus.ROOM_APPROVED, Roles.RAUM_ADMIN),
                 Arguments.of(BookingStatus.NEW, BookingStatus.UNFEASIBLE, Roles.RAUM_BUCHUNG),
@@ -305,11 +304,11 @@ public class BookingStatusTest {
                 Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.ROOM_APPROVED, Roles.TERMIN_ORGANISATOR),
                 Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.ROOM_APPROVED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.ROOM_APPROVED, Roles.RAUM_ADMIN),
-                Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.CANCELLED, Roles.ANWENDER),
-                Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.CANCELLED, Roles.LESEBERECHTIGT),
-                Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.CANCELLED, Roles.TERMIN_ORGANISATOR),
-                Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.CANCELLED, Roles.RAUM_BUCHUNG),
-                Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.CANCELLED, Roles.RAUM_ADMIN),
+                Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.CANCELED, Roles.ANWENDER),
+                Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.CANCELED, Roles.LESEBERECHTIGT),
+                Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.CANCELED, Roles.TERMIN_ORGANISATOR),
+                Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.CANCELED, Roles.RAUM_BUCHUNG),
+                Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.CANCELED, Roles.RAUM_ADMIN),
                 Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.COORDINATION_NEEDED, Roles.TERMIN_ORGANISATOR),
                 Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.COORDINATION_NEEDED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.ROOM_APPROVED, BookingStatus.COORDINATION_NEEDED, Roles.RAUM_ADMIN),
@@ -327,11 +326,11 @@ public class BookingStatusTest {
                 Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.COORDINATION_NEEDED, Roles.TERMIN_ORGANISATOR),
                 Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.COORDINATION_NEEDED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.COORDINATION_NEEDED, Roles.RAUM_ADMIN),
-                Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.CANCELLED, Roles.ANWENDER),
-                Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.CANCELLED, Roles.LESEBERECHTIGT),
-                Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.CANCELLED, Roles.TERMIN_ORGANISATOR),
-                Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.CANCELLED, Roles.RAUM_BUCHUNG),
-                Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.CANCELLED, Roles.RAUM_ADMIN),
+                Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.CANCELED, Roles.ANWENDER),
+                Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.CANCELED, Roles.LESEBERECHTIGT),
+                Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.CANCELED, Roles.TERMIN_ORGANISATOR),
+                Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.CANCELED, Roles.RAUM_BUCHUNG),
+                Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.CANCELED, Roles.RAUM_ADMIN),
                 Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.ORGANIZER_APPROVED, Roles.TERMIN_ORGANISATOR),
                 Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.ORGANIZER_APPROVED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.COORDINATION_NEEDED, BookingStatus.ORGANIZER_APPROVED, Roles.RAUM_ADMIN),
@@ -343,22 +342,22 @@ public class BookingStatusTest {
                 Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.ORGANIZER_APPROVED, Roles.TERMIN_ORGANISATOR),
                 Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.ORGANIZER_APPROVED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.ORGANIZER_APPROVED, Roles.RAUM_ADMIN),
-                Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.CANCELLED, Roles.ANWENDER),
-                Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.CANCELLED, Roles.LESEBERECHTIGT),
-                Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.CANCELLED, Roles.TERMIN_ORGANISATOR),
-                Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.CANCELLED, Roles.RAUM_BUCHUNG),
-                Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.CANCELLED, Roles.RAUM_ADMIN),
+                Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.CANCELED, Roles.ANWENDER),
+                Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.CANCELED, Roles.LESEBERECHTIGT),
+                Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.CANCELED, Roles.TERMIN_ORGANISATOR),
+                Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.CANCELED, Roles.RAUM_BUCHUNG),
+                Arguments.of(BookingStatus.ORGANIZER_APPROVED, BookingStatus.CANCELED, Roles.RAUM_ADMIN),
                 // ROOM_CHANGED
                 Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.ROOM_CHANGED, Roles.ANWENDER),
                 Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.ROOM_CHANGED, Roles.LESEBERECHTIGT),
                 Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.ROOM_CHANGED, Roles.TERMIN_ORGANISATOR),
                 Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.ROOM_CHANGED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.ROOM_CHANGED, Roles.RAUM_ADMIN),
-                Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELLED, Roles.ANWENDER),
-                Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELLED, Roles.LESEBERECHTIGT),
-                Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELLED, Roles.TERMIN_ORGANISATOR),
-                Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELLED, Roles.RAUM_BUCHUNG),
-                Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELLED, Roles.RAUM_ADMIN),
+                Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELED, Roles.ANWENDER),
+                Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELED, Roles.LESEBERECHTIGT),
+                Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELED, Roles.TERMIN_ORGANISATOR),
+                Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELED, Roles.RAUM_BUCHUNG),
+                Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELED, Roles.RAUM_ADMIN),
                 Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.ORGANIZER_CHANGED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.ORGANIZER_CHANGED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.ROOM_CHANGED, BookingStatus.UNFEASIBLE, Roles.RAUM_ADMIN),
@@ -369,11 +368,11 @@ public class BookingStatusTest {
                 Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.ORGANIZER_CHANGED, Roles.TERMIN_ORGANISATOR),
                 Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.ORGANIZER_CHANGED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.ORGANIZER_CHANGED, Roles.RAUM_ADMIN),
-                Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.CANCELLED, Roles.ANWENDER),
-                Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.CANCELLED, Roles.LESEBERECHTIGT),
-                Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.CANCELLED, Roles.TERMIN_ORGANISATOR),
-                Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.CANCELLED, Roles.RAUM_BUCHUNG),
-                Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.CANCELLED, Roles.RAUM_ADMIN),
+                Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.CANCELED, Roles.ANWENDER),
+                Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.CANCELED, Roles.LESEBERECHTIGT),
+                Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.CANCELED, Roles.TERMIN_ORGANISATOR),
+                Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.CANCELED, Roles.RAUM_BUCHUNG),
+                Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.CANCELED, Roles.RAUM_ADMIN),
                 Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.COORDINATION_NEEDED, Roles.TERMIN_ORGANISATOR),
                 Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.COORDINATION_NEEDED, Roles.RAUM_BUCHUNG),
                 Arguments.of(BookingStatus.ORGANIZER_CHANGED, BookingStatus.COORDINATION_NEEDED, Roles.RAUM_ADMIN),
@@ -1022,7 +1021,8 @@ public class BookingStatusTest {
                 schedule,
                 mockPerson.getId(),
                 booking.getSeatingType().getId(),
-                booking.getStatus());
+                booking.getStatus(),
+                booking.getReasonForRejection());
     }
 
 }

@@ -20,14 +20,14 @@ public class BookingValidationService {
     /**
      * Checks if a booking can be canceled by the current user.
      * Only permitted if the user has role RAUM_BUCHUNG or higher
-     * and the transition to the CANCELLED status is allowed.
+     * and the transition to the CANCELED status is allowed.
      *
      * @param booking the booking entity to check
      * @return true if the user is authorized and the status transition is valid, false otherwise
      */
     public boolean canCancelBooking(final Booking booking) {
         return validateBookingAuthority(booking, Roles.RAUM_BUCHUNG) &&
-                bookingTransitionService.isTransitionAllowed(booking.getStatus(), BookingStatus.CANCELLED);
+                bookingTransitionService.isTransitionAllowed(booking.getStatus(), BookingStatus.CANCELED);
     }
 
     /**
@@ -67,7 +67,7 @@ public class BookingValidationService {
      */
     public void validateBookingStatusTransitionOrThrowException(final Booking existingBooking, final Booking bookingUpdates) {
         final boolean isTransitionAllowed = bookingTransitionService.isTransitionAllowed(existingBooking.getStatus(), bookingUpdates.getStatus());
-        final boolean isIllegalCancel = bookingUpdates.getStatus() == BookingStatus.CANCELLED && !canCancelBooking(existingBooking);
+        final boolean isIllegalCancel = bookingUpdates.getStatus() == BookingStatus.CANCELED && !canCancelBooking(existingBooking);
 
         if (!isTransitionAllowed || isIllegalCancel) {
             throw new BadRequestException(MSG_STATUS_CHANGE_NOT_POSSIBLE);
