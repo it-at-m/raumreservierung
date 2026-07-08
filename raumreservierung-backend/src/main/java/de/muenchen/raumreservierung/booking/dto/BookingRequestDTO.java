@@ -21,5 +21,6 @@ public record BookingRequestDTO(
         @NotNull ScheduleTemplate schedule,
         UUID bookedForId,
         UUID seatingTypeId,
-        @NotNull BookingStatus status) {
+        @NotNull BookingStatus status,
+        @Size(max = 255) String reasonForRejection) {
 }

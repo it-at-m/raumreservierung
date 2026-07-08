@@ -48,13 +48,22 @@
           </v-list-item-subtitle>
           <v-chip
             v-if="status?.currentStatus"
-            :color="getStatusStyle(status.currentStatus).color"
-            variant="tonal"
-            class="font-weight-bold"
-            size="small"
-          >
-            {{ getStatusStyle(status.currentStatus).text }}
-          </v-chip>
+            :color="statusConfig.get(status.currentStatus).color"
+            variant="outlined"
+            class="font-weight-bold justify-space-evenly"
+            :prepend-icon="statusConfig.get(status.currentStatus).icon"
+            :text="statusConfig.get(status.currentStatus).text"
+            style="width: 135px"
+          />
+        </v-list-item>
+        <v-list-item
+          v-if="status?.currentStatus === 'UNFEASIBLE'"
+          class="px-0 mt-2"
+        >
+          <v-list-item-subtitle class="mb-2">
+            {{ "Grund" }}
+          </v-list-item-subtitle>
+          {{ reasonForRejection || "Kein Grund angegeben" }}
         </v-list-item>
       </v-list>
     </template>
@@ -79,13 +88,14 @@ const { t } = useI18n();
 
 const showId = useIsPrivileged("bookings:manage");
 
-const { getStatusStyle } = useBookingStatusConfig();
+const { statusConfig } = useBookingStatusConfig();
 
 const props = defineProps<{
   id?: string;
   title?: string;
   schedule?: ScheduleTemplate;
   status?: BookingStatusDTO;
+  reasonForRejection?: string;
 }>();
 
 const isMultiDay = computed(() => {

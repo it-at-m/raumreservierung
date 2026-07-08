@@ -9,23 +9,54 @@
         @click="router.back()"
       />
       <base-button
+        v-if="canCancel"
         class="ml-4"
         text="Stornieren"
         secondary
-        @click="handleStatusChange('CANCELLED')"
+        @click="handleStatusChange('CANCELED')"
         ><template #prepend>
           <v-icon
             :icon="mdiCalendarRemoveOutline"
             color="canceled"
           /> </template
       ></base-button>
-      <base-button
-        :disabled="!isValid"
-        class="ml-4"
-        :text="t('common.save')"
-        :append-icon="mdiContentSaveOutline"
-        @click="saveBooking"
-      />
+      <v-dialog
+        max-width="800px"
+        width="90%"
+      >
+        <template #activator="{ props }">
+          <base-button
+            :disabled="!isValid"
+            class="ml-4"
+            :text="t('common.save')"
+            :append-icon="mdiContentSaveOutline"
+            v-bind="props"
+            @click="
+              bookingData.status === BookingRequestDTOStatusEnum.UNFEASIBLE
+                ? props.onClick($event)
+                : saveBooking()
+            "
+          />
+        </template>
+
+        <template #default="{ isActive }">
+          <confirm-unfeasible-card
+            v-model="bookingData.reasonForRejection"
+            title="Buchung ablehnen"
+            subtitle="Bitte geben Sie einen Grund an, warum die Buchung nicht leistbar ist."
+            @cancel="isActive.value = false"
+            @confirm="handleUnfeasibleConfirm(isActive)"
+          >
+            <template #confirm="{ props: btnProps }">
+              <base-button
+                v-bind="btnProps"
+                text="Ablehnen"
+                :prepend-icon="mdiCalendarRemoveOutline"
+              />
+            </template>
+          </confirm-unfeasible-card>
+        </template>
+      </v-dialog>
     </template>
     <template #default>
       <v-form
@@ -242,8 +273,8 @@
 <script setup lang="ts">
 import type {
   BookingRequestDTO,
-  BookingRequestDTOStatusEnum,
   FindById200Response,
+  InternalPersonResponseDto,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
@@ -258,6 +289,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
+import { BookingRequestDTOStatusEnum } from "@/api/raumreservierung-backend";
 import { type BookingStatusDTO as BookingStatusFull } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
 import BookingStatusSelect from "@/components/booking/BookingStatusSelect.vue";
@@ -268,6 +300,7 @@ import SeatingTypeSelector from "@/components/booking/SeatingTypeParticipantsSel
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
+import ConfirmUnfeasibleCard from "@/components/common/ConfirmUnfeasibleCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import {
@@ -279,6 +312,7 @@ import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
+import { useUserStore } from "@/stores/user.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import {
   EMPTY_BOOKING_REQUEST_DATA,
@@ -300,6 +334,11 @@ const currentRoom = ref<RoomRequestDTO>();
 const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
 const bookedFor = ref<FindById200Response>();
 const statusFull = ref<BookingStatusFull>();
+
+const handleUnfeasibleConfirm = async (isActive: { value: boolean }) => {
+  await saveBooking();
+  isActive.value = false;
+};
 
 const handleStatusChange = async (nextStatus: BookingRequestDTOStatusEnum) => {
   bookingData.value.status = nextStatus;
@@ -428,6 +467,8 @@ const saveBooking = async () => {
       bookingRequestDTO: {
         ...bookingData.value,
         bookedForId: bookedFor.value?.id,
+        status: bookingData.value.status,
+        reasonForRejection: bookingData.value.reasonForRejection,
         seatingTypeId: currentRoom.value
           ? bookingData.value.seatingTypeId
           : undefined,
@@ -442,6 +483,7 @@ const saveBooking = async () => {
       bookingRequestDTO: {
         ...bookingData.value,
         bookedForId: bookedFor.value?.id,
+        status: bookingData.value.status,
         seatingTypeId: currentRoom.value
           ? bookingData.value.seatingTypeId
           : undefined,
@@ -468,6 +510,30 @@ const updateRRule = (value: boolean | null) => {
     };
   }
 };
+
+const canCancel = computed(() => {
+  if (!getBookingData.value) {
+    return false;
+  }
+  const userStore = useUserStore();
+  const userOrgId = userStore.user?.lhmObjectID;
+
+  let isBookedBy = false;
+  let isBookedFor = false;
+  const bookedFor = toRaw(getBookingData.value.bookedFor);
+  const bookedBy = toRaw(getBookingData.value.bookedBy);
+
+  if (bookedFor && bookedFor.type === "INTERNAL") {
+    isBookedFor =
+      (bookedFor as InternalPersonResponseDto).organisationId === userOrgId;
+  }
+
+  if (bookedBy && bookedBy.type === "INTERNAL") {
+    isBookedBy =
+      (bookedBy as InternalPersonResponseDto).organisationId === userOrgId;
+  }
+  return isBookedFor || isBookedBy;
+});
 </script>
 
 <style scoped></style>

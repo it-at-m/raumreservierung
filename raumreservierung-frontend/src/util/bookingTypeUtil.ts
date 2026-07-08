@@ -25,6 +25,7 @@ export const mapBookingResponseToRequest = (
     schedule: response.schedule,
     recurringRule: response.recurringRule,
     status: response.status.currentStatus,
+    reasonForRejection: response.reasonForRejection,
   };
 };
 
@@ -46,4 +47,5 @@ export const EMPTY_BOOKING_REQUEST_DATA: BookingRequestDTO = {
     appointmentEnd: undefined,
   } as ScheduleTemplate,
   status: "NEW",
+  reasonForRejection: undefined,
 };

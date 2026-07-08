@@ -79,6 +79,9 @@ public class Booking extends BaseEntity {
     @Column(nullable = false)
     private BookingStatus status;
 
+    @Column
+    private String reasonForRejection;
+
     public void updateFrom(final Booking booking) {
         this.room = booking.getRoom();
         this.title = booking.getTitle();
@@ -93,6 +96,7 @@ public class Booking extends BaseEntity {
         this.organisationUnit = booking.getOrganisationUnit();
         this.seatingType = booking.getSeatingType();
         this.status = booking.getStatus();
+        this.reasonForRejection = booking.getReasonForRejection();
 
         this.equipment.clear();
         if (booking.getEquipment() != null) {

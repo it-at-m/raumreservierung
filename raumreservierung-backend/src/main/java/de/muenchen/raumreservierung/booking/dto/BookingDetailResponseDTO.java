@@ -26,5 +26,6 @@ public record BookingDetailResponseDTO(
         @NotNull String organisationUnit,
         SeatingType seatingType,
         String recurringRule,
-        @NotNull BookingStatusDTO status) {
+        @NotNull BookingStatusDTO status,
+        String reasonForRejection) {
 }
