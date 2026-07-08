@@ -14,4 +14,6 @@ public class ExceptionMessageConstants {
     public static final String MSG_SEATINGTYPE_NOT_AVAILABLE = "Seating type not available in selected room or no room selected";
     public static final String MSG_ROOM_INACTIVE = "Booking of inactive rooms is not possible";
     public static final String MSG_PARTICIPANT_COUNT_INVALID = "Participant count is invalid";
+    public static final String MSG_EQUIPMENT_INACTIVE = "Booking of inactive equipment is not possible";
+    public static final String MSG_SEATINGTYPE_INACTIVE = "Booking of inactive seating type is not possible";
 }

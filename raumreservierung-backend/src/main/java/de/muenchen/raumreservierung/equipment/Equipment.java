@@ -4,12 +4,14 @@ import de.muenchen.raumreservierung.common.BaseEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import java.io.Serial;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 
 @Entity
 @Setter
 @Getter
+@EqualsAndHashCode(callSuper = true)
 public class Equipment extends BaseEntity {
 
     @Serial

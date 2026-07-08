@@ -12,6 +12,7 @@ import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
+import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.security.AuthUtils;
 import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
@@ -19,6 +20,7 @@ import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -98,6 +100,7 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
+
         bookingValidationService.bookingIsValidOrThrowException(bookingUpdates, existingBooking);
 
         if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
@@ -221,6 +224,21 @@ public class BookingService {
     }
 
     /**
+     * Validates if the selected seating type is available within the booked room's capacities.
+     *
+     * @param booking Booking containing the room and requested seating type.
+     * @return true if the seating type is not available in selected room or no room is selected; false
+     *         otherwise.
+     */
+    public boolean seatingTypeNotAvailableInRoom(final Booking booking) {
+        return booking.getSeatingType() != null && Optional.ofNullable(booking.getRoom())
+                .map(Room::getRoomSeatingCapacities)
+                .map(capacities -> capacities.stream()
+                        .noneMatch(capacity -> Objects.equals(capacity.getSeatingType(), booking.getSeatingType())))
+                .orElse(true);
+    }
+
+    /**
      * Sets the organization unit and determines who the booking is created by and for.
      *
      * @param booking the booking to process and enrich
@@ -240,5 +258,7 @@ public class BookingService {
         } else {
             booking.setBookedBy(currentPerson);
         }
+
     }
+
 }
