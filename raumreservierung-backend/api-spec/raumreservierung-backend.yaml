@@ -646,17 +646,21 @@ paths:
       - name: status
         in: query
         required: false
+        style: form
+        explode: false
         schema:
-          type: string
-          enum:
-          - NEW
-          - ROOM_APPROVED
-          - ROOM_CHANGED
-          - COORDINATION_NEEDED
-          - ORGANIZER_APPROVED
-          - ORGANIZER_CHANGED
-          - UNFEASIBLE
-          - CANCELLED
+          type: array
+          items:
+            type: string
+            enum:
+            - NEW
+            - ROOM_APPROVED
+            - ROOM_CHANGED
+            - COORDINATION_NEEDED
+            - ORGANIZER_APPROVED
+            - ORGANIZER_CHANGED
+            - UNFEASIBLE
+            - CANCELED
       - name: self
         in: query
         required: false
@@ -1095,6 +1099,9 @@ components:
           type: string
       discriminator:
         propertyName: type
+        mapping:
+          INTERNAL: "#/components/schemas/InternalPersonResponseDto"
+          EXTERNAL: "#/components/schemas/ExternalPersonResponseDto"
     RoomDetailsResponseDTO:
       required:
       - area
@@ -1344,7 +1351,11 @@ components:
           - ORGANIZER_APPROVED
           - ORGANIZER_CHANGED
           - UNFEASIBLE
-          - CANCELLED
+          - CANCELED
+        reasonForRejection:
+          maxLength: 255
+          minLength: 0
+          type: string
     ScheduleTemplate:
       required:
       - occupancyEnd
@@ -1414,6 +1425,8 @@ components:
           type: string
         status:
           $ref: "#/components/schemas/BookingStatusDTO"
+        reasonForRejection:
+          type: string
     BookingStatusDTO:
       required:
       - currentStatus
@@ -1430,7 +1443,7 @@ components:
           - ORGANIZER_APPROVED
           - ORGANIZER_CHANGED
           - UNFEASIBLE
-          - CANCELLED
+          - CANCELED
         nextPossibleStatus:
           type: array
           items:
@@ -1443,7 +1456,7 @@ components:
             - ORGANIZER_APPROVED
             - ORGANIZER_CHANGED
             - UNFEASIBLE
-            - CANCELLED
+            - CANCELED
     RoomListResponseDTO:
       required:
       - isActive
