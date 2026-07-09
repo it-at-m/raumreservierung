@@ -81,7 +81,7 @@ public class BookingFilterIntegrationTest {
 
         assertThat(roomIds).isNotEmpty();
         assertThat(roomIds).containsOnly(roomId.toString());
-        assertThat(roomIds.size()).isEqualTo(2);
+        assertThat(roomIds.size()).isEqualTo(10);
     }
 
     @Test

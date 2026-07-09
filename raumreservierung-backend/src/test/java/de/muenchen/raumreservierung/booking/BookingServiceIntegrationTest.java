@@ -37,6 +37,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
         classes = {
                 BookingService.class,
                 BookingValidationService.class,
+                BookingTransitionService.class,
                 SecurityConfiguration.class,
                 SecurityContextService.class
         }
@@ -81,7 +82,7 @@ public class BookingServiceIntegrationTest {
         person.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
         booking.setBookedBy(person);
 
-        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(person);
 
         assertTrue(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_BUCHUNG));
@@ -101,7 +102,7 @@ public class BookingServiceIntegrationTest {
         currentUser.setOrganisationId("012345");
         currentUser.setId(UUID.fromString("99999999-aaaa-bbbb-cccc-dddddddddddd"));
 
-        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(currentUser);
 
         assertFalse(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
@@ -151,7 +152,7 @@ public class BookingServiceIntegrationTest {
         booking.setBookedFor(person);
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(person);
 
         Booking result = bookingService.getById(bookingId);
@@ -176,7 +177,7 @@ public class BookingServiceIntegrationTest {
         stranger.setOrganisationId("99999");
 
         when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(stranger);
 
         assertThrows(UnauthorizedActionException.class, () -> bookingService.getById(bookingId));

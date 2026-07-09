@@ -46,6 +46,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
         classes = {
                 BookingService.class,
                 BookingValidationService.class,
+                BookingTransitionService.class,
                 SecurityConfiguration.class,
                 SecurityContextService.class
         }
@@ -81,17 +82,19 @@ public class BookingValidationServiceTest {
 
     @BeforeEach
     void setUp() {
-        InternalPerson mockPerson = new InternalPerson();
-        mockPerson.setOrganisationId("000001");
-        mockPerson.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
+        InternalPerson testPerson = new InternalPerson();
+        testPerson.setOrganisationId("000001");
+        testPerson.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
 
         baseBooking = new Booking();
         baseBooking.setTitle("TEST_BOOKING");
-        baseBooking.setBookedBy(mockPerson);
+        baseBooking.setBookedBy(testPerson);
+        baseBooking.setStatus(BookingStatus.NEW);
 
         baseBookingExisting = new Booking();
         baseBookingExisting.setTitle("TEST_BOOKING");
-        baseBookingExisting.setBookedBy(mockPerson);
+        baseBookingExisting.setBookedBy(testPerson);
+        baseBookingExisting.setStatus(BookingStatus.NEW);
 
         UUID testEquipmentId = UUID.randomUUID();
         testEquipment = new Equipment();
@@ -154,7 +157,9 @@ public class BookingValidationServiceTest {
         roomSeatingCapacity.setRoom(testRoomWithSeatingCapacity);
 
         when(personService.resolveInternalPersonByOrganisationIDOrThrowException(anyString()))
-                .thenReturn(mockPerson);
+                .thenReturn(testPerson);
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(anyString()))
+                .thenReturn(testPerson);
 
         when(bookingRepository.findById(any())).thenReturn(Optional.of(baseBooking));
 
@@ -371,6 +376,7 @@ public class BookingValidationServiceTest {
         baseBooking.setSeatingType(testSeatingType);
 
         when(bookingRepository.findById(any(UUID.class))).thenReturn(Optional.ofNullable(baseBooking));
+
         baseBooking.setRoom(testRoomWithSeatingCapacity);
 
         Booking booking = bookingService.updateBooking(baseBooking, UUID.randomUUID());

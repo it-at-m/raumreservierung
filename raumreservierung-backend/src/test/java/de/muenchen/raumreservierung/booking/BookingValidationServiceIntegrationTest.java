@@ -9,6 +9,7 @@ import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import de.muenchen.raumreservierung.room.RoomService;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
@@ -45,6 +46,8 @@ public class BookingValidationServiceIntegrationTest {
     private BookingTransitionService bookingTransitionService;
     @MockitoBean
     private BookingService bookingService;
+    @MockitoBean
+    private RoomService roomService;
 
     @Test
     @WithMockJwt(lhmObjectID = "987654", authorities = { Roles.RAUM_ADMIN })
@@ -66,7 +69,7 @@ public class BookingValidationServiceIntegrationTest {
         person.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
         booking.setBookedBy(person);
 
-        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(person);
 
         assertTrue(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_BUCHUNG));
@@ -86,7 +89,7 @@ public class BookingValidationServiceIntegrationTest {
         currentUser.setOrganisationId("012345");
         currentUser.setId(UUID.fromString("99999999-aaaa-bbbb-cccc-dddddddddddd"));
 
-        when(personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
                 .thenReturn(currentUser);
 
         assertFalse(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));

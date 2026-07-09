@@ -330,7 +330,8 @@ public class BookingControllerIntegrationTest {
                 schedule,
                 bookedForId,
                 null,
-                BookingStatus.ORGANIZER_APPROVED);
+                BookingStatus.ORGANIZER_APPROVED,
+                null);
     }
 
     private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
@@ -356,7 +357,8 @@ public class BookingControllerIntegrationTest {
                 schedule,
                 mockPerson.getId(),
                 seatingTypeId,
-                BookingStatus.ORGANIZER_APPROVED);
+                BookingStatus.ORGANIZER_APPROVED,
+                null);
     }
 
     private static Stream<Arguments> provideTestData() {

@@ -5,6 +5,7 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.jwt;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -12,6 +13,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.muenchen.raumreservierung.TestConstants;
+import de.muenchen.raumreservierung.appointment.Appointment;
+import de.muenchen.raumreservierung.appointment.AppointmentRepository;
+import de.muenchen.raumreservierung.appointment.dto.AppointmentRequestDTO;
+import de.muenchen.raumreservierung.appointment.dto.AppointmentResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
 import de.muenchen.raumreservierung.common.BaseEntity;
@@ -61,6 +66,7 @@ public class BookingStatusTest {
             DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
 
     private static final String BOOKINGS_URL = "/bookings";
+    private static final String APPOINTMENTS_URL = "/appointments";
 
     @Autowired
     private MockMvc mockMvc;
@@ -86,11 +92,15 @@ public class BookingStatusTest {
     @Autowired
     private EquipmentRepository equipmentRepository;
 
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+
     private InternalPerson mockPerson;
     private Room mockRoom2;
     private SeatingType mockSeatingType2;
     private Equipment mockEquipment2;
     private Booking mockBooking;
+    private Appointment mockAppointment;
 
     @BeforeEach
     void setUp() {
@@ -160,11 +170,16 @@ public class BookingStatusTest {
         mockRoom2 = roomRepository.save(mockRoom2);
 
         OffsetDateTime now = OffsetDateTime.now();
-        ScheduleTemplate schedule = new ScheduleTemplate(
+        ScheduleTemplate scheduleBooking = new ScheduleTemplate(
                 now,
                 now.plusHours(2),
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30));
+        ScheduleTemplate scheduleAppointment = new ScheduleTemplate(
+                now,
+                now.plusHours(1),
+                now.plusMinutes(15),
+                now.plusMinutes(30));
 
         mockBooking = new Booking();
         mockBooking.setTitle("TEST_BOOKING_TITLE");
@@ -175,8 +190,13 @@ public class BookingStatusTest {
         mockBooking.setCateringNeeded(true);
         mockBooking.setParticipantCount(1);
         mockBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
-        mockBooking.setSchedule(schedule);
+        mockBooking.setSchedule(scheduleBooking);
         mockBooking = bookingRepository.save(mockBooking);
+
+        mockAppointment = new Appointment();
+        mockAppointment.setBooking(mockBooking);
+        mockAppointment.setSchedule(scheduleAppointment);
+        mockAppointment = appointmentRepository.save(mockAppointment);
     }
 
     @ParameterizedTest
@@ -594,7 +614,7 @@ public class BookingStatusTest {
     // tests for no change of status (depending on role) by change of room
     @ParameterizedTest
     @MethodSource("provideTestDataUpdateChangedAdmin")
-    void updateBooking_ReturnsOkAndROOM_CHANGEDStatus_WhenRoomChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
+    void updateBooking_ReturnsOkAndOldStatus_WhenRoomChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
             throws Exception {
         mockBooking.setStatus(fromStatus);
         bookingRepository.save(mockBooking);
@@ -666,7 +686,7 @@ public class BookingStatusTest {
     // tests for no change of status (depending on role) by change of equipment
     @ParameterizedTest
     @MethodSource("provideTestDataUpdateChangedAdmin")
-    void updateBooking_ReturnsOkAndROOM_CHANGEDStatus_WhenEquipmentChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
+    void updateBooking_ReturnsOkAndOldStatus_WhenEquipmentChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
             throws Exception {
         mockBooking.setStatus(fromStatus);
         bookingRepository.save(mockBooking);
@@ -726,7 +746,7 @@ public class BookingStatusTest {
     // tests for no change of status (depending on role) by change of seating type
     @ParameterizedTest
     @MethodSource("provideTestDataUpdateChangedAdmin")
-    void updateBooking_ReturnsOkAndROOM_CHANGEDStatus_WhenSeatingTypeChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
+    void updateBooking_ReturnsOkAndOldStatus_WhenSeatingTypeChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
             throws Exception {
         mockBooking.setStatus(fromStatus);
         bookingRepository.save(mockBooking);
@@ -786,7 +806,7 @@ public class BookingStatusTest {
     // tests for no change of status (depending on role) by change of participant count
     @ParameterizedTest
     @MethodSource("provideTestDataUpdateChangedAdmin")
-    void updateBooking_ReturnsOkAndROOM_CHANGEDStatus_WhenParticipantCountChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus,
+    void updateBooking_ReturnsOkAndOldStatus_WhenParticipantCountChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus,
             String roles) throws Exception {
         mockBooking.setStatus(fromStatus);
         bookingRepository.save(mockBooking);
@@ -846,7 +866,7 @@ public class BookingStatusTest {
     // tests for no change of status (depending on role) by change of catering needed
     @ParameterizedTest
     @MethodSource("provideTestDataUpdateChangedAdmin")
-    void updateBooking_ReturnsOkAndROOM_CHANGEDStatus_WhenCateringNeededChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus,
+    void updateBooking_ReturnsOkAndOldStatus_WhenCateringNeededChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus,
             String roles) throws Exception {
         mockBooking.setStatus(fromStatus);
         bookingRepository.save(mockBooking);
@@ -904,7 +924,7 @@ public class BookingStatusTest {
     // tests for no change of status (depending on role) by change of schedule
     @ParameterizedTest
     @MethodSource("provideTestDataUpdateChangedAdmin")
-    void updateBooking_ReturnsOkAndROOM_CHANGEDStatus_WhenScheduleChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
+    void updateBooking_ReturnsOkAndOldStatus_WhenScheduleChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
             throws Exception {
         mockBooking.setStatus(fromStatus);
         bookingRepository.save(mockBooking);
@@ -962,7 +982,7 @@ public class BookingStatusTest {
     // tests for no change of status (depending on role) by change of recurring rule
     @ParameterizedTest
     @MethodSource("provideTestDataUpdateChangedAdmin")
-    void updateBooking_ReturnsOkAndROOM_CHANGEDStatus_WhenRRuleChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
+    void updateBooking_ReturnsOkAndOldStatus_WhenRRuleChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
             throws Exception {
         mockBooking.setStatus(fromStatus);
         bookingRepository.save(mockBooking);
@@ -989,6 +1009,107 @@ public class BookingStatusTest {
         assertThat(responseBody.status().currentStatus()).isEqualTo(fromStatus);
     }
 
+    // tests for automatic change of status (depending on role) by change of schedule of appointment
+    @ParameterizedTest
+    @MethodSource("provideTestDataUpdateChanged")
+    void updateAppointment_ReturnsOkAndROOM_CHANGEDStatus_WhenScheduleChangedAndAnwenderOrLeseberechtigt(BookingStatus fromStatus, String roles)
+            throws Exception {
+        mockBooking.setStatus(fromStatus);
+        mockBooking = bookingRepository.save(mockBooking);
+
+        AppointmentRequestDTO request = getAppointmentRequestDTOFromDate(OffsetDateTime.now().plusMinutes(1));
+
+        String responseJson = mockMvc.perform(put(APPOINTMENTS_URL + "/" + mockAppointment.getId())
+                .with(csrf())
+                .with(jwt()
+                        .jwt(jwt -> jwt.claim("lhmObjectID", "000001"))
+                        .authorities(Arrays.stream(new String[] { roles })
+                                .map(SimpleGrantedAuthority::new)
+                                .toArray(GrantedAuthority[]::new)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        AppointmentResponseDTO responseBody = objectMapper.readValue(responseJson, AppointmentResponseDTO.class);
+
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody.schedule()).isNotNull();
+        assertThat(responseBody.schedule()).usingRecursiveComparison()
+                .withEqualsForType(OffsetDateTime::isEqual, OffsetDateTime.class)
+                .isEqualTo(request.schedule());
+
+        String bookingResponseJson = mockMvc.perform(get(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf())
+                .with(jwt()
+                        .jwt(jwt -> jwt.claim("lhmObjectID", "000001"))
+                        .authorities(Arrays.stream(new String[] { roles })
+                                .map(SimpleGrantedAuthority::new)
+                                .toArray(GrantedAuthority[]::new)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        BookingDetailResponseDTO bookingResponseBody = objectMapper.readValue(bookingResponseJson, BookingDetailResponseDTO.class);
+        assertThat(bookingResponseBody).isNotNull();
+        assertThat(bookingResponseBody.status()).isNotNull();
+        assertThat(bookingResponseBody.status().currentStatus()).isEqualTo(BookingStatus.ROOM_CHANGED);
+
+    }
+
+    // tests for no change of status (depending on role) by change of schedule of appointment
+    @ParameterizedTest
+    @MethodSource("provideTestDataUpdateChangedAdmin")
+    void updateAppointment_ReturnsOkAndOldStatus_WhenScheduleChangedAndTerminorganisatorOrRaumbuchungOrRaumadmin(BookingStatus fromStatus, String roles)
+            throws Exception {
+        mockBooking.setStatus(fromStatus);
+        mockBooking = bookingRepository.save(mockBooking);
+
+        AppointmentRequestDTO request = getAppointmentRequestDTOFromDate(OffsetDateTime.now().plusMinutes(1));
+
+        String responseJson = mockMvc.perform(put(APPOINTMENTS_URL + "/" + mockAppointment.getId())
+                .with(csrf())
+                .with(jwt()
+                        .jwt(jwt -> jwt.claim("lhmObjectID", "000001"))
+                        .authorities(Arrays.stream(new String[] { roles })
+                                .map(SimpleGrantedAuthority::new)
+                                .toArray(GrantedAuthority[]::new)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        AppointmentResponseDTO responseBody = objectMapper.readValue(responseJson, AppointmentResponseDTO.class);
+
+        assertThat(responseBody).isNotNull();
+        assertThat(responseBody.schedule()).isNotNull();
+        assertThat(responseBody.schedule()).usingRecursiveComparison()
+                .withEqualsForType(OffsetDateTime::isEqual, OffsetDateTime.class)
+                .isEqualTo(request.schedule());
+
+        String bookingResponseJson = mockMvc.perform(get(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf())
+                .with(jwt()
+                        .jwt(jwt -> jwt.claim("lhmObjectID", "000001"))
+                        .authorities(Arrays.stream(new String[] { roles })
+                                .map(SimpleGrantedAuthority::new)
+                                .toArray(GrantedAuthority[]::new)))
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))).andDo(print())
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        BookingDetailResponseDTO bookingResponseBody = objectMapper.readValue(bookingResponseJson, BookingDetailResponseDTO.class);
+        assertThat(bookingResponseBody).isNotNull();
+        assertThat(bookingResponseBody.status()).isNotNull();
+        assertThat(bookingResponseBody.status().currentStatus()).isEqualTo(fromStatus);
+    }
+
     private BookingRequestDTO getBookingRequestDTOWithStatus(BookingStatus status) {
         OffsetDateTime now = OffsetDateTime.now();
         mockBooking.setStatus(status);
@@ -1001,6 +1122,15 @@ public class BookingStatusTest {
 
     private BookingRequestDTO getBookingRequestDTOFromDate(OffsetDateTime now) {
         return getBookingRequestDTOFromBookingAndDate(mockBooking, now);
+    }
+
+    private AppointmentRequestDTO getAppointmentRequestDTOFromDate(OffsetDateTime now) {
+        return new AppointmentRequestDTO(
+                new ScheduleTemplate(
+                        now,
+                        now.plusHours(1),
+                        now.plusMinutes(15),
+                        now.plusMinutes(30)));
     }
 
     private BookingRequestDTO getBookingRequestDTOFromBookingAndDate(Booking booking, OffsetDateTime now) {
