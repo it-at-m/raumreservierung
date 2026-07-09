@@ -4,9 +4,6 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.booking.Booking;
-import de.muenchen.raumreservierung.booking.BookingService;
-import de.muenchen.raumreservierung.booking.BookingStatus;
-import de.muenchen.raumreservierung.booking.BookingValidationService;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
@@ -21,19 +18,20 @@ import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.Recur;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
-    private final BookingValidationService bookingValidationService;
-    private final BookingService bookingService;
+    private final ApplicationEventPublisher publisher;
 
     @PreAuthorize(Authorities.APPOINTMENT_READ)
     public Page<Appointment> getAppointmentsByPageableAndFilter(final Pageable pageable, @Valid final AppointmentFilterDTO appointmentFilterDTO) {
@@ -44,19 +42,18 @@ public class AppointmentService {
     }
 
     @PreAuthorize(Authorities.APPOINTMENT_WRITE)
+    @Transactional
     public Appointment updateAppointment(final Appointment appointmentUpdates, final UUID appointmentId) {
         final Appointment existingAppointment = getEntityOrThrowException(appointmentId);
+        final boolean appointmentChanged = !Objects.equals(existingAppointment.getSchedule(), appointmentUpdates.getSchedule());
+
         existingAppointment.updateFrom(appointmentUpdates);
         log.debug("Updated appointment with id {}", existingAppointment.getId());
         final Appointment savedAppointment = appointmentRepository.save(existingAppointment);
 
-        if (!Objects.equals(existingAppointment, appointmentUpdates)) {
+        if (appointmentChanged) {
             final UUID bookingId = existingAppointment.getBooking().getId();
-            final Booking existingBooking = bookingService.getById(bookingId);
-            if (bookingValidationService.isObligedToAutomaticStatusChange(existingBooking)) {
-                existingBooking.setStatus(BookingStatus.ROOM_CHANGED);
-                bookingService.updateBooking(existingBooking, bookingId);
-            }
+            publisher.publishEvent(bookingId);
         }
 
         return savedAppointment;

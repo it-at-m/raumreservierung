@@ -1,14 +1,11 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
-import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.person.PersonService;
@@ -35,6 +32,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @Slf4j
@@ -122,8 +123,6 @@ public class BookingService {
 
         bookingValidationService.bookingIsValidOrThrowException(bookingUpdates, existingBooking);
 
-        bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
-
         if (!bookingValidationService.validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
@@ -132,14 +131,6 @@ public class BookingService {
 
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
-        }
-
-        if (bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive()) {
-            throw new BadRequestException(MSG_ROOM_INACTIVE);
-        }
-
-        if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
-            throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
         }
 
         //check if Room, Appointment or Service changed -> automatically change to Status ROOM_CHANGED, except if role Terminorganisator or higher
@@ -154,6 +145,19 @@ public class BookingService {
         log.debug("Updated booking with id {}", existingBooking.getId());
         return getSanitizedBooking(existingBooking.getId());
 
+    }
+
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void handleAppointmentChange(final UUID bookingId) {
+        final Booking bookingToChange = getEntityOrThrowException(bookingId);
+        if (bookingValidationService.isObligedToAutomaticStatusChange(bookingToChange)) {
+            final Booking bookingChange = new Booking();
+            bookingChange.updateFrom(bookingToChange);
+            bookingChange.setStatus(BookingStatus.ROOM_CHANGED);
+
+            saveAndDetach(bookingToChange, bookingChange);
+        }
     }
 
     /**

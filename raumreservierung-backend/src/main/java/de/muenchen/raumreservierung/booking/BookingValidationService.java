@@ -9,18 +9,18 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.equipment.Equipment;
+import de.muenchen.raumreservierung.person.PersonService;
+import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
 import de.muenchen.raumreservierung.room.RoomService;
 import de.muenchen.raumreservierung.seating.SeatingType;
+import de.muenchen.raumreservierung.security.Roles;
+import de.muenchen.raumreservierung.security.SecurityContextService;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import de.muenchen.raumreservierung.person.PersonService;
-import de.muenchen.raumreservierung.person.domain.InternalPerson;
-import de.muenchen.raumreservierung.security.Roles;
-import de.muenchen.raumreservierung.security.SecurityContextService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -148,11 +148,13 @@ public class BookingValidationService {
      * @throws BadRequestException if the status transition or cancellation is invalid
      */
     public void validateBookingStatusTransitionOrThrowException(final Booking existingBooking, final Booking bookingUpdates) {
-        final boolean isTransitionAllowed = bookingTransitionService.isTransitionAllowed(existingBooking.getStatus(), bookingUpdates.getStatus());
-        final boolean isIllegalCancel = bookingUpdates.getStatus() == BookingStatus.CANCELED && !canCancelBooking(existingBooking);
+        if (existingBooking != null) {
+            final boolean isTransitionAllowed = bookingTransitionService.isTransitionAllowed(existingBooking.getStatus(), bookingUpdates.getStatus());
+            final boolean isIllegalCancel = bookingUpdates.getStatus() == BookingStatus.CANCELED && !canCancelBooking(existingBooking);
 
-        if (!isTransitionAllowed || isIllegalCancel) {
-            throw new BadRequestException(MSG_STATUS_CHANGE_NOT_POSSIBLE);
+            if (!isTransitionAllowed || isIllegalCancel) {
+                throw new BadRequestException(MSG_STATUS_CHANGE_NOT_POSSIBLE);
+            }
         }
     }
 
@@ -179,6 +181,7 @@ public class BookingValidationService {
      */
     public void bookingIsValidOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
         resourcesActiveOrThrowException(bookingUpdates, existingBooking);
+        validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
         if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
             throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
         }
