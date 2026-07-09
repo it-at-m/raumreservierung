@@ -224,15 +224,26 @@
 </template>
 
 <script setup lang="ts">
-import type {AppointmentDetailsResponseDTO} from "@/api/raumreservierung-backend";
-import type {InfiniteScrollLoad} from "@/types/InfiniteScroll.ts";
+import type { AppointmentDetailsResponseDTO } from "@/api/raumreservierung-backend";
+import type { InfiniteScrollLoad } from "@/types/InfiniteScroll.ts";
 
-import {mdiAccountOutline, mdiArrowLeft, mdiCalendarRangeOutline, mdiCalendarSyncOutline, mdiDomain, mdiDoor, mdiFileDocumentAlertOutline, mdiFileDocumentOutline, mdiPencil, mdiSofaSingleOutline,} from "@mdi/js";
-import {RRule} from "rrule";
-import {computed, onMounted, ref} from "vue";
-import {useI18n} from "vue-i18n";
-import {useRoute, useRouter} from "vue-router";
-import {useDisplay} from "vuetify/framework";
+import {
+  mdiAccountOutline,
+  mdiArrowLeft,
+  mdiCalendarRangeOutline,
+  mdiCalendarSyncOutline,
+  mdiDomain,
+  mdiDoor,
+  mdiFileDocumentAlertOutline,
+  mdiFileDocumentOutline,
+  mdiPencil,
+  mdiSofaSingleOutline,
+} from "@mdi/js";
+import { RRule } from "rrule";
+import { computed, onMounted, ref } from "vue";
+import { useI18n } from "vue-i18n";
+import { useRoute, useRouter } from "vue-router";
+import { useDisplay } from "vuetify/framework";
 
 import AppointmentListItem from "@/components/booking/AppointmentListItem.vue";
 import BookingGeneralInfoCard from "@/components/booking/BookingGeneralInfoCard.vue";
@@ -240,10 +251,10 @@ import ScheduleTimelineCard from "@/components/booking/ScheduleTimelineCard.vue"
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
-import {useGetAppointments} from "@/composables/api/useAppointmentApi.ts";
-import {useGetBooking} from "@/composables/api/useBookingsApi.ts";
-import {rruleDeLanguage, rruleGetText} from "@/plugins/i18n.ts";
-import {ROUTES} from "@/types/Routes.ts";
+import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
+import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
+import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
+import { ROUTES } from "@/types/Routes.ts";
 
 const { t } = useI18n();
 
