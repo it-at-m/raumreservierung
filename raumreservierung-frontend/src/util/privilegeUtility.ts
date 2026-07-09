@@ -23,6 +23,7 @@ const rolePrivilegeMapping = {
     "equipment:write",
     "seating:write",
     "users:manage",
+    "appointments:self",
   ],
   raumbuchung: [
     "bookings:self",
@@ -31,6 +32,7 @@ const rolePrivilegeMapping = {
     "bookings:manage",
     "calendar:write",
     "rooms:read",
+    "appointments:self",
   ],
   terminorganisator: [
     "bookings:self",
@@ -39,9 +41,15 @@ const rolePrivilegeMapping = {
     "bookings:write",
     "bookings:read",
     "bookings:manage",
+    "appointments:self",
   ],
-  leseberechtigt: ["bookings:self", "calendar:read", "rooms:read"],
-  anwender: ["bookings:self", "rooms:read"],
+  leseberechtigt: [
+    "bookings:self",
+    "calendar:read",
+    "rooms:read",
+    "appointments:self",
+  ],
+  anwender: ["bookings:self", "rooms:read", "appointments:self"],
 } satisfies Record<Role, readonly Privilege[]>;
 
 const roleKeys = Object.keys(rolePrivilegeMapping) as Role[];

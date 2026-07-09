@@ -33,7 +33,7 @@ public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final ApplicationEventPublisher publisher;
 
-    @PreAuthorize(Authorities.APPOINTMENT_READ)
+    @PreAuthorize(Authorities.APPOINTMENT_SELF)
     public Page<Appointment> getAppointmentsByPageableAndFilter(final Pageable pageable, @Valid final AppointmentFilterDTO appointmentFilterDTO) {
         final Specification<Appointment> appointmentSpecification = AppointmentSpecificationBuilder.fromFilter(appointmentFilterDTO);
         final Page<Appointment> filteredAppointments = appointmentRepository.findAll(appointmentSpecification, pageable);
@@ -41,7 +41,7 @@ public class AppointmentService {
         return filteredAppointments;
     }
 
-    @PreAuthorize(Authorities.APPOINTMENT_WRITE)
+    @PreAuthorize(Authorities.APPOINTMENT_SELF)
     @Transactional
     public Appointment updateAppointment(final Appointment appointmentUpdates, final UUID appointmentId) {
         final Appointment existingAppointment = getEntityOrThrowException(appointmentId);
@@ -60,7 +60,7 @@ public class AppointmentService {
 
     }
 
-    @PreAuthorize(Authorities.APPOINTMENT_WRITE)
+    @PreAuthorize(Authorities.APPOINTMENT_SELF)
     public void deleteAppointment(final UUID appointmentId) {
         log.debug("Deleted appointment with id {}", appointmentId);
         appointmentRepository.deleteById(appointmentId);
