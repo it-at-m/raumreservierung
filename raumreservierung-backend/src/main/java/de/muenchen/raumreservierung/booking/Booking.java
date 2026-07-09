@@ -25,6 +25,7 @@ import org.hibernate.validator.constraints.Range;
 @Entity
 @Setter
 @Getter
+@SuppressWarnings("PMD.TooManyFields")
 public class Booking extends BaseEntity {
 
     @Serial
