@@ -13,7 +13,7 @@ public class PictureUploadException extends ResponseStatusException {
      * @param message Exception message
      * @param e
      */
-    public PictureUploadException(final String message, IOException e) {
-        super(HttpStatus.INTERNAL_SERVER_ERROR, message);
+    public PictureUploadException(final String message, final IOException e) {
+        super(HttpStatus.INTERNAL_SERVER_ERROR, message, e);
     }
 }

@@ -28,7 +28,11 @@ public class FileAttachmentService {
 
     @Transactional
     public FileAttachment createFile(final MultipartFile multipartFile) {
-        log.debug("Creating file attachment for {}", multipartFile.getOriginalFilename());
+        final String originalFilename = multipartFile.getOriginalFilename();
+        final String safeFilename = originalFilename != null
+                ? originalFilename.replaceAll("[^a-zA-Z0-9äöüÄÖÜß._-]", "_")
+                : "unknown";
+        log.debug("Creating file attachment for {}", safeFilename);
         final FileAttachment fileAttachment = new FileAttachment();
         try {
             fileAttachment.updateFrom(multipartFile);
