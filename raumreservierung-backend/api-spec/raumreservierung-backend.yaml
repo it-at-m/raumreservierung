@@ -1039,7 +1039,6 @@ components:
             enum:
             - INTERNAL
             - EXTERNAL
-            - EXTERNAL
           company:
             type: string
           streetAddress:
@@ -1085,7 +1084,6 @@ components:
             enum:
             - INTERNAL
             - EXTERNAL
-            - INTERNAL
           organisationId:
             type: string
           organisationUnit:
@@ -1196,7 +1194,6 @@ components:
             enum:
             - INTERNAL
             - EXTERNAL
-            - EXTERNAL
           company:
             type: string
           streetAddress:
@@ -1238,7 +1235,6 @@ components:
             enum:
             - INTERNAL
             - EXTERNAL
-            - INTERNAL
           organisationId:
             type: string
           organisationUnit:

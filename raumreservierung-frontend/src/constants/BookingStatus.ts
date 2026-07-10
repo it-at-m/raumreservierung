@@ -1,4 +1,7 @@
-import type { BookingStatusDTOCurrentStatusEnum as BookingStatus } from "@/api/raumreservierung-backend";
+import type {
+  BookingStatusDTOCurrentStatusEnum as BookingStatus,
+  BookingStatusDTO,
+} from "@/api/raumreservierung-backend";
 import type { ChipConfig } from "@/types/ChipConfig.ts";
 
 import {
@@ -11,6 +14,7 @@ import {
   mdiTimerSand,
 } from "@mdi/js";
 
+import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 import { type Role } from "@/types/Role.ts";
 
 const NEW_COLOR = "new";
@@ -152,4 +156,9 @@ export const ROLE_STATUS_STYLES: Record<
     UNFEASIBLE: UNFEASIBLE_STATUS_STYLE,
     CANCELED: CANCELED_STATUS_STYLE,
   },
+};
+
+export const EMPTY_BOOKING_STATUS_DATA: BookingStatusDTO = {
+  currentStatus: BookingStatusDTOCurrentStatusEnum.NEW,
+  nextPossibleStatus: [BookingStatusDTOCurrentStatusEnum.NEW],
 };

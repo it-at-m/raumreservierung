@@ -89,7 +89,11 @@
             <booking-status-select
               v-model="bookingData.status"
               :label="t('domain.booking.status')"
-              :loading="createBookingLoading || updateBookingLoading"
+              :loading="
+                getBookingLoading ||
+                createBookingLoading ||
+                updateBookingLoading
+              "
               :possible-status="statusFull?.nextPossibleStatus"
               hide-details
             />
@@ -311,6 +315,7 @@ import {
 import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
+import { EMPTY_BOOKING_STATUS_DATA } from "@/constants/BookingStatus";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { useUserStore } from "@/stores/user.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -333,7 +338,7 @@ const isValid = ref<boolean>();
 const currentRoom = ref<RoomRequestDTO>();
 const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
 const bookedFor = ref<FindById200Response>();
-const statusFull = ref<BookingStatusFull>();
+const statusFull = ref<BookingStatusFull>(EMPTY_BOOKING_STATUS_DATA);
 
 const handleUnfeasibleConfirm = async (isActive: { value: boolean }) => {
   await saveBooking();
