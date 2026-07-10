@@ -74,6 +74,7 @@
     },
     "scheduleTemplateForm": {
       "multiDay": "Mehrtägiger Termin",
+      "wholeDay": "Ganztägig",
       "appointmentDiffers": "Veranstaltungszeit abweichend"
     },
     "seatingTypeParticipantsSelector": {
@@ -127,7 +128,8 @@
       "bookedFor": "Gebucht für {firstName} {lastName}",
       "seriesDate": "Serientermin",
       "notes": "Notizen",
-      "internalNotes": "Interne Notizen"
+      "internalNotes": "Interne Notizen",
+      "noRoomSelected": "Kein Raum gewählt"
     },
     "bookingEditView": {
       "header": "Buchung bearbeiten",

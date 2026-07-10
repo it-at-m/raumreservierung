@@ -70,7 +70,10 @@
       >
         <div class="masonry-item w-100 d-inline-block mb-4">
           <details-card
-            :title="getBookingData?.room?.name || ''"
+            :title="
+              getBookingData?.room?.name ||
+              t('views.bookingDetailsView.noRoomSelected')
+            "
             :subtitle="getBookingData?.room?.number"
             :icon="mdiDoor"
             :loading="getBookingLoading"

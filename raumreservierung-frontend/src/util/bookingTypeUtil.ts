@@ -4,6 +4,8 @@ import type {
   ScheduleTemplate,
 } from "@/api/raumreservierung-backend";
 
+import { SCHEDULE_DEFAULT_DURATION } from "@/constants.ts";
+
 export const mapBookingResponseToRequest = (
   response: BookingDetailResponseDTO
 ): BookingRequestDTO => {
@@ -41,7 +43,7 @@ export const EMPTY_BOOKING_REQUEST_DATA: BookingRequestDTO = {
   bookedForId: undefined,
   schedule: {
     occupancyStart: new Date(),
-    occupancyEnd: new Date(Date.now() + 30 * 60 * 1000),
+    occupancyEnd: new Date(Date.now() + SCHEDULE_DEFAULT_DURATION),
     appointmentStart: undefined,
     appointmentEnd: undefined,
   } as ScheduleTemplate,

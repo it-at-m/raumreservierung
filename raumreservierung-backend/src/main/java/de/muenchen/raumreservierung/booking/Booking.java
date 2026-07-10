@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.validator.constraints.Range;
 
 @Entity
 @Setter
@@ -35,11 +36,8 @@ public class Booking extends BaseEntity {
     @Column(nullable = false)
     private String title;
 
-    //TODO: test for validity >0 & <1000
-    // if room: <= max capacity of seatingtypecapacity of room
-    //          or if no seatingtype selected: <= max capacity of room
-    // if no room: <= max capacity of all rooms => roomController?
     @Column
+    @Range(min = 0, max = 99_999)
     private int participantCount;
 
     @ManyToMany

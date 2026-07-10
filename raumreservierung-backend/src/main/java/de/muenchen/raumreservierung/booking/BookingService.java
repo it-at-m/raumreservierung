@@ -1,14 +1,11 @@
 package de.muenchen.raumreservierung.booking;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
-import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.person.PersonService;
@@ -45,6 +42,7 @@ public class BookingService {
     private final SecurityContextService securityContextService;
     private final AppointmentService appointmentService;
     private final PersonService personService;
+    private final BookingValidationService bookingValidationService;
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
@@ -70,37 +68,19 @@ public class BookingService {
         return findAllAndFilterSensitiveData(pageable, bookingSpecification);
     }
 
-    private Page<Booking> findAllAndFilterSensitiveData(final Pageable pageable, final Specification<Booking> bookingSpecification) {
-        Page<Booking> bookings = bookingRepository.findAll(bookingSpecification, pageable);
-        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-            bookings = bookings.map(booking -> {
-                booking.setInternalNotes(null);
-                return booking;
-            });
-        }
-
-        return bookings;
-    }
-
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking createBooking(final Booking booking) {
+        bookingValidationService.bookingIsValidOrThrowException(booking);
+
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
             booking.setBookingType(BookingType.DEFAULT);
-        }
-
-        if (booking.getRoom() != null && !booking.getRoom().isActive()) {
-            throw new BadRequestException(MSG_ROOM_INACTIVE);
         }
 
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
         assignBookingContext(booking);
-
-        if (seatingTypeNotAvailableInRoom(booking)) {
-            throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
-        }
 
         final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
@@ -121,6 +101,9 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
+
+        bookingValidationService.bookingIsValidOrThrowException(bookingUpdates, existingBooking);
+
         if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
@@ -132,14 +115,6 @@ public class BookingService {
             bookingUpdates.setBookingType(existingBooking.getBookingType());
         }
 
-        if (bookingUpdates.getRoom() != null && !bookingUpdates.getRoom().isActive()) {
-            throw new BadRequestException(MSG_ROOM_INACTIVE);
-        }
-
-        if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
-            throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
-        }
-
         updateBookingAppointments(existingBooking, bookingUpdates);
 
         saveAndDetach(existingBooking, bookingUpdates);
@@ -147,6 +122,29 @@ public class BookingService {
         log.debug("Updated booking with id {}", existingBooking.getId());
         return getSanitizedBooking(existingBooking.getId());
 
+    }
+
+    @PreAuthorize(Authorities.BOOKING_SELF)
+    public void deleteBooking(final UUID bookingId) {
+        final Booking existingBooking = getEntityOrThrowException(bookingId);
+
+        if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
+        log.debug("Deleted booking with id {}", bookingId);
+        bookingRepository.deleteById(bookingId);
+    }
+
+    private Page<Booking> findAllAndFilterSensitiveData(final Pageable pageable, final Specification<Booking> bookingSpecification) {
+        Page<Booking> bookings = bookingRepository.findAll(bookingSpecification, pageable);
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            bookings = bookings.map(booking -> {
+                booking.setInternalNotes(null);
+                return booking;
+            });
+        }
+
+        return bookings;
     }
 
     /**
@@ -176,17 +174,6 @@ public class BookingService {
         pastAppointments.addAll(futureNewAppointments);
 
         bookingUpdates.setAppointments(pastAppointments);
-    }
-
-    @PreAuthorize(Authorities.BOOKING_SELF)
-    public void deleteBooking(final UUID bookingId) {
-        final Booking existingBooking = getEntityOrThrowException(bookingId);
-
-        if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
-            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
-        }
-        log.debug("Deleted booking with id {}", bookingId);
-        bookingRepository.deleteById(bookingId);
     }
 
     private Booking getSanitizedBooking(final UUID bookingId) {
