@@ -1,19 +1,25 @@
 package de.muenchen.raumreservierung.booking;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_EQUIPMENT_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_PARTICIPANT_COUNT_INVALID;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 
 import de.muenchen.raumreservierung.common.BadRequestException;
+import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
 import de.muenchen.raumreservierung.room.RoomService;
+import de.muenchen.raumreservierung.seating.SeatingType;
+import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 @RequiredArgsConstructor
 public class BookingValidationService {
     private final RoomService roomService;
@@ -86,29 +92,28 @@ public class BookingValidationService {
     }
 
     /**
-     * Validates the booking updates against room availability, seating types, and capacities.
+     * VValidates a new booking.
      *
-     * @param bookingUpdates the booking data containing the requested updates
-     * @throws BadRequestException if the room is inactive, seating type is missing, or capacity is
-     *             exceeded
+     * @param booking the booking data to validate
+     * @throws BadRequestException if the room is inactive, seating type is missing, capacity is
+     *             exceeded, or if any selected resource is inactive
      */
-    public void bookingIsValidOrThrowException(final Booking bookingUpdates) {
-        bookingIsValidOrThrowException(bookingUpdates, null);
+    public void bookingIsValidOrThrowException(final Booking booking) {
+        bookingIsValidOrThrowException(booking, null);
     }
 
     /**
-     * Validates the booking updates against room availability, seating types, and capacities,
+     * Validates the booking updates against room availability, seating types, capacities and changed
+     * resources,
      * taking into account an existing booking.
      *
      * @param bookingUpdates the booking data containing the requested updates
-     * @param existingBooking the original booking before updates, can be null
-     * @throws BadRequestException if the room is inactive, seating type is missing, or capacity is
-     *             exceeded
+     * @param existingBooking the original booking before updates, or null if new
+     * @throws BadRequestException if the room is inactive, seating type is missing, capacity is
+     *             exceeded, newly added equipment or seating type is inactive
      */
     public void bookingIsValidOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
-        if (roomChangedToInactive(bookingUpdates, existingBooking)) {
-            throw new BadRequestException(MSG_ROOM_INACTIVE);
-        }
+        resourcesActiveOrThrowException(bookingUpdates, existingBooking);
         if (seatingTypeNotAvailableInRoom(bookingUpdates)) {
             throw new BadRequestException(MSG_SEATINGTYPE_NOT_AVAILABLE);
         }
@@ -116,4 +121,52 @@ public class BookingValidationService {
             throw new BadRequestException(MSG_PARTICIPANT_COUNT_INVALID);
         }
     }
+
+    public void resourcesActiveOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
+        if (roomChangedToInactive(bookingUpdates, existingBooking)) {
+            throw new BadRequestException(MSG_ROOM_INACTIVE);
+        }
+        if (equipmentInactive(bookingUpdates, existingBooking)) {
+            throw new BadRequestException(MSG_EQUIPMENT_INACTIVE);
+        }
+        if (seatingTypeInactive(bookingUpdates, existingBooking)) {
+            throw new BadRequestException(MSG_SEATINGTYPE_INACTIVE);
+        }
+    }
+
+    /**
+     * Checks if the update adds any new inactive equipment.
+     * (Updating existing inactive equipment from the original booking is allowed.)
+     *
+     * @param bookingUpdate the new booking data
+     * @param existingBooking the original booking, or null
+     * @return true if newly added equipment is inactive
+     */
+    private boolean equipmentInactive(final Booking bookingUpdate, final Booking existingBooking) {
+        final Set<Equipment> existingEquipment = Optional.ofNullable(existingBooking)
+                .map(Booking::getEquipment)
+                .orElse(Collections.emptySet());
+
+        return Objects.requireNonNullElse(bookingUpdate.getEquipment(), Collections.<Equipment>emptySet()).stream()
+                .filter(eq -> !existingEquipment.contains(eq))
+                .anyMatch(eq -> !eq.isActive());
+    }
+
+    /**
+     * Checks if the seating type is changed to a different, inactive one.
+     * (Keeping the existing inactive seating type from the original booking is allowed.)
+     *
+     * @param bookingUpdate the new booking data
+     * @param existingBooking the original booking, or null
+     * @return true if the seating type is modified and the new one is inactive
+     */
+    private boolean seatingTypeInactive(final Booking bookingUpdate, final Booking existingBooking) {
+        final Optional<SeatingType> existingSeatingType = Optional.ofNullable(existingBooking).map(Booking::getSeatingType);
+
+        final Optional<SeatingType> seatingTypeUpdate = Optional.ofNullable(bookingUpdate.getSeatingType());
+
+        return !Objects.equals(seatingTypeUpdate, existingSeatingType)
+                && seatingTypeUpdate.filter(s -> !s.isActive()).isPresent();
+    }
+
 }
