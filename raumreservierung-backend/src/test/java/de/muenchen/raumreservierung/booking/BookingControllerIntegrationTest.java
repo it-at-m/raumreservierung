@@ -312,26 +312,6 @@ public class BookingControllerIntegrationTest {
                 .containsExactlyInAnyOrderElementsOf(expectedDates);
     }
 
-    private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime now, String recurringRule, UUID bookedForId) {
-        ScheduleTemplate schedule = new ScheduleTemplate(
-                now,
-                now.plusHours(2),
-                now.plusMinutes(15),
-                now.plusHours(1).plusMinutes(30));
-        return new BookingRequestDTO(
-                "Test",
-                100,
-                null,
-                false,
-                "please clean",
-                "no notes necessary",
-                recurringRule,
-                null,
-                schedule,
-                bookedForId,
-                null);
-    }
-
     private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
             UUID roomId,
             UUID seatingTypeId,
@@ -354,7 +334,8 @@ public class BookingControllerIntegrationTest {
                 roomId,
                 schedule,
                 mockPerson.getId(),
-                seatingTypeId);
+                seatingTypeId,
+                BookingType.DEFAULT);
     }
 
     private static Stream<Arguments> provideTestData() {
@@ -677,9 +658,9 @@ public class BookingControllerIntegrationTest {
         BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.DEFAULT);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
-                        .with(csrf())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -697,9 +678,9 @@ public class BookingControllerIntegrationTest {
         BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.FREE);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
-                        .with(csrf())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -717,9 +698,9 @@ public class BookingControllerIntegrationTest {
         BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.SERVICE);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
-                        .with(csrf())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -740,9 +721,9 @@ public class BookingControllerIntegrationTest {
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
 
         String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
-                        .with(csrf())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -763,9 +744,9 @@ public class BookingControllerIntegrationTest {
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null);
 
         String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
-                        .with(csrf())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -783,9 +764,9 @@ public class BookingControllerIntegrationTest {
         BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.DEFAULT);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
-                        .with(csrf())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -803,9 +784,9 @@ public class BookingControllerIntegrationTest {
         BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.FREE);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
-                        .with(csrf())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -823,9 +804,9 @@ public class BookingControllerIntegrationTest {
         BookingRequestDTO requestDto = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.SERVICE);
 
         String responseContent = mockMvc.perform(post(BOOKINGS_URL)
-                        .with(csrf())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(requestDto)))
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(requestDto)))
                 .andDo(print())
                 .andExpect(status().isCreated())
                 .andReturn()
@@ -846,9 +827,9 @@ public class BookingControllerIntegrationTest {
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.FREE);
 
         String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
-                        .with(csrf())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
@@ -869,9 +850,9 @@ public class BookingControllerIntegrationTest {
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, BookingType.SERVICE);
 
         String responseContent = mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
-                        .with(csrf())
-                        .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(updateDTO)))
+                .with(csrf())
+                .contentType(org.springframework.http.MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(updateDTO)))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andReturn()
