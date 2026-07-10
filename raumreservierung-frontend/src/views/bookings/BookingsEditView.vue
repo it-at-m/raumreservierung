@@ -30,7 +30,7 @@
         <v-row>
           <v-col
             cols="12"
-            :md="isPrivileged ? 8 : 12"
+            :md="isPrivileged ? 6 : 12"
           >
             <v-text-field
               v-model="bookingData.title"
@@ -45,10 +45,55 @@
               hide-details="auto"
             />
           </v-col>
+
           <v-col
             v-if="isPrivileged"
-            cols="12"
-            md="4"
+            cols="6"
+            md="3"
+          >
+            <v-select
+              v-model="bookingData.bookingType"
+              :items="bookingTypes"
+              item-title="text"
+              item-value="value"
+              label="Buchungstyp"
+              variant="outlined"
+              hide-selected
+              hide-details
+            >
+              <template #selection="{ item }">
+                <v-chip
+                  v-if="item?.value"
+                  :color="item.color"
+                  variant="outlined"
+                  class="font-weight-bold justify-space-evenly"
+                  style="width: 100px"
+                  :prepend-icon="item.icon"
+                  :text="item.text"
+                />
+              </template>
+
+              <template #item="{ props, item }">
+                <v-list-item v-bind="props">
+                  <template #title>
+                    <v-chip
+                      v-if="item?.value"
+                      :color="item.color"
+                      variant="outlined"
+                      class="font-weight-bold justify-space-evenly"
+                      :text="item.text"
+                      style="width: 100px"
+                      :prepend-icon="item.icon"
+                    />
+                  </template>
+                </v-list-item>
+              </template>
+            </v-select>
+          </v-col>
+          <v-col
+            v-if="isPrivileged"
+            cols="6"
+            md="3"
           >
             <v-select
               disabled
@@ -267,6 +312,7 @@ import {
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
 import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
+import { useBookingTypeStyle } from "@/composables/useBookingType.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
@@ -284,6 +330,9 @@ const { t } = useI18n();
 const rules = useRules();
 const route = useRoute();
 const router = useRouter();
+const { bookingTypes } = useBookingTypeStyle(
+  computed(() => bookingData.value.bookingType)
+);
 
 const isValid = ref<boolean>();
 

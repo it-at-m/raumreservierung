@@ -411,6 +411,13 @@ paths:
       tags:
       - room-controller
       operationId: getAllRooms
+      parameters:
+      - name: onlyActive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
       responses:
         "200":
           description: OK
@@ -1312,6 +1319,12 @@ components:
         seatingTypeId:
           type: string
           format: uuid
+        bookingType:
+          type: string
+          enum:
+          - FREE
+          - SERVICE
+          - DEFAULT
     ScheduleTemplate:
       required:
       - occupancyEnd
@@ -1378,6 +1391,12 @@ components:
           $ref: "#/components/schemas/SeatingType"
         recurringRule:
           type: string
+        bookingType:
+          type: string
+          enum:
+          - FREE
+          - SERVICE
+          - DEFAULT
     RoomListResponseDTO:
       required:
       - isActive

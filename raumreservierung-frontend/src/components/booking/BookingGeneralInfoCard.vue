@@ -55,18 +55,38 @@
             {{ t("common.todo") }}
           </v-chip>
         </v-list-item>
+        <v-list-item
+          v-if="isPrivileged"
+          class="px-0 mt-2"
+        >
+          <v-list-item-subtitle class="mb-2">
+            {{ "Typ" }}
+          </v-list-item-subtitle>
+          <v-chip
+            size="small"
+            variant="tonal"
+            class="font-weight-bold justify-space-evenly"
+            :color="currentTypeStyle.color"
+            :prepend-icon="currentTypeStyle.icon"
+            :text="currentTypeStyle.text"
+          />
+        </v-list-item>
       </v-list>
     </template>
   </v-card>
 </template>
 
 <script setup lang="ts">
-import type { ScheduleTemplate } from "@/api/raumreservierung-backend";
+import type {
+  BookingDetailResponseDTOBookingTypeEnum,
+  ScheduleTemplate,
+} from "@/api/raumreservierung-backend";
 
 import { useDateFormat } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { useBookingTypeStyle } from "@/composables/useBookingType.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 
@@ -78,6 +98,7 @@ const props = defineProps<{
   id?: string;
   title?: string;
   schedule?: ScheduleTemplate;
+  bookingType?: BookingDetailResponseDTOBookingTypeEnum;
 }>();
 
 const isMultiDay = computed(() => {
@@ -92,4 +113,8 @@ const isMultiDay = computed(() => {
       props.schedule.occupancyEnd.getFullYear()
   );
 });
+
+const isPrivileged = useIsPrivileged(["bookings:write"]);
+
+const { currentTypeStyle } = useBookingTypeStyle(() => props.bookingType);
 </script>

@@ -49,6 +49,18 @@ export default createVuetify({
           reserved: "#809C00",
           requested: "#af64d4", //#af64d4
           canceled: "#D54234",
+          // Type colors
+          default: "#7290D3",
+          free: "#809C00",
+          service: "#D54234",
+        },
+      },
+      dark: {
+        colors: {
+          // Type colors
+          default: "#7290D3",
+          free: "#809C00",
+          service: "#D54234",
         },
       },
     },

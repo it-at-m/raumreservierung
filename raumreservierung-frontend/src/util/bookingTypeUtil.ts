@@ -24,6 +24,7 @@ export const mapBookingResponseToRequest = (
     bookedForId: response.bookedFor?.id,
     schedule: response.schedule,
     recurringRule: response.recurringRule,
+    bookingType: response.bookingType,
   };
 };
 
@@ -44,4 +45,5 @@ export const EMPTY_BOOKING_REQUEST_DATA: BookingRequestDTO = {
     appointmentStart: undefined,
     appointmentEnd: undefined,
   } as ScheduleTemplate,
+  bookingType: undefined,
 };

@@ -41,6 +41,7 @@
                   :id="getBookingData?.id"
                   :title="getBookingData?.title"
                   :schedule="getBookingData?.schedule"
+                  :booking-type="getBookingData?.bookingType"
                 />
               </v-responsive>
             </v-skeleton-loader>
