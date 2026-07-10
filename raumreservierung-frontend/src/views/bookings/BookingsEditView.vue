@@ -21,31 +21,30 @@
           /> </template
       ></base-button>
       <v-dialog
+        v-model="isUnfeasibleDialogOpen"
         max-width="800px"
         width="90%"
       >
-        <template #activator="{ props }">
+        <template #activator>
           <base-button
             :disabled="!isValid"
             class="ml-4"
             :text="t('common.save')"
             :append-icon="mdiContentSaveOutline"
-            v-bind="props"
-            @click="
-              bookingData.status === BookingRequestDTOStatusEnum.UNFEASIBLE
-                ? props.onClick($event)
-                : saveBooking()
-            "
+            @click="handleSaveClick"
           />
         </template>
 
-        <template #default="{ isActive }">
+        <template #default>
           <confirm-unfeasible-card
             v-model="bookingData.reasonForRejection"
             title="Buchung ablehnen"
             subtitle="Bitte geben Sie einen Grund an, warum die Buchung nicht leistbar ist."
-            @cancel="isActive.value = false"
-            @confirm="handleUnfeasibleConfirm(isActive)"
+            @cancel="isUnfeasibleDialogOpen = false"
+            @confirm="
+              handleUnfeasibleConfirm();
+              isUnfeasibleDialogOpen = false;
+            "
           >
             <template #confirm="{ props: btnProps }">
               <base-button
@@ -340,9 +339,9 @@ const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
 const bookedFor = ref<FindById200Response>();
 const statusFull = ref<BookingStatusFull>(EMPTY_BOOKING_STATUS_DATA);
 
-const handleUnfeasibleConfirm = async (isActive: { value: boolean }) => {
+const handleUnfeasibleConfirm = async () => {
   await saveBooking();
-  isActive.value = false;
+  isUnfeasibleDialogOpen.value = false;
 };
 
 const handleStatusChange = async (nextStatus: BookingRequestDTOStatusEnum) => {
@@ -541,6 +540,17 @@ const canCancel = computed(() => {
   }
   return isBookedFor || isBookedBy;
 });
+const isUnfeasibleDialogOpen = ref(false);
+
+const handleSaveClick = () => {
+  if (bookingData.value.status === BookingRequestDTOStatusEnum.UNFEASIBLE) {
+    // Dialog manuell öffnen, wenn Status unfeasible ist
+    isUnfeasibleDialogOpen.value = true;
+  } else {
+    // Direkt speichern, wenn der Status ein anderer ist
+    saveBooking();
+  }
+};
 </script>
 
 <style scoped></style>
