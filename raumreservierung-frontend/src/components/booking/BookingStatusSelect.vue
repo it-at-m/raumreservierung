@@ -78,8 +78,11 @@ const { statusConfig } = useBookingStatusConfig();
 const statusOptions = computed(() => {
   const baseList =
     possibleStatus && possibleStatus.length > 0 ? possibleStatus : [];
+  // Exclude CANCELED unless currently selected (uses dedicated cancel button).
   const filteredList = baseList.filter(
-    (status: string) => status !== BookingStatusDTOCurrentStatusEnum.CANCELED
+    (status: string) =>
+      status !== BookingStatusDTOCurrentStatusEnum.CANCELED ||
+      status === model.value
   );
   return filteredList.map((status: string | undefined) => {
     const style = statusConfig.value.get(status);

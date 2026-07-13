@@ -9,7 +9,7 @@
         @click="router.back()"
       />
       <base-button
-        v-if="canCancel"
+        v-if="canCancel && !isCanceledOrUnfeasible"
         class="ml-4"
         text="Stornieren"
         secondary
@@ -27,6 +27,7 @@
       >
         <template #activator>
           <base-button
+            v-if="!isCanceledOrUnfeasible"
             :disabled="!isValid"
             class="ml-4"
             :text="t('common.save')"
@@ -61,6 +62,7 @@
       <v-form
         v-model="isValid"
         :disabled="createBookingLoading || updateBookingLoading"
+        :readonly="isCanceledOrUnfeasible"
       >
         <v-row>
           <v-col
@@ -277,7 +279,6 @@
 import type {
   BookingRequestDTO,
   FindById200Response,
-  InternalPersonResponseDto,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
@@ -292,7 +293,10 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
-import { BookingRequestDTOStatusEnum } from "@/api/raumreservierung-backend";
+import {
+  BookingRequestDTOStatusEnum,
+  BookingStatusDTOCurrentStatusEnum,
+} from "@/api/raumreservierung-backend";
 import { type BookingStatusDTO as BookingStatusFull } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
 import BookingStatusSelect from "@/components/booking/BookingStatusSelect.vue";
@@ -516,38 +520,38 @@ const updateRRule = (value: boolean | null) => {
     };
   }
 };
+const isCanceledOrUnfeasible = computed(() => {
+  const booking = bookingData.value;
+  return (
+    booking.status === BookingStatusDTOCurrentStatusEnum.CANCELED ||
+    booking.status === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE
+  );
+});
 
 const canCancel = computed(() => {
-  if (!getBookingData.value) {
+  const booking = getBookingData.value;
+  if (!booking) {
     return false;
   }
-  const userStore = useUserStore();
-  const userOrgId = userStore.user?.lhmObjectID;
 
-  let isBookedBy = false;
-  let isBookedFor = false;
-  const bookedFor = toRaw(getBookingData.value.bookedFor);
-  const bookedBy = toRaw(getBookingData.value.bookedBy);
-
-  if (bookedFor && bookedFor.type === "INTERNAL") {
-    isBookedFor =
-      (bookedFor as InternalPersonResponseDto).organisationId === userOrgId;
+  const userOrgId = useUserStore().user?.lhmObjectID;
+  if (!userOrgId) {
+    return false;
   }
 
-  if (bookedBy && bookedBy.type === "INTERNAL") {
-    isBookedBy =
-      (bookedBy as InternalPersonResponseDto).organisationId === userOrgId;
-  }
-  return isBookedFor || isBookedBy;
+  const isInternalMatch = (person: FindById200Response) =>
+    person?.type === "INTERNAL" && person.organisationId === userOrgId;
+
+  return (
+    isInternalMatch(booking.bookedBy) || isInternalMatch(booking.bookedFor)
+  );
 });
 const isUnfeasibleDialogOpen = ref(false);
 
 const handleSaveClick = () => {
   if (bookingData.value.status === BookingRequestDTOStatusEnum.UNFEASIBLE) {
-    // Dialog manuell öffnen, wenn Status unfeasible ist
     isUnfeasibleDialogOpen.value = true;
   } else {
-    // Direkt speichern, wenn der Status ein anderer ist
     saveBooking();
   }
 };
