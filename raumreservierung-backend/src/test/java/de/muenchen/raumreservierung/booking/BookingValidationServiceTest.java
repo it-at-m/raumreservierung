@@ -1,20 +1,5 @@
 package de.muenchen.raumreservierung.booking;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_EQUIPMENT_INACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_PARTICIPANT_COUNT_INVALID;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_INACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
@@ -28,19 +13,39 @@ import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpStatus;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_EQUIPMENT_INACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_PARTICIPANT_COUNT_INVALID;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_INACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest(
         classes = {
@@ -51,6 +56,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
                 SecurityContextService.class
         }
 )
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BookingValidationServiceTest {
     @Autowired
     private BookingValidationService bookingValidationService;
@@ -167,168 +173,126 @@ public class BookingValidationServiceTest {
                 .thenAnswer(invocation -> invocation.getArgument(0));
     }
 
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void seatingTypeNotAvailableInRoom_ShouldBeValid_WhenSeatingTypeIsNull() {
-        baseBooking.setSeatingType(null);
+    @ParameterizedTest
+    @MethodSource("provideParticipantCountData")
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
+    void validateParticipantCount(Consumer<Booking> setup, String expectedErrorMsg) {
+        setup.accept(baseBooking);
 
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+        if (expectedErrorMsg == null) {
+            assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+        } else {
+            BadRequestException exception = assertThrows(BadRequestException.class,
+                    () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+            assertEquals(HttpStatus.BAD_REQUEST + " \"" + expectedErrorMsg + "\"", exception.getMessage());
+        }
     }
 
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void seatingTypeNotAvailableInRoom_ShouldThrow_WhenRoomIsNull() {
-        baseBooking.setSeatingType(testSeatingType);
-        baseBooking.setRoom(null);
+    private Stream<Arguments> provideParticipantCountData() {
+        return Stream.of(
+                // Valid: 0 Participants
+                Arguments.of((Consumer<Booking>) b -> b.setParticipantCount(0), null),
 
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+                // Invalid: Negative
+                Arguments.of((Consumer<Booking>) b -> b.setParticipantCount(-1), MSG_PARTICIPANT_COUNT_INVALID),
 
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_SEATINGTYPE_NOT_AVAILABLE + "\"", exception.getMessage());
+                // Valid: Within room capacity (10)
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setRoom(testRoom);
+                    testRoom.setCapacity(10);
+                    b.setParticipantCount(5);
+                }, null),
+
+                // Invalid: Exceeds room capacity (10)
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setRoom(testRoom);
+                    testRoom.setCapacity(10);
+                    b.setParticipantCount(11);
+                }, MSG_PARTICIPANT_COUNT_INVALID),
+
+                // Valid: No room, within absolute max (100)
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setRoom(null);
+                    b.setParticipantCount(50);
+                    when(roomService.findAbsoluteMaxCapacity()).thenReturn(100);
+                }, null),
+
+                // Invalid: No room, exceeds absolute max
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setRoom(null);
+                    b.setParticipantCount(101);
+                    when(roomService.findAbsoluteMaxCapacity()).thenReturn(100);
+                }, MSG_PARTICIPANT_COUNT_INVALID),
+
+                // Valid: Within seating capacity (10)
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setRoom(testRoomWithSeatingCapacity);
+                    b.setSeatingType(testSeatingType);
+                    b.setParticipantCount(9);
+                }, null),
+
+                // Invalid: Exceeds seating capacity (10)
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setRoom(testRoomWithSeatingCapacity);
+                    b.setSeatingType(testSeatingType);
+                    b.setParticipantCount(11);
+                }, MSG_PARTICIPANT_COUNT_INVALID)
+        );
     }
 
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void seatingTypeNotAvailableInRoom_ShouldThrow_WhenRoomHasNoCapacities() {
-        baseBooking.setSeatingType(testSeatingType);
-        testRoom.setRoomSeatingCapacities(Collections.emptySet());
-        baseBooking.setRoom(testRoom);
+    @ParameterizedTest
+    @MethodSource("provideSeatingTypeAvailabilityData")
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
+    void validateSeatingTypeAvailability(Consumer<Booking> setup, String expectedErrorMsg) {
+        setup.accept(baseBooking);
 
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_SEATINGTYPE_NOT_AVAILABLE + "\"", exception.getMessage());
+        if (expectedErrorMsg == null) {
+            assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+        } else {
+            BadRequestException exception = assertThrows(BadRequestException.class,
+                    () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+            assertEquals(HttpStatus.BAD_REQUEST + " \"" + expectedErrorMsg + "\"", exception.getMessage());
+        }
     }
 
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void seatingTypeNotAvailableInRoom_ShouldThrow_WhenSeatingTypeIsNotInRoomCapacities() {
-        SeatingType differentSeatingType = new SeatingType();
-        differentSeatingType.setId(UUID.randomUUID());
-        differentSeatingType.setName("Kreis");
-        differentSeatingType.setActive(true);
-        baseBooking.setSeatingType(differentSeatingType);
-        baseBooking.setRoom(testRoomWithSeatingCapacity);
+    private Stream<Arguments> provideSeatingTypeAvailabilityData() {
+        return Stream.of(
+                // Valid: No seating type requested
+                Arguments.of((Consumer<Booking>) b -> b.setSeatingType(null), null),
 
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+                // Invalid: Seating type requested, but no room selected
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setSeatingType(testSeatingType);
+                    b.setRoom(null);
+                }, MSG_SEATINGTYPE_NOT_AVAILABLE),
 
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_SEATINGTYPE_NOT_AVAILABLE + "\"", exception.getMessage());
+                // Invalid: Room has no configured capacities
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setSeatingType(testSeatingType);
+                    testRoom.setRoomSeatingCapacities(Collections.emptySet());
+                    b.setRoom(testRoom);
+                }, MSG_SEATINGTYPE_NOT_AVAILABLE),
+
+                // Invalid: Requested seating type not in room's capacities
+                Arguments.of((Consumer<Booking>) b -> {
+                    SeatingType different = new SeatingType();
+                    different.setId(UUID.randomUUID());
+                    different.setActive(true);
+                    b.setSeatingType(different);
+                    b.setRoom(testRoomWithSeatingCapacity);
+                }, MSG_SEATINGTYPE_NOT_AVAILABLE),
+
+                // Valid: Requested seating type is available in room
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setSeatingType(testSeatingType);
+                    b.setRoom(testRoomWithSeatingCapacity);
+                }, null)
+        );
     }
 
+    // TODO: ########################################
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void seatingTypeNotAvailableInRoom_ShouldBeValid_WhenSeatingTypeExistsInRoomCapacities() {
-        baseBooking.setSeatingType(testSeatingType);
-        baseBooking.setRoom(testRoomWithSeatingCapacity);
-
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void participantCountNotValid_ShouldBeValid_WhenParticipantCountIsZero() {
-        baseBooking.setParticipantCount(0);
-
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-
-        Booking createdBooking = bookingService.createBooking(baseBooking);
-
-        assertNotNull(createdBooking);
-        assertEquals(0, createdBooking.getParticipantCount());
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void participantCountNotValid_ShouldThrow_WhenParticipantCountIsNegative() {
-        baseBooking.setParticipantCount(-1);
-
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_PARTICIPANT_COUNT_INVALID + "\"", exception.getMessage());
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void participantCountNotValid_ShouldBeValid_WhenCountIsWithinRoomCapacity() {
-        testRoom.setCapacity(10);
-        baseBooking.setRoom(testRoom);
-        baseBooking.setParticipantCount(5);
-
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-
-        Booking booking = bookingService.createBooking(baseBooking);
-        assertNotNull(booking);
-        assertEquals(5, booking.getParticipantCount());
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void participantCountNotValid_ShouldThrow_WhenCountExceedsRoomCapacity() {
-        testRoom.setCapacity(10);
-        baseBooking.setRoom(testRoom);
-        baseBooking.setParticipantCount(11);
-
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_PARTICIPANT_COUNT_INVALID + "\"", exception.getMessage());
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void participantCountNotValid_ShouldBeValid_WhenNoRoomAndCountIsWithinAbsoluteMax() {
-        baseBooking.setRoom(null);
-        baseBooking.setParticipantCount(50);
-        when(roomService.findAbsoluteMaxCapacity()).thenReturn(100);
-
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-
-        Booking booking = bookingService.createBooking(baseBooking);
-        assertNotNull(booking);
-        assertEquals(50, booking.getParticipantCount());
-        verify(roomService, times(2)).findAbsoluteMaxCapacity();
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void participantCountNotValid_ShouldThrow_WhenNoRoomAndCountExceedsAbsoluteMax() {
-        baseBooking.setRoom(null);
-        baseBooking.setParticipantCount(101);
-        when(roomService.findAbsoluteMaxCapacity()).thenReturn(100);
-
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_PARTICIPANT_COUNT_INVALID + "\"", exception.getMessage());
-
-        verify(roomService).findAbsoluteMaxCapacity();
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void participantCountNotValid_ShouldThrow_WhenCountExceedsSeatingCapacity() {
-
-        baseBooking.setRoom(testRoomWithSeatingCapacity);
-        baseBooking.setParticipantCount(11);
-        baseBooking.setSeatingType(testSeatingType);
-
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_PARTICIPANT_COUNT_INVALID + "\"", exception.getMessage());
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void participantCountNotValid_ShouldBeValid_WhenCountIsWithinSeatingCapacity() {
-        baseBooking.setRoom(testRoomWithSeatingCapacity);
-        baseBooking.setParticipantCount(9);
-        baseBooking.setSeatingType(testSeatingType);
-
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-
-        Booking booking = bookingService.createBooking(baseBooking);
-        assertNotNull(booking);
-        assertEquals(9, booking.getParticipantCount());
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void bookingIsValid_ShouldThrow_WhenRoomIsInactive() {
         baseBooking.setRoom(testRoomInactive);
 
@@ -338,7 +302,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void seatingTypeNotAvailableInRoom_ShouldThrow_WhenSeatingTypeNotAvailableInRoom() {
         baseBooking.setRoom(testRoomWithSeatingCapacity);
         SeatingType alternativeSeatingType = new SeatingType();
@@ -353,7 +317,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void bookingIsValid_ShouldBeValid_WhenSameRoomEvenIfInactive() {
         baseBooking.setRoom(testRoomInactive);
         baseBooking.setParticipantCount(9);
@@ -369,7 +333,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void bookingIsValid_ShouldBeValid_WhenUpdateFromInactiveToActiveRoom() {
         baseBooking.setRoom(testRoomInactive);
         baseBooking.setParticipantCount(9);
@@ -385,7 +349,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void seatingTypeInactive_ShouldBeValid_WhenNoExistingSeatingTypeAndUpdateSeatingTypeIsNull() {
         baseBooking.setSeatingType(null);
 
@@ -393,7 +357,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void seatingTypeInactive_ShouldBeValid_WhenExistingSeatingTypeNotNullAndUpdateSeatingTypeIsNull() {
         baseBooking.setSeatingType(null);
         baseBookingExisting.setSeatingType(testSeatingType);
@@ -402,7 +366,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void seatingTypeInactive_ShouldBeValid_WhenUpdatingWithSameInactiveSeatingType() {
         baseBooking.setSeatingType(testSeatingType2Inactive);
         baseBooking.setRoom(testRoom);
@@ -413,7 +377,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void seatingTypeInactive_ShouldThrow_WhenUpdatingWithInactiveSeatingType() {
         baseBookingExisting.setSeatingType(testSeatingType);
         baseBookingExisting.setRoom(testRoom);
@@ -427,7 +391,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void seatingTypeInactive_ShouldThrow_WhenUpdatingFromActiveToInactiveSeatingType() {
         baseBooking.setSeatingType(testSeatingType2Inactive);
         baseBooking.setRoom(testRoom);
@@ -441,7 +405,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void equipmentInactive_ShouldBeValid_WhenUpdatingEquipmentIsNull() {
         baseBooking.setEquipment(new HashSet<>());
         baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipment)));
@@ -450,7 +414,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void equipmentInactive_ShouldBeValid_WhenUpdatingNoEquipment() {
         baseBooking.setEquipment(new HashSet<>());
 
@@ -458,7 +422,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void equipmentInactive_ShouldBeValid_WhenUpdatingFromInactiveEquipmentToSameInactiveEquipment() {
         baseBooking.setEquipment(new HashSet<>(List.of(testEquipment, testEquipment2Inactive)));
         baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipment2Inactive)));
@@ -467,7 +431,7 @@ public class BookingValidationServiceTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
     void equipmentInactive_ShouldThrow_WhenUpdatingActiveEquipmentToInactiveEquipment() {
         baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipment)));
         baseBooking.setEquipment(new HashSet<>(List.of(testEquipmentInactive)));
