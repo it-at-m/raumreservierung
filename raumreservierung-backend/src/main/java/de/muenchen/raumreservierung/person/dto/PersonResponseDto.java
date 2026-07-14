@@ -4,8 +4,6 @@ import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import de.muenchen.raumreservierung.person.domain.PersonTitle;
 import de.muenchen.raumreservierung.person.domain.PersonType;
-import io.swagger.v3.oas.annotations.media.DiscriminatorMapping;
-import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 
 @JsonTypeInfo(
@@ -19,13 +17,6 @@ import java.util.UUID;
             @JsonSubTypes.Type(value = InternalPersonResponseDto.class, name = "INTERNAL"),
             @JsonSubTypes.Type(value = ExternalPersonResponseDto.class, name = "EXTERNAL")
     }
-)
-@Schema(
-        discriminatorProperty = "type",
-        discriminatorMapping = {
-                @DiscriminatorMapping(value = "INTERNAL", schema = InternalPersonResponseDto.class),
-                @DiscriminatorMapping(value = "EXTERNAL", schema = ExternalPersonResponseDto.class)
-        }
 )
 @SuppressWarnings("PMD.ShortMethodName")
 public interface PersonResponseDto {

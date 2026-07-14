@@ -1099,9 +1099,6 @@ components:
           type: string
       discriminator:
         propertyName: type
-        mapping:
-          INTERNAL: "#/components/schemas/InternalPersonResponseDto"
-          EXTERNAL: "#/components/schemas/ExternalPersonResponseDto"
     RoomDetailsResponseDTO:
       required:
       - area
@@ -1248,9 +1245,6 @@ components:
           type: string
       discriminator:
         propertyName: type
-        mapping:
-          INTERNAL: "#/components/schemas/InternalPersonRequestDto"
-          EXTERNAL: "#/components/schemas/ExternalPersonRequestDto"
     HolidayRequestDTO:
       required:
       - endDate

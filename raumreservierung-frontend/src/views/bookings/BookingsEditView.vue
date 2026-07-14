@@ -27,7 +27,6 @@
       >
         <template #activator>
           <base-button
-            v-if="!isCanceledOrUnfeasible"
             :disabled="!isValid"
             class="ml-4"
             :text="t('common.save')"
@@ -279,6 +278,7 @@
 import type {
   BookingRequestDTO,
   FindById200Response,
+  InternalPersonResponseDto,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
@@ -540,7 +540,8 @@ const canCancel = computed(() => {
   }
 
   const isInternalMatch = (person: FindById200Response) =>
-    person?.type === "INTERNAL" && person.organisationId === userOrgId;
+    person?.type === "INTERNAL" &&
+    (person as InternalPersonResponseDto).organisationId === userOrgId;
 
   return (
     isInternalMatch(booking.bookedBy) || isInternalMatch(booking.bookedFor)
