@@ -53,41 +53,14 @@
           >
             <v-select
               v-model="bookingData.bookingType"
-              :items="bookingTypes"
+              :items="bookingTypeOptions"
               item-title="text"
               item-value="value"
-              label="Buchungstyp"
+              :label="t('domain.booking.typeLong')"
               variant="outlined"
               hide-selected
               hide-details
             >
-              <template #selection="{ item }">
-                <v-chip
-                  v-if="item?.value"
-                  :color="item.color"
-                  variant="outlined"
-                  class="font-weight-bold justify-space-evenly"
-                  style="width: 100px"
-                  :prepend-icon="item.icon"
-                  :text="item.text"
-                />
-              </template>
-
-              <template #item="{ props, item }">
-                <v-list-item v-bind="props">
-                  <template #title>
-                    <v-chip
-                      v-if="item?.value"
-                      :color="item.color"
-                      variant="outlined"
-                      class="font-weight-bold justify-space-evenly"
-                      :text="item.text"
-                      style="width: 100px"
-                      :prepend-icon="item.icon"
-                    />
-                  </template>
-                </v-list-item>
-              </template>
             </v-select>
           </v-col>
           <v-col
@@ -279,12 +252,6 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  BookingRequestDTO,
-  FindById200Response,
-  RoomRequestDTO,
-} from "@/api/raumreservierung-backend";
-
 import {
   mdiAccountSearchOutline,
   mdiCalendarRemoveOutline,
@@ -296,6 +263,11 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
+import {
+  type BookingRequestDTO,
+  type FindById200Response,
+  type RoomRequestDTO,
+} from "@/api/raumreservierung-backend";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
 import ExternalPersonSelect from "@/components/booking/ExternalPersonSelect.vue";
 import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
@@ -312,7 +284,7 @@ import {
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
 import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
-import { useBookingTypeStyle } from "@/composables/useBookingType.ts";
+import { useBookingType } from "@/composables/useBookingType.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
@@ -330,9 +302,8 @@ const { t } = useI18n();
 const rules = useRules();
 const route = useRoute();
 const router = useRouter();
-const { bookingTypes } = useBookingTypeStyle(
-  computed(() => bookingData.value.bookingType)
-);
+
+const { bookingTypeOptions } = useBookingType();
 
 const isValid = ref<boolean>();
 

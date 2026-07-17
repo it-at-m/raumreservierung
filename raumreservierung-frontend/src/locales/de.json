@@ -203,7 +203,14 @@
       "notes": "Notizen",
       "internalNotes": "Interne Notizen",
       "appointment": "Veranstaltungszeit",
-      "occupancy": "Belegungszeit"
+      "occupancy": "Belegungszeit",
+      "typeShort": "Typ",
+      "typeLong": "Buchungstyp",
+      "types": {
+        "default": "Normal",
+        "free": "Frei",
+        "service": "Service"
+      }
     },
     "scheduleTemplate": {
       "date": "Datum",

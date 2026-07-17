@@ -1,36 +1,34 @@
-import type { BookingDetailResponseDTOBookingTypeEnum } from "@/api/raumreservierung-backend";
-import type { ChipConfig } from "@/types/ChipConfig.ts";
-import type { MaybeRefOrGetter } from "vue";
+import { computed } from "vue";
+import { useI18n } from "vue-i18n";
 
-import { computed, toValue } from "vue";
+import { BookingRequestDTOBookingTypeEnum } from "@/api/raumreservierung-backend";
 
-import { BOOKING_TYPE_STYLES } from "@/constants/BookingType.ts";
+export function useBookingType() {
+  const { t } = useI18n();
 
-export function useBookingTypeStyle(
-  bookingType: MaybeRefOrGetter<
-    BookingDetailResponseDTOBookingTypeEnum | undefined
-  >
-) {
-  const currentTypeStyle = computed<ChipConfig>(() => {
-    const typeValue = toValue(bookingType);
+  const bookingTypeOptions = computed(() => [
+    {
+      text: t("domain.booking.types.default"),
+      value: BookingRequestDTOBookingTypeEnum.DEFAULT,
+    },
+    {
+      text: t("domain.booking.types.free"),
+      value: BookingRequestDTOBookingTypeEnum.FREE,
+    },
+    {
+      text: t("domain.booking.types.service"),
+      value: BookingRequestDTOBookingTypeEnum.SERVICE,
+    },
+  ]);
 
-    if (!typeValue || !(typeValue in BOOKING_TYPE_STYLES)) {
-      return BOOKING_TYPE_STYLES.DEFAULT;
-    }
-    return BOOKING_TYPE_STYLES[typeValue];
-  });
-
-  const bookingTypes = computed(() => {
-    return Object.entries(BOOKING_TYPE_STYLES).map(([key, config]) => ({
-      text: config.text,
-      value: key,
-      icon: config.icon,
-      color: config.color,
-    }));
-  });
+  const getBookingTypeText = (value?: string) => {
+    if (!value) return "";
+    const option = bookingTypeOptions.value.find((opt) => opt.value === value);
+    return option ? option.text : value;
+  };
 
   return {
-    currentTypeStyle,
-    bookingTypes,
+    bookingTypeOptions,
+    getBookingTypeText,
   };
 }

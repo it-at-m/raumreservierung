@@ -41,7 +41,9 @@
                   :id="getBookingData?.id"
                   :title="getBookingData?.title"
                   :schedule="getBookingData?.schedule"
-                  :booking-type="getBookingData?.bookingType"
+                  :booking-type="
+                    getBookingTypeText(getBookingData?.bookingType)
+                  "
                 />
               </v-responsive>
             </v-skeleton-loader>
@@ -252,6 +254,7 @@ import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
+import { useBookingType } from "@/composables/useBookingType.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
@@ -277,6 +280,8 @@ const {
 
 const { call: getAppointmentPage, data: appointmentPage } =
   useGetAppointments();
+
+const { getBookingTypeText } = useBookingType();
 
 onMounted(async () => {
   if (bookingId.value) {

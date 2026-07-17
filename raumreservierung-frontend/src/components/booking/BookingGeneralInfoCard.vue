@@ -60,16 +60,9 @@
           class="px-0 mt-2"
         >
           <v-list-item-subtitle class="mb-2">
-            {{ "Typ" }}
+            {{ t("domain.booking.typeShort") }}
           </v-list-item-subtitle>
-          <v-chip
-            size="small"
-            variant="tonal"
-            class="font-weight-bold justify-space-evenly"
-            :color="currentTypeStyle.color"
-            :prepend-icon="currentTypeStyle.icon"
-            :text="currentTypeStyle.text"
-          />
+          {{ bookingType }}
         </v-list-item>
       </v-list>
     </template>
@@ -77,16 +70,12 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  BookingDetailResponseDTOBookingTypeEnum,
-  ScheduleTemplate,
-} from "@/api/raumreservierung-backend";
+import type { ScheduleTemplate } from "@/api/raumreservierung-backend";
 
 import { useDateFormat } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { useBookingTypeStyle } from "@/composables/useBookingType.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 
@@ -94,27 +83,22 @@ const { t } = useI18n();
 
 const showId = useIsPrivileged("bookings:manage");
 
-const props = defineProps<{
+const { schedule, bookingType } = defineProps<{
   id?: string;
   title?: string;
   schedule?: ScheduleTemplate;
-  bookingType?: BookingDetailResponseDTOBookingTypeEnum;
+  bookingType?: string;
 }>();
 
 const isMultiDay = computed(() => {
-  if (!props.schedule?.occupancyStart || !props.schedule?.occupancyEnd)
-    return false;
+  if (!schedule?.occupancyStart || !schedule?.occupancyEnd) return false;
   return (
-    props.schedule.occupancyStart.getDate() !==
-      props.schedule.occupancyEnd.getDate() ||
-    props.schedule.occupancyStart.getMonth() !==
-      props.schedule.occupancyEnd.getMonth() ||
-    props.schedule.occupancyStart.getFullYear() !==
-      props.schedule.occupancyEnd.getFullYear()
+    schedule.occupancyStart.getDate() !== schedule.occupancyEnd.getDate() ||
+    schedule.occupancyStart.getMonth() !== schedule.occupancyEnd.getMonth() ||
+    schedule.occupancyStart.getFullYear() !==
+      schedule.occupancyEnd.getFullYear()
   );
 });
 
-const isPrivileged = useIsPrivileged(["bookings:write"]);
-
-const { currentTypeStyle } = useBookingTypeStyle(() => props.bookingType);
+const isPrivileged = useIsPrivileged("bookings:write");
 </script>
