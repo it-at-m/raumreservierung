@@ -1,5 +1,21 @@
 package de.muenchen.raumreservierung.booking;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_EQUIPMENT_INACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_PARTICIPANT_COUNT_INVALID;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_INACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_STATUS_CHANGE_NOT_POSSIBLE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UPDATE_OF_FIELDS_NOT_ALLOWED;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.when;
+
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
@@ -13,6 +29,15 @@ import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.BiConsumer;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
@@ -24,28 +49,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Consumer;
-import java.util.stream.Stream;
-
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_EQUIPMENT_INACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_PARTICIPANT_COUNT_INVALID;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_INACTIVE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest(
         classes = {
@@ -62,6 +65,8 @@ public class BookingValidationServiceTest {
     private BookingValidationService bookingValidationService;
     @Autowired
     private BookingService bookingService;
+    @Autowired
+    private SecurityContextService securityContextService;
     @MockitoBean
     private BookingRepository bookingRepository;
     @MockitoBean
@@ -175,7 +180,7 @@ public class BookingValidationServiceTest {
 
     @ParameterizedTest
     @MethodSource("provideParticipantCountData")
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void validateParticipantCount(Consumer<Booking> setup, String expectedErrorMsg) {
         setup.accept(baseBooking);
 
@@ -236,13 +241,12 @@ public class BookingValidationServiceTest {
                     b.setRoom(testRoomWithSeatingCapacity);
                     b.setSeatingType(testSeatingType);
                     b.setParticipantCount(11);
-                }, MSG_PARTICIPANT_COUNT_INVALID)
-        );
+                }, MSG_PARTICIPANT_COUNT_INVALID));
     }
 
     @ParameterizedTest
     @MethodSource("provideSeatingTypeAvailabilityData")
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void validateSeatingTypeAvailability(Consumer<Booking> setup, String expectedErrorMsg) {
         setup.accept(baseBooking);
 
@@ -286,159 +290,288 @@ public class BookingValidationServiceTest {
                 Arguments.of((Consumer<Booking>) b -> {
                     b.setSeatingType(testSeatingType);
                     b.setRoom(testRoomWithSeatingCapacity);
-                }, null)
-        );
+                }, null));
     }
 
-    // TODO: ########################################
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void bookingIsValid_ShouldThrow_WhenRoomIsInactive() {
-        baseBooking.setRoom(testRoomInactive);
+    @ParameterizedTest
+    @MethodSource("provideSeatingTypeInactiveData")
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void validateSeatingTypeInactive(BiConsumer<Booking, Booking> setup, String expectedErrorMsg) {
+        setup.accept(baseBooking, baseBookingExisting);
 
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+        if (expectedErrorMsg == null) {
+            assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
+        } else {
+            BadRequestException exception = assertThrows(BadRequestException.class,
+                    () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+            assertEquals(HttpStatus.BAD_REQUEST + " \"" + expectedErrorMsg + "\"", exception.getMessage());
+        }
+    }
 
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_ROOM_INACTIVE + "\"", exception.getMessage());
+    private Stream<Arguments> provideSeatingTypeInactiveData() {
+        return Stream.of(
+                // Valid: No seating type requested and old seating type active
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setSeatingType(null);
+                    existingBooking.setSeatingType(testSeatingType);
+                }, null),
+
+                // Valid: Old inactive seating type requested again
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setSeatingType(testSeatingType2Inactive);
+                    newBooking.setRoom(testRoom);
+                    existingBooking.setSeatingType(testSeatingType2Inactive);
+                    existingBooking.setRoom(testRoom);
+                }, null),
+
+                // Invalid: Update with inactive seating type
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setSeatingType(testSeatingType2Inactive);
+                    newBooking.setRoom(testRoom);
+                    existingBooking.setSeatingType(null);
+                    existingBooking.setRoom(null);
+                }, MSG_SEATINGTYPE_INACTIVE),
+
+                // Invalid: From active seating type to inactive
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setSeatingType(testSeatingType2Inactive);
+                    newBooking.setRoom(testRoom);
+                    existingBooking.setSeatingType(testSeatingType);
+                    existingBooking.setRoom(testRoom);
+                }, MSG_SEATINGTYPE_INACTIVE));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideEquipmentInactiveData")
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void validateEquipmentInactive(BiConsumer<Booking, Booking> setup, String expectedErrorMsg) {
+        setup.accept(baseBooking, baseBookingExisting);
+
+        if (expectedErrorMsg == null) {
+            assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
+        } else {
+            BadRequestException exception = assertThrows(BadRequestException.class,
+                    () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+            assertEquals(HttpStatus.BAD_REQUEST + " \"" + expectedErrorMsg + "\"", exception.getMessage());
+        }
+    }
+
+    private Stream<Arguments> provideEquipmentInactiveData() {
+        return Stream.of(
+                // Valid: no equipment requested and old equipment inactive
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setEquipment(new HashSet<>());
+                    existingBooking.setEquipment(new HashSet<>(List.of(testEquipmentInactive)));
+                }, null),
+
+                // Valid: Updating from inactive equipment to same equipment
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setEquipment(new HashSet<>(List.of(testEquipment, testEquipment2Inactive)));
+                    existingBooking.setEquipment(new HashSet<>(List.of(testEquipment2Inactive)));
+                }, null),
+
+                // Valid: Updating from inactive equipment to same equipment
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setEquipment(new HashSet<>(List.of(testEquipment2Inactive)));
+                    existingBooking.setEquipment(new HashSet<>(List.of(testEquipment, testEquipment2Inactive)));
+                }, null),
+
+                // Invalid: Update with inactive equipment from active
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setEquipment(new HashSet<>(List.of(testEquipmentInactive)));
+                    existingBooking.setEquipment(new HashSet<>(List.of(testEquipment)));
+                }, MSG_EQUIPMENT_INACTIVE),
+
+                // Invalid: From inactive seating type to other inactive
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setEquipment(new HashSet<>(List.of(testEquipment2Inactive)));
+                    existingBooking.setEquipment(new HashSet<>(List.of(testEquipmentInactive)));
+                }, MSG_EQUIPMENT_INACTIVE));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideRoomInactiveData")
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void validateRoomInactive(BiConsumer<Booking, Booking> setup, String expectedErrorMsg) {
+        setup.accept(baseBooking, baseBookingExisting);
+
+        if (expectedErrorMsg == null) {
+            assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
+        } else {
+            BadRequestException exception = assertThrows(BadRequestException.class,
+                    () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+            assertEquals(HttpStatus.BAD_REQUEST + " \"" + expectedErrorMsg + "\"", exception.getMessage());
+        }
+    }
+
+    private Stream<Arguments> provideRoomInactiveData() {
+        return Stream.of(
+                // Valid: no room requested and old room inactive
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setRoom(null);
+                    existingBooking.setRoom(testRoomInactive);
+                }, null),
+
+                // Valid: Updating from inactive room to same room
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setRoom(testRoomInactive);
+                    existingBooking.setRoom(testRoomInactive);
+                }, null),
+
+                // Invalid: Update with inactive room from active
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setRoom(testRoomInactive);
+                    existingBooking.setRoom(testRoom);
+                }, MSG_ROOM_INACTIVE));
+
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void seatingTypeNotAvailableInRoom_ShouldThrow_WhenSeatingTypeNotAvailableInRoom() {
-        baseBooking.setRoom(testRoomWithSeatingCapacity);
-        SeatingType alternativeSeatingType = new SeatingType();
-        alternativeSeatingType.setName("ALTERNATIVE_TEST_SEATING");
-        alternativeSeatingType.setActive(true);
-        alternativeSeatingType.setId(UUID.randomUUID());
-        baseBooking.setSeatingType(alternativeSeatingType);
+    @WithMockJwt(lhmObjectID = "987654", authorities = { Roles.RAUM_ADMIN })
+    void validateBookingAccess_ShouldReturnTrue_WhenAdmin() {
+        Booking booking = new Booking();
+        InternalPerson person = new InternalPerson();
+        person.setOrganisationId("12345");
+        booking.setBookedBy(person);
 
-        BadRequestException exception = assertThrows(BadRequestException.class, () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_SEATINGTYPE_NOT_AVAILABLE + "\"", exception.getMessage());
+        assertTrue(bookingValidationService.validateBookingAuthority(booking, Roles.TERMIN_ORGANISATOR));
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void bookingIsValid_ShouldBeValid_WhenSameRoomEvenIfInactive() {
-        baseBooking.setRoom(testRoomInactive);
-        baseBooking.setParticipantCount(9);
-        baseBooking.setSeatingType(testSeatingType);
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void validateBookingAccess_ShouldReturnTrue_WhenOIDMatches() {
+        Booking booking = new Booking();
+        InternalPerson person = new InternalPerson();
+        person.setOrganisationId("000001");
+        person.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
+        booking.setBookedBy(person);
 
-        when(bookingRepository.findById(any(UUID.class))).thenReturn(Optional.ofNullable(baseBooking));
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+                .thenReturn(person);
 
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBooking));
-
-        Booking booking = bookingService.updateBooking(baseBooking, UUID.randomUUID());
-        assertNotNull(booking);
-        assertEquals(9, booking.getParticipantCount());
+        assertTrue(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_BUCHUNG));
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void bookingIsValid_ShouldBeValid_WhenUpdateFromInactiveToActiveRoom() {
-        baseBooking.setRoom(testRoomInactive);
-        baseBooking.setParticipantCount(9);
-        baseBooking.setSeatingType(testSeatingType);
+    @WithMockJwt(lhmObjectID = "012345", authorities = { Roles.ANWENDER })
+    void validateBookingAuthority_ShouldReturnFalse_WhenOIDMismatchesAndNotAdmin() {
+        Booking booking = new Booking();
+        InternalPerson owner = new InternalPerson();
+        owner.setOrganisationId("987654");
+        owner.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
+        booking.setBookedBy(owner);
+        booking.setBookedFor(owner);
 
-        when(bookingRepository.findById(any(UUID.class))).thenReturn(Optional.ofNullable(baseBooking));
+        InternalPerson currentUser = new InternalPerson();
+        currentUser.setOrganisationId("012345");
+        currentUser.setId(UUID.fromString("99999999-aaaa-bbbb-cccc-dddddddddddd"));
 
-        baseBooking.setRoom(testRoomWithSeatingCapacity);
+        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
+                .thenReturn(currentUser);
 
-        Booking booking = bookingService.updateBooking(baseBooking, UUID.randomUUID());
-        assertNotNull(booking);
-        assertEquals(9, booking.getParticipantCount());
+        assertFalse(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void seatingTypeInactive_ShouldBeValid_WhenNoExistingSeatingTypeAndUpdateSeatingTypeIsNull() {
-        baseBooking.setSeatingType(null);
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void hasBookingAccess_ShouldThrow_WhenBookingHasNoOwner() {
+        Booking booking = new Booking();
+        booking.setBookedBy(null);
 
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
+        assertThrows(NullPointerException.class, () -> bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideTerminalStatusData")
+    @WithMockJwt(lhmObjectID = "000002", authorities = { Roles.RAUM_ADMIN })
+    void validateTerminalStatusOrThrowException(BiConsumer<Booking, Booking> setup, String expectedErrorMsg) {
+        setup.accept(baseBooking, baseBookingExisting);
+
+        if (expectedErrorMsg == null) {
+            assertDoesNotThrow(() -> bookingValidationService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
+        } else {
+            BadRequestException exception = assertThrows(BadRequestException.class,
+                    () -> bookingValidationService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
+            assertEquals(HttpStatus.BAD_REQUEST + " \"" + expectedErrorMsg + "\"", exception.getMessage());
+        }
+    }
+
+    private Stream<Arguments> provideTerminalStatusData() {
+        return Stream.of(
+
+                // Valid: existingBooking is null -> method returns without checking anything
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    existingBooking = null;
+                }, null),
+
+                // Valid: only status is changed to UNFEASIBLE, all other fields untouched
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setId(existingBooking.getId());
+                    newBooking.setStatus(BookingStatus.UNFEASIBLE);
+                    newBooking.setReasonForRejection("REASON_FOR_REJECTION");
+                }, null),
+
+                // Valid: only status is changed to CANCELED, all other fields untouched
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setId(existingBooking.getId());
+                    newBooking.setStatus(BookingStatus.CANCELED);
+                }, null),
+
+                // Invalid: status changed to UNFEASIBLE but an unrelated field is also modified
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setId(existingBooking.getId());
+                    newBooking.setStatus(BookingStatus.UNFEASIBLE);
+                    newBooking.setTitle("NEW_TITLE");
+                }, MSG_UPDATE_OF_FIELDS_NOT_ALLOWED),
+
+                // Invalid: status changed to CANCELED but an unrelated field is also modified
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setId(existingBooking.getId());
+                    newBooking.setStatus(BookingStatus.CANCELED);
+                    newBooking.setParticipantCount(4);
+                }, MSG_UPDATE_OF_FIELDS_NOT_ALLOWED),
+
+                // Invalid: reasonForRejection is set even though status is not UNFEASIBLE
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
+                    newBooking.setId(existingBooking.getId());
+                    newBooking.setStatus(existingBooking.getStatus());
+                    newBooking.setReasonForRejection("Some reason without status change");
+                }, MSG_UPDATE_OF_FIELDS_NOT_ALLOWED));
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void seatingTypeInactive_ShouldBeValid_WhenExistingSeatingTypeNotNullAndUpdateSeatingTypeIsNull() {
-        baseBooking.setSeatingType(null);
-        baseBookingExisting.setSeatingType(testSeatingType);
-
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void seatingTypeInactive_ShouldBeValid_WhenUpdatingWithSameInactiveSeatingType() {
-        baseBooking.setSeatingType(testSeatingType2Inactive);
-        baseBooking.setRoom(testRoom);
-        baseBookingExisting.setSeatingType(testSeatingType2Inactive);
-        baseBookingExisting.setRoom(testRoom);
-
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void seatingTypeInactive_ShouldThrow_WhenUpdatingWithInactiveSeatingType() {
-        baseBookingExisting.setSeatingType(testSeatingType);
-        baseBookingExisting.setRoom(testRoom);
-        baseBooking.setSeatingType(testSeatingType2Inactive);
-        baseBooking.setRoom(testRoom);
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void validateTerminalStatusOrThrowException_anwenderSetsReasonForRejection_throwsException() {
+        baseBooking.setId(baseBookingExisting.getId());
+        baseBooking.setStatus(baseBookingExisting.getStatus());
+        baseBooking.setReasonForRejection("REASON_FOR_REJECTION");
 
         BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
+                () -> bookingValidationService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
 
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_SEATINGTYPE_INACTIVE + "\"", exception.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_UPDATE_OF_FIELDS_NOT_ALLOWED + "\"", exception.getMessage());
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void seatingTypeInactive_ShouldThrow_WhenUpdatingFromActiveToInactiveSeatingType() {
-        baseBooking.setSeatingType(testSeatingType2Inactive);
-        baseBooking.setRoom(testRoom);
-        baseBookingExisting.setSeatingType(testSeatingType);
-        baseBookingExisting.setRoom(testRoom);
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void validateBookingStatusTransitionOrThrowException_shouldThrow_whenAnwenderAndNotAllowedTransition() {
+        baseBooking.setId(baseBookingExisting.getId());
+        baseBooking.setStatus(BookingStatus.UNFEASIBLE);
 
         BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
+                () -> bookingValidationService.validateBookingStatusTransitionOrThrowException(baseBookingExisting, baseBooking));
 
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_SEATINGTYPE_INACTIVE + "\"", exception.getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_STATUS_CHANGE_NOT_POSSIBLE + "\"", exception.getMessage());
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void equipmentInactive_ShouldBeValid_WhenUpdatingEquipmentIsNull() {
-        baseBooking.setEquipment(new HashSet<>());
-        baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipment)));
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void validateBookingStatusTransitionOrThrowException_shouldBeValid_whenAnwenderAndAllowedTransition() {
+        baseBooking.setId(baseBookingExisting.getId());
+        baseBooking.setStatus(BookingStatus.CANCELED);
 
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
+        assertDoesNotThrow(() -> bookingValidationService.validateBookingStatusTransitionOrThrowException(baseBookingExisting, baseBooking));
+
     }
 
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void equipmentInactive_ShouldBeValid_WhenUpdatingNoEquipment() {
-        baseBooking.setEquipment(new HashSet<>());
-
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void equipmentInactive_ShouldBeValid_WhenUpdatingFromInactiveEquipmentToSameInactiveEquipment() {
-        baseBooking.setEquipment(new HashSet<>(List.of(testEquipment, testEquipment2Inactive)));
-        baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipment2Inactive)));
-
-        assertDoesNotThrow(() -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.ANWENDER})
-    void equipmentInactive_ShouldThrow_WhenUpdatingActiveEquipmentToInactiveEquipment() {
-        baseBookingExisting.setEquipment(new HashSet<>(List.of(testEquipment)));
-        baseBooking.setEquipment(new HashSet<>(List.of(testEquipmentInactive)));
-
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingValidationService.bookingIsValidOrThrowException(baseBooking, baseBookingExisting));
-
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_EQUIPMENT_INACTIVE + "\"", exception.getMessage());
-    }
 }

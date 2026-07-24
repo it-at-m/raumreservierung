@@ -19,6 +19,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -316,6 +317,60 @@ public class BookingFilterIntegrationTest {
                 });
 
         assertThat(bookings).isEmpty();
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void getBookings_withStartStatusNEW_shouldReturnEightBooking() throws Exception {
+        BookingStatus status = BookingStatus.NEW;
+
+        String responseJson = mockMvc.perform(get(BOOKINGS_URL)
+                .param("status", status.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String contentJson = JsonPath.read(responseJson, "$.content").toString();
+        List<BookingListResponseDTO> bookings = objectMapper.readValue(
+                contentJson,
+                new TypeReference<>() {
+                });
+
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.size()).isEqualTo(8);
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void getBookings_withStartStatusNEWAndCANCELED_shouldReturnTenBooking() throws Exception {
+        List<BookingStatus> status = List.of(BookingStatus.NEW, BookingStatus.CANCELED);
+
+        String statusParam = status.stream()
+                .map(Enum::name)
+                .collect(Collectors.joining(","));
+
+        String responseJson = mockMvc.perform(get(BOOKINGS_URL)
+                .param("status", statusParam)
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String contentJson = JsonPath.read(responseJson, "$.content").toString();
+        List<BookingListResponseDTO> bookings = objectMapper.readValue(
+                contentJson,
+                new TypeReference<>() {
+                });
+
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.size()).isEqualTo(10);
     }
 
 }

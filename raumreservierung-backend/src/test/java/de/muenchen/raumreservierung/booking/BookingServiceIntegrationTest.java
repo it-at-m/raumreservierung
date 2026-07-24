@@ -1,261 +1,359 @@
 package de.muenchen.raumreservierung.booking;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
 
+import de.muenchen.raumreservierung.TestConstants;
+import de.muenchen.raumreservierung.appointment.Appointment;
+import de.muenchen.raumreservierung.appointment.AppointmentRepository;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
-import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
-import de.muenchen.raumreservierung.common.UnauthorizedActionException;
-import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
-import de.muenchen.raumreservierung.person.PersonService;
+import de.muenchen.raumreservierung.common.BadRequestException;
+import de.muenchen.raumreservierung.equipment.Equipment;
+import de.muenchen.raumreservierung.equipment.EquipmentRepository;
+import de.muenchen.raumreservierung.person.ExternalPersonRepository;
+import de.muenchen.raumreservierung.person.InternalPersonRepository;
+import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
-import de.muenchen.raumreservierung.room.RoomService;
+import de.muenchen.raumreservierung.room.Room;
+import de.muenchen.raumreservierung.room.RoomRepository;
+import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
+import de.muenchen.raumreservierung.seating.SeatingRepository;
+import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.Roles;
-import de.muenchen.raumreservierung.security.SecurityContextService;
-import jakarta.persistence.EntityManager;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.Set;
+import java.util.function.Consumer;
+import java.util.stream.Stream;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
+import org.junit.jupiter.api.TestInstance;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.support.TransactionTemplate;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.utility.DockerImageName;
 
-@SpringBootTest(
-        classes = {
-                BookingService.class,
-                BookingValidationService.class,
-                BookingTransitionService.class,
-                SecurityConfiguration.class,
-                SecurityContextService.class
+@Testcontainers
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@AutoConfigureMockMvc
+@ActiveProfiles(profiles = { SPRING_TEST_PROFILE })
+@TestPropertySource(
+        properties = {
+                "spring.jpa.hibernate.ddl-auto=validate"
         }
 )
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BookingServiceIntegrationTest {
+
+    @Container
+    @ServiceConnection
+    @SuppressWarnings("unused")
+    private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>(
+            DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
+
     @Autowired
     private BookingService bookingService;
     @Autowired
-    private SecurityContextService securityContextService;
-    @MockitoBean
-    private BookingRepository bookingRepository;
-    @MockitoBean
-    private JwtDecoder jwtDecoder;
-    @MockitoBean
-    private EntityManager entityManager;
-    @MockitoBean
     private AppointmentService appointmentService;
-    @MockitoBean
-    private PersonService personService;
-    @MockitoBean
-    private RoomService roomService;
     @Autowired
     private BookingValidationService bookingValidationService;
+    @Autowired
+    private BookingRepository bookingRepository;
+    @Autowired
+    private AppointmentRepository appointmentRepository;
+    @Autowired
+    private InternalPersonRepository internalPersonRepository;
+    @Autowired
+    private ExternalPersonRepository externalPersonRepository;
+    @Autowired
+    private RoomRepository roomRepository;
+    @Autowired
+    private EquipmentRepository equipmentRepository;
+    @Autowired
+    private SeatingRepository seatingRepository;
+    @Autowired
+    private PlatformTransactionManager txManager;
+    @MockitoBean
+    private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
 
-    @Test
-    @WithMockJwt(lhmObjectID = "987654", authorities = { Roles.RAUM_ADMIN })
-    void validateBookingAccess_ShouldReturnTrue_WhenAdmin() {
-        Booking booking = new Booking();
-        InternalPerson person = new InternalPerson();
-        person.setOrganisationId("12345");
-        booking.setBookedBy(person);
+    private Booking baseBooking;
+    private Booking existingBooking;
+    private ExternalPerson externalPerson;
+    private InternalPerson internalPerson;
+    private InternalPerson internalPersonAdmin;
+    private ScheduleTemplate baseSchedule;
+    private Room room;
+    private Room room2;
+    private SeatingType seatingType;
+    private Equipment equipment;
+    private Appointment appointmentUpdate;
+    private Appointment appointment;
 
-        assertTrue(bookingValidationService.validateBookingAuthority(booking, Roles.TERMIN_ORGANISATOR));
+    @BeforeEach
+    void setUp() {
+        bookingRepository.deleteAll();
+        internalPersonRepository.deleteAll();
+        externalPersonRepository.deleteAll();
+        roomRepository.deleteAll();
+        equipmentRepository.deleteAll();
+        seatingRepository.deleteAll();
+        appointmentRepository.deleteAll();
+
+        internalPerson = new InternalPerson();
+        internalPerson.setOrganisationId("000001");
+        internalPerson.setOrganisationUnit("ITM");
+        internalPerson.setEmail("internal@person.de");
+        internalPerson = internalPersonRepository.save(internalPerson);
+
+        internalPersonAdmin = new InternalPerson();
+        internalPersonAdmin.setOrganisationId("000002");
+        internalPersonAdmin.setOrganisationUnit("ITM");
+        internalPersonAdmin.setEmail("internalAdmin@person.de");
+        internalPersonAdmin = internalPersonRepository.save(internalPersonAdmin);
+
+        externalPerson = new ExternalPerson();
+        externalPerson.setEmail("external@person.de");
+        externalPerson.setLastModified(LocalDate.now());
+        externalPerson = externalPersonRepository.save(externalPerson);
+
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        baseSchedule = new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30));
+
+        seatingType = new SeatingType();
+        seatingType.setActive(true);
+        seatingType.setName("TEST_SEATINGTYPE");
+        seatingType = seatingRepository.save(seatingType);
+
+        room = new Room();
+        room.setActive(true);
+        room.setName("TEST_ROOM");
+        room.setNumber("1");
+        RoomSeatingCapacity roomSeatingCapacity = new RoomSeatingCapacity();
+        roomSeatingCapacity.setSeatingType(seatingType);
+        roomSeatingCapacity.setRoom(room);
+        roomSeatingCapacity.setCapacity(10);
+        room.setRoomSeatingCapacities(Set.of(roomSeatingCapacity));
+        room = roomRepository.save(room);
+
+        room2 = new Room();
+        room2.setActive(true);
+        room2.setName("TEST_ROOM_2");
+        room2.setNumber("2");
+        RoomSeatingCapacity roomSeatingCapacity2 = new RoomSeatingCapacity();
+        roomSeatingCapacity2.setSeatingType(seatingType);
+        roomSeatingCapacity2.setRoom(room2);
+        roomSeatingCapacity2.setCapacity(10);
+        room2.setRoomSeatingCapacities(Set.of(roomSeatingCapacity2));
+        room2 = roomRepository.save(room2);
+
+        equipment = new Equipment();
+        equipment.setActive(true);
+        equipment.setName("TEST_EQUIPMENT");
+        equipment = equipmentRepository.save(equipment);
+
+        existingBooking = new Booking();
+        existingBooking.setTitle("TEST_BOOKING");
+        existingBooking.setBookedBy(internalPerson);
+        existingBooking.setStatus(BookingStatus.ROOM_APPROVED);
+        existingBooking.setSchedule(baseSchedule);
+        existingBooking.setRoom(room);
+        existingBooking.setEquipment(Set.of(equipment));
+        existingBooking.setSeatingType(seatingType);
+        existingBooking.setParticipantCount(1);
+        existingBooking.setCateringNeeded(true);
+        existingBooking.setRecurringRule("FREQ=DAILY;COUNT=1");
+        existingBooking = bookingRepository.save(existingBooking);
+
+        baseBooking = new Booking();
+        baseBooking.setTitle("TEST_BOOKING");
+        baseBooking.setStatus(BookingStatus.NEW);
+        baseBooking.setSchedule(baseSchedule);
+
+        appointment = new Appointment();
+        appointment.setBooking(existingBooking);
+        appointment.setSchedule(existingBooking.getSchedule());
+        appointment = appointmentRepository.save(appointment);
+
+        ScheduleTemplate scheduleUpdated = new ScheduleTemplate(
+                now.minusHours(1),
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30));
+        appointmentUpdate = new Appointment();
+        appointmentUpdate.setBooking(existingBooking);
+        appointmentUpdate.setSchedule(scheduleUpdated);
     }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void validateBookingAccess_ShouldReturnTrue_WhenOIDMatches() {
-        Booking booking = new Booking();
-        InternalPerson person = new InternalPerson();
-        person.setOrganisationId("000001");
-        person.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
-        booking.setBookedBy(person);
-
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
-                .thenReturn(person);
-
-        assertTrue(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_BUCHUNG));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "012345", authorities = { Roles.ANWENDER })
-    void validateBookingAuthority_ShouldReturnFalse_WhenOIDMismatchesAndNotAdmin() {
-        Booking booking = new Booking();
-        InternalPerson owner = new InternalPerson();
-        owner.setOrganisationId("987654");
-        owner.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
-        booking.setBookedBy(owner);
-        booking.setBookedFor(owner);
-
-        InternalPerson currentUser = new InternalPerson();
-        currentUser.setOrganisationId("012345");
-        currentUser.setId(UUID.fromString("99999999-aaaa-bbbb-cccc-dddddddddddd"));
-
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
-                .thenReturn(currentUser);
-
-        assertFalse(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void hasBookingAccess_ShouldThrow_WhenBookingHasNoOwner() {
-        Booking booking = new Booking();
-        booking.setBookedBy(null);
-
-        assertThrows(NullPointerException.class, () -> bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
-    void getById_ShouldReturnBookingWithNotes_WhenAuthorizedAndOrganisator() {
-        UUID bookingId = UUID.randomUUID();
-        Booking booking = new Booking();
-        booking.setInternalNotes("Geheime Notiz");
-
-        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-
-        InternalPerson person = new InternalPerson();
-        person.setOrganisationId("12345");
-        person.setId(UUID.randomUUID());
-        booking.setBookedBy(person);
-        booking.setBookedFor(person);
-
-        Booking result = bookingService.getById(bookingId);
+    void createBooking_shouldSetBookedForToSameUser_WhenBookedByAnwenderAndNoBookedFor() {
+        Booking result = bookingService.createBooking(baseBooking);
 
         assertNotNull(result);
-        assertEquals("Geheime Notiz", result.getInternalNotes());
+        assertThat(result.getBookedFor()).isEqualTo(internalPerson);
+        assertThat(result.getBookedBy()).isEqualTo(internalPerson);
+        assertThat(result.getOrganisationUnit()).isEqualTo(internalPerson.getOrganisationUnit());
     }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void getById_ShouldReturnBookingWithNullNotes_WhenAuthorizedButNotOrganisator() {
-        UUID bookingId = UUID.randomUUID();
-        Booking booking = new Booking();
-        booking.setInternalNotes("Geheime Notiz");
-
-        InternalPerson person = new InternalPerson();
-        person.setOrganisationId("12345");
-        person.setId(UUID.randomUUID());
-        booking.setBookedBy(person);
-        booking.setBookedFor(person);
-
-        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
-                .thenReturn(person);
-
-        Booking result = bookingService.getById(bookingId);
+    void createBooking_shouldKeepBookedFor_WhenBookedByAnwender() {
+        baseBooking.setBookedFor(externalPerson);
+        Booking result = bookingService.createBooking(baseBooking);
 
         assertNotNull(result);
-        assertNull(result.getInternalNotes());
+        assertThat(result.getBookedFor()).isEqualTo(externalPerson);
+        assertThat(result.getBookedBy()).isEqualTo(internalPerson);
+        assertThat(result.getOrganisationUnit()).isEqualTo(internalPerson.getOrganisationUnit());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000002", authorities = { Roles.RAUM_ADMIN })
+    void createBooking_shouldSetBookedByToBookedFor_WhenBookedByRaumadmin() {
+        baseBooking.setBookedFor(internalPerson);
+        Booking result = bookingService.createBooking(baseBooking);
+
+        assertNotNull(result);
+        assertThat(result.getBookedFor()).isEqualTo(internalPerson);
+        assertThat(result.getBookedBy()).isEqualTo(internalPerson);
+        assertThat(result.getOrganisationUnit()).isEqualTo(internalPerson.getOrganisationUnit());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000002", authorities = { Roles.RAUM_ADMIN })
+    void createBooking_shouldSetBookedByToUser_WhenBookedByRaumadminAndBookedForIsExternal() {
+        baseBooking.setBookedFor(externalPerson);
+        Booking result = bookingService.createBooking(baseBooking);
+
+        assertNotNull(result);
+        assertThat(result.getBookedFor()).isEqualTo(externalPerson);
+        assertThat(result.getBookedBy()).isEqualTo(internalPersonAdmin);
+        assertThat(result.getOrganisationUnit()).isEqualTo(internalPerson.getOrganisationUnit());
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideBookingChanges")
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void updateBooking_shouldAutomaticallySetStatusToRoomChanged_WhenChangeOccursAndRoleAnwender(
+            Consumer<Booking> changeTrigger) {
+
+        Booking bookingUpdate = new Booking();
+        bookingUpdate.updateFrom(existingBooking);
+
+        changeTrigger.accept(bookingUpdate);
+
+        Booking result = bookingService.updateBooking(bookingUpdate, existingBooking.getId());
+
+        assertNotNull(result);
+        assertThat(result.getStatus()).isEqualTo(BookingStatus.ROOM_CHANGED);
+    }
+
+    @ParameterizedTest
+    @MethodSource("provideBookingChanges")
+    @WithMockJwt(lhmObjectID = "000002", authorities = { Roles.RAUM_ADMIN })
+    void updateBooking_shouldKeepStatus_WhenChangeOccursAndRoleRaumadmin(
+            Consumer<Booking> changeTrigger) {
+
+        Booking bookingUpdate = new Booking();
+        bookingUpdate.updateFrom(existingBooking);
+
+        changeTrigger.accept(bookingUpdate);
+
+        Booking result = bookingService.updateBooking(bookingUpdate, existingBooking.getId());
+
+        assertNotNull(result);
+        assertThat(result.getStatus()).isEqualTo(BookingStatus.ROOM_APPROVED);
+    }
+
+    private Stream<Arguments> provideBookingChanges() {
+        return Stream.of(
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setRoom(room2);
+                }),
+                Arguments.of((Consumer<Booking>) b -> {
+                    equipment.setName("NEW");
+                    b.setEquipment(Set.of(equipment));
+                }),
+                Arguments.of((Consumer<Booking>) b -> {
+                    seatingType.setName("NEW");
+                    b.setSeatingType(seatingType);
+                }),
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setParticipantCount(2);
+                }),
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setCateringNeeded(false);
+                }),
+                Arguments.of((Consumer<Booking>) b -> {
+                    b.setRecurringRule("FREQ=WEEKLY;COUNT=1");
+                }),
+                Arguments.of((Consumer<Booking>) b -> {
+                    OffsetDateTime later = OffsetDateTime.now(ZoneOffset.UTC).plusMinutes(1);
+                    b.setSchedule(
+                            new ScheduleTemplate(
+                                    later,
+                                    later.plusHours(2),
+                                    later.plusMinutes(15),
+                                    later.plusHours(1).plusMinutes(30)));
+                }));
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000002", authorities = { Roles.RAUM_ADMIN })
+    void updateBooking_shouldThrow_WhenStatusChangedToCANCELEDAndAdditionalChanges() {
+        Booking bookingUpdate = new Booking();
+        bookingUpdate.updateFrom(existingBooking);
+        bookingUpdate.setStatus(BookingStatus.CANCELED);
+        bookingUpdate.setTitle("NEW_TITLE");
+
+        assertThrows(BadRequestException.class, () -> bookingService.updateBooking(bookingUpdate, existingBooking.getId()));
     }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void getById_ShouldThrowUnauthorized_WhenUserHasNoAuthority() {
-        UUID bookingId = UUID.randomUUID();
-        Booking booking = new Booking();
+    void updateBooking_shouldBeValid_WhenStatusChangedToCANCELEDAndNoAdditionalChanges() {
+        Booking bookingUpdate = new Booking();
+        existingBooking.setBookedFor(internalPerson);
+        existingBooking.setOrganisationUnit("ITM");
+        existingBooking = bookingRepository.save(existingBooking);
+        bookingUpdate.updateFrom(existingBooking);
+        bookingUpdate.setStatus(BookingStatus.CANCELED);
 
-        InternalPerson owner = new InternalPerson();
-        owner.setOrganisationId("12345");
-        owner.setId(UUID.randomUUID());
-        booking.setBookedBy(owner);
-        booking.setBookedFor(owner);
+        Booking result = bookingService.updateBooking(bookingUpdate, existingBooking.getId());
 
-        InternalPerson stranger = new InternalPerson();
-        stranger.setOrganisationId("99999");
-
-        when(bookingRepository.findById(bookingId)).thenReturn(Optional.of(booking));
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
-                .thenReturn(stranger);
-
-        assertThrows(UnauthorizedActionException.class, () -> bookingService.getById(bookingId));
+        assertNotNull(result);
+        assertThat(result.getStatus()).isEqualTo(BookingStatus.CANCELED);
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
-    void findAllWithSanitizedNotes_ShouldKeepNotes_WhenUserIsOrganisator() {
-        Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void bookingStatusChanges_afterAppointmentCommit() {
+        TransactionTemplate tx = new TransactionTemplate(txManager);
 
-        Booking booking = new Booking();
-        booking.setInternalNotes("Geheime Notiz");
+        tx.executeWithoutResult(status -> {
+            appointmentService.updateAppointment(appointmentUpdate, appointment.getId());
+        });
 
-        Page<Booking> page = new PageImpl<>(List.of(booking));
-        Specification<Booking> anySpec = ArgumentMatchers.any();
-        when(bookingRepository.findAll(anySpec, any(Pageable.class))).thenReturn(page);
-
-        Page<Booking> result = bookingService.getAllBookingsByPageableAndFilter(pageable, bookingFilterDTO);
-
-        assertEquals(1, result.getContent().size());
-        assertEquals("Geheime Notiz", result.getContent().getFirst().getInternalNotes());
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
-    void findAllWithSanitizedNotes_ShouldNullNotes_WhenUserIsNotOrganisator() {
-        Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
-
-        Booking booking = new Booking();
-        booking.setInternalNotes("Geheime Notiz");
-
-        Page<Booking> page = new PageImpl<>(List.of(booking));
-        Specification<Booking> anySpec = ArgumentMatchers.any();
-        when(bookingRepository.findAll(anySpec, any(Pageable.class))).thenReturn(page);
-
-        Page<Booking> result = bookingService.getAllBookingsByPageableAndFilter(pageable, bookingFilterDTO);
-
-        assertEquals(1, result.getContent().size());
-        assertNull(result.getContent().getFirst().getInternalNotes());
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
-    void findOwnWithSanitizedNotes_ShouldKeepNotes_WhenUserIsOrganisator() {
-        Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
-
-        Booking booking = new Booking();
-        booking.setInternalNotes("Geheime Notiz");
-
-        Page<Booking> page = new PageImpl<>(List.of(booking));
-        Specification<Booking> anySpec = ArgumentMatchers.any();
-        when(bookingRepository.findAll(anySpec, any(Pageable.class))).thenReturn(page);
-
-        Page<Booking> result = bookingService.getOwnBookingsByPageableAndFilter(pageable, bookingFilterDTO);
-
-        assertEquals(1, result.getContent().size());
-        assertEquals("Geheime Notiz", result.getContent().getFirst().getInternalNotes());
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
-    void findOwnWithSanitizedNotes_ShouldNullNotes_WhenUserIsNotOrganisator() {
-        Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
-
-        Booking booking = new Booking();
-        booking.setInternalNotes("Geheime Notiz");
-
-        Page<Booking> page = new PageImpl<>(List.of(booking));
-        Specification<Booking> anySpec = ArgumentMatchers.any();
-        when(bookingRepository.findAll(anySpec, any(Pageable.class))).thenReturn(page);
-
-        Page<Booking> result = bookingService.getOwnBookingsByPageableAndFilter(pageable, bookingFilterDTO);
-
-        assertEquals(1, result.getContent().size());
-        assertNull(result.getContent().getFirst().getInternalNotes());
+        Booking booking = bookingRepository.findById(appointmentUpdate.getBooking().getId()).orElseThrow();
+        assertThat(booking.getStatus()).isEqualTo(BookingStatus.ROOM_CHANGED);
     }
 }

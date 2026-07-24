@@ -5,6 +5,7 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -268,6 +269,26 @@ public class BookingControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isBadRequest())
                 .andExpect(status().reason(MSG_ROOM_INACTIVE));
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void deleteBooking_ReturnsNoContent_WhenDeleted() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoomInactive.getId(), null, 100);
+
+        mockMvc.perform(delete(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void getBooking_ReturnsNoContent_WhenDeleted() throws Exception {
+        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoomInactive.getId(), null, 100);
+
+        mockMvc.perform(get(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf()))
+                .andExpect(status().isOk());
     }
 
     @ParameterizedTest
