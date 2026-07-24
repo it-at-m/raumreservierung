@@ -90,8 +90,8 @@
         <!-- Calendar dependency -->
         <iCal4j.version>4.2.5</iCal4j.version>
 
-        <!-- Added to fix CVE-2026-42198 -->
-        <postgresql.version>42.7.11</postgresql.version>
+        <!-- Added to fix CVE-2026-54291 -->
+        <postgresql.version>42.7.12</postgresql.version>
     </properties>
 
 
