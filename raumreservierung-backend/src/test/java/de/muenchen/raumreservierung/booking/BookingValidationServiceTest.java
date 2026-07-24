@@ -64,8 +64,6 @@ public class BookingValidationServiceTest {
     @Autowired
     private BookingValidationService bookingValidationService;
     @Autowired
-    private BookingService bookingService;
-    @Autowired
     private SecurityContextService securityContextService;
     @MockitoBean
     private BookingRepository bookingRepository;
@@ -500,9 +498,7 @@ public class BookingValidationServiceTest {
         return Stream.of(
 
                 // Valid: existingBooking is null -> method returns without checking anything
-                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
-                    existingBooking = null;
-                }, null),
+                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> existingBooking = null, null),
 
                 // Valid: only status is changed to UNFEASIBLE, all other fields untouched
                 Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {

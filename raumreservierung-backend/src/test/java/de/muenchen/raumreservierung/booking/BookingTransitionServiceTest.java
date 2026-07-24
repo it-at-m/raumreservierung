@@ -35,7 +35,7 @@ class BookingTransitionServiceTest {
     void isTransitionAllowed_ReturnsTrue_ForValidTransitions(BookingStatus current, BookingStatus target, String role) {
         final Set<String> reachable = reachableFrom(role);
         when(securityContextService.hasAuthority(anyString())).thenAnswer(
-                invocation -> reachable.contains(invocation.getArgument(0)));
+                invocation -> reachable.contains(invocation.<String>getArgument(0)));
 
         boolean isAllowed = bookingTransitionService.isTransitionAllowed(current, target);
 
@@ -73,7 +73,7 @@ class BookingTransitionServiceTest {
     void getPossibleNextStates_ReturnsOnlyStates_ForGrantedRole(String role, BookingStatus current, List<BookingStatus> expected) {
         final Set<String> reachable = reachableFrom(role);
         when(securityContextService.hasAuthority(anyString())).thenAnswer(
-                invocation -> reachable.contains(invocation.getArgument(0)));
+                invocation -> reachable.contains(invocation.<String>getArgument(0)));
 
         List<BookingStatus> nextStates = bookingTransitionService.getPossibleNextStates(current);
 

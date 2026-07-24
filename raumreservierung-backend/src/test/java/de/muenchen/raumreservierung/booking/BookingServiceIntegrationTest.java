@@ -71,8 +71,6 @@ public class BookingServiceIntegrationTest {
     @Autowired
     private AppointmentService appointmentService;
     @Autowired
-    private BookingValidationService bookingValidationService;
-    @Autowired
     private BookingRepository bookingRepository;
     @Autowired
     private AppointmentRepository appointmentRepository;
@@ -96,8 +94,6 @@ public class BookingServiceIntegrationTest {
     private ExternalPerson externalPerson;
     private InternalPerson internalPerson;
     private InternalPerson internalPersonAdmin;
-    private ScheduleTemplate baseSchedule;
-    private Room room;
     private Room room2;
     private SeatingType seatingType;
     private Equipment equipment;
@@ -132,7 +128,7 @@ public class BookingServiceIntegrationTest {
         externalPerson = externalPersonRepository.save(externalPerson);
 
         OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
-        baseSchedule = new ScheduleTemplate(
+        ScheduleTemplate baseSchedule = new ScheduleTemplate(
                 now,
                 now.plusHours(2),
                 now.plusMinutes(15),
@@ -143,7 +139,7 @@ public class BookingServiceIntegrationTest {
         seatingType.setName("TEST_SEATINGTYPE");
         seatingType = seatingRepository.save(seatingType);
 
-        room = new Room();
+        Room room = new Room();
         room.setActive(true);
         room.setName("TEST_ROOM");
         room.setNumber("1");
@@ -286,9 +282,7 @@ public class BookingServiceIntegrationTest {
 
     private Stream<Arguments> provideBookingChanges() {
         return Stream.of(
-                Arguments.of((Consumer<Booking>) b -> {
-                    b.setRoom(room2);
-                }),
+                Arguments.of((Consumer<Booking>) b -> b.setRoom(room2)),
                 Arguments.of((Consumer<Booking>) b -> {
                     equipment.setName("NEW");
                     b.setEquipment(Set.of(equipment));
@@ -297,15 +291,9 @@ public class BookingServiceIntegrationTest {
                     seatingType.setName("NEW");
                     b.setSeatingType(seatingType);
                 }),
-                Arguments.of((Consumer<Booking>) b -> {
-                    b.setParticipantCount(2);
-                }),
-                Arguments.of((Consumer<Booking>) b -> {
-                    b.setCateringNeeded(false);
-                }),
-                Arguments.of((Consumer<Booking>) b -> {
-                    b.setRecurringRule("FREQ=WEEKLY;COUNT=1");
-                }),
+                Arguments.of((Consumer<Booking>) b -> b.setParticipantCount(2)),
+                Arguments.of((Consumer<Booking>) b -> b.setCateringNeeded(false)),
+                Arguments.of((Consumer<Booking>) b -> b.setRecurringRule("FREQ=WEEKLY;COUNT=1")),
                 Arguments.of((Consumer<Booking>) b -> {
                     OffsetDateTime later = OffsetDateTime.now(ZoneOffset.UTC).plusMinutes(1);
                     b.setSchedule(
@@ -349,9 +337,7 @@ public class BookingServiceIntegrationTest {
     void bookingStatusChanges_afterAppointmentCommit() {
         TransactionTemplate tx = new TransactionTemplate(txManager);
 
-        tx.executeWithoutResult(status -> {
-            appointmentService.updateAppointment(appointmentUpdate, appointment.getId());
-        });
+        tx.executeWithoutResult(status -> appointmentService.updateAppointment(appointmentUpdate, appointment.getId()));
 
         Booking booking = bookingRepository.findById(appointmentUpdate.getBooking().getId()).orElseThrow();
         assertThat(booking.getStatus()).isEqualTo(BookingStatus.ROOM_CHANGED);

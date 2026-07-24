@@ -274,8 +274,6 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void deleteBooking_ReturnsNoContent_WhenDeleted() throws Exception {
-        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoomInactive.getId(), null, 100);
-
         mockMvc.perform(delete(BOOKINGS_URL + "/" + mockBooking.getId())
                 .with(csrf()))
                 .andExpect(status().isNoContent());
@@ -284,8 +282,6 @@ public class BookingControllerIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBooking_ReturnsNoContent_WhenDeleted() throws Exception {
-        BookingRequestDTO request = getBookingRequestDTOWithRoomAndSeating(mockRoomInactive.getId(), null, 100);
-
         mockMvc.perform(get(BOOKINGS_URL + "/" + mockBooking.getId())
                 .with(csrf()))
                 .andExpect(status().isOk());
