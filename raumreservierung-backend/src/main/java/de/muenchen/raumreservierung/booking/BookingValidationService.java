@@ -199,8 +199,12 @@ public class BookingValidationService {
         if (existingBooking != null) {
             final Booking expectedBooking = new Booking();
             expectedBooking.updateFrom(existingBooking);
-            expectedBooking.setId(bookingUpdates.getId());
+            // status is the only field to be altered
             expectedBooking.setStatus(bookingUpdates.getStatus());
+            // these fields can't be changed by user
+            expectedBooking.setId(bookingUpdates.getId());
+            expectedBooking.setBookedBy(bookingUpdates.getBookedBy());
+            expectedBooking.setOrganisationUnit(bookingUpdates.getOrganisationUnit());
 
             if (bookingUpdates.getStatus() == BookingStatus.UNFEASIBLE) {
                 expectedBooking.setReasonForRejection(bookingUpdates.getReasonForRejection());
