@@ -18,4 +18,5 @@ public class ExceptionMessageConstants {
     public static final String MSG_PARTICIPANT_COUNT_INVALID = "Participant count is invalid";
     public static final String MSG_EQUIPMENT_INACTIVE = "Booking of inactive equipment is not possible";
     public static final String MSG_SEATINGTYPE_INACTIVE = "Booking of inactive seating type is not possible";
+    public static final String MSG_UPDATE_OF_FIELDS_NOT_ALLOWED = "Can't update other fields";
 }

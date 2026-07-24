@@ -18,6 +18,7 @@ import jakarta.persistence.OneToMany;
 import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
@@ -25,6 +26,7 @@ import org.hibernate.validator.constraints.Range;
 @Entity
 @Setter
 @Getter
+@EqualsAndHashCode(callSuper = true)
 @SuppressWarnings("PMD.TooManyFields")
 public class Booking extends BaseEntity {
 
@@ -57,6 +59,7 @@ public class Booking extends BaseEntity {
     private String recurringRule;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "booking")
+    @EqualsAndHashCode.Exclude
     private Set<Appointment> appointments = new HashSet<>();
 
     @Embedded
