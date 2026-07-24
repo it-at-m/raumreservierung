@@ -12,7 +12,9 @@
           "supportsES6": true,
           "enumPropertyNaming": "UPPERCASE",
           "disallowAdditionalPropertiesIfNotPresent": false,
-          "validationAttributes": true
+          "validationAttributes": true,
+          "useDiscriminatorLookup": true,
+          "legacyDiscriminatorBehavior": false
         }
       }
     }

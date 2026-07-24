@@ -1099,6 +1099,9 @@ components:
           type: string
       discriminator:
         propertyName: type
+        mapping:
+          INTERNAL: "#/components/schemas/InternalPersonResponseDto"
+          EXTERNAL: "#/components/schemas/ExternalPersonResponseDto"
     RoomDetailsResponseDTO:
       required:
       - area

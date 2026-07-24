@@ -107,6 +107,7 @@ import type {
   ExternalPersonResponseDto,
   InternalPersonResponseDto,
   InternalPersonResponseDtoTypeEnum,
+  UpdatePersonRequest,
 } from "@/api/raumreservierung-backend";
 import type { SortItem } from "@/types/SortItem.ts";
 import type { TableHeader } from "@/types/TableHeader.ts";
@@ -198,7 +199,7 @@ const handleCreate = async (
     updatePersonRequest: {
       ...newPerson,
       type: personType.value,
-    },
+    } as UpdatePersonRequest,
   });
   if (!createPersonError.value) {
     await onSuccess(
@@ -224,7 +225,7 @@ const handleUpdate = async (
       updatePersonRequest: {
         ...updatedPerson,
         type: personType.value,
-      },
+      } as UpdatePersonRequest,
       personId: updatedPerson.id,
     });
     if (!updatePersonError.value) {
