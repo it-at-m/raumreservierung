@@ -13,7 +13,7 @@
         class="ml-4"
         text="Stornieren"
         secondary
-        @click="handleStatusChange('CANCELED')"
+        @click="handleStatusChange(BookingRequestDTOStatusEnum.CANCELED)"
         ><template #prepend>
           <v-icon
             :icon="mdiCalendarRemoveOutline"
@@ -38,8 +38,8 @@
         <template #default>
           <confirm-unfeasible-card
             v-model="bookingData.reasonForRejection"
-            title="Buchung ablehnen"
-            subtitle="Bitte geben Sie einen Grund an, warum die Buchung nicht leistbar ist."
+            :title="t('domain.booking.rejection.cardTitle')"
+            :subtitle="t('domain.booking.rejection.cardSubtitle')"
             @cancel="isUnfeasibleDialogOpen = false"
             @confirm="
               handleUnfeasibleConfirm();
@@ -49,8 +49,8 @@
             <template #confirm="{ props: btnProps }">
               <base-button
                 v-bind="btnProps"
-                text="Ablehnen"
-                :prepend-icon="mdiCalendarRemoveOutline"
+                :text="t('common.save')"
+                :append-icon="mdiContentSaveOutline"
               />
             </template>
           </confirm-unfeasible-card>
@@ -86,16 +86,19 @@
             cols="12"
             md="4"
           >
-            <booking-status-select
+            <general-status-select
               v-model="bookingData.status"
-              :label="t('domain.booking.status')"
+              :label="t('domain.booking.statusTitle')"
               :loading="
                 getBookingLoading ||
                 createBookingLoading ||
                 updateBookingLoading
               "
               :possible-status="statusFull?.nextPossibleStatus"
+              :exclude-status="true"
+              :excluded-status="BookingStatusDTOCurrentStatusEnum.CANCELED"
               hide-details
+              :readonly="isCanceledOrUnfeasible && !isPrivileged"
             />
           </v-col>
         </v-row>
@@ -299,15 +302,15 @@ import {
 } from "@/api/raumreservierung-backend";
 import { type BookingStatusDTO as BookingStatusFull } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
-import BookingStatusSelect from "@/components/booking/BookingStatusSelect.vue";
+import ConfirmUnfeasibleCard from "@/components/booking/ConfirmUnfeasibleCard.vue";
 import ExternalPersonSelect from "@/components/booking/ExternalPersonSelect.vue";
+import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
 import SeatingTypeSelector from "@/components/booking/SeatingTypeParticipantsSelector.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
-import ConfirmUnfeasibleCard from "@/components/common/ConfirmUnfeasibleCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import {
@@ -547,6 +550,7 @@ const canCancel = computed(() => {
     isInternalMatch(booking.bookedBy) || isInternalMatch(booking.bookedFor)
   );
 });
+
 const isUnfeasibleDialogOpen = ref(false);
 
 const handleSaveClick = () => {

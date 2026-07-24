@@ -25,23 +25,23 @@ const OBSOLETE_COLOR = "canceled";
 
 const NEW_STATUS_STYLE: ChipConfig = {
   color: NEW_COLOR,
-  text: "Angefragt",
+  text: "domain.booking.status.new",
   icon: mdiCalendarBlankOutline,
 };
 
 const ORGANIZER_APPROVED_STATUS_STYLE: ChipConfig = {
   color: APPROVED_COLOR,
-  text: "Gebucht",
+  text: "domain.booking.status.organizerApproved",
   icon: mdiCalendarCheckOutline,
 };
 const UNFEASIBLE_STATUS_STYLE: ChipConfig = {
   color: OBSOLETE_COLOR,
-  text: "Abgelehnt",
+  text: "domain.booking.status.unfeasible",
   icon: mdiCalendarRemoveOutline,
 };
 const CANCELED_STATUS_STYLE: ChipConfig = {
   color: OBSOLETE_COLOR,
-  text: "Storniert",
+  text: "domain.booking.status.canceled",
   icon: mdiCalendarRemoveOutline,
 };
 
@@ -49,23 +49,23 @@ const ADMIN_STATUS_STYLES: Record<BookingStatus, ChipConfig> = {
   NEW: NEW_STATUS_STYLE,
   ROOM_APPROVED: {
     color: IN_PROGRESS_COLOR,
-    text: "Vorgemerkt",
+    text: "domain.booking.status.roomApproved.roomOrganizer",
     icon: mdiDoorOpen,
   },
   ROOM_CHANGED: {
     color: IN_PROGRESS_COLOR,
-    text: "Änderung",
+    text: "domain.booking.status.roomChanged.readerAndRoomOrganizer",
     icon: mdiCalendarEditOutline,
   },
   COORDINATION_NEEDED: {
     color: COORDINATION_COLOR,
-    text: "In Abstimmung",
+    text: "domain.booking.status.coordinationNeeded.organizer",
     icon: mdiCalendarQuestionOutline,
   },
   ORGANIZER_APPROVED: ORGANIZER_APPROVED_STATUS_STYLE,
   ORGANIZER_CHANGED: {
     color: IN_PROGRESS_COLOR,
-    text: "Vorgemerkt",
+    text: "domain.booking.status.organizerChanged.roomOrganizer",
     icon: mdiCalendarEditOutline,
   },
   UNFEASIBLE: UNFEASIBLE_STATUS_STYLE,
@@ -82,23 +82,23 @@ export const ROLE_STATUS_STYLES: Record<
     NEW: NEW_STATUS_STYLE,
     ROOM_APPROVED: {
       color: IN_PROGRESS_COLOR,
-      text: "Neu",
+      text: "domain.booking.status.roomApproved.userAndBookingOrganizer",
       icon: mdiCalendarBlankOutline,
     },
     ROOM_CHANGED: {
       color: NEW_COLOR,
-      text: "Angefragt",
+      text: "domain.booking.status.roomChanged.bookingOrganizer",
       icon: mdiCalendarEditOutline,
     },
     COORDINATION_NEEDED: {
       color: COORDINATION_COLOR,
-      text: "In Abstimmung",
+      text: "domain.booking.status.coordinationNeeded.organizer",
       icon: mdiCalendarQuestionOutline,
     },
     ORGANIZER_APPROVED: ORGANIZER_APPROVED_STATUS_STYLE,
     ORGANIZER_CHANGED: {
       color: COORDINATION_COLOR,
-      text: "Änderung",
+      text: "domain.booking.status.organizerChanged.readerAndBookingOrganizer",
       icon: mdiCalendarEditOutline,
     },
     UNFEASIBLE: UNFEASIBLE_STATUS_STYLE,
@@ -108,23 +108,23 @@ export const ROLE_STATUS_STYLES: Record<
     NEW: NEW_STATUS_STYLE,
     ROOM_APPROVED: {
       color: IN_PROGRESS_COLOR,
-      text: "In Bearbeitung",
+      text: "domain.booking.status.roomApproved.userAndReader",
       icon: mdiTimerSand,
     },
     ROOM_CHANGED: {
       color: IN_PROGRESS_COLOR,
-      text: "Änderung",
+      text: "domain.booking.status.roomChanged.readerAndRoomOrganizer",
       icon: mdiCalendarEditOutline,
     },
     COORDINATION_NEEDED: {
       color: COORDINATION_COLOR,
-      text: "In Bearbeitung",
+      text: "domain.booking.status.coordinationNeeded.userAndReader",
       icon: mdiTimerSand,
     },
     ORGANIZER_APPROVED: ORGANIZER_APPROVED_STATUS_STYLE,
     ORGANIZER_CHANGED: {
       color: IN_PROGRESS_COLOR,
-      text: "Änderung",
+      text: "domain.booking.status.organizerChanged.readerAndBookingOrganizer",
       icon: mdiCalendarEditOutline,
     },
     UNFEASIBLE: UNFEASIBLE_STATUS_STYLE,
@@ -134,23 +134,23 @@ export const ROLE_STATUS_STYLES: Record<
     NEW: NEW_STATUS_STYLE,
     ROOM_APPROVED: {
       color: IN_PROGRESS_COLOR,
-      text: "In Bearbeitung",
+      text: "domain.booking.status.roomApproved.userAndReader",
       icon: mdiTimerSand,
     },
     ROOM_CHANGED: {
       color: NEW_COLOR,
-      text: "Angefragt",
+      text: "domain.booking.status.roomChanged.userAndBookingOrganizer",
       icon: mdiTimerSand,
     },
     COORDINATION_NEEDED: {
       color: COORDINATION_COLOR,
-      text: "In Bearbeitung",
+      text: "domain.booking.status.coordinationNeeded.userAndReader",
       icon: mdiTimerSand,
     },
     ORGANIZER_APPROVED: ORGANIZER_APPROVED_STATUS_STYLE,
     ORGANIZER_CHANGED: {
       color: IN_PROGRESS_COLOR,
-      text: "In Bearbeitung",
+      text: "domain.booking.status.organizerChanged.user",
       icon: mdiTimerSand,
     },
     UNFEASIBLE: UNFEASIBLE_STATUS_STYLE,

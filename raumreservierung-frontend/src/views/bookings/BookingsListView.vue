@@ -27,12 +27,13 @@
             cols="12"
             md="4"
           >
-            <status-select
+            <general-status-select
               v-model="statusFilter"
               density="compact"
               clearable
               label="Status filtern"
-              :status="
+              :multiple="true"
+              :possible-status="
                 Object.values(
                   StatusEnum
                 ) as GetBookingsByPageableAndFilterStatusEnum[]
@@ -90,15 +91,9 @@
             @click:row="handleRowClick"
           >
             <template #[`item.status`]="{ item }">
-              <v-chip
-                v-if="item.status?.currentStatus"
-                :color="statusConfig.get(item.status.currentStatus).color"
-                variant="outlined"
-                class="font-weight-bold justify-space-evenly"
-                style="width: 120px"
-                size="small"
-                :prepend-icon="statusConfig.get(item.status.currentStatus).icon"
-                :text="statusConfig.get(item.status.currentStatus).text"
+              <status-chip
+                :status="item.status?.currentStatus"
+                :variant="'text'"
               />
             </template>
             <template #[`item.hasEquipment`]="{ item }">
@@ -220,12 +215,12 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { GetBookingsByPageableAndFilterStatusEnum as StatusEnum } from "@/api/raumreservierung-backend";
-import StatusSelect from "@/components/booking/StatusSelect.vue";
+import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
+import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
-import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -237,8 +232,6 @@ const router = useRouter();
 const { t } = useI18n();
 
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
-
-const { statusConfig } = useBookingStatusConfig();
 
 const canEditBookings = useIsPrivileged("bookings:manage");
 

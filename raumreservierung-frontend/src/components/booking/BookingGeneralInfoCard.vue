@@ -44,26 +44,27 @@
 
         <v-list-item class="px-0 mt-2">
           <v-list-item-subtitle class="mb-2">
-            {{ t("domain.booking.status") }}
+            {{ t("domain.booking.statusTitle") }}
           </v-list-item-subtitle>
-          <v-chip
-            v-if="status?.currentStatus"
-            :color="statusConfig.get(status.currentStatus).color"
+          <status-chip
+            :status="status?.currentStatus"
             variant="outlined"
-            class="font-weight-bold justify-space-evenly"
-            :prepend-icon="statusConfig.get(status.currentStatus).icon"
-            :text="statusConfig.get(status.currentStatus).text"
-            style="width: 135px"
           />
         </v-list-item>
         <v-list-item
-          v-if="status?.currentStatus === 'UNFEASIBLE'"
+          v-if="
+            status?.currentStatus ===
+            BookingStatusDTOCurrentStatusEnum.UNFEASIBLE
+          "
           class="px-0 mt-2"
         >
           <v-list-item-subtitle class="mb-2">
-            {{ "Grund" }}
+            {{ t("domain.booking.rejection.rejectionReason") }}
           </v-list-item-subtitle>
-          {{ reasonForRejection || "Kein Grund angegeben" }}
+          {{
+            reasonForRejection ||
+            t("domain.booking.rejection.noReasonForRejection")
+          }}
         </v-list-item>
       </v-list>
     </template>
@@ -80,15 +81,14 @@ import { useDateFormat } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
+import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
+import StatusChip from "@/components/booking/StatusChip.vue";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 
 const { t } = useI18n();
 
 const showId = useIsPrivileged("bookings:manage");
-
-const { statusConfig } = useBookingStatusConfig();
 
 const props = defineProps<{
   id?: string;

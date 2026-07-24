@@ -194,13 +194,45 @@
     "booking": {
       "header": "Buchung | Buchungen",
       "participants": "Teilnehmende | Teilnehmenden",
-      "status": "Status",
+      "statusTitle": "Status",
       "date": "Datum",
       "recurrenceRule": "Terminserie",
       "notes": "Notizen",
       "internalNotes": "Interne Notizen",
       "appointment": "Veranstaltungszeit",
-      "occupancy": "Belegungszeit"
+      "occupancy": "Belegungszeit",
+      "rejection": {
+        "noReasonForRejection": "Kein Grund angegeben",
+        "rejectionReason": "Grund",
+        "cardTitle": "Buchung ablehnen",
+        "cardSubtitle": "Bitte geben Sie einen Grund an, warum die Buchung nicht leistbar ist."
+      },
+      "status": {
+        "notAvailable": "Kein weiterer Status verfügbar",
+        "unknown": "Unbekannt",
+        "new": "Angefragt",
+        "roomApproved": {
+          "userAndReader": "In Bearbeitung",
+          "bookingOrganizer": "Neu",
+          "roomOrganizer": "Vorgemerkt"
+        },
+        "roomChanged": {
+          "userAndBookingOrganizer": "Angefragt",
+          "readerAndRoomOrganizer": "Änderung"
+        },
+        "coordinationNeeded": {
+          "userAndReader": "In Bearbeitung",
+          "organizer": "In Abstimmung"
+        },
+        "organizerChanged": {
+          "user": "In Bearbeitung",
+          "readerAndBookingOrganizer": "Änderung",
+          "roomOrganizer": "Vorgemerkt"
+        },
+        "organizerApproved": "Gebucht",
+        "unfeasible": "Abgelehnt",
+        "canceled": "Storniert"
+      }
     },
     "scheduleTemplate": {
       "date": "Datum",
