@@ -40,7 +40,7 @@ const {
 } = useGetAllRooms();
 
 onMounted(async () => {
-  await getRooms();
+  await getRooms({ onlyActive: false });
 });
 </script>
 
