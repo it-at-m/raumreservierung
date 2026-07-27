@@ -121,11 +121,10 @@ public class BookingService {
 
         bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
 
-        assignBookingContext(bookingUpdates);
-
         if (isTerminalStatus(bookingUpdates.getStatus())) {
             bookingValidationService.validateTerminalStatusOrThrowException(bookingUpdates, existingBooking);
         } else {
+            assignBookingContext(bookingUpdates);
             handleStandardBookingUpdate(bookingUpdates, existingBooking);
         }
 

@@ -189,7 +189,8 @@ public class BookingValidationService {
     }
 
     /**
-     * Validates if the update is restricted solely to an unfeasible booking status and its reason.
+     * Validates if the update is restricted solely to a terminal booking status (and its reason if
+     * status is unfeasible).
      *
      * @param bookingUpdates the requested booking updates
      * @param existingBooking the currently existing booking
@@ -199,7 +200,7 @@ public class BookingValidationService {
         if (existingBooking != null) {
             final Booking expectedBooking = new Booking();
             expectedBooking.updateFrom(existingBooking);
-            // status is the only field to be altered
+            // status is the only field that can be changed by user
             expectedBooking.setStatus(bookingUpdates.getStatus());
             // these fields can't be changed by user
             expectedBooking.setId(bookingUpdates.getId());
