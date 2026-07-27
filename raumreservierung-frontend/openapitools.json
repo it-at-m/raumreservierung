@@ -13,7 +13,6 @@
           "enumPropertyNaming": "UPPERCASE",
           "disallowAdditionalPropertiesIfNotPresent": false,
           "validationAttributes": true,
-          "useDiscriminatorLookup": true,
           "legacyDiscriminatorBehavior": false
         }
       }
