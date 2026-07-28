@@ -21,7 +21,7 @@
 
 <script setup lang="ts">
 import { mdiSofaSingleOutline } from "@mdi/js";
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { useGetAllSeatingTypes } from "@/composables/api/useSeatingApi.ts";
@@ -46,15 +46,8 @@ const filteredSeatingTypes = computed(() =>
     : []
 );
 
-const {
-  call: getSeatingTypes,
-  data: allSeatingTypes,
-  loading: getSeatingTypeLoading,
-} = useGetAllSeatingTypes();
-
-onMounted(async () => {
-  await getSeatingTypes();
-});
+const { data: allSeatingTypes, isPending: getSeatingTypeLoading } =
+  useGetAllSeatingTypes();
 </script>
 
 <style scoped></style>
