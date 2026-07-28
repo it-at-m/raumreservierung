@@ -112,7 +112,7 @@ const computedEquipment = computed<EquipmentResponseDto[] | undefined>(() =>
       )
 );
 
-const { call: createEquipment, loading: createEquipmentLoading } =
+const { mutateAsync: createEquipment, isPending: createEquipmentLoading } =
   useCreateEquipment();
 
 const handleCreate = async (newItemName: string) => {

@@ -103,20 +103,20 @@ const { data: allEquipmentsData, isPending: getAllEquipmentLoading } =
   useGetAllEquipments();
 
 const {
-  call: deleteEquipmentCall,
-  loading: deleteEquipmentLoading,
+  mutateAsync: deleteEquipmentCall,
+  isPending: deleteEquipmentLoading,
   error: deleteEquipmentError,
 } = useDeleteEquipment();
 
 const {
-  call: saveEquipmentCall,
-  loading: saveEquipmentLoading,
+  mutateAsync: saveEquipmentCall,
+  isPending: saveEquipmentLoading,
   error: saveEquipmentError,
 } = useCreateEquipment();
 
 const {
-  call: updateEquipmentCall,
-  loading: updateEquipmentLoading,
+  mutateAsync: updateEquipmentCall,
+  isPending: updateEquipmentLoading,
   error: updateEquipmentError,
 } = useUpdateEquipment();
 
@@ -160,7 +160,6 @@ const handleDelete = async (id: string) => {
 };
 
 const onSuccess = async (msg: string) => {
-  await getAllEquipments();
   if (crudRef.value) {
     crudRef.value.closeDialog();
   }
