@@ -9,19 +9,18 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 @Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class, BookingStatusMapper.class })
 public interface BookingMapper {
 
-    String BOOKING = "booking";
-
     @Mapping(target = "equipments", source = "equipment")
-    @Mapping(target = "status", source = BOOKING)
+    @Mapping(target = "status", source = "booking")
     BookingDetailResponseDTO toDetailDto(Booking booking);
 
-    @Mapping(target = "hasEquipment", source = BOOKING, qualifiedByName = "hasEquipmentCheck")
-    @Mapping(target = "hasNote", source = BOOKING, qualifiedByName = "hasNoteCheck")
-    @Mapping(target = "isRecurring", source = BOOKING, qualifiedByName = "isRecurringCheck")
-    @Mapping(target = "status", source = BOOKING)
+    @Mapping(target = "hasEquipment", source = "booking", qualifiedByName = "hasEquipmentCheck")
+    @Mapping(target = "hasNote", source = "booking", qualifiedByName = "hasNoteCheck")
+    @Mapping(target = "isRecurring", source = "booking", qualifiedByName = "isRecurringCheck")
+    @Mapping(target = "status", source = "booking")
     BookingListResponseDTO toListDto(Booking booking);
 
     @Mapping(target = "roomId", source = "room.id")

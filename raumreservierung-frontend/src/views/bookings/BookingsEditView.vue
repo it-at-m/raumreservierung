@@ -37,7 +37,7 @@
 
         <template #default>
           <confirm-unfeasible-card
-            v-model="bookingData.reasonForRejection"
+            v-model="bookingData.reasonForStatusChange"
             :title="t('domain.booking.rejection.cardTitle')"
             :subtitle="t('domain.booking.rejection.cardSubtitle')"
             @cancel="isUnfeasibleDialogOpen = false"
@@ -479,7 +479,7 @@ const saveBooking = async () => {
         ...bookingData.value,
         bookedForId: bookedFor.value?.id,
         status: bookingData.value.status,
-        reasonForRejection: bookingData.value.reasonForRejection,
+        reasonForStatusChange: bookingData.value.reasonForStatusChange,
         seatingTypeId: currentRoom.value
           ? bookingData.value.seatingTypeId
           : undefined,

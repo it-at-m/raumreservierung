@@ -20,10 +20,9 @@
     <template #item="{ item, props }">
       <v-list-item
         v-bind="props"
-        title=""
         density="compact"
       >
-        <template #default>
+        <template #title>
           <status-chip
             :status="item"
             :density="'compact'"
@@ -33,7 +32,7 @@
     </template>
     <template #no-data>
       <v-list-item>
-        <v-list-item-title class="text-grey-darken-1 text-center">
+        <v-list-item-title>
           {{ t("domain.booking.status.notAvailable") }}
         </v-list-item-title>
       </v-list-item>

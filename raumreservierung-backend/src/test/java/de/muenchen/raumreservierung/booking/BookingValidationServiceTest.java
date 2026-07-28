@@ -504,7 +504,7 @@ public class BookingValidationServiceTest {
                 Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
                     newBooking.setId(existingBooking.getId());
                     newBooking.setStatus(BookingStatus.UNFEASIBLE);
-                    newBooking.setReasonForRejection("REASON_FOR_REJECTION");
+                    newBooking.setReasonForStatusChange("REASON_FOR_REJECTION");
                 }, null),
 
                 // Valid: only status is changed to CANCELED, all other fields untouched
@@ -527,20 +527,20 @@ public class BookingValidationServiceTest {
                     newBooking.setParticipantCount(4);
                 }, MSG_UPDATE_OF_FIELDS_NOT_ALLOWED),
 
-                // Invalid: reasonForRejection is set even though status is not UNFEASIBLE
+                // Invalid: reasonForStatusChange is set even though status is not UNFEASIBLE
                 Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
                     newBooking.setId(existingBooking.getId());
                     newBooking.setStatus(existingBooking.getStatus());
-                    newBooking.setReasonForRejection("Some reason without status change");
+                    newBooking.setReasonForStatusChange("Some reason without status change");
                 }, MSG_UPDATE_OF_FIELDS_NOT_ALLOWED));
     }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void validateTerminalStatusOrThrowException_anwenderSetsReasonForRejection_throwsException() {
+    void validateTerminalStatusOrThrowException_anwenderSetsreasonForStatusChange_throwsException() {
         baseBooking.setId(baseBookingExisting.getId());
         baseBooking.setStatus(baseBookingExisting.getStatus());
-        baseBooking.setReasonForRejection("REASON_FOR_REJECTION");
+        baseBooking.setReasonForStatusChange("REASON_FOR_REJECTION");
 
         BadRequestException exception = assertThrows(BadRequestException.class,
                 () -> bookingValidationService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));

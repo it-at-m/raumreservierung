@@ -124,7 +124,6 @@ public class BookingService {
         if (isTerminalStatus(bookingUpdates.getStatus())) {
             bookingValidationService.validateTerminalStatusOrThrowException(bookingUpdates, existingBooking);
         } else {
-            assignBookingContext(bookingUpdates);
             handleStandardBookingUpdate(bookingUpdates, existingBooking);
         }
 
@@ -142,7 +141,7 @@ public class BookingService {
     }
 
     /**
-     * Automatically updates and saves a booking's status to {@code ROOM_CHANGED}
+     * Automatically updates and saves a booking's status to {@link BookingStatus#ROOM_CHANGED}
      * after an associated appointment has changed.
      *
      * @param bookingId the id of the booking to process
@@ -170,26 +169,33 @@ public class BookingService {
         return status == BookingStatus.CANCELED || status == BookingStatus.UNFEASIBLE;
     }
 
-    /**
-     * Processes a booking update by validating changes, enforcing
-     * authorization and managing status and appointment updates.
-     *
-     * @param bookingUpdates the object containing new booking details
-     * @param existingBooking the current booking stored in the system
-     * @throws UnauthorizedActionException if the user lacks required permissions
-     */
     private void handleStandardBookingUpdate(final Booking bookingUpdates, final Booking existingBooking) {
+        assignBookingContext(bookingUpdates);
         validateAndAuthorizeUpdate(bookingUpdates, existingBooking);
         protectInternalNotes(bookingUpdates, existingBooking);
-        applyAutomaticStatusChanges(bookingUpdates, existingBooking);
+        applyAutomaticStatusChangesIfApplicable(bookingUpdates, existingBooking);
         updateBookingAppointments(existingBooking, bookingUpdates);
     }
 
+    /**
+     * Validates the booking update and checks that the current user is authorized to perform it.
+     *
+     * @param bookingUpdates booking data with the requested changes
+     * @param existingBooking existing booking to be updated
+     * @throws RuntimeException if validation fails or the user lacks the required authority
+     */
     private void validateAndAuthorizeUpdate(final Booking bookingUpdates, final Booking existingBooking) {
         bookingValidationService.bookingIsValidOrThrowException(bookingUpdates, existingBooking);
         checkAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
     }
 
+    /**
+     * Prevents unauthorized changes to internal notes by restoring the existing value
+     * unless the current user has the required authority.
+     *
+     * @param bookingUpdates booking data with the requested changes
+     * @param existingBooking existing booking containing the original internal notes
+     */
     private void protectInternalNotes(final Booking bookingUpdates, final Booking existingBooking) {
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
@@ -197,14 +203,14 @@ public class BookingService {
     }
 
     /**
-     * Automatically updates the booking status to {@code ROOM_CHANGED} if the room,
+     * Automatically updates the booking status to {@link BookingStatus#ROOM_CHANGED} if the room,
      * appointment, or service has changed, provided the user does not hold the role
-     * "Terminorganisator" or higher.
+     * {@link Roles#TERMIN_ORGANISATOR} or higher.
      *
      * @param bookingUpdates the updated booking containing the requested changes
      * @param existingBooking the current booking
      */
-    private void applyAutomaticStatusChanges(final Booking bookingUpdates, final Booking existingBooking) {
+    private void applyAutomaticStatusChangesIfApplicable(final Booking bookingUpdates, final Booking existingBooking) {
         if (bookingValidationService.isObligedToAutomaticStatusChange(existingBooking)
                 && needForAutomaticStatusChange(existingBooking, bookingUpdates)) {
             bookingUpdates.setStatus(BookingStatus.ROOM_CHANGED);

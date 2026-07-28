@@ -197,23 +197,24 @@ public class BookingValidationService {
      * @throws BadRequestException if other fields are modified
      */
     public void validateTerminalStatusOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
-        if (existingBooking != null) {
-            final Booking expectedBooking = new Booking();
-            expectedBooking.updateFrom(existingBooking);
-            // status is the only field that can be changed by user
-            expectedBooking.setStatus(bookingUpdates.getStatus());
-            // these fields can't be changed by user
-            expectedBooking.setId(bookingUpdates.getId());
-            expectedBooking.setBookedBy(bookingUpdates.getBookedBy());
-            expectedBooking.setOrganisationUnit(bookingUpdates.getOrganisationUnit());
+        if (existingBooking == null) {
+            return;
+        }
+        final Booking expectedBooking = new Booking();
+        expectedBooking.updateFrom(existingBooking);
+        // status is the only field that can be changed by user
+        expectedBooking.setStatus(bookingUpdates.getStatus());
+        // these fields can't be changed by user
+        expectedBooking.setId(bookingUpdates.getId());
+        expectedBooking.setBookedBy(bookingUpdates.getBookedBy());
+        expectedBooking.setOrganisationUnit(bookingUpdates.getOrganisationUnit());
 
-            if (bookingUpdates.getStatus() == BookingStatus.UNFEASIBLE) {
-                expectedBooking.setReasonForRejection(bookingUpdates.getReasonForRejection());
-            }
+        if (bookingUpdates.getStatus() == BookingStatus.UNFEASIBLE) {
+            expectedBooking.setReasonForStatusChange(bookingUpdates.getReasonForStatusChange());
+        }
 
-            if (!bookingUpdates.equals(expectedBooking)) {
-                throw new BadRequestException(MSG_UPDATE_OF_FIELDS_NOT_ALLOWED);
-            }
+        if (!bookingUpdates.equals(expectedBooking)) {
+            throw new BadRequestException(MSG_UPDATE_OF_FIELDS_NOT_ALLOWED);
         }
     }
 

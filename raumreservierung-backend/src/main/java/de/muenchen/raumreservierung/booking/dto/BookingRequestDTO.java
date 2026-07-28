@@ -23,5 +23,5 @@ public record BookingRequestDTO(
         UUID bookedForId,
         UUID seatingTypeId,
         @NotNull BookingStatus status,
-        @Size(max = 255) String reasonForRejection) {
+        @Size(max = 255) String reasonForStatusChange) {
 }

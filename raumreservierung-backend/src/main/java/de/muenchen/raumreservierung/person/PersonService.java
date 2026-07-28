@@ -17,7 +17,6 @@ import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -107,25 +106,30 @@ public class PersonService {
             throw new NotFoundException(MSG_NOT_FOUND);
         }
 
-        final Optional<InternalPerson> internalPersonByOid = internalPersonRepository.findInternalPersonByOrganisationId(organisationID);
-        if (internalPersonByOid.isPresent()) {
-            return internalPersonByOid.get();
+        try {
+            return getInternalPersonByOrganisationIDOrThrowException(organisationID);
+        } catch (NotFoundException e) {
+            final LdapPersonDto ldapPersonDto = ldapService.getPersonByObjectID(organisationID)
+                    .orElseThrow(() -> new NotFoundException(
+                            String.format(MSG_NOT_FOUND_LDAP, organisationID)));
+
+            log.debug("LDAP Person DTO with oid: {}", ldapPersonDto.organisationId());
+
+            final InternalPerson mappedLdapPerson = personMapper.toInternalPerson(ldapPersonDto);
+
+            return internalPersonRepository.save(mappedLdapPerson);
         }
-
-        final LdapPersonDto ldapPersonDto = ldapService.getPersonByObjectID(organisationID)
-                .orElseThrow(() -> new NotFoundException(
-                        String.format(MSG_NOT_FOUND_LDAP, organisationID)));
-
-        log.debug("LDAP Person DTO with oid: {}", ldapPersonDto.organisationId());
-
-        final InternalPerson mappedLdapPerson = personMapper.toInternalPerson(ldapPersonDto);
-
-        return internalPersonRepository.save(mappedLdapPerson);
     }
 
+    /**
+     * Resolves an internal person by solely looking it up in the {@link InternalPersonRepository}.
+     *
+     * @param organisationID the oid of the person to resolve
+     * @return the resolved internal person
+     * @throws NotFoundException if no internal person with the given organisation ID exists
+     */
     public InternalPerson getInternalPersonByOrganisationIDOrThrowException(final String organisationID) {
-        return internalPersonRepository
-                .findInternalPersonByOrganisationId(organisationID)
+        return internalPersonRepository.findInternalPersonByOrganisationId(organisationID)
                 .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, organisationID)));
     }
 

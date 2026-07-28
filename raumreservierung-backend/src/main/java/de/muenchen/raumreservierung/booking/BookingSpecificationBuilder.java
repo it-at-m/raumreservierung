@@ -16,19 +16,19 @@ public final class BookingSpecificationBuilder {
     }
 
     public static <T extends Booking> Specification<T> fromFilterWithNotNew(final BookingFilterDTO bookingFilterDTO) {
-        return fromFilterWithPersonOrStatusNotNew(bookingFilterDTO, null, true);
+        return fromFilterWithPersonOrStatusNew(bookingFilterDTO, null, false);
     }
 
     public static <T extends Booking> Specification<T> fromFilter(final BookingFilterDTO bookingFilterDTO) {
-        return fromFilterWithPersonOrStatusNotNew(bookingFilterDTO, null, false);
+        return fromFilterWithPersonOrStatusNew(bookingFilterDTO, null, true);
     }
 
     public static <T extends Booking> Specification<T> fromFilterWithPerson(final BookingFilterDTO bookingFilterDTO, final Person person) {
-        return fromFilterWithPersonOrStatusNotNew(bookingFilterDTO, person, false);
+        return fromFilterWithPersonOrStatusNew(bookingFilterDTO, person, true);
     }
 
-    public static <T extends Booking> Specification<T> fromFilterWithPersonOrStatusNotNew(final BookingFilterDTO bookingFilterDTO, final Person person,
-            final boolean statusNotNew) {
+    public static <T extends Booking> Specification<T> fromFilterWithPersonOrStatusNew(final BookingFilterDTO bookingFilterDTO, final Person person,
+            final boolean statusNew) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
         if (bookingFilterDTO.roomId() != null) {
@@ -49,7 +49,7 @@ public final class BookingSpecificationBuilder {
         if (person != null && person.getId() != null) {
             specificationList.add(filterForPerson(person));
         }
-        if (statusNotNew) {
+        if (!statusNew) {
             specificationList.add(filterForStatusNotNew());
         }
 

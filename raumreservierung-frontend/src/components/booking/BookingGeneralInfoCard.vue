@@ -62,8 +62,8 @@
             {{ t("domain.booking.rejection.rejectionReason") }}
           </v-list-item-subtitle>
           {{
-            reasonForRejection ||
-            t("domain.booking.rejection.noReasonForRejection")
+            reasonForStatusChange ||
+            t("domain.booking.rejection.noreasonForStatusChange")
           }}
         </v-list-item>
       </v-list>
@@ -90,24 +90,21 @@ const { t } = useI18n();
 
 const showId = useIsPrivileged("bookings:manage");
 
-const props = defineProps<{
+const { schedule } = defineProps<{
   id?: string;
   title?: string;
   schedule?: ScheduleTemplate;
   status?: BookingStatusDTO;
-  reasonForRejection?: string;
+  reasonForStatusChange?: string;
 }>();
 
 const isMultiDay = computed(() => {
-  if (!props.schedule?.occupancyStart || !props.schedule?.occupancyEnd)
-    return false;
+  if (!schedule?.occupancyStart || !schedule?.occupancyEnd) return false;
   return (
-    props.schedule.occupancyStart.getDate() !==
-      props.schedule.occupancyEnd.getDate() ||
-    props.schedule.occupancyStart.getMonth() !==
-      props.schedule.occupancyEnd.getMonth() ||
-    props.schedule.occupancyStart.getFullYear() !==
-      props.schedule.occupancyEnd.getFullYear()
+    schedule.occupancyStart.getDate() !== schedule.occupancyEnd.getDate() ||
+    schedule.occupancyStart.getMonth() !== schedule.occupancyEnd.getMonth() ||
+    schedule.occupancyStart.getFullYear() !==
+      schedule.occupancyEnd.getFullYear()
   );
 });
 </script>

@@ -43,7 +43,9 @@
                   :title="getBookingData?.title"
                   :schedule="getBookingData?.schedule"
                   :status="getBookingData?.status"
-                  :reason-for-rejection="getBookingData?.reasonForRejection"
+                  :reason-for-status-change="
+                    getBookingData?.reasonForStatusChange
+                  "
                 />
               </v-responsive>
             </v-skeleton-loader>

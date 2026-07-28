@@ -202,7 +202,7 @@
       "appointment": "Veranstaltungszeit",
       "occupancy": "Belegungszeit",
       "rejection": {
-        "noReasonForRejection": "Kein Grund angegeben",
+        "noreasonForStatusChange": "Kein Grund angegeben",
         "rejectionReason": "Grund",
         "cardTitle": "Buchung ablehnen",
         "cardSubtitle": "Bitte geben Sie einen Grund an, warum die Buchung nicht leistbar ist."
