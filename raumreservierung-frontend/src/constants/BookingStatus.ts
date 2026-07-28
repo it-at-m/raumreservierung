@@ -17,6 +17,7 @@ import {
 import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 import { type Role } from "@/types/Role.ts";
 
+// Color keys correspond to custom theme colors registered in vuetify.ts
 const NEW_COLOR = "new";
 const IN_PROGRESS_COLOR = "requested";
 const COORDINATION_COLOR = "coordination";
