@@ -5,8 +5,14 @@ import { VueQueryPlugin } from "@tanstack/vue-query";
 import i18n from "@/plugins/i18n";
 import pinia from "@/plugins/pinia";
 import router from "@/plugins/router";
+import { vueQueryOptions } from "@/plugins/vueQuery.ts";
 import vuetify from "@/plugins/vuetify";
 
 export function registerPlugins(app: App) {
-  app.use(router).use(pinia).use(i18n).use(vuetify).use(VueQueryPlugin);
+  app
+    .use(router)
+    .use(pinia)
+    .use(i18n)
+    .use(vuetify)
+    .use(VueQueryPlugin, vueQueryOptions);
 }
