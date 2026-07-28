@@ -92,7 +92,7 @@ const computedRooms = computed(() =>
   )
 );
 
-onMounted(async () => await getAllRooms());
+onMounted(async () => await getAllRooms({ onlyActive: !canAddNewRoom.value }));
 </script>
 
 <style scoped></style>

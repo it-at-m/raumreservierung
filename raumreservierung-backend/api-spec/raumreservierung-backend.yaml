@@ -411,6 +411,13 @@ paths:
       tags:
       - room-controller
       operationId: getAllRooms
+      parameters:
+      - name: onlyActive
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: true
       responses:
         "200":
           description: OK
