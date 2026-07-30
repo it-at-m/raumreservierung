@@ -33,6 +33,7 @@
               clearable
               :label="t('domain.booking.status.filter')"
               multiple
+              :possible-status="possibleStatus"
               @update:model-value="applyFilters"
             />
           </v-col>
@@ -206,6 +207,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
+import { GetBookingsByPageableAndFilterStatusEnum } from "@/api/raumreservierung-backend";
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
@@ -231,6 +233,9 @@ const roomId = useRouteQuery("roomId", undefined);
 
 const page = useRouteQuery("page", 1, { transform: Number });
 const itemsPerPage = useRouteQuery("itemsPerPage", 10, { transform: Number });
+
+const possibleStatus: GetBookingsByPageableAndFilterStatusEnum[] =
+  Object.values(GetBookingsByPageableAndFilterStatusEnum);
 
 const dateTransform = {
   get: (v: string | null) => (v ? new Date(v) : undefined),
