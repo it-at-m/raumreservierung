@@ -59,11 +59,11 @@
           class="px-0 mt-2"
         >
           <v-list-item-subtitle class="mb-2">
-            {{ t("domain.booking.rejection.rejectionReason") }}
+            {{ t("domain.booking.statusChange.reason") }}
           </v-list-item-subtitle>
           {{
             reasonForStatusChange ||
-            t("domain.booking.rejection.noreasonForStatusChange")
+            t("domain.booking.statusChange.noReasonForStatusChange")
           }}
         </v-list-item>
       </v-list>

@@ -56,9 +56,8 @@ public class BookingService {
 
     @PreAuthorize(Authorities.BOOKING_READ)
     public Page<Booking> getAllBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
-        final Specification<Booking> bookingSpecification = securityContextService.hasAuthority(Roles.RAUM_BUCHUNG)
-                ? BookingSpecificationBuilder.fromFilter(bookingFilterDto)
-                : BookingSpecificationBuilder.fromFilterWithNotNew(bookingFilterDto);
+        final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilterWithNew(bookingFilterDto,
+                securityContextService.hasAuthority(Roles.RAUM_BUCHUNG));
         return findAllAndFilterSensitiveData(pageable, bookingSpecification);
     }
 
@@ -120,7 +119,7 @@ public class BookingService {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
 
         bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
-
+        assignBookingContext(bookingUpdates);
         if (isTerminalStatus(bookingUpdates.getStatus())) {
             bookingValidationService.validateTerminalStatusOrThrowException(bookingUpdates, existingBooking);
         } else {
@@ -170,7 +169,6 @@ public class BookingService {
     }
 
     private void handleStandardBookingUpdate(final Booking bookingUpdates, final Booking existingBooking) {
-        assignBookingContext(bookingUpdates);
         validateAndAuthorizeUpdate(bookingUpdates, existingBooking);
         protectInternalNotes(bookingUpdates, existingBooking);
         applyAutomaticStatusChangesIfApplicable(bookingUpdates, existingBooking);

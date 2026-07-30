@@ -21,6 +21,7 @@ import java.util.UUID;
     }
 )
 @Schema(
+        name = "PersonResponseDto",
         discriminatorProperty = "type",
         discriminatorMapping = {
                 @DiscriminatorMapping(value = "INTERNAL", schema = InternalPersonResponseDto.class),

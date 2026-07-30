@@ -18,11 +18,11 @@ import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backen
 import { type Role } from "@/types/Role.ts";
 
 // Color keys correspond to custom theme colors registered in vuetify.ts
-const NEW_COLOR = "new";
-const IN_PROGRESS_COLOR = "requested";
-const COORDINATION_COLOR = "coordination";
-const APPROVED_COLOR = "approved";
-const OBSOLETE_COLOR = "canceled";
+const NEW_COLOR = "statusNew";
+const IN_PROGRESS_COLOR = "statusRequested";
+const COORDINATION_COLOR = "statusCoordination";
+const APPROVED_COLOR = "statusApproved";
+const OBSOLETE_COLOR = "statusCanceled";
 
 const NEW_STATUS_STYLE: ChipConfig = {
   color: NEW_COLOR,
@@ -83,12 +83,12 @@ export const ROLE_STATUS_STYLES: Record<
     NEW: NEW_STATUS_STYLE,
     ROOM_APPROVED: {
       color: IN_PROGRESS_COLOR,
-      text: "domain.booking.status.roomApproved.userAndBookingOrganizer",
+      text: "domain.booking.status.roomApproved.bookingOrganizer",
       icon: mdiCalendarBlankOutline,
     },
     ROOM_CHANGED: {
       color: NEW_COLOR,
-      text: "domain.booking.status.roomChanged.bookingOrganizer",
+      text: "domain.booking.status.roomChanged.userAndBookingOrganizer",
       icon: mdiCalendarEditOutline,
     },
     COORDINATION_NEEDED: {
@@ -157,6 +157,12 @@ export const ROLE_STATUS_STYLES: Record<
     UNFEASIBLE: UNFEASIBLE_STATUS_STYLE,
     CANCELED: CANCELED_STATUS_STYLE,
   },
+};
+
+export const FALLBACK_CONFIG: ChipConfig = {
+  color: "default",
+  text: "domain.booking.status.unknown",
+  icon: "mdiHelp",
 };
 
 export const EMPTY_BOOKING_STATUS_DATA: BookingStatusDTO = {

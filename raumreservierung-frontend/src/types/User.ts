@@ -16,7 +16,7 @@ class User {
   // LHM_Extended
   preferred_username = "";
   memberof: string[] = [];
-  user_roles?: Role;
+  user_roles: Role | undefined;
   authorities: string[] = [];
   resource_access?: Record<string, { roles?: string[] }>;
 }

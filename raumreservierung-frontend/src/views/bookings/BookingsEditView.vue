@@ -11,15 +11,17 @@
       <base-button
         v-if="canCancel && !isCanceledOrUnfeasible"
         class="ml-4"
-        text="Stornieren"
+        :text="t('common.rescind')"
         secondary
         @click="handleStatusChange(BookingRequestDTOStatusEnum.CANCELED)"
-        ><template #prepend>
+      >
+        <template #prepend>
           <v-icon
             :icon="mdiCalendarRemoveOutline"
-            color="canceled"
-          /> </template
-      ></base-button>
+            color="statusCanceled"
+          />
+        </template>
+      </base-button>
       <v-dialog
         v-model="isUnfeasibleDialogOpen"
         max-width="800px"
@@ -38,21 +40,11 @@
         <template #default>
           <confirm-unfeasible-card
             v-model="bookingData.reasonForStatusChange"
-            :title="t('domain.booking.rejection.cardTitle')"
-            :subtitle="t('domain.booking.rejection.cardSubtitle')"
+            :title="t('domain.booking.statusChange.cardTitle')"
+            :subtitle="t('domain.booking.statusChange.cardSubtitle')"
             @cancel="isUnfeasibleDialogOpen = false"
-            @confirm="
-              handleUnfeasibleConfirm();
-              isUnfeasibleDialogOpen = false;
-            "
+            @confirm="handleUnfeasibleConfirm"
           >
-            <template #confirm="{ props: btnProps }">
-              <base-button
-                v-bind="btnProps"
-                :text="t('common.save')"
-                :append-icon="mdiContentSaveOutline"
-              />
-            </template>
           </confirm-unfeasible-card>
         </template>
       </v-dialog>
@@ -95,7 +87,6 @@
                 updateBookingLoading
               "
               :possible-status="statusFull?.nextPossibleStatus"
-              :exclude-status="true"
               :excluded-status="BookingStatusDTOCurrentStatusEnum.CANCELED"
               hide-details
               :readonly="isCanceledOrUnfeasible && !isPrivileged"
@@ -281,7 +272,6 @@
 import type {
   BookingRequestDTO,
   FindById200Response,
-  InternalPersonResponseDto,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
@@ -340,6 +330,7 @@ const route = useRoute();
 const router = useRouter();
 
 const isValid = ref<boolean>();
+const isUnfeasibleDialogOpen = ref(false);
 
 const currentRoom = ref<RoomRequestDTO>();
 const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
@@ -513,7 +504,7 @@ const onSuccess = (msg: string) => {
   snackbarStore.add({ message: msg, level: Levels.SUCCESS });
 
   router.replace({
-    name: ROUTES.MY_BOOKINGS_LIST,
+    name: isMyBooking.value ? ROUTES.MY_BOOKINGS_LIST : ROUTES.BOOKINGS_LIST,
   });
 };
 
@@ -525,13 +516,11 @@ const updateRRule = (value: boolean | null) => {
     };
   }
 };
-const isCanceledOrUnfeasible = computed(() => {
-  const booking = bookingData.value;
-  return (
-    booking.status === BookingStatusDTOCurrentStatusEnum.CANCELED ||
-    booking.status === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE
-  );
-});
+const isCanceledOrUnfeasible = computed(
+  () =>
+    bookingData.value.status === BookingStatusDTOCurrentStatusEnum.CANCELED ||
+    bookingData.value.status === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE
+);
 
 const canCancel = computed(() => {
   const booking = getBookingData.value;
@@ -545,23 +534,17 @@ const canCancel = computed(() => {
   }
 
   const isInternalMatch = (person: FindById200Response) =>
-    person?.type === "INTERNAL" &&
-    (person as InternalPersonResponseDto).organisationId === userOrgId;
+    person?.type === "INTERNAL" && person.organisationId === userOrgId;
 
   return (
     isInternalMatch(booking.bookedBy) || isInternalMatch(booking.bookedFor)
   );
 });
 
-const isUnfeasibleDialogOpen = ref(false);
-
-const handleSaveClick = () => {
-  if (bookingData.value.status === BookingRequestDTOStatusEnum.UNFEASIBLE) {
-    isUnfeasibleDialogOpen.value = true;
-  } else {
-    saveBooking();
-  }
-};
+const handleSaveClick = () =>
+  bookingData.value.status === BookingRequestDTOStatusEnum.UNFEASIBLE
+    ? (isUnfeasibleDialogOpen.value = true)
+    : saveBooking();
 </script>
 
 <style scoped></style>

@@ -360,12 +360,10 @@ const computedRRule = computed(() => {
 
 const isCanceledOrUnfeasible = computed(() => {
   const status = getBookingData.value?.status;
-  if (!status) {
-    return false;
-  }
   return (
-    status.currentStatus === BookingStatusDTOCurrentStatusEnum.CANCELED ||
-    status.currentStatus === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE
+    !!status &&
+    (status.currentStatus === BookingStatusDTOCurrentStatusEnum.CANCELED ||
+      status.currentStatus === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE)
   );
 });
 </script>

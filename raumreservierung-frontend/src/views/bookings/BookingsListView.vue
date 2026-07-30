@@ -31,13 +31,8 @@
               v-model="statusFilter"
               density="compact"
               clearable
-              label="Status filtern"
-              :multiple="true"
-              :possible-status="
-                Object.values(
-                  StatusEnum
-                ) as GetBookingsByPageableAndFilterStatusEnum[]
-              "
+              :label="t('domain.booking.status.filter')"
+              multiple
               @update:model-value="applyFilters"
             />
           </v-col>
@@ -93,7 +88,7 @@
             <template #[`item.status`]="{ item }">
               <status-chip
                 :status="item.status?.currentStatus"
-                :variant="'text'"
+                variant="text"
               />
             </template>
             <template #[`item.hasEquipment`]="{ item }">
@@ -194,10 +189,7 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  BookingListResponseDTO,
-  GetBookingsByPageableAndFilterStatusEnum,
-} from "@/api/raumreservierung-backend";
+import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
@@ -214,7 +206,6 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import { GetBookingsByPageableAndFilterStatusEnum as StatusEnum } from "@/api/raumreservierung-backend";
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
@@ -357,22 +348,7 @@ const headers = computed(
     ] as TableHeader<BookingListResponseDTO>[]
 );
 
-const statusFilter = useRouteQuery<
-  string | undefined,
-  StatusEnum[] | undefined
->("status", undefined, {
-  transform: {
-    get: (v) => {
-      if (!v) return undefined;
-      const stringValue = Array.isArray(v) ? v[0] : v;
-      return stringValue ? (stringValue.split(",") as StatusEnum[]) : undefined;
-    },
-    set: (v) => {
-      if (!v || v.length === 0) return undefined;
-      return v.join(",");
-    },
-  },
-});
+const statusFilter = useRouteQuery("status", []);
 </script>
 
 <style scoped></style>

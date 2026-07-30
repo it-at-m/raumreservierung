@@ -3,8 +3,7 @@
     v-if="status"
     :variant="variant"
     :color="variant !== 'text' ? config.color : undefined"
-    :class="chipClass"
-    :density="density"
+    :class="{ 'ml-n3': variant === 'text', 'pl-2': variant !== 'text' }"
     :text="config.text"
   >
     <template #prepend>
@@ -22,19 +21,12 @@ import { computed } from "vue";
 
 import { useBookingStatusConfig } from "@/composables/useBookingStatus";
 
-const {
-  variant = "outlined",
-  density = "default",
-  status,
-} = defineProps<{
+const { variant = "outlined", status } = defineProps<{
   status: string | undefined;
   variant?: "text" | "outlined";
-  density?: "default" | "compact";
 }>();
 
 const { getStatusConfig } = useBookingStatusConfig();
 
 const config = computed(() => getStatusConfig(status));
-
-const chipClass = computed(() => (variant === "text" ? "ml-n3" : "pl-2"));
 </script>

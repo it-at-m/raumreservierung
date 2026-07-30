@@ -24,8 +24,9 @@
       >
         <template #title>
           <status-chip
+            variant="text"
             :status="item"
-            :density="'compact'"
+            density="compact"
           />
         </template>
       </v-list-item>
@@ -65,7 +66,6 @@ const {
   loading = false,
   possibleStatus = [],
   multiple = false,
-  excludeStatus = false,
   excludedStatus = undefined,
 } = defineProps<{
   label?: string;
@@ -73,14 +73,13 @@ const {
   loading?: boolean;
   possibleStatus?: AllowedStatus[];
   multiple?: boolean;
-  excludeStatus?: boolean;
   excludedStatus?: AllowedStatus;
 }>();
 
 const statusOptions = computed(() => {
   let baseList = [...possibleStatus];
   // Exclude CANCELED unless currently selected (uses dedicated cancel button).
-  if (excludeStatus) {
+  if (excludedStatus) {
     baseList = baseList.filter(
       (status: string) => status !== excludedStatus || status === model.value
     );

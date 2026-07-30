@@ -3,6 +3,7 @@
     "yes": "Ja",
     "no": "Nein",
     "cancel": "Abbrechen",
+    "rescind": "Stornieren",
     "delete": "Löschen",
     "save": "Speichern",
     "edit": "Bearbeiten",
@@ -201,13 +202,15 @@
       "internalNotes": "Interne Notizen",
       "appointment": "Veranstaltungszeit",
       "occupancy": "Belegungszeit",
-      "rejection": {
-        "noreasonForStatusChange": "Kein Grund angegeben",
-        "rejectionReason": "Grund",
+      "statusChange": {
+        "noReasonForStatusChange": "Kein Grund angegeben",
+        "enterReason": "Begründung eingeben",
+        "reason": "Grund",
         "cardTitle": "Buchung ablehnen",
         "cardSubtitle": "Bitte geben Sie einen Grund an, warum die Buchung nicht leistbar ist."
       },
       "status": {
+        "filter": "Status filtern",
         "notAvailable": "Kein weiterer Status verfügbar",
         "unknown": "Unbekannt",
         "new": "Angefragt",

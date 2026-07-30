@@ -15,12 +15,8 @@ public final class BookingSpecificationBuilder {
     private BookingSpecificationBuilder() {
     }
 
-    public static <T extends Booking> Specification<T> fromFilterWithNotNew(final BookingFilterDTO bookingFilterDTO) {
-        return fromFilterWithPersonOrStatusNew(bookingFilterDTO, null, false);
-    }
-
-    public static <T extends Booking> Specification<T> fromFilter(final BookingFilterDTO bookingFilterDTO) {
-        return fromFilterWithPersonOrStatusNew(bookingFilterDTO, null, true);
+    public static <T extends Booking> Specification<T> fromFilterWithNew(final BookingFilterDTO bookingFilterDTO, final boolean withNew) {
+        return fromFilterWithPersonOrStatusNew(bookingFilterDTO, null, withNew);
     }
 
     public static <T extends Booking> Specification<T> fromFilterWithPerson(final BookingFilterDTO bookingFilterDTO, final Person person) {

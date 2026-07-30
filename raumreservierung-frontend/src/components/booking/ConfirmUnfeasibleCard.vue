@@ -1,56 +1,37 @@
 <template>
-  <v-card
+  <confirm-card
     :title="title"
     :subtitle="subtitle"
     :loading="loading"
+    @cancel="cancel"
   >
-    <template #text>
-      <slot
-        name="text"
-        :disabled="loading"
-      >
-        {{ text }}
-        <v-text-field
-          v-model="inputText"
-          :disabled="loading"
-          label="Begründung eingeben"
-          variant="outlined"
-          hide-details
-          @keydown.enter="confirm"
-        />
-      </slot>
+    <template #text="{ disabled }">
+      <v-text-field
+        v-model="inputText"
+        :disabled="disabled"
+        :label="t('domain.booking.statusChange.enterReason')"
+        variant="outlined"
+        hide-details
+      />
     </template>
-    <template #actions>
-      <div class="mb-4 mr-4">
-        <slot
-          name="cancel"
-          :props="{ onClick: cancel }"
-          :disabled="loading"
-        >
-          <base-button
-            secondary
-            class="mr-4"
-            :disabled="loading"
-            :prepend-icon="mdiClose"
-            :text="t('common.cancel')"
-            @click="cancel"
-          />
-        </slot>
-        <slot
-          name="confirm"
-          :props="{ onClick: confirm }"
-          :disabled="loading"
-        />
-      </div>
+
+    <template #confirm="{ disabled }">
+      <base-button
+        :disabled="disabled"
+        :text="t('common.save')"
+        :append-icon="mdiContentSaveOutline"
+        @click="confirm"
+      />
     </template>
-  </v-card>
+  </confirm-card>
 </template>
 
 <script setup lang="ts">
-import { mdiClose } from "@mdi/js";
+import { mdiContentSaveOutline } from "@mdi/js";
 import { useI18n } from "vue-i18n";
 
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import ConfirmCard from "@/components/common/ConfirmCard.vue";
 
 const { t } = useI18n();
 
@@ -59,7 +40,6 @@ const inputText = defineModel<string>({ default: "" });
 const { loading = false } = defineProps<{
   title: string;
   subtitle?: string;
-  text?: string;
   loading?: boolean;
 }>();
 
@@ -72,6 +52,7 @@ const confirm = () => {
   emit("confirm", inputText.value);
   inputText.value = "";
 };
+
 const cancel = () => {
   inputText.value = "";
   emit("cancel");
