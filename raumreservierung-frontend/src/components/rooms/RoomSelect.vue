@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 import { mdiDoor } from "@mdi/js";
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 
 import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
 
@@ -33,15 +33,7 @@ const filteredRooms = computed(
     ) || []
 );
 
-const {
-  call: getRooms,
-  data: allRooms,
-  loading: getRoomsLoading,
-} = useGetAllRooms();
-
-onMounted(async () => {
-  await getRooms();
-});
+const { data: allRooms, isPending: getRoomsLoading } = useGetAllRooms();
 </script>
 
 <style scoped></style>

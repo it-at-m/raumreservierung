@@ -218,8 +218,6 @@
 </template>
 
 <script setup lang="ts">
-import type { RoomDetailsResponseDTO } from "@/api/raumreservierung-backend";
-
 import {
   mdiAccountOutline,
   mdiArrowLeft,
@@ -232,7 +230,7 @@ import {
   mdiSofaSingleOutline,
   mdiTextureBox,
 } from "@mdi/js";
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify/framework";
@@ -253,11 +251,9 @@ const { t } = useI18n();
 
 const id = computed(() => route.params.id as string | undefined);
 
-const roomData = ref<RoomDetailsResponseDTO>();
-
 const canEditRoom = useIsPrivileged("rooms:write");
 
-const { data, isPending: getRoomLoading, refetch, error } = useGetRoom(id);
+const { data: roomData, isPending: getRoomLoading, error } = useGetRoom(id);
 
 watch(error, async () => {
   if (error.value) {
@@ -266,20 +262,6 @@ watch(error, async () => {
     });
   }
 });
-
-// onMounted(async () => {
-//   if (id.value) {
-//     await refetch();
-//
-//     if (data.value) {
-//       roomData.value = data.value as RoomDetailsResponseDTO;
-//     } else {
-//       await router.replace({
-//         name: ROUTES.ROOMS_LIST,
-//       });
-//     }
-//   }
-// });
 </script>
 
 <style scoped>
