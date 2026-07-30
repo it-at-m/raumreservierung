@@ -64,7 +64,7 @@ const {
   label = "",
   disabled = false,
   loading = false,
-  possibleStatus = [],
+  possibleStatus = Object.values(GetBookingsByPageableAndFilterStatusEnum),
   multiple = false,
   excludedStatus = undefined,
 } = defineProps<{

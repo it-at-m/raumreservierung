@@ -10,14 +10,18 @@ import {
 import { useUserStore } from "@/stores/user.ts";
 
 export function useBookingStatusConfig() {
-  const userStore = useUserStore();
   const { t } = useI18n();
+  const userStore = useUserStore();
 
   const activeRole = userStore.user?.user_roles;
 
+  const applyText = (config: ChipConfig): ChipConfig => {
+    return { ...config, text: t(config.text) };
+  };
+
   const getStatusConfig = (status: string | undefined): ChipConfig => {
     if (!status || !activeRole) {
-      return FALLBACK_CONFIG;
+      return applyText(FALLBACK_CONFIG);
     }
 
     const upperStatus =
@@ -25,13 +29,10 @@ export function useBookingStatusConfig() {
     const baseStyle = ROLE_STATUS_STYLES[activeRole][upperStatus];
 
     if (!baseStyle) {
-      return FALLBACK_CONFIG;
+      return applyText(FALLBACK_CONFIG);
     }
 
-    return {
-      ...baseStyle,
-      text: t(baseStyle.text),
-    };
+    return applyText(baseStyle);
   };
 
   return {
