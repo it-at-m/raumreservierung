@@ -78,8 +78,9 @@ import { ROUTES } from "@/types/Routes.ts";
 const { t } = useI18n();
 const canAddNewRoom = useIsPrivileged("rooms:write");
 
-const { data: getAllRoomsData, isPending: getAllRoomLoading } =
-  useGetAllRooms({ onlyActive: !canAddNewRoom.value });
+const { data: getAllRoomsData, isPending: getAllRoomLoading } = useGetAllRooms({
+  onlyActive: !canAddNewRoom.value,
+});
 
 const router = useRouter();
 

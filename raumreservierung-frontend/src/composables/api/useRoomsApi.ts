@@ -1,6 +1,7 @@
 import type {
   CreateRoomRequest,
   DeleteRoomRequest,
+  GetAllRoomsRequest,
   UpdateRoomRequest,
 } from "@/api/raumreservierung-backend";
 import type { Ref } from "vue";
@@ -13,12 +14,12 @@ import { ApiFactory } from "@/util/apiFactory.ts";
 
 const ROOM_KEY = "room";
 
-export const useGetAllRooms = () => {
+export const useGetAllRooms = (params: GetAllRoomsRequest) => {
   const api = ApiFactory.getInstance(RoomControllerApi);
 
   return useQuery({
     queryKey: [ROOM_KEY, "list"],
-    queryFn: () => api.getAllRooms(),
+    queryFn: () => api.getAllRooms(params),
   });
 };
 
