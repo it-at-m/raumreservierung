@@ -316,7 +316,9 @@ const currentRoomSeatingTypeLimit = computed(
   () =>
     currentRoom.value?.roomSeatingCapacities?.find(
       (rsc) => rsc.seatingTypeId === bookingData.value.seatingTypeId
-    )?.capacity ?? 0
+    )?.capacity ??
+    currentRoom.value?.capacity ??
+    0
 );
 
 const isPrivileged = useIsPrivileged([

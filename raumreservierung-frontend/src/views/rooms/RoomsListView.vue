@@ -76,12 +76,12 @@ import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
 const { t } = useI18n();
+const canAddNewRoom = useIsPrivileged("rooms:write");
+
 const { data: getAllRoomsData, isPending: getAllRoomLoading } =
-  useGetAllRooms();
+  useGetAllRooms({ onlyActive: !canAddNewRoom.value });
 
 const router = useRouter();
-
-const canAddNewRoom = useIsPrivileged("rooms:write");
 
 const computedRooms = computed(() =>
   (getAllRoomsData.value || []).filter(
