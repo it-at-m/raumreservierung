@@ -213,28 +213,15 @@
         "filter": "Status filtern",
         "notAvailable": "Kein weiterer Status verfügbar",
         "unknown": "Unbekannt",
-        "new": "Angefragt",
-        "roomApproved": {
-          "userAndReader": "In Bearbeitung",
-          "bookingOrganizer": "Neu",
-          "roomOrganizer": "Vorgemerkt"
-        },
-        "roomChanged": {
-          "userAndBookingOrganizer": "Angefragt",
-          "readerAndRoomOrganizer": "Änderung"
-        },
-        "coordinationNeeded": {
-          "userAndReader": "In Bearbeitung",
-          "organizer": "In Abstimmung"
-        },
-        "organizerChanged": {
-          "user": "In Bearbeitung",
-          "readerAndBookingOrganizer": "Änderung",
-          "roomOrganizer": "Vorgemerkt"
-        },
-        "organizerApproved": "Gebucht",
+        "new": "Neu",
+        "requested": "Angefragt",
+        "inProgress": "In Bearbeitung",
+        "inCoordination": "In Abstimmung",
+        "changed": "Änderung",
+        "approved": "Gebucht",
         "unfeasible": "Abgelehnt",
-        "canceled": "Storniert"
+        "canceled": "Storniert",
+        "reserved": "Vorgemerkt"
       }
     },
     "scheduleTemplate": {

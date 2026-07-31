@@ -67,6 +67,7 @@ const {
   possibleStatus = Object.values(GetBookingsByPageableAndFilterStatusEnum),
   multiple = false,
   excludedStatus = undefined,
+  groupBy = (status: AllowedStatus) => status as string,
 } = defineProps<{
   label?: string;
   disabled?: boolean;
@@ -74,6 +75,7 @@ const {
   possibleStatus?: AllowedStatus[];
   multiple?: boolean;
   excludedStatus?: AllowedStatus;
+  groupBy?: (status: AllowedStatus) => string;
 }>();
 
 const statusOptions = computed(() => {
@@ -84,7 +86,10 @@ const statusOptions = computed(() => {
       (status: string) => status !== excludedStatus || status === model.value
     );
   }
-  return baseList;
+  return baseList.filter(
+    (status, index, arr) =>
+      arr.findIndex((other) => groupBy(other) === groupBy(status)) === index
+  );
 });
 </script>
 

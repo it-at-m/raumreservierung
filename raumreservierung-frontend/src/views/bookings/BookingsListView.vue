@@ -33,6 +33,7 @@
               clearable
               :label="t('domain.booking.status.filter')"
               multiple
+              :group-by="getStatusGroupKey"
               @update:model-value="applyFilters"
             />
           </v-col>
@@ -212,6 +213,7 @@ import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
+import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -219,6 +221,8 @@ import { dateEquals, toApiDate } from "@/util/timeUtil.ts";
 
 const route = useRoute();
 const router = useRouter();
+
+const { getStatusGroupKey, expandStatus } = useBookingStatusConfig();
 
 const { t } = useI18n();
 
@@ -245,6 +249,7 @@ const end = useRouteQuery("end", undefined, {
 });
 
 const statusFilter = useRouteQuery("status", []);
+const requestStatus = computed(() => expandStatus(statusFilter.value));
 
 const sortBy = useRouteQuery<string | undefined, SortItem[]>(
   "sort",
@@ -275,6 +280,7 @@ const sortBy = useRouteQuery<string | undefined, SortItem[]>(
     },
   }
 );
+
 // ####### Page Filter and Options #########
 
 const {
@@ -318,7 +324,7 @@ const fetchPage = async () => {
     start: toApiDate(start.value),
     end: toApiDate(end.value),
     self: isMyBooking.value,
-    status: statusFilter.value,
+    status: requestStatus.value,
   });
 };
 
