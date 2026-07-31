@@ -1,8 +1,5 @@
 package de.muenchen.raumreservierung.booking;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
-
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
@@ -18,12 +15,6 @@ import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
-import java.time.OffsetDateTime;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -32,6 +23,16 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+
+import java.time.OffsetDateTime;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 @Service
 @Slf4j
@@ -92,9 +93,9 @@ public class BookingService {
      * future appointments while preserving the history of past appointments.
      *
      * @param bookingUpdates The booking object containing the updated data.
-     * @param bookingId The unique identifier of the booking to be updated.
+     * @param bookingId      The unique identifier of the booking to be updated.
      * @return The updated and persisted booking entity.
-     * @throws NotFoundException if no booking with the given ID exists.
+     * @throws NotFoundException           if no booking with the given ID exists.
      * @throws UnauthorizedActionException if the user is neither the owner nor an admin.
      */
     @PreAuthorize(Authorities.BOOKING_SELF)
@@ -151,7 +152,7 @@ public class BookingService {
      * on the updated rule.
      *
      * @param existingBooking the current state of the booking
-     * @param bookingUpdates the updated booking data
+     * @param bookingUpdates  the updated booking data
      */
     public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
         if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())) {
@@ -209,7 +210,7 @@ public class BookingService {
      * Validates if the current user has the authority to access or modify a booking.
      *
      * @param booking The booking entity to validate access against.
-     * @param role The specific security role that grants overriding access.
+     * @param role    The specific security role that grants overriding access.
      * @return true if the user is authorized; false otherwise.
      */
     public boolean validateBookingAuthority(final Booking booking, final String role) {
@@ -228,7 +229,7 @@ public class BookingService {
      *
      * @param booking Booking containing the room and requested seating type.
      * @return true if the seating type is not available in selected room or no room is selected; false
-     *         otherwise.
+     * otherwise.
      */
     public boolean seatingTypeNotAvailableInRoom(final Booking booking) {
         return booking.getSeatingType() != null && Optional.ofNullable(booking.getRoom())
