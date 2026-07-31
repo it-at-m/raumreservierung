@@ -36,16 +36,30 @@
             @click="handleSaveClick"
           />
         </template>
-
         <template #default>
-          <confirm-unfeasible-card
-            v-model="bookingData.reasonForStatusChange"
+          <confirm-card
             :title="t('domain.booking.statusChange.cardTitle')"
             :subtitle="t('domain.booking.statusChange.cardSubtitle')"
             @cancel="isUnfeasibleDialogOpen = false"
-            @confirm="handleUnfeasibleConfirm"
           >
-          </confirm-unfeasible-card>
+            <template #text="{ disabled }">
+              <v-text-field
+                v-model="bookingData.reasonForStatusChange"
+                :disabled="disabled"
+                :label="t('domain.booking.statusChange.enterReason')"
+                variant="outlined"
+                hide-details
+              />
+            </template>
+            <template #confirm="{ disabled }">
+              <base-button
+                :disabled="disabled"
+                :text="t('common.save')"
+                :append-icon="mdiContentSaveOutline"
+                @click="handleUnfeasibleConfirm"
+              />
+            </template>
+          </confirm-card>
         </template>
       </v-dialog>
     </template>
@@ -292,7 +306,6 @@ import {
 } from "@/api/raumreservierung-backend";
 import { type BookingStatusDTO as BookingStatusFull } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
-import ConfirmUnfeasibleCard from "@/components/booking/ConfirmUnfeasibleCard.vue";
 import ExternalPersonSelect from "@/components/booking/ExternalPersonSelect.vue";
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
@@ -301,6 +314,7 @@ import SeatingTypeSelector from "@/components/booking/SeatingTypeParticipantsSel
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
+import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import {
