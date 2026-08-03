@@ -330,14 +330,16 @@ const {
 watch(
   [() => roomReqData.value?.id, getRoomError],
   ([newId, hasError]) => {
-    if (newId && !hasError && roomReqData.value) {
-      isDeletable.value = !roomReqData.value.isActive;
-      roomData.value = mapResponseToRequest(
-        toRaw(roomReqData.value) as RoomDetailsResponseDTO
-      );
-    } else {
-      router.push({ name: ROUTES.ROOMS_LIST });
-      return;
+    if (newId) {
+      if (!hasError && roomReqData.value) {
+        isDeletable.value = !roomReqData.value.isActive;
+        roomData.value = mapResponseToRequest(
+          toRaw(roomReqData.value) as RoomDetailsResponseDTO
+        );
+      } else {
+        router.push({ name: ROUTES.ROOMS_LIST });
+        return;
+      }
     }
   },
   { immediate: true }
