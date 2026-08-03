@@ -4,12 +4,13 @@ import de.muenchen.raumreservierung.security.Roles;
 import java.util.List;
 
 public enum BookingStatus {
+    // the order in this enum determines the sorting order (important for grouping of status in frontend)
     NEW,
-    ROOM_APPROVED,
     ROOM_CHANGED,
+    ORGANIZER_CHANGED,
+    ROOM_APPROVED,
     COORDINATION_NEEDED,
     ORGANIZER_APPROVED,
-    ORGANIZER_CHANGED,
     UNFEASIBLE,
     CANCELED;
 

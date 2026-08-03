@@ -190,7 +190,10 @@
 </template>
 
 <script setup lang="ts">
-import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
+import type {
+  BookingListResponseDTO,
+  BookingStatusDTOCurrentStatusEnum,
+} from "@/api/raumreservierung-backend";
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
@@ -222,7 +225,8 @@ import { dateEquals, toApiDate } from "@/util/timeUtil.ts";
 const route = useRoute();
 const router = useRouter();
 
-const { getStatusGroupKey, expandStatus } = useBookingStatusConfig();
+const { getStatusGroupKey, expandStatus, statusGroups } =
+  useBookingStatusConfig();
 
 const { t } = useI18n();
 
@@ -248,7 +252,25 @@ const end = useRouteQuery("end", undefined, {
   transform: dateTransform,
 });
 
-const statusFilter = useRouteQuery("status", []);
+const statusFilter = useRouteQuery<string, BookingStatusDTOCurrentStatusEnum[]>(
+  "status",
+  "",
+  {
+    transform: {
+      get: (v) => {
+        const keys = v ? v.split(",") : [];
+        return keys.flatMap((key) => {
+          const status = statusGroups.value.find((g) => g.key === key)
+            ?.status[0];
+          return status ? [status] : [];
+        });
+      },
+      set: (v) =>
+        [...new Set(v.map((status) => getStatusGroupKey(status)))].join(","),
+    },
+  }
+);
+
 const requestStatus = computed(() => expandStatus(statusFilter.value));
 
 const sortBy = useRouteQuery<string | undefined, SortItem[]>(

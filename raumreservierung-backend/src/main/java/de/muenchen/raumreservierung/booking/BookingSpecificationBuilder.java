@@ -3,11 +3,14 @@ package de.muenchen.raumreservierung.booking;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room_;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.Path;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class BookingSpecificationBuilder {
@@ -76,5 +79,17 @@ public final class BookingSpecificationBuilder {
         return (root, query, cb) -> cb.or(
                 cb.equal(root.get(Booking_.bookedBy), person),
                 cb.equal(root.get(Booking_.bookedFor), person));
+    }
+
+    public static <T extends Booking> Specification<T> withFixedStatusOrder(final Sort.Direction direction) {
+        return (root, query, cb) -> {
+            final Path<BookingStatus> status = root.get(Booking_.status);
+            CriteriaBuilder.Case<Integer> order = cb.selectCase();
+            for (final BookingStatus value : BookingStatus.values()) {
+                order = order.when(cb.equal(status, value), value.ordinal());
+            }
+            query.orderBy(direction.isAscending() ? cb.asc(order) : cb.desc(order));
+            return cb.conjunction();
+        };
     }
 }

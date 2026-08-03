@@ -60,5 +60,6 @@ export function useBookingStatusConfig() {
     getStatusConfig,
     getStatusGroupKey,
     expandStatus,
+    statusGroups,
   };
 }

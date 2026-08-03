@@ -26,7 +26,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
@@ -70,7 +72,16 @@ public class BookingService {
     }
 
     private Page<Booking> findAllAndFilterSensitiveData(final Pageable pageable, final Specification<Booking> bookingSpecification) {
-        Page<Booking> bookings = bookingRepository.findAll(bookingSpecification, pageable);
+        final Sort.Order statusOrder = pageable.getSort().getOrderFor("status");
+
+        final Specification<Booking> spec = statusOrder == null
+                ? bookingSpecification
+                : bookingSpecification.and(BookingSpecificationBuilder.withFixedStatusOrder(statusOrder.getDirection()));
+        final Pageable effectivePageable = statusOrder == null
+                ? pageable
+                : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize());
+
+        Page<Booking> bookings = bookingRepository.findAll(spec, effectivePageable);
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             bookings = bookings.map(booking -> {
                 booking.setInternalNotes(null);
