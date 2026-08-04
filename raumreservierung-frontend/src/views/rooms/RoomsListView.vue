@@ -13,9 +13,20 @@
       />
     </template>
     <template #default>
-      <p class="mb-4">
-        {{ t("views.roomListView.bookWORoomMsg") }}
-      </p>
+      <i18n-t
+        keypath="views.roomListView.bookWORoomMsg.sentence"
+        tag="span"
+      >
+        <template #link>
+          <router-link
+            :to="{
+              name: ROUTES.MY_BOOKINGS_CREATE,
+            }"
+          >
+            {{ t("views.roomListView.bookWORoomMsg.link") }}
+          </router-link>
+        </template>
+      </i18n-t>
       <v-row>
         <template v-if="getAllRoomLoading">
           <v-col
@@ -92,7 +103,7 @@ const computedRooms = computed(() =>
   )
 );
 
-onMounted(async () => await getAllRooms());
+onMounted(async () => await getAllRooms({ onlyActive: !canAddNewRoom.value }));
 </script>
 
 <style scoped></style>

@@ -1,6 +1,7 @@
 import type {
   CreateRoomRequest,
   DeleteRoomRequest,
+  GetAllRoomsRequest,
   GetRoomRequest,
   RoomDetailsResponseDTO,
   RoomListResponseDTO,
@@ -13,8 +14,10 @@ import { ApiFactory } from "@/util/apiFactory.ts";
 
 export const useGetAllRooms = () => {
   const api = ApiFactory.getInstance(RoomControllerApi);
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  return useApi<void, RoomListResponseDTO[]>(() => api.getAllRooms());
+
+  return useApi<GetAllRoomsRequest, RoomListResponseDTO[]>((params) =>
+    api.getAllRooms(params)
+  );
 };
 
 export const useGetRoom = () => {
