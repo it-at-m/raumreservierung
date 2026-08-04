@@ -9,7 +9,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(uses = {ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class})
+@Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class })
 public interface BookingMapper {
     @Mapping(target = "equipments", source = "equipment")
     BookingDetailResponseDTO toDetailDto(Booking booking);
@@ -36,7 +36,8 @@ public interface BookingMapper {
 
     @Named("hasNoteCheck")
     default boolean mapHasNote(final Booking booking) {
-        return (booking.getAdditionalNotes() != null && !booking.getAdditionalNotes().isEmpty()) || (booking.getInternalNotes() != null && !booking.getInternalNotes().isEmpty());
+        return (booking.getAdditionalNotes() != null && !booking.getAdditionalNotes().isEmpty())
+                || (booking.getInternalNotes() != null && !booking.getInternalNotes().isEmpty());
     }
 
     @Named("isRecurringCheck")
