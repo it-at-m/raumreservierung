@@ -2,17 +2,24 @@ package de.muenchen.raumreservierung.booking;
 
 import de.muenchen.raumreservierung.security.Roles;
 import java.util.List;
+import lombok.Getter;
 
+@Getter
 public enum BookingStatus {
-    // the order in this enum determines the sorting order (important for grouping of status in frontend)
-    NEW,
-    ROOM_CHANGED,
-    ORGANIZER_CHANGED,
-    ROOM_APPROVED,
-    COORDINATION_NEEDED,
-    ORGANIZER_APPROVED,
-    UNFEASIBLE,
-    CANCELED;
+    NEW(10),
+    ROOM_CHANGED(20),
+    ORGANIZER_CHANGED(30),
+    ROOM_APPROVED(40),
+    COORDINATION_NEEDED(50),
+    ORGANIZER_APPROVED(60),
+    UNFEASIBLE(70),
+    CANCELED(80);
+
+    private final int sortOrder;
+
+    BookingStatus(final int sortOrder) {
+        this.sortOrder = sortOrder;
+    }
 
     public List<StateTransition> getTransitions() {
         return switch (this) {
