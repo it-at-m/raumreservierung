@@ -301,9 +301,11 @@ const { t } = useI18n();
 
 const {
   data: roomReqData,
-  isPending: getRoomLoading,
+  isPending,
   error: getRoomError,
 } = useGetRoom(roomId);
+
+const getRoomLoading = computed(() => isPending.value && !!roomId.value);
 
 const rules = useRules();
 
