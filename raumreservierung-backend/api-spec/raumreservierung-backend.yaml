@@ -654,11 +654,11 @@ paths:
             type: string
             enum:
             - NEW
-            - ROOM_APPROVED
             - ROOM_CHANGED
+            - ORGANIZER_CHANGED
+            - ROOM_APPROVED
             - COORDINATION_NEEDED
             - ORGANIZER_APPROVED
-            - ORGANIZER_CHANGED
             - UNFEASIBLE
             - CANCELED
       - name: self
@@ -1348,11 +1348,11 @@ components:
           type: string
           enum:
           - NEW
-          - ROOM_APPROVED
           - ROOM_CHANGED
+          - ORGANIZER_CHANGED
+          - ROOM_APPROVED
           - COORDINATION_NEEDED
           - ORGANIZER_APPROVED
-          - ORGANIZER_CHANGED
           - UNFEASIBLE
           - CANCELED
         reasonForStatusChange:
@@ -1440,11 +1440,11 @@ components:
           type: string
           enum:
           - NEW
-          - ROOM_APPROVED
           - ROOM_CHANGED
+          - ORGANIZER_CHANGED
+          - ROOM_APPROVED
           - COORDINATION_NEEDED
           - ORGANIZER_APPROVED
-          - ORGANIZER_CHANGED
           - UNFEASIBLE
           - CANCELED
         nextPossibleStatus:
@@ -1453,11 +1453,11 @@ components:
             type: string
             enum:
             - NEW
-            - ROOM_APPROVED
             - ROOM_CHANGED
+            - ORGANIZER_CHANGED
+            - ROOM_APPROVED
             - COORDINATION_NEEDED
             - ORGANIZER_APPROVED
-            - ORGANIZER_CHANGED
             - UNFEASIBLE
             - CANCELED
     RoomListResponseDTO:

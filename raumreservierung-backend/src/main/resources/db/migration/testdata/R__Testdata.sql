@@ -153,11 +153,8 @@ DROP FUNCTION IF EXISTS relative_timestamp(integer, text);
 CREATE OR REPLACE FUNCTION relative_timestamp(day_offset integer, time_str text)
     RETURNS timestamptz AS
 $$
-DECLARE
-    local_datetime timestamp;
 BEGIN
-    local_datetime := (CURRENT_DATE + (day_offset * INTERVAL '1 day') + time_str::TIME)::timestamp;
-    RETURN local_datetime AT TIME ZONE 'Europe/Berlin';
+    RETURN (CURRENT_DATE + (day_offset * INTERVAL '1 day') + time_str::TIME) AT TIME ZONE 'UTC';
 END;
 $$ LANGUAGE plpgsql STABLE;
 
