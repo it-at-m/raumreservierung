@@ -75,7 +75,7 @@
 
 <script setup lang="ts">
 import { mdiPlus } from "@mdi/js";
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
@@ -87,23 +87,19 @@ import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
 const { t } = useI18n();
-const {
-  call: getAllRooms,
-  data: getAllRoomsData,
-  loading: getAllRoomLoading,
-} = useGetAllRooms();
+const canAddNewRoom = useIsPrivileged("rooms:write");
+
+const { data: getAllRoomsData, isPending: getAllRoomLoading } = useGetAllRooms({
+  onlyActive: !canAddNewRoom.value,
+});
 
 const router = useRouter();
-
-const canAddNewRoom = useIsPrivileged("rooms:write");
 
 const computedRooms = computed(() =>
   (getAllRoomsData.value || []).filter(
     (room) => room.isActive || canAddNewRoom.value
   )
 );
-
-onMounted(async () => await getAllRooms({ onlyActive: !canAddNewRoom.value }));
 </script>
 
 <style scoped></style>
