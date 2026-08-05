@@ -10,6 +10,7 @@
     :items="combinedPersons"
     :loading="internalLoading || externalLoading"
     :item-title="formatName"
+    menu-icon=""
     item-value="id"
     hide-no-data
     @update:search="onSearch"
