@@ -26,6 +26,7 @@ const rolePrivilegeMapping = {
   ],
   raumbuchung: [
     "bookings:self",
+    "bookings:read",
     "bookings:write",
     "bookings:manage",
     "calendar:write",
@@ -33,11 +34,17 @@ const rolePrivilegeMapping = {
   ],
   terminorganisator: [
     "bookings:self",
+    "bookings:read",
     "calendar:read",
     "rooms:read",
     "bookings:write",
   ],
-  leseberechtigt: ["bookings:self", "calendar:read", "rooms:read"],
+  leseberechtigt: [
+    "bookings:self",
+    "bookings:read",
+    "calendar:read",
+    "rooms:read",
+  ],
   anwender: ["bookings:self", "rooms:read"],
 } satisfies Record<Role, readonly Privilege[]>;
 
