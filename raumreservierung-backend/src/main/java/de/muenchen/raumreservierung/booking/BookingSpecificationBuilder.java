@@ -2,11 +2,13 @@ package de.muenchen.raumreservierung.booking;
 
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.person.domain.Person;
+import de.muenchen.raumreservierung.person.domain.Person_;
 import de.muenchen.raumreservierung.room.Room_;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 
@@ -36,6 +38,12 @@ public final class BookingSpecificationBuilder {
         if (person != null && person.getId() != null) {
             specificationList.add(filterForPerson(person));
         }
+        if (bookingFilterDTO.bookedForId() != null) {
+            specificationList.add(filterForPersonBookedFor(bookingFilterDTO.bookedForId()));
+        }
+        if (bookingFilterDTO.title() != null) {
+            specificationList.add(filterForTitle(bookingFilterDTO.title()));
+        }
 
         return Specification.allOf(specificationList);
     }
@@ -57,4 +65,13 @@ public final class BookingSpecificationBuilder {
                 cb.equal(root.get(Booking_.bookedBy), person),
                 cb.equal(root.get(Booking_.bookedFor), person));
     }
+
+    private static <T extends Booking> Specification<T> filterForPersonBookedFor(final UUID personId) {
+        return (root, query, cb) -> cb.equal(root.get(Booking_.bookedFor).get(Person_.id), personId);
+    }
+
+    private static <T extends Booking> Specification<T> filterForTitle(final String title) {
+        return (root, query, cb) -> cb.like(cb.lower(root.get(Booking_.title)), "%" + title.toLowerCase(Locale.GERMAN) + "%");
+    }
+
 }

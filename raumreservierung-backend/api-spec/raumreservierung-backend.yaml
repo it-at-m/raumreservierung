@@ -643,6 +643,17 @@ paths:
         schema:
           type: string
           format: date-time
+      - name: bookedForId
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: title
+        in: query
+        required: false
+        schema:
+          type: string
       - name: self
         in: query
         required: false

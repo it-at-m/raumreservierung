@@ -58,6 +58,26 @@
             />
           </v-col>
         </v-row>
+        <v-row>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <person-select
+              v-model="bookedForId"
+              @update:model-value="applyFilters"
+            />
+          </v-col>
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <title-select
+              v-model="title"
+              @update:model-value="applyFilters"
+            />
+          </v-col>
+        </v-row>
       </v-sheet>
       <v-card :title="t('views.bookingListView.tableTitle')">
         <template #text>
@@ -190,6 +210,8 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
+import PersonSelect from "@/components/booking/PersonSelect.vue";
+import TitleSelect from "@/components/booking/TitleSelect.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
@@ -209,6 +231,8 @@ const canEditBookings = useIsPrivileged("bookings:manage");
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
 
 // ####### Page Filter and Options #########
+const bookedForId = useRouteQuery("bookedForId", undefined);
+const title = useRouteQuery("title", undefined);
 const roomId = useRouteQuery("roomId", undefined);
 
 const page = useRouteQuery("page", 1, { transform: Number });
@@ -298,6 +322,8 @@ const fetchPage = async () => {
     start: toApiDate(start.value),
     end: toApiDate(end.value),
     self: isMyBooking.value,
+    bookedForId: bookedForId.value,
+    title: title.value,
   });
 };
 

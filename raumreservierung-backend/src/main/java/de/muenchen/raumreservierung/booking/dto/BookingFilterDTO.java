@@ -6,7 +6,9 @@ import java.util.UUID;
 public record BookingFilterDTO(
         UUID roomId,
         OffsetDateTime start,
-        OffsetDateTime end
+        OffsetDateTime end,
+        UUID bookedForId,
+        String title
 //TODO: add status filter
 ) {
 }
