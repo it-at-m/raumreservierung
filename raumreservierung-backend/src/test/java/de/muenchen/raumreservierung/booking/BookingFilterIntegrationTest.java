@@ -16,7 +16,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -232,13 +234,14 @@ public class BookingFilterIntegrationTest {
     }
 
     private OffsetDateTime relativeTimestamp(int dayOffset, int hourOffset, String timeStr) {
-        LocalDate today = LocalDate.now();
-
+        ZoneId berlin = ZoneId.of("Europe/Berlin");
+        LocalDate today = LocalDate.now(berlin);
         LocalDate targetDate = today.plusDays(dayOffset);
-
         LocalTime targetTime = LocalTime.parse(timeStr);
+        ZonedDateTime berlinDateTime = ZonedDateTime.of(targetDate, targetTime, berlin);
+        ZonedDateTime shifted = berlinDateTime.plusHours(hourOffset);
 
-        return OffsetDateTime.of(targetDate, targetTime, ZoneOffset.ofHours(hourOffset));
+        return shifted.toOffsetDateTime();
     }
 
     @Test
