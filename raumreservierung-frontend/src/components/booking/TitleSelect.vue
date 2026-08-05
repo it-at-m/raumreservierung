@@ -1,60 +1,28 @@
 <template>
-  <v-autocomplete
-    v-model="modelValue"
+  <v-text-field
+    v-model="localValue"
     label="Veranstaltungstitel"
     color="accent"
     variant="outlined"
     density="compact"
     clearable
+    hide-details
     :prepend-inner-icon="mdiTextBoxSearchOutline"
-    :items="bookings?.content ?? []"
-    :loading="bookingsLoading"
-    :item-title="formatTitle"
-    item-value="title"
-    hide-no-data
-    @update:search="onSearch"
-  >
-    <template #selection="{ item }">
-      <span class="text-body-1">{{ formatTitle(item) }}</span>
-    </template>
-  </v-autocomplete>
+    @update:model-value="onInput"
+    @click:clear="onInput(undefined)"
+  />
 </template>
-<script setup lang="ts">
-import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
 
+<script setup lang="ts">
 import { mdiTextBoxSearchOutline } from "@mdi/js";
 import { useDebounceFn } from "@vueuse/core";
-
-import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
+import { ref } from "vue";
 
 const modelValue = defineModel<string>();
 
-const {
-  call: getBookings,
-  data: bookings,
-  loading: bookingsLoading,
-} = useGetBookings();
+const localValue = ref(modelValue.value);
 
-const formatTitle = (booking: BookingListResponseDTO) => {
-  if (!booking) {
-    return "";
-  }
-
-  return `${booking.title || ""}`.trim();
-};
-
-const onSearch = useDebounceFn((searchQuery: string) => {
-  if (!searchQuery) {
-    return;
-  }
-
-  getBookings({
-    title: searchQuery,
-    page: 0,
-    size: 10,
-    self: false,
-  });
+const onInput = useDebounceFn((value: string | undefined) => {
+  modelValue.value = value || undefined;
 }, 500);
 </script>
-
-<style scoped></style>

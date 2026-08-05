@@ -232,7 +232,7 @@ const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
 
 // ####### Page Filter and Options #########
 const bookedForId = useRouteQuery("bookedForId", undefined);
-const title = useRouteQuery("title", undefined);
+const title = useRouteQuery<string | undefined>("title", undefined);
 const roomId = useRouteQuery("roomId", undefined);
 
 const page = useRouteQuery("page", 1, { transform: Number });
