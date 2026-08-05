@@ -295,7 +295,7 @@ import {
   mdiContentSaveOutline,
   mdiWindowClose,
 } from "@mdi/js";
-import { computed, onMounted, ref, toRaw } from "vue";
+import { computed, onMounted, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -322,7 +322,7 @@ import {
   useGetBooking,
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
-import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
+import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { EMPTY_BOOKING_STATUS_DATA } from "@/constants/BookingStatus";
@@ -419,7 +419,19 @@ useUpdateBooking();
 
 const snackbarStore = useSnackbarStore();
 
-const { call: getRoom, loading: getRoomLoading } = useRoomCache();
+const roomIdToFetch = computed(() => getBookingData.value?.room?.id);
+
+const { isPending: getRoomLoading, data: roomReqData } =
+  useGetRoom(roomIdToFetch);
+
+watch(
+  () => roomReqData.value?.id,
+  () => {
+    if (roomReqData.value) {
+      currentRoom.value = mapResponseToRequest(roomReqData.value);
+    }
+  }
+);
 
 onMounted(async () => {
   if (bookingId.value) {
@@ -456,8 +468,6 @@ onMounted(async () => {
 
 const updateRoom = async (roomId: string | undefined) => {
   if (roomId) {
-    currentRoom.value = mapResponseToRequest(await getRoom(roomId));
-
     if (bookingData?.value.equipmentIds) {
       const filteredEquipmentIds = bookingData.value.equipmentIds.filter(
         (chosenEq) => currentRoom.value?.equipmentIds?.includes(chosenEq)
