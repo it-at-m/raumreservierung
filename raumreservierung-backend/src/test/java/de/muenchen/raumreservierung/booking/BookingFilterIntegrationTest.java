@@ -1,5 +1,10 @@
 package de.muenchen.raumreservierung.booking;
 
+import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
@@ -7,6 +12,15 @@ import com.jayway.jsonpath.JsonPath;
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.booking.dto.BookingListResponseDTO;
 import de.muenchen.raumreservierung.security.Roles;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -21,24 +35,10 @@ import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.UUID;
-
-import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureMockMvc
-@ActiveProfiles(profiles = {SPRING_TEST_PROFILE})
+@ActiveProfiles(profiles = { SPRING_TEST_PROFILE })
 @TestPropertySource(
         properties = {
                 "spring.jpa.hibernate.ddl-auto=validate"
@@ -64,15 +64,15 @@ public class BookingFilterIntegrationTest {
     private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.RAUM_ADMIN})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withRoomIdFilter_shouldReturnFilteredBookings() throws Exception {
         UUID roomId = UUID.fromString("770e8400-e29b-41d4-a716-446655440001");
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
-                        .param("roomId", roomId.toString())
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("self", "false"))
+                .param("roomId", roomId.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -83,21 +83,21 @@ public class BookingFilterIntegrationTest {
 
         assertThat(roomIds).isNotEmpty();
         assertThat(roomIds).containsOnly(roomId.toString());
-        assertThat(roomIds.size()).isEqualTo(2);
+        assertThat(roomIds.size()).isEqualTo(10);
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.RAUM_ADMIN})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withTimeRangeFilterNow_shouldReturnOneBookingInPeriod() throws Exception {
         OffsetDateTime start = OffsetDateTime.now();
         OffsetDateTime end = OffsetDateTime.now();
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
-                        .param("start", start.toString())
-                        .param("end", end.toString())
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("self", "false"))
+                .param("start", start.toString())
+                .param("end", end.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -118,17 +118,17 @@ public class BookingFilterIntegrationTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.RAUM_ADMIN})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withTimeRangeAndOffsetFilterNow_shouldReturnOneBookingInPeriod() throws Exception {
         OffsetDateTime start = LocalDateTime.now().atOffset(ZoneOffset.MAX);
         OffsetDateTime end = LocalDateTime.now().atOffset(ZoneOffset.MIN);
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
-                        .param("start", start.toString())
-                        .param("end", end.toString())
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("self", "false"))
+                .param("start", start.toString())
+                .param("end", end.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -148,15 +148,15 @@ public class BookingFilterIntegrationTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.RAUM_ADMIN})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withStartTimeFilterNow_shouldReturnBookings() throws Exception {
         OffsetDateTime start = OffsetDateTime.now();
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
-                        .param("start", start.toString())
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("self", "false"))
+                .param("start", start.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -174,15 +174,15 @@ public class BookingFilterIntegrationTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.RAUM_ADMIN})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withEndTimeFilterNow_shouldReturnBookings() throws Exception {
         OffsetDateTime end = OffsetDateTime.now();
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
-                        .param("end", end.toString())
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("self", "false"))
+                .param("end", end.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -200,19 +200,19 @@ public class BookingFilterIntegrationTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.RAUM_ADMIN})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withFullFilter_shouldReturnOneBooking() throws Exception {
         OffsetDateTime end = OffsetDateTime.now();
         OffsetDateTime start = OffsetDateTime.now();
         UUID roomId = UUID.fromString("770e8400-e29b-41d4-a716-446655440001");
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
-                        .param("end", end.toString())
-                        .param("start", start.toString())
-                        .param("roomId", roomId.toString())
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("self", "false"))
+                .param("end", end.toString())
+                .param("start", start.toString())
+                .param("roomId", roomId.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -240,15 +240,15 @@ public class BookingFilterIntegrationTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.RAUM_ADMIN})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withStartTimeWithDateChangingOffsets_shouldReturnOneBooking() throws Exception {
         OffsetDateTime start = relativeTimestamp(600, 1, "00:00");
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
-                        .param("start", start.toString())
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("self", "false"))
+                .param("start", start.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -265,17 +265,17 @@ public class BookingFilterIntegrationTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.RAUM_ADMIN})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withStartTimeAndEndTimeWithDateChangingOffsets_shouldReturnOneBooking() throws Exception {
         OffsetDateTime start = relativeTimestamp(600, 1, "00:00");
         OffsetDateTime end = relativeTimestamp(600, -1, "23:59");
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
-                        .param("start", start.toString())
-                        .param("end", end.toString())
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("self", "false"))
+                .param("start", start.toString())
+                .param("end", end.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -292,16 +292,16 @@ public class BookingFilterIntegrationTest {
     }
 
     @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = {Roles.RAUM_ADMIN})
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withNonExistentRoom_shouldReturnNothing() throws Exception {
 
         UUID roomId = UUID.fromString("770e8400-e29b-41d4-a716-446655440005");
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
-                        .param("roomId", roomId.toString())
-                        .param("page", "0")
-                        .param("size", "10")
-                        .param("self", "false"))
+                .param("roomId", roomId.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
                 .andExpect(status().isOk())
                 .andReturn()
                 .getResponse()
@@ -314,6 +314,60 @@ public class BookingFilterIntegrationTest {
                 });
 
         assertThat(bookings).isEmpty();
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void getBookings_withStartStatusNEW_shouldReturnEightBooking() throws Exception {
+        BookingStatus status = BookingStatus.NEW;
+
+        String responseJson = mockMvc.perform(get(BOOKINGS_URL)
+                .param("status", status.toString())
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String contentJson = JsonPath.read(responseJson, "$.content").toString();
+        List<BookingListResponseDTO> bookings = objectMapper.readValue(
+                contentJson,
+                new TypeReference<>() {
+                });
+
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.size()).isEqualTo(8);
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void getBookings_withStartStatusNEWAndCANCELED_shouldReturnTenBooking() throws Exception {
+        List<BookingStatus> status = List.of(BookingStatus.NEW, BookingStatus.CANCELED);
+
+        String statusParam = status.stream()
+                .map(Enum::name)
+                .collect(Collectors.joining(","));
+
+        String responseJson = mockMvc.perform(get(BOOKINGS_URL)
+                .param("status", statusParam)
+                .param("page", "0")
+                .param("size", "10")
+                .param("self", "false"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        String contentJson = JsonPath.read(responseJson, "$.content").toString();
+        List<BookingListResponseDTO> bookings = objectMapper.readValue(
+                contentJson,
+                new TypeReference<>() {
+                });
+
+        assertThat(bookings).isNotEmpty();
+        assertThat(bookings.size()).isEqualTo(10);
     }
 
 }

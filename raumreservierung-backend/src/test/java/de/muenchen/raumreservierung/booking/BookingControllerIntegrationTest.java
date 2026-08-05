@@ -5,6 +5,7 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -143,6 +144,7 @@ public class BookingControllerIntegrationTest {
         mockBooking.setBookedBy(mockPerson);
         mockBooking.setOrganisationUnit("TEST_UNIT");
         mockBooking.setRoom(mockRoom);
+        mockBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         mockBooking = bookingRepository.save(mockBooking);
     }
 
@@ -269,6 +271,22 @@ public class BookingControllerIntegrationTest {
                 .andExpect(status().reason(MSG_ROOM_INACTIVE));
     }
 
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void deleteBooking_ReturnsNoContent_WhenDeleted() throws Exception {
+        mockMvc.perform(delete(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void getBooking_ReturnsNoContent_WhenDeleted() throws Exception {
+        mockMvc.perform(get(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf()))
+                .andExpect(status().isOk());
+    }
+
     @ParameterizedTest
     @MethodSource("provideTestData")
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
@@ -328,6 +346,8 @@ public class BookingControllerIntegrationTest {
                 null,
                 schedule,
                 bookedForId,
+                null,
+                BookingStatus.ORGANIZER_APPROVED,
                 null);
     }
 
@@ -353,7 +373,9 @@ public class BookingControllerIntegrationTest {
                 roomId,
                 schedule,
                 mockPerson.getId(),
-                seatingTypeId);
+                seatingTypeId,
+                BookingStatus.ORGANIZER_APPROVED,
+                null);
     }
 
     private static Stream<Arguments> provideTestData() {
@@ -483,6 +505,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(2),
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30)));
+        existingBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, null);
@@ -605,6 +628,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(2),
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30)));
+        existingBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, 100);
@@ -659,6 +683,7 @@ public class BookingControllerIntegrationTest {
                 now.plusHours(2),
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30)));
+        existingBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         Booking saved = bookingRepository.save(existingBooking);
 
         BookingRequestDTO updateDTO = getBookingRequestDTOWithRoomAndSeating(null, null, 100);

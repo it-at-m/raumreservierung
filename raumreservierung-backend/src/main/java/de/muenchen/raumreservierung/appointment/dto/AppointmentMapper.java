@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(uses = { BookingMapper.class })
 public interface AppointmentMapper {
+    @Mapping(source = "booking.id", target = "bookingId")
     AppointmentResponseDTO toDto(Appointment appointment);
 
     @Mapping(source = "booking", target = "bookingMinimal")

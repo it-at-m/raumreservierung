@@ -11,25 +11,29 @@ import jakarta.validation.Valid;
 import java.time.Duration;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.Recur;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
+    private final ApplicationEventPublisher publisher;
 
-    @PreAuthorize(Authorities.APPOINTMENT_READ)
+    @PreAuthorize(Authorities.APPOINTMENT_SELF)
     public Page<Appointment> getAppointmentsByPageableAndFilter(final Pageable pageable, @Valid final AppointmentFilterDTO appointmentFilterDTO) {
         final Specification<Appointment> appointmentSpecification = AppointmentSpecificationBuilder.fromFilter(appointmentFilterDTO);
         final Page<Appointment> filteredAppointments = appointmentRepository.findAll(appointmentSpecification, pageable);
@@ -37,15 +41,26 @@ public class AppointmentService {
         return filteredAppointments;
     }
 
-    @PreAuthorize(Authorities.APPOINTMENT_WRITE)
+    @PreAuthorize(Authorities.APPOINTMENT_SELF)
+    @Transactional
     public Appointment updateAppointment(final Appointment appointmentUpdates, final UUID appointmentId) {
         final Appointment existingAppointment = getEntityOrThrowException(appointmentId);
+        final boolean appointmentChanged = !Objects.equals(existingAppointment.getSchedule(), appointmentUpdates.getSchedule());
+
         existingAppointment.updateFrom(appointmentUpdates);
         log.debug("Updated appointment with id {}", existingAppointment.getId());
-        return appointmentRepository.save(existingAppointment);
+        final Appointment savedAppointment = appointmentRepository.save(existingAppointment);
+
+        if (appointmentChanged) {
+            final UUID bookingId = existingAppointment.getBooking().getId();
+            publisher.publishEvent(bookingId);
+        }
+
+        return savedAppointment;
+
     }
 
-    @PreAuthorize(Authorities.APPOINTMENT_WRITE)
+    @PreAuthorize(Authorities.APPOINTMENT_SELF)
     public void deleteAppointment(final UUID appointmentId) {
         log.debug("Deleted appointment with id {}", appointmentId);
         appointmentRepository.deleteById(appointmentId);
