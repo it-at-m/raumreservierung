@@ -39,12 +39,6 @@ public class FileAttachmentService {
     }
 
     @Transactional
-    public void deleteFile(final UUID fileId) {
-        log.debug("Deleting file {}", fileId);
-        fileAttachmentRepository.deleteById(fileId);
-    }
-
-    @Transactional
     public void attachFileAttachment(final UUID fileAttachmentId) {
         final FileAttachment fileAttachment = getEntityOrThrowException(fileAttachmentId);
         fileAttachment.setAttached(true);
