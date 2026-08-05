@@ -1,17 +1,18 @@
 package de.muenchen.raumreservierung.file;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_FILE_READING_ERROR;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-
 import de.muenchen.raumreservierung.common.NotFoundException;
-import java.io.IOException;
-import java.time.OffsetDateTime;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.time.OffsetDateTime;
+import java.util.UUID;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_FILE_READING_ERROR;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -28,19 +29,13 @@ public class FileAttachmentService {
 
     @Transactional
     public FileAttachment createFile(final MultipartFile multipartFile) {
-        final String originalFilename = multipartFile.getOriginalFilename();
-        final String safeFilename = originalFilename != null
-                ? originalFilename.replaceAll("[^a-zA-Z0-9äöüÄÖÜß._-]", "_")
-                : "unknown";
-        log.debug("Creating file attachment for {}", safeFilename);
-        final FileAttachment fileAttachment = new FileAttachment();
         try {
+            final FileAttachment fileAttachment = new FileAttachment();
             fileAttachment.updateFrom(multipartFile);
+            return fileAttachmentRepository.save(fileAttachment);
         } catch (final IOException e) {
             throw new RuntimeException(MSG_FILE_READING_ERROR, e);
         }
-
-        return fileAttachmentRepository.save(fileAttachment);
     }
 
     @Transactional
