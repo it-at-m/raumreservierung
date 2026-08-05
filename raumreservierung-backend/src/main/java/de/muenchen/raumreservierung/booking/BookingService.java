@@ -1,5 +1,8 @@
 package de.muenchen.raumreservierung.booking;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
+
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
@@ -14,6 +17,11 @@ import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
+import java.time.OffsetDateTime;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
@@ -28,15 +36,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-
-import java.time.OffsetDateTime;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
-
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 @Service
 @Slf4j
@@ -117,11 +116,11 @@ public class BookingService {
      * it regenerates future appointments while preserving the history of past appointments.
      *
      * @param bookingUpdates The booking object containing the updated data.
-     * @param bookingId      The unique identifier of the booking to be updated.
+     * @param bookingId The unique identifier of the booking to be updated.
      * @return The updated, persisted, and sanitized booking entity.
-     * @throws NotFoundException           if no booking with the given ID exists.
+     * @throws NotFoundException if no booking with the given ID exists.
      * @throws UnauthorizedActionException if the user lacks the required booking self-authority.
-     * @throws IllegalArgumentException    if the booking status transition or terminal state is invalid.
+     * @throws IllegalArgumentException if the booking status transition or terminal state is invalid.
      */
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
@@ -187,7 +186,7 @@ public class BookingService {
     /**
      * Validates the booking update and checks that the current user is authorized to perform it.
      *
-     * @param bookingUpdates  booking data with the requested changes
+     * @param bookingUpdates booking data with the requested changes
      * @param existingBooking existing booking to be updated
      * @throws RuntimeException if validation fails or the user lacks the required authority
      */
@@ -200,7 +199,7 @@ public class BookingService {
      * Prevents unauthorized changes to internal notes by restoring the existing value
      * unless the current user has the required authority.
      *
-     * @param bookingUpdates  booking data with the requested changes
+     * @param bookingUpdates booking data with the requested changes
      * @param existingBooking existing booking containing the original internal notes
      */
     private void protectInternalNotes(final Booking bookingUpdates, final Booking existingBooking) {
@@ -214,7 +213,7 @@ public class BookingService {
      * appointment, or service has changed, provided the user does not hold the role
      * {@link Roles#TERMIN_ORGANISATOR} or higher.
      *
-     * @param bookingUpdates  the updated booking containing the requested changes
+     * @param bookingUpdates the updated booking containing the requested changes
      * @param existingBooking the current booking
      */
     private void applyAutomaticStatusChangesIfApplicable(final Booking bookingUpdates, final Booking existingBooking) {
@@ -229,9 +228,9 @@ public class BookingService {
      * to the booking details.
      *
      * @param existingBooking the current booking before updates
-     * @param bookingUpdate   the updated booking information
+     * @param bookingUpdate the updated booking information
      * @return true if any of the following have changed: the room, the appointments,
-     * or the service requirement; false otherwise
+     *         or the service requirement; false otherwise
      */
     private boolean needForAutomaticStatusChange(final Booking existingBooking, final Booking bookingUpdate) {
         return !Objects.equals(existingBooking.getRoom(), bookingUpdate.getRoom()) // room changed
@@ -249,7 +248,7 @@ public class BookingService {
      * on the updated rule.
      *
      * @param existingBooking the current state of the booking
-     * @param bookingUpdates  the updated booking data
+     * @param bookingUpdates the updated booking data
      */
     public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
         if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())) {
