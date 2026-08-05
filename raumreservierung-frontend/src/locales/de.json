@@ -117,7 +117,10 @@
       "header": "Hilfeseite"
     },
     "roomListView": {
-      "bookWORoomMsg": " Wenn Sie keinen konkreten Raum buchen möchten, können Sie auch eine Anfrage ohne Raumauswahl senden"
+      "bookWORoomMsg": {
+        "sentence": "Wenn Sie keinen konkreten Raum buchen möchten, können Sie auch eine {link} senden.",
+        "link": "Anfrage ohne Raumauswahl"
+      }
     },
     "bookingDetailsView": {
       "header": "Buchungsdetails",

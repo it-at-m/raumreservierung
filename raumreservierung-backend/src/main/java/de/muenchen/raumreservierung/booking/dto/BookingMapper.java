@@ -40,7 +40,8 @@ public interface BookingMapper {
 
     @Named("hasNoteCheck")
     default boolean mapHasNote(final Booking booking) {
-        return !booking.getAdditionalNotes().isEmpty() || !booking.getInternalNotes().isEmpty();
+        return (booking.getAdditionalNotes() != null && !booking.getAdditionalNotes().isEmpty())
+                || (booking.getInternalNotes() != null && !booking.getInternalNotes().isEmpty());
     }
 
     @Named("isRecurringCheck")
