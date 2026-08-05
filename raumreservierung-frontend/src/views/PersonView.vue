@@ -132,6 +132,7 @@ import {
 } from "@/composables/api/usePersonApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
+import { mapPersonResponseToRequest } from "@/util/personTypeUtil.ts";
 
 const { t } = useI18n();
 
@@ -194,8 +195,12 @@ const {
 const handleCreate = async (
   newPerson: ExternalPersonResponseDto | InternalPersonResponseDto
 ) => {
+  const updatePersonRequest = mapPersonResponseToRequest(
+    newPerson,
+    personType.value
+  );
   await createPerson({
-    updatePersonRequest: { ...newPerson, type: personType.value },
+    updatePersonRequest,
   });
   if (!createPersonError.value) {
     await onSuccess(
@@ -216,16 +221,26 @@ const handleRowClick = (
 const handleUpdate = async (
   updatedPerson: ExternalPersonResponseDto | InternalPersonResponseDto
 ) => {
-  if (updatedPerson.id) {
-    await updatePerson({
-      updatePersonRequest: { ...updatedPerson, type: personType.value },
-      personId: updatedPerson.id,
-    });
-    if (!updatePersonError.value) {
-      await onSuccess(
-        t("generics.updated", { domain: t("domain.person.header") })
-      );
-    }
+  if (
+    !updatedPerson.id ||
+    !updatedPerson.firstName ||
+    !updatedPerson.lastName
+  ) {
+    return;
+  }
+
+  const updatePersonRequest = mapPersonResponseToRequest(
+    updatedPerson,
+    personType.value
+  );
+  await updatePerson({
+    updatePersonRequest,
+    personId: updatedPerson.id,
+  });
+  if (!updatePersonError.value) {
+    await onSuccess(
+      t("generics.updated", { domain: t("domain.person.header") })
+    );
   }
 };
 

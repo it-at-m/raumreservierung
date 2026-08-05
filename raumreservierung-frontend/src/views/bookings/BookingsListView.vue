@@ -12,7 +12,7 @@
         <v-row>
           <v-col
             cols="12"
-            md="6"
+            md="4"
           >
             <room-select
               v-model="roomId"
@@ -25,8 +25,22 @@
           </v-col>
           <v-col
             cols="12"
+            md="4"
+          >
+            <general-status-select
+              v-model="statusFilter"
+              density="compact"
+              clearable
+              :label="t('domain.booking.status.filter')"
+              multiple
+              :group-by="getStatusGroupKey"
+              @update:model-value="applyFilters"
+            />
+          </v-col>
+          <v-col
+            cols="12"
             sm="6"
-            md="3"
+            md="2"
           >
             <v-date-input
               v-model="start"
@@ -43,7 +57,7 @@
           <v-col
             cols="12"
             sm="6"
-            md="3"
+            md="2"
           >
             <v-date-input
               v-model="end"
@@ -72,8 +86,11 @@
             @update:options="displayOptions"
             @click:row="handleRowClick"
           >
-            <template #[`item.id`]>
-              {{ t("views.bookingListView.statusLong") }}
+            <template #[`item.status`]="{ item }">
+              <status-chip
+                :status="item.status?.currentStatus"
+                variant="text"
+              />
             </template>
             <template #[`item.hasEquipment`]="{ item }">
               <v-icon :icon="item.hasEquipment ? mdiCheck : mdiMinus" />
@@ -173,7 +190,10 @@
 </template>
 
 <script setup lang="ts">
-import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
+import type {
+  BookingListResponseDTO,
+  BookingStatusDTOCurrentStatusEnum,
+} from "@/api/raumreservierung-backend";
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
@@ -190,10 +210,13 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
+import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
+import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
+import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -202,11 +225,14 @@ import { dateEquals, toApiDate } from "@/util/timeUtil.ts";
 const route = useRoute();
 const router = useRouter();
 
+const { getStatusGroupKey, expandStatus, statusGroups } =
+  useBookingStatusConfig();
+
 const { t } = useI18n();
 
-const canEditBookings = useIsPrivileged("bookings:manage");
-
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
+
+const canEditBookings = useIsPrivileged("bookings:manage");
 
 // ####### Page Filter and Options #########
 const roomId = useRouteQuery("roomId", undefined);
@@ -225,6 +251,27 @@ const start = useRouteQuery("start", new Date().toISOString(), {
 const end = useRouteQuery("end", undefined, {
   transform: dateTransform,
 });
+
+const statusFilter = useRouteQuery<string, BookingStatusDTOCurrentStatusEnum[]>(
+  "status",
+  "",
+  {
+    transform: {
+      get: (v) => {
+        const keys = v ? v.split(",") : [];
+        return keys.flatMap((key) => {
+          const status = statusGroups.value.find((g) => g.key === key)
+            ?.status[0];
+          return status ? [status] : [];
+        });
+      },
+      set: (v) =>
+        [...new Set(v.map((status) => getStatusGroupKey(status)))].join(","),
+    },
+  }
+);
+
+const requestStatus = computed(() => expandStatus(statusFilter.value));
 
 const sortBy = useRouteQuery<string | undefined, SortItem[]>(
   "sort",
@@ -255,6 +302,7 @@ const sortBy = useRouteQuery<string | undefined, SortItem[]>(
     },
   }
 );
+
 // ####### Page Filter and Options #########
 
 const {
@@ -298,6 +346,7 @@ const fetchPage = async () => {
     start: toApiDate(start.value),
     end: toApiDate(end.value),
     self: isMyBooking.value,
+    status: requestStatus.value,
   });
 };
 
@@ -306,7 +355,7 @@ const headers = computed(
     [
       {
         title: "Status",
-        value: "id",
+        value: "status",
         sortable: true,
       },
       { title: "Raumname", value: "room.name" },

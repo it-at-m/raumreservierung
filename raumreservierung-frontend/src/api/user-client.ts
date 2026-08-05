@@ -57,7 +57,7 @@ export function getUser(): Promise<User> {
             : highest;
         }, undefined);
 
-      u.user_roles = [highestValue || ""];
+      u.user_roles = highestValue || undefined;
 
       return u;
     });

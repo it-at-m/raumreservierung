@@ -39,7 +39,10 @@ export default defineConfigWithVueTs(
         "error",
         {
           extensions: [".ts", ".vue"],
-          ignores: ["/^navigationDrawer\\./"],
+          ignores: [
+            "/^navigationDrawer\\./",
+            "/^domain\\.booking\\.status\\./",
+          ],
         },
       ],
     },
