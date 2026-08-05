@@ -10,12 +10,15 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import java.io.Serial;
 import java.util.HashSet;
 import java.util.Set;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.validator.constraints.Range;
@@ -23,6 +26,8 @@ import org.hibernate.validator.constraints.Range;
 @Entity
 @Setter
 @Getter
+@EqualsAndHashCode(callSuper = true)
+@SuppressWarnings("PMD.TooManyFields")
 public class Booking extends BaseEntity {
 
     @Serial
@@ -54,6 +59,7 @@ public class Booking extends BaseEntity {
     private String recurringRule;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "booking")
+    @EqualsAndHashCode.Exclude
     private Set<Appointment> appointments = new HashSet<>();
 
     @Embedded
@@ -71,7 +77,12 @@ public class Booking extends BaseEntity {
     @ManyToOne
     private SeatingType seatingType;
 
-    //TODO: add status
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BookingStatus status;
+
+    @Column
+    private String reasonForStatusChange;
 
     public void updateFrom(final Booking booking) {
         this.room = booking.getRoom();
@@ -86,6 +97,8 @@ public class Booking extends BaseEntity {
         this.recurringRule = booking.getRecurringRule();
         this.organisationUnit = booking.getOrganisationUnit();
         this.seatingType = booking.getSeatingType();
+        this.status = booking.getStatus();
+        this.reasonForStatusChange = booking.getReasonForStatusChange();
 
         this.equipment.clear();
         if (booking.getEquipment() != null) {

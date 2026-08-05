@@ -7,6 +7,7 @@ interface ActionMap {
   days: Extract<Action, "write">;
   users: Extract<Action, "manage">;
   bookings: Extract<Action, "read" | "write" | "manage" | "self">;
+  appointments: Extract<Action, "self">;
   calendar: Extract<Action, "read" | "write">;
 }
 
