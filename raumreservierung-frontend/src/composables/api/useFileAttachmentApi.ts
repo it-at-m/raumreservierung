@@ -1,27 +1,46 @@
-import type {
-  FileAttachmentUploadResponse,
-  GetFileRequest,
-  UploadFileRequest,
-} from "@/api/raumreservierung-backend";
+import type { UploadFileRequest } from "@/api/raumreservierung-backend";
+import type { MaybeRefOrGetter } from "vue";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
+import { computed, toValue } from "vue";
 
 import { FileAttachmentControllerApi } from "@/api/raumreservierung-backend";
-import { useApi } from "@/composables/api/useApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
+
+const FILE_ATTACHMENT_KEY = "fileAttachment";
 
 export const useUploadFile = () => {
   const api = ApiFactory.getInstance(FileAttachmentControllerApi);
+  const queryClient = useQueryClient();
 
-  return useApi<UploadFileRequest, FileAttachmentUploadResponse>((params) =>
-    api.uploadFile(params)
-  );
+  return useMutation({
+    mutationFn: (params: UploadFileRequest) => api.uploadFile(params),
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({
+        queryKey: [FILE_ATTACHMENT_KEY, data.id],
+      });
+    },
+  });
 };
 
-export const useGetFile = () => {
+export const useGetFile = (
+  fileAttachmentId: MaybeRefOrGetter<string | undefined>
+) => {
   const api = ApiFactory.getInstance(FileAttachmentControllerApi);
+  const idRef = computed(() => toValue(fileAttachmentId));
 
-  return useApi<GetFileRequest, Blob>(async (params) => {
-    const apiResponse = await api.getFileRaw(params);
+  return useQuery({
+    queryKey: [FILE_ATTACHMENT_KEY, idRef],
+    queryFn: async () => {
+      if (!idRef.value) {
+        throw new Error("Room ID is required");
+      }
 
-    return await apiResponse.raw.blob();
+      const apiResponse = await api.getFileRaw({
+        fileId: idRef.value,
+      });
+      return await apiResponse.raw.blob();
+    },
+    enabled: computed(() => !!idRef.value),
   });
 };

@@ -33,27 +33,16 @@ import type { RoomListResponseDTO } from "@/api/raumreservierung-backend";
 
 import { mdiImage } from "@mdi/js";
 import { useObjectUrl } from "@vueuse/core";
-import { onMounted } from "vue";
 
 import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
 
-const {
-  call: getPicture,
-  data: pictureData,
-  loading: pictureLoading,
-} = useGetFile();
+const { data: pictureData, isLoading: pictureLoading } = useGetFile(
+  () => room.pictureId
+);
 
 const pictureUrl = useObjectUrl(pictureData);
 
 const { room } = defineProps<{
   room: RoomListResponseDTO;
 }>();
-
-onMounted(async () => {
-  if (room.pictureId) {
-    await getPicture({
-      fileId: room.pictureId,
-    });
-  }
-});
 </script>

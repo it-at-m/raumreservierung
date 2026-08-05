@@ -245,6 +245,7 @@ import {
   mdiSofaSingleOutline,
   mdiTextureBox,
 } from "@mdi/js";
+import { useObjectUrl } from "@vueuse/core";
 import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -253,6 +254,7 @@ import { useDisplay } from "vuetify/framework";
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
+import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -266,45 +268,23 @@ const { t } = useI18n();
 
 const id = computed(() => route.params.id as string | undefined);
 
-const roomData = ref<RoomDetailsResponseDTO>();
-
 const canEditRoom = useIsPrivileged("rooms:write");
 
 const { data: roomData, isPending: getRoomLoading, error } = useGetRoom(id);
 
-watch(error, async () => {
+const { data: picture, isPending: pictureLoading } = useGetFile(
+  () => roomData.value?.picture?.id
+);
+
+watch([error, () => roomData.value?.id], async () => {
   if (error.value) {
     await router.replace({
       name: ROUTES.ROOMS_LIST,
     });
-  });
-const {
-  call: getPicture,
-  data: picture,
-  loading: pictureLoading,
-} = useGetFile();
-
-const pictureUrl = useObjectUrl(picture);
-
-onMounted(async () => {
-  if (id.value) {
-    const result = await call(id.value);
-
-    if (result) {
-      roomData.value = result as RoomDetailsResponseDTO;
-
-      if (result.picture?.id) {
-        await getPicture({
-          fileId: result.picture.id,
-        });
-      }
-    } else {
-      await router.replace({
-        name: ROUTES.ROOMS_LIST,
-      });
-    }
   }
 });
+
+const pictureUrl = useObjectUrl(picture);
 </script>
 
 <style scoped>
