@@ -9,6 +9,7 @@ CREATE TABLE room
     is_active            BOOLEAN DEFAULT TRUE,
     area                 INT,
     contact_person_id    UUID,
+    picture              bytea,
 
     PRIMARY KEY (id)
 );

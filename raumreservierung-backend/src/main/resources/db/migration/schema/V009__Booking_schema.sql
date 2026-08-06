@@ -12,7 +12,6 @@ create table booking
     appointment_end   timestamp with time zone   not null,
     booked_by_id      uuid         not null,
     booked_for_id     uuid,
-    -- TODO: make organisation_unit not null
     organisation_unit varchar(255),
     room_id           uuid,
     recurring_rule    varchar(255),

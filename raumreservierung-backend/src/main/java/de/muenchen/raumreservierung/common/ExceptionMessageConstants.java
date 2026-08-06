@@ -13,6 +13,7 @@ public class ExceptionMessageConstants {
     public static final String MSG_UNAUTHORIZED_ACTION = "Unauthorized action";
     public static final String MSG_SEATINGTYPE_NOT_AVAILABLE = "Seating type not available in selected room or no room selected";
     public static final String MSG_ROOM_INACTIVE = "Booking of inactive rooms is not possible";
+    public static final String MSG_FILE_READING_ERROR = "File processing error";
     public static final String MSG_STATUS_CHANGE_NOT_POSSIBLE = "This status change is not possible";
     public static final String MSG_OCCUPANCY_END_BEFORE_START = "occupancyEnd cannot be before occupancyStart";
     public static final String MSG_PARTICIPANT_COUNT_INVALID = "Participant count is invalid";
