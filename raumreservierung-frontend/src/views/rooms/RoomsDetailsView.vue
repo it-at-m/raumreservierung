@@ -272,7 +272,7 @@ const canEditRoom = useIsPrivileged("rooms:write");
 
 const { data: roomData, isPending: getRoomLoading, error } = useGetRoom(id);
 
-const { data: picture, isPending: pictureLoading } = useGetFile(
+const { data: picture, isLoading: pictureLoading } = useGetFile(
   () => roomData.value?.picture?.id
 );
 
