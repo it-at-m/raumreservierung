@@ -95,4 +95,5 @@ info:
 raumreservierung:
   scheduling:
     ext-person-cleanup: 0 0 4 1 * *
+    file-attachment-cleanup: 0 0 * * * *
     max-ext-person-age-months: 14

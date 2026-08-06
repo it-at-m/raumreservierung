@@ -39,6 +39,7 @@
               <v-radio value="every">
                 <template #label>
                   <i18n-t
+                    scope="global"
                     keypath="components.rruleEditorCard.daily.every"
                     tag="span"
                     :plural="dailyInterval"
@@ -71,6 +72,7 @@
 
           <template v-if="frequency === 'weekly'">
             <i18n-t
+              scope="global"
               keypath="components.rruleEditorCard.weekly.every"
               tag="div"
               :plural="weeklyInterval"
@@ -123,6 +125,7 @@
               <v-radio value="specific_day">
                 <template #label>
                   <i18n-t
+                    scope="global"
                     keypath="components.rruleEditorCard.monthly.specificDay"
                     tag="span"
                     :plural="monthlyIntervalOption1"
@@ -168,6 +171,7 @@
               >
                 <template #label>
                   <i18n-t
+                    scope="global"
                     keypath="components.rruleEditorCard.monthly.relativeDay"
                     tag="span"
                     :plural="monthlyIntervalOption2"
@@ -235,6 +239,7 @@
         <v-radio value="count">
           <template #label>
             <i18n-t
+              scope="global"
               keypath="components.rruleEditorCard.end.afterCount"
               tag="span"
               :plural="endCount"
@@ -265,6 +270,7 @@
         >
           <template #label>
             <i18n-t
+              scope="global"
               keypath="components.rruleEditorCard.end.onDate"
               tag="span"
               class="d-flex align-center"

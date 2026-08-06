@@ -14,6 +14,7 @@
     </template>
     <template #default>
       <i18n-t
+        scope="global"
         keypath="views.roomListView.bookWORoomMsg.sentence"
         tag="span"
       >

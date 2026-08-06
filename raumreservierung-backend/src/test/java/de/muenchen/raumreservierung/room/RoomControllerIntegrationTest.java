@@ -253,9 +253,9 @@ class RoomControllerIntegrationTest {
                 RoomListResponseDTO[].class);
 
         List<RoomListResponseDTO> expectedRooms = List.of(
-                new RoomListResponseDTO(createResponse1.getBody().id(), request.name(), request.number(), request.isActive()),
-                new RoomListResponseDTO(createResponse2.getBody().id(), request2.name(), request2.number(), request2.isActive()),
-                new RoomListResponseDTO(createResponse3.getBody().id(), request3.name(), request3.number(), request3.isActive()));
+                new RoomListResponseDTO(createResponse1.getBody().id(), request.name(), request.number(), request.isActive(), null),
+                new RoomListResponseDTO(createResponse2.getBody().id(), request2.name(), request2.number(), request2.isActive(), null),
+                new RoomListResponseDTO(createResponse3.getBody().id(), request3.name(), request3.number(), request3.isActive(), null));
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
 
         assertNotNull(getResponse.getBody());
@@ -286,7 +286,7 @@ class RoomControllerIntegrationTest {
                 RoomListResponseDTO[].class);
 
         List<RoomListResponseDTO> expectedRooms = List
-                .of(new RoomListResponseDTO(createResponse1.getBody().id(), request.name(), request.number(), request.isActive()));
+                .of(new RoomListResponseDTO(createResponse1.getBody().id(), request.name(), request.number(), request.isActive(), null));
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
 
         assertNotNull(getResponse.getBody());
@@ -317,7 +317,7 @@ class RoomControllerIntegrationTest {
                 RoomListResponseDTO[].class);
 
         List<RoomListResponseDTO> expectedRooms = List
-                .of(new RoomListResponseDTO(createResponse1.getBody().id(), request.name(), request.number(), request.isActive()));
+                .of(new RoomListResponseDTO(createResponse1.getBody().id(), request.name(), request.number(), request.isActive(), null));
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
 
         assertNotNull(getResponse.getBody());
@@ -348,8 +348,8 @@ class RoomControllerIntegrationTest {
                 RoomListResponseDTO[].class);
 
         List<RoomListResponseDTO> expectedRooms = List.of(
-                new RoomListResponseDTO(createResponse1.getBody().id(), request.name(), request.number(), request.isActive()),
-                new RoomListResponseDTO(createResponse2.getBody().id(), request2Inactive.name(), request2Inactive.number(), request2Inactive.isActive()));
+                new RoomListResponseDTO(createResponse1.getBody().id(), request.name(), request.number(), request.isActive(), null),
+                new RoomListResponseDTO(createResponse2.getBody().id(), request2Inactive.name(), request2Inactive.number(), request2Inactive.isActive(), null));
         assertEquals(HttpStatus.OK, getResponse.getStatusCode());
 
         assertNotNull(getResponse.getBody());
@@ -371,7 +371,8 @@ class RoomControllerIntegrationTest {
                 500,
                 seatingReqs,
                 equipmentUUIDs,
-                contactPersonId);
+                contactPersonId,
+                null);
     }
 
     private RoomRequestDTO createBaseRequest2(final boolean isActive) {
@@ -385,6 +386,7 @@ class RoomControllerIntegrationTest {
                 400,
                 List.of(),
                 List.of(),
+                null,
                 null);
     }
 
@@ -399,6 +401,7 @@ class RoomControllerIntegrationTest {
                 50,
                 List.of(),
                 List.of(),
+                null,
                 null);
     }
 

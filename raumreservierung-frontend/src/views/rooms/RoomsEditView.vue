@@ -55,12 +55,20 @@
         class="ml-4"
         :text="t('common.save')"
         :append-icon="mdiContentSaveOutline"
+        :disabled="
+          !isValid ||
+          uploadFileLoading ||
+          updateRoomLoading ||
+          createRoomLoading ||
+          uploadFileLoading
+        "
         @click="handleSave"
       />
     </template>
 
     <template #default>
       <v-form
+        v-model="isValid"
         :readonly="getRoomLoading || updateRoomLoading || createRoomLoading"
       >
         <v-row>
@@ -136,12 +144,18 @@
           </v-col>
           <v-col>
             <v-file-input
+              :loading="uploadFileLoading"
+              :disabled="uploadFileLoading"
+              :model-value="pictureMetaData"
+              clearable
               color="accent"
+              show-size
               prepend-icon=""
+              accept="image/png, image/jpeg"
               :prepend-inner-icon="mdiImageOutline"
-              readonly
               :label="t('domain.room.image')"
               variant="outlined"
+              @update:model-value="uploadPicture"
             />
           </v-col>
         </v-row>
@@ -262,7 +276,7 @@ import {
   mdiTrashCanOutline,
   mdiWindowClose,
 } from "@mdi/js";
-import { computed, onMounted, ref, toRaw, watch } from "vue";
+import { computed, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -274,6 +288,7 @@ import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import SeatingCapacityEditor from "@/components/rooms/SeatingCapacitySelector.vue";
+import { useUploadFile } from "@/composables/api/useFileAttachmentApi.ts";
 import {
   useCreateRoom,
   useDeleteRoom,
@@ -283,8 +298,10 @@ import {
 import { useRules } from "@/composables/useRules.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
+import { mapResponseToFileMock } from "@/util/fileTypeUtility.ts";
 import { EMPTY_ROOM_DATA, mapResponseToRequest } from "@/util/roomTypeUtil.ts";
 
+const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
 
 const router = useRouter();
@@ -294,18 +311,19 @@ const route = useRoute();
 const snackbar = useSnackbarStore();
 
 const roomId = computed(() => (route.params.id as string) || undefined);
+const pictureMetaData = ref<File>();
 
 const isDeletable = ref<boolean>(false);
 
 const { t } = useI18n();
+
+const rules = useRules();
 
 const {
   data: roomReqData,
   isLoading: getRoomLoading,
   error: getRoomError,
 } = useGetRoom(roomId);
-
-const rules = useRules();
 
 const {
   mutateAsync: updateRoom,
@@ -327,6 +345,13 @@ const {
   error: deleteRoomError,
 } = useDeleteRoom();
 
+const {
+  mutateAsync: uploadFile,
+  isPending: uploadFileLoading,
+  data: uploadFileData,
+  error: uploadFileError,
+} = useUploadFile();
+
 watch(
   [() => roomReqData.value?.id, getRoomError],
   ([newId, hasError]) => {
@@ -335,6 +360,10 @@ watch(
         isDeletable.value = !roomReqData.value.isActive;
         roomData.value = mapResponseToRequest(
           toRaw(roomReqData.value) as RoomDetailsResponseDTO
+        );
+
+        pictureMetaData.value = mapResponseToFileMock(
+          roomReqData.value.picture
         );
       } else {
         router.push({ name: ROUTES.ROOMS_LIST });
@@ -345,11 +374,24 @@ watch(
   { immediate: true }
 );
 
-onMounted(() => {
-  if (!roomId.value) {
-    roomData.value = { ...EMPTY_ROOM_DATA };
+const uploadPicture = async (value: File | File[]) => {
+  const pictureToUpload = Array.isArray(value) ? value[0] : value;
+
+  if (pictureToUpload) {
+    await uploadFile({ file: pictureToUpload });
+    if (uploadFileError.value) {
+      return;
+    }
   }
-});
+
+  const fileData = pictureToUpload ? uploadFileData.value : undefined;
+
+  pictureMetaData.value = mapResponseToFileMock(fileData);
+  roomData.value = {
+    ...roomData.value,
+    pictureId: fileData?.id,
+  };
+};
 
 const handleSave = async () => {
   if (roomId.value) {
