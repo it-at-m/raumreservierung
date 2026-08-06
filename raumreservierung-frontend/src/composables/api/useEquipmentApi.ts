@@ -1,42 +1,57 @@
 import type {
   CreateEquipmentRequest,
   DeleteEquipmentRequest,
-  EquipmentResponseDto,
   UpdateEquipmentRequest,
 } from "@/api/raumreservierung-backend";
 
+import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
+
 import { EquipmentControllerApi } from "@/api/raumreservierung-backend";
-import { useApi } from "@/composables/api/useApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
+
+const EQUIPMENT_KEY = "allEquipment";
 
 export const useGetAllEquipments = () => {
   const api = ApiFactory.getInstance(EquipmentControllerApi);
 
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  return useApi<void, EquipmentResponseDto[]>(() => api.getAllEquipments());
+  return useQuery({
+    queryKey: [EQUIPMENT_KEY],
+    queryFn: () => api.getAllEquipments(),
+  });
 };
 
 export const useCreateEquipment = () => {
   const api = ApiFactory.getInstance(EquipmentControllerApi);
+  const queryClient = useQueryClient();
 
-  return useApi<CreateEquipmentRequest, EquipmentResponseDto>((params) =>
-    api.createEquipment(params)
-  );
+  return useMutation({
+    mutationFn: (params: CreateEquipmentRequest) => api.createEquipment(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [EQUIPMENT_KEY] });
+    },
+  });
 };
 
 export const useUpdateEquipment = () => {
   const api = ApiFactory.getInstance(EquipmentControllerApi);
+  const queryClient = useQueryClient();
 
-  return useApi<UpdateEquipmentRequest, EquipmentResponseDto>((params) =>
-    api.updateEquipment(params)
-  );
+  return useMutation({
+    mutationFn: (params: UpdateEquipmentRequest) => api.updateEquipment(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [EQUIPMENT_KEY] });
+    },
+  });
 };
 
 export const useDeleteEquipment = () => {
   const api = ApiFactory.getInstance(EquipmentControllerApi);
+  const queryClient = useQueryClient();
 
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  return useApi<DeleteEquipmentRequest, void>((params) =>
-    api.deleteEquipment(params)
-  );
+  return useMutation({
+    mutationFn: (params: DeleteEquipmentRequest) => api.deleteEquipment(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [EQUIPMENT_KEY] });
+    },
+  });
 };

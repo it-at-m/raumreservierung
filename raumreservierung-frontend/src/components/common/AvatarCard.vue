@@ -13,8 +13,8 @@
     </template>
     <template #subtitle>
       <span class="text-capitalize">
-        {{ userStore.user?.user_roles.toString() }}</span
-      >
+        {{ userStore.user?.user_roles?.toString() }}
+      </span>
     </template>
   </v-card>
 </template>

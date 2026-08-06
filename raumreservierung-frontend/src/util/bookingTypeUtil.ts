@@ -26,6 +26,8 @@ export const mapBookingResponseToRequest = (
     bookedForId: response.bookedFor?.id,
     schedule: response.schedule,
     recurringRule: response.recurringRule,
+    status: response.status.currentStatus,
+    reasonForStatusChange: response.reasonForStatusChange,
     bookingType: response.bookingType,
   };
 };
@@ -47,5 +49,7 @@ export const EMPTY_BOOKING_REQUEST_DATA: BookingRequestDTO = {
     appointmentStart: undefined,
     appointmentEnd: undefined,
   } as ScheduleTemplate,
+  status: "NEW",
+  reasonForStatusChange: undefined,
   bookingType: undefined,
 };

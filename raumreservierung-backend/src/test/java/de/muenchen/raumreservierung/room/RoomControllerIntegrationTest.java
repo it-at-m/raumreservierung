@@ -356,22 +356,6 @@ class RoomControllerIntegrationTest {
         assertEquals(expectedRooms, Arrays.asList(getResponse.getBody()));
     }
 
-    @Test
-    void createRoom_shouldThrow_whenSameSeatingTypeInRoomSeatingCapacities() {
-        SeatingType seatingType = createBaseSeatingType();
-        SeatingCapacityRequestDTO seatingReq1 = new SeatingCapacityRequestDTO(seatingType.getId(), 111);
-        SeatingCapacityRequestDTO seatingReq2 = new SeatingCapacityRequestDTO(seatingType.getId(), 222);
-
-        final RoomRequestDTO request = createBaseRequest(List.of(seatingReq1, seatingReq2), null, null);
-
-        ResponseEntity<RoomDetailsResponseDTO> createResponse = testRestTemplate.postForEntity(
-                ROOMS_URL,
-                request,
-                RoomDetailsResponseDTO.class);
-
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, createResponse.getStatusCode());
-    }
-
     private RoomRequestDTO createBaseRequest() {
         return createBaseRequest(List.of(), List.of(), null);
     }

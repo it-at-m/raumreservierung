@@ -57,7 +57,6 @@
               :item-list="seatingTypes"
               :loading="getAllSeatingTypesLoading || createSeatingTypeLoading"
               :domain="t('domain.seatingType.header')"
-              @update-items="getAllSeatingTypes"
               @close="isActive.value = false"
               @create="handleCreate"
             />
@@ -73,7 +72,7 @@ import type { SeatingCapacityRequestDTO } from "@/api/raumreservierung-backend";
 import type { SeatingTypeWithCapacity } from "@/types/SeatingTypeWithCapacity.ts";
 
 import { mdiPlus } from "@mdi/js";
-import { computed, onMounted, ref } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
@@ -95,13 +94,10 @@ const { maxRoomCapacity = -1 } = defineProps<{
   maxRoomCapacity?: number;
 }>();
 
-const {
-  call: getAllSeatingTypes,
-  data: seatingTypes,
-  loading: getAllSeatingTypesLoading,
-} = useGetAllSeatingTypes();
+const { data: seatingTypes, isPending: getAllSeatingTypesLoading } =
+  useGetAllSeatingTypes();
 
-const { call: createSeatingType, loading: createSeatingTypeLoading } =
+const { mutateAsync: createSeatingType, isPending: createSeatingTypeLoading } =
   useCreateSeatingType();
 
 const { t } = useI18n();
@@ -176,11 +172,7 @@ const handleCreate = async (newItemName: string) => {
       isActive: true,
     },
   });
-
-  await getAllSeatingTypes();
 };
-
-onMounted(async () => await getAllSeatingTypes());
 </script>
 
 <style scoped></style>

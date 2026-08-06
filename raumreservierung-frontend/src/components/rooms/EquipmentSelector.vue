@@ -5,7 +5,7 @@
   >
     <template #text>
       <v-row density="compact">
-        <template v-if="!(allEquipmentLoading || loading)">
+        <template v-if="computedEquipment && !(allEquipmentLoading || loading)">
           <v-col
             v-for="equip in computedEquipment"
             :key="equip.id"
@@ -62,7 +62,6 @@
                 allEquipmentLoading || createEquipmentLoading || loading
               "
               :domain="t('domain.equipment.header')"
-              @update-items="getAllEquipment"
               @close="isActive.value = false"
               @create="handleCreate"
             />
@@ -77,7 +76,7 @@
 import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
 
 import { mdiPlus } from "@mdi/js";
-import { computed, onMounted } from "vue";
+import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
@@ -87,10 +86,13 @@ import {
   useCreateEquipment,
   useGetAllEquipments,
 } from "@/composables/api/useEquipmentApi.ts";
+import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 
 const { t } = useI18n();
 
 const modelValue = defineModel<string[]>();
+
+const canViewDisabled = useIsPrivileged("equipment:write");
 
 const {
   filterIds = [],
@@ -102,24 +104,21 @@ const {
   loading?: boolean;
 }>();
 
-const {
-  call: getAllEquipment,
-  data: allEquipment,
-  loading: allEquipmentLoading,
-} = useGetAllEquipments();
+const { data: allEquipment, isPending: allEquipmentLoading } =
+  useGetAllEquipments();
 
 const computedEquipment = computed<EquipmentResponseDto[]>(() =>
-  filterIds.length === 0
-    ? allEquipment.value
-    : allEquipment.value.filter(
-        (equip) => equip.id && filterIds.includes(equip.id)
-      )
+  (allEquipment.value ?? []).filter(
+    (equip) =>
+      (filterIds.length === 0 || (equip.id && filterIds.includes(equip.id))) &&
+      (canViewDisabled.value ||
+        equip.isActive ||
+        (equip.id && modelValue.value?.includes(equip.id)))
+  )
 );
 
-const { call: createEquipment, loading: createEquipmentLoading } =
+const { mutateAsync: createEquipment, isPending: createEquipmentLoading } =
   useCreateEquipment();
-
-onMounted(() => getAllEquipment());
 
 const handleCreate = async (newItemName: string) => {
   await createEquipment({
@@ -129,8 +128,6 @@ const handleCreate = async (newItemName: string) => {
       isActive: true,
     },
   });
-
-  await getAllEquipment();
 };
 </script>
 

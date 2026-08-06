@@ -5,7 +5,7 @@ import { Levels } from "@/api/error.ts";
 import { useUserInfo } from "@/composables/api/useUserApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import User from "@/types/User";
-import { mapSimpleRolesToPrivileges } from "@/util/privilegeUtility.ts";
+import { mapSimpleRoleToPrivileges } from "@/util/privilegeUtility.ts";
 
 export interface UserState {
   user: User | null;
@@ -17,7 +17,7 @@ export const useUserStore = defineStore("user", () => {
 
   const user = computed(() => data.value as User);
   const privileges = computed(
-    () => mapSimpleRolesToPrivileges((data.value as User)?.user_roles || []) // internally mapped inside the getuserClient!
+    () => mapSimpleRoleToPrivileges((data.value as User)?.user_roles) // internally mapped inside the getuserClient!
   );
 
   const fetchUser = async () => {

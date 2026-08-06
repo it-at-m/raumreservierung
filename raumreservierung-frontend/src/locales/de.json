@@ -118,7 +118,10 @@
       "header": "Hilfeseite"
     },
     "roomListView": {
-      "bookWORoomMsg": " Wenn Sie keinen konkreten Raum buchen möchten, können Sie auch eine Anfrage ohne Raumauswahl senden"
+      "bookWORoomMsg": {
+        "sentence": "Wenn Sie keinen konkreten Raum buchen möchten, können Sie auch eine {link} senden.",
+        "link": "Anfrage ohne Raumauswahl"
+      }
     },
     "bookingDetailsView": {
       "header": "Buchungsdetails",
@@ -144,8 +147,7 @@
     "bookingListView": {
       "periodFrom": "Zeitraum von",
       "periodTo": "Zeitraum bis",
-      "tableTitle": "Anfragen, Reservierungen und Buchungen",
-      "statusLong": "STATUSLANG"
+      "tableTitle": "Anfragen, Reservierungen und Buchungen"
     }
   },
   "generics": {
@@ -197,13 +199,34 @@
     "booking": {
       "header": "Buchung | Buchungen",
       "participants": "Teilnehmende | Teilnehmenden",
-      "status": "Status",
+      "statusTitle": "Status",
       "date": "Datum",
       "recurrenceRule": "Terminserie",
       "notes": "Notizen",
       "internalNotes": "Interne Notizen",
       "appointment": "Veranstaltungszeit",
       "occupancy": "Belegungszeit",
+      "statusChange": {
+        "noReasonForStatusChange": "Kein Grund angegeben",
+        "enterReason": "Begründung eingeben",
+        "reason": "Grund",
+        "cardTitle": "Buchung ablehnen",
+        "cardSubtitle": "Bitte geben Sie einen Grund an, warum die Buchung nicht leistbar ist."
+      },
+      "status": {
+        "filter": "Status filtern",
+        "notAvailable": "Kein weiterer Status verfügbar",
+        "unknown": "Unbekannt",
+        "new": "Neu",
+        "requested": "Angefragt",
+        "inProgress": "In Bearbeitung",
+        "inCoordination": "In Abstimmung",
+        "changed": "Änderung",
+        "approved": "Gebucht",
+        "unfeasible": "Abgelehnt",
+        "canceled": "Storniert",
+        "reserved": "Vorgemerkt"
+      },
       "typeShort": "Typ",
       "typeLong": "Buchungstyp",
       "types": {

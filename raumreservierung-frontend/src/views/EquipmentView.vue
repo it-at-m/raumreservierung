@@ -72,7 +72,7 @@
 import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import { onMounted, useTemplateRef } from "vue";
+import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
@@ -99,31 +99,26 @@ const snackbarStore = useSnackbarStore();
 
 const crudRef = useTemplateRef("crudRef");
 
-const {
-  data: allEquipmentsData,
-  call: getAllEquipments,
-  loading: getAllEquipmentLoading,
-} = useGetAllEquipments();
+const { data: allEquipmentsData, isPending: getAllEquipmentLoading } =
+  useGetAllEquipments();
 
 const {
-  call: deleteEquipmentCall,
-  loading: deleteEquipmentLoading,
+  mutateAsync: deleteEquipmentCall,
+  isPending: deleteEquipmentLoading,
   error: deleteEquipmentError,
 } = useDeleteEquipment();
 
 const {
-  call: saveEquipmentCall,
-  loading: saveEquipmentLoading,
+  mutateAsync: saveEquipmentCall,
+  isPending: saveEquipmentLoading,
   error: saveEquipmentError,
 } = useCreateEquipment();
 
 const {
-  call: updateEquipmentCall,
-  loading: updateEquipmentLoading,
+  mutateAsync: updateEquipmentCall,
+  isPending: updateEquipmentLoading,
   error: updateEquipmentError,
 } = useUpdateEquipment();
-
-onMounted(() => getAllEquipments());
 
 const headers: TableHeader<EquipmentResponseDto>[] = [
   { title: t("domain.equipment.name"), value: "name", sortable: true },
@@ -165,7 +160,6 @@ const handleDelete = async (id: string) => {
 };
 
 const onSuccess = async (msg: string) => {
-  await getAllEquipments();
   if (crudRef.value) {
     crudRef.value.closeDialog();
   }

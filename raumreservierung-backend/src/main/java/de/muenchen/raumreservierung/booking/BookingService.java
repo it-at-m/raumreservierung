@@ -12,7 +12,6 @@ import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
-import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.security.AuthUtils;
 import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
@@ -20,7 +19,6 @@ import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -28,10 +26,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @Slf4j
@@ -47,16 +51,15 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
         final Booking booking = getSanitizedBooking(bookingId);
-        if (!validateBookingAuthority(booking, Roles.LESEBERECHTIGT)) {
-            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
-        }
+        checkAuthorityOrThrowException(booking, Roles.LESEBERECHTIGT);
 
         return booking;
     }
 
     @PreAuthorize(Authorities.BOOKING_READ)
     public Page<Booking> getAllBookingsByPageableAndFilter(final Pageable pageable, final BookingFilterDTO bookingFilterDto) {
-        final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilter(bookingFilterDto);
+        final Specification<Booking> bookingSpecification = BookingSpecificationBuilder.fromFilterWithNew(bookingFilterDto,
+                securityContextService.hasAuthority(Roles.RAUM_BUCHUNG));
         return findAllAndFilterSensitiveData(pageable, bookingSpecification);
     }
 
@@ -68,8 +71,28 @@ public class BookingService {
         return findAllAndFilterSensitiveData(pageable, bookingSpecification);
     }
 
+    private Page<Booking> findAllAndFilterSensitiveData(final Pageable pageable, final Specification<Booking> bookingSpecification) {
+        final Sort.Order statusOrder = pageable.getSort().getOrderFor("status");
+
+        final Page<Booking> bookings = bookingRepository.findAll(
+                statusOrder == null
+                        ? bookingSpecification
+                        : bookingSpecification.and(BookingSpecificationBuilder.withFixedStatusOrder(statusOrder.getDirection())),
+                statusOrder == null
+                        ? pageable
+                        : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
+
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            bookings.forEach(booking -> booking.setInternalNotes(null));
+        }
+
+        return bookings;
+    }
+
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking createBooking(final Booking booking) {
+        booking.setStatus(BookingStatus.NEW);
+
         bookingValidationService.bookingIsValidOrThrowException(booking);
 
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
@@ -89,62 +112,136 @@ public class BookingService {
     }
 
     /**
-     * Updates an existing booking. If the recurrence rule is modified, it regenerates
-     * future appointments while preserving the history of past appointments.
+     * Updates an existing booking. Performs validation on status transitions and handles
+     * booking updates accordingly. If the recurrence rule is modified,
+     * it regenerates future appointments while preserving the history of past appointments.
      *
      * @param bookingUpdates The booking object containing the updated data.
      * @param bookingId The unique identifier of the booking to be updated.
-     * @return The updated and persisted booking entity.
+     * @return The updated, persisted, and sanitized booking entity.
      * @throws NotFoundException if no booking with the given ID exists.
-     * @throws UnauthorizedActionException if the user is neither the owner nor an admin.
+     * @throws UnauthorizedActionException if the user lacks the required booking self-authority.
+     * @throws IllegalArgumentException if the booking status transition or terminal state is invalid.
      */
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
 
-        bookingValidationService.bookingIsValidOrThrowException(bookingUpdates, existingBooking);
-
-        if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
-            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
-        }
-
+        bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
         assignBookingContext(bookingUpdates);
-
-        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-            bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
-            bookingUpdates.setBookingType(existingBooking.getBookingType());
+        if (isTerminalStatus(bookingUpdates.getStatus())) {
+            bookingValidationService.validateTerminalStatusOrThrowException(bookingUpdates, existingBooking);
+        } else {
+            handleStandardBookingUpdate(bookingUpdates, existingBooking);
         }
-
-        updateBookingAppointments(existingBooking, bookingUpdates);
 
         saveAndDetach(existingBooking, bookingUpdates);
-
         log.debug("Updated booking with id {}", existingBooking.getId());
         return getSanitizedBooking(existingBooking.getId());
-
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public void deleteBooking(final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
-
-        if (!validateBookingAuthority(existingBooking, Roles.TERMIN_ORGANISATOR)) {
-            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
-        }
+        checkAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
         log.debug("Deleted booking with id {}", bookingId);
         bookingRepository.deleteById(bookingId);
     }
 
-    private Page<Booking> findAllAndFilterSensitiveData(final Pageable pageable, final Specification<Booking> bookingSpecification) {
-        Page<Booking> bookings = bookingRepository.findAll(bookingSpecification, pageable);
-        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-            bookings = bookings.map(booking -> {
-                booking.setInternalNotes(null);
-                return booking;
-            });
-        }
+    /**
+     * Automatically updates and saves a booking's status to {@link BookingStatus#ROOM_CHANGED}
+     * after an associated appointment has changed.
+     *
+     * @param bookingId the id of the booking to process
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void handleAppointmentChange(final UUID bookingId) {
+        final Booking bookingToChange = getEntityOrThrowException(bookingId);
+        if (bookingValidationService.isObligedToAutomaticStatusChange(bookingToChange)) {
+            final Booking bookingChange = new Booking();
+            bookingChange.updateFrom(bookingToChange);
+            bookingChange.setStatus(BookingStatus.ROOM_CHANGED);
 
-        return bookings;
+            saveAndDetach(bookingToChange, bookingChange);
+        }
+    }
+
+    private void checkAuthorityOrThrowException(final Booking booking, final String role) {
+        if (!bookingValidationService.validateBookingAuthority(booking, role)) {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
+    }
+
+    private boolean isTerminalStatus(final BookingStatus status) {
+        return status == BookingStatus.CANCELED || status == BookingStatus.UNFEASIBLE;
+    }
+
+    private void handleStandardBookingUpdate(final Booking bookingUpdates, final Booking existingBooking) {
+        validateAndAuthorizeUpdate(bookingUpdates, existingBooking);
+        protectInternalNotesAndType(bookingUpdates, existingBooking);
+        applyAutomaticStatusChangesIfApplicable(bookingUpdates, existingBooking);
+        updateBookingAppointments(existingBooking, bookingUpdates);
+    }
+
+    /**
+     * Validates the booking update and checks that the current user is authorized to perform it.
+     *
+     * @param bookingUpdates booking data with the requested changes
+     * @param existingBooking existing booking to be updated
+     * @throws RuntimeException if validation fails or the user lacks the required authority
+     */
+    private void validateAndAuthorizeUpdate(final Booking bookingUpdates, final Booking existingBooking) {
+        bookingValidationService.bookingIsValidOrThrowException(bookingUpdates, existingBooking);
+        checkAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
+    }
+
+    /**
+     * Prevents unauthorized changes to internal notes or booking type by restoring the existing value
+     * unless the current user has the required authority.
+     *
+     * @param bookingUpdates booking data with the requested changes
+     * @param existingBooking existing booking containing the original internal notes and type
+     */
+    private void protectInternalNotesAndType(final Booking bookingUpdates, final Booking existingBooking) {
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
+            bookingUpdates.setBookingType(existingBooking.getBookingType());
+        }
+    }
+
+    /**
+     * Automatically updates the booking status to {@link BookingStatus#ROOM_CHANGED} if the room,
+     * appointment, or service has changed, provided the user does not hold the role
+     * {@link Roles#TERMIN_ORGANISATOR} or higher.
+     *
+     * @param bookingUpdates the updated booking containing the requested changes
+     * @param existingBooking the current booking
+     */
+    private void applyAutomaticStatusChangesIfApplicable(final Booking bookingUpdates, final Booking existingBooking) {
+        if (bookingValidationService.isObligedToAutomaticStatusChange(existingBooking)
+                && needForAutomaticStatusChange(existingBooking, bookingUpdates)) {
+            bookingUpdates.setStatus(BookingStatus.ROOM_CHANGED);
+        }
+    }
+
+    /**
+     * Determines whether an automatic status change is required based on modifications
+     * to the booking details.
+     *
+     * @param existingBooking the current booking before updates
+     * @param bookingUpdate the updated booking information
+     * @return true if any of the following have changed: the room, the appointments,
+     *         or the service requirement; false otherwise
+     */
+    private boolean needForAutomaticStatusChange(final Booking existingBooking, final Booking bookingUpdate) {
+        return !Objects.equals(existingBooking.getRoom(), bookingUpdate.getRoom()) // room changed
+                || !Objects.equals(existingBooking.getEquipment(), bookingUpdate.getEquipment()) // service changed
+                || !Objects.equals(existingBooking.getSeatingType(), bookingUpdate.getSeatingType())
+                || existingBooking.getParticipantCount() != bookingUpdate.getParticipantCount()
+                || existingBooking.isCateringNeeded() != bookingUpdate.isCateringNeeded()
+                || !Objects.equals(existingBooking.getRecurringRule(), bookingUpdate.getRecurringRule()) // schedule changed
+                || !Objects.equals(existingBooking.getSchedule(), bookingUpdate.getSchedule());
     }
 
     /**
@@ -205,39 +302,6 @@ public class BookingService {
         }
 
         return savedBooking;
-    }
-
-    /**
-     * Validates if the current user has the authority to access or modify a booking.
-     *
-     * @param booking The booking entity to validate access against.
-     * @param role The specific security role that grants overriding access.
-     * @return true if the user is authorized; false otherwise.
-     */
-    public boolean validateBookingAuthority(final Booking booking, final String role) {
-
-        if (securityContextService.hasAuthority(role)) {
-            return true;
-        }
-
-        final InternalPerson internalPerson = personService.resolveInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
-
-        return booking.getBookedBy().getId().equals(internalPerson.getId()) || booking.getBookedFor().getId().equals(internalPerson.getId());
-    }
-
-    /**
-     * Validates if the selected seating type is available within the booked room's capacities.
-     *
-     * @param booking Booking containing the room and requested seating type.
-     * @return true if the seating type is not available in selected room or no room is selected; false
-     *         otherwise.
-     */
-    public boolean seatingTypeNotAvailableInRoom(final Booking booking) {
-        return booking.getSeatingType() != null && Optional.ofNullable(booking.getRoom())
-                .map(Room::getRoomSeatingCapacities)
-                .map(capacities -> capacities.stream()
-                        .noneMatch(capacity -> Objects.equals(capacity.getSeatingType(), booking.getSeatingType())))
-                .orElse(true);
     }
 
     /**

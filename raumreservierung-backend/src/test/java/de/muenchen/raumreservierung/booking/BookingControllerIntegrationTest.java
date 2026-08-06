@@ -5,6 +5,7 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -143,6 +144,7 @@ public class BookingControllerIntegrationTest {
         mockBooking.setBookedBy(mockPerson);
         mockBooking.setOrganisationUnit("TEST_UNIT");
         mockBooking.setRoom(mockRoom);
+        mockBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         mockBooking.setBookingType(BookingType.DEFAULT);
         mockBooking = bookingRepository.save(mockBooking);
     }
@@ -270,6 +272,22 @@ public class BookingControllerIntegrationTest {
                 .andExpect(status().reason(MSG_ROOM_INACTIVE));
     }
 
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void deleteBooking_ReturnsNoContent_WhenDeleted() throws Exception {
+        mockMvc.perform(delete(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf()))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
+    void getBooking_ReturnsNoContent_WhenDeleted() throws Exception {
+        mockMvc.perform(get(BOOKINGS_URL + "/" + mockBooking.getId())
+                .with(csrf()))
+                .andExpect(status().isOk());
+    }
+
     @ParameterizedTest
     @MethodSource("provideTestData")
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
@@ -312,6 +330,29 @@ public class BookingControllerIntegrationTest {
                 .containsExactlyInAnyOrderElementsOf(expectedDates);
     }
 
+    private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime now, String recurringRule, UUID bookedForId) {
+        ScheduleTemplate schedule = new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30));
+        return new BookingRequestDTO(
+                "Test",
+                100,
+                null,
+                false,
+                "please clean",
+                "no notes necessary",
+                recurringRule,
+                null,
+                schedule,
+                bookedForId,
+                null,
+                BookingStatus.ORGANIZER_APPROVED,
+                null,
+                BookingType.DEFAULT);
+    }
+
     private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
             UUID roomId,
             UUID seatingTypeId,
@@ -335,6 +376,8 @@ public class BookingControllerIntegrationTest {
                 schedule,
                 mockPerson.getId(),
                 seatingTypeId,
+                BookingStatus.ORGANIZER_APPROVED,
+                null,
                 BookingType.DEFAULT);
     }
 
@@ -879,28 +922,8 @@ public class BookingControllerIntegrationTest {
                 now.plusMinutes(15),
                 now.plusHours(1).plusMinutes(30)));
         existingBooking.setBookingType(bookingType);
+        existingBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         return existingBooking;
-    }
-
-    private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime now, String recurringRule, UUID bookedForId) {
-        ScheduleTemplate schedule = new ScheduleTemplate(
-                now,
-                now.plusHours(2),
-                now.plusMinutes(15),
-                now.plusHours(1).plusMinutes(30));
-        return new BookingRequestDTO(
-                "Test",
-                100,
-                null,
-                false,
-                "please clean",
-                "no notes necessary",
-                recurringRule,
-                null,
-                schedule,
-                bookedForId,
-                null,
-                BookingType.DEFAULT);
     }
 
     private BookingRequestDTO getBookingRequestDTOWithRoomAndSeating(
@@ -932,6 +955,8 @@ public class BookingControllerIntegrationTest {
                 schedule,
                 mockPerson.getId(),
                 seatingTypeId,
+                BookingStatus.ORGANIZER_APPROVED,
+                null,
                 bookingType);
     }
 }

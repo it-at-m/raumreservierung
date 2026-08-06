@@ -44,16 +44,27 @@
 
         <v-list-item class="px-0 mt-2">
           <v-list-item-subtitle class="mb-2">
-            {{ t("domain.booking.status") }}
+            {{ t("domain.booking.statusTitle") }}
           </v-list-item-subtitle>
-          <v-chip
-            size="small"
-            color="primary"
-            variant="tonal"
-            class="font-weight-bold"
-          >
-            {{ t("common.todo") }}
-          </v-chip>
+          <status-chip
+            :status="status?.currentStatus"
+            variant="outlined"
+          />
+        </v-list-item>
+        <v-list-item
+          v-if="
+            status?.currentStatus ===
+            BookingStatusDTOCurrentStatusEnum.UNFEASIBLE
+          "
+          class="px-0 mt-2"
+        >
+          <v-list-item-subtitle class="mb-2">
+            {{ t("domain.booking.statusChange.reason") }}
+          </v-list-item-subtitle>
+          {{
+            reasonForStatusChange ||
+            t("domain.booking.statusChange.noReasonForStatusChange")
+          }}
         </v-list-item>
         <v-list-item
           v-if="isPrivileged"
@@ -70,12 +81,17 @@
 </template>
 
 <script setup lang="ts">
-import type { ScheduleTemplate } from "@/api/raumreservierung-backend";
+import type {
+  BookingStatusDTO,
+  ScheduleTemplate,
+} from "@/api/raumreservierung-backend";
 
 import { useDateFormat } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
+import StatusChip from "@/components/booking/StatusChip.vue";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 
@@ -87,6 +103,8 @@ const { schedule, bookingType } = defineProps<{
   id?: string;
   title?: string;
   schedule?: ScheduleTemplate;
+  status?: BookingStatusDTO;
+  reasonForStatusChange?: string;
   bookingType?: string;
 }>();
 
