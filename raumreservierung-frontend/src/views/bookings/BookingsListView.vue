@@ -161,9 +161,9 @@
                   sm="6"
                 >
                   <action-button
-                    v-if="
-                      !isCanceledOrUnfeasible(item) &&
-                      (canEditBookings || isMyBooking)
+                    :disabled="
+                      isCanceledOrUnfeasible(item) ||
+                      !(canEditBookings || isMyBooking)
                     "
                     class="mr-1"
                     type="edit"
