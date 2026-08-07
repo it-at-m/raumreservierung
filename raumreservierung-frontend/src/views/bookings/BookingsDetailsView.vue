@@ -9,7 +9,7 @@
     </template>
     <template #headerActions>
       <base-button
-        v-if="!isCanceledOrUnfeasible"
+        v-if="!isCanceledOrUnfeasible && (canEditBooking || isMyBooking)"
         secondary
         :append-icon="mdiPencil"
         :text="t('common.edit')"
@@ -257,6 +257,7 @@ import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
+import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
@@ -282,6 +283,8 @@ const {
 
 const { call: getAppointmentPage, data: appointmentPage } =
   useGetAppointments();
+
+const canEditBooking = useIsPrivileged("bookings:manage");
 
 onMounted(async () => {
   if (bookingId.value) {

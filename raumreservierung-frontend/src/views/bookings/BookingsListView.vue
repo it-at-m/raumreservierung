@@ -161,6 +161,10 @@
                   sm="6"
                 >
                   <action-button
+                    v-if="
+                      !isCanceledOrUnfeasible(item) &&
+                      (canEditBookings || isMyBooking)
+                    "
                     class="mr-1"
                     type="edit"
                     @click="
@@ -190,10 +194,7 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  BookingListResponseDTO,
-  BookingStatusDTOCurrentStatusEnum,
-} from "@/api/raumreservierung-backend";
+import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
@@ -210,6 +211,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
+import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
@@ -231,6 +233,15 @@ const { getStatusGroupKey, expandStatus, statusGroups } =
 const { t } = useI18n();
 
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
+
+function isCanceledOrUnfeasible(booking: BookingListResponseDTO | undefined) {
+  const status = booking?.status;
+  return (
+    !!status &&
+    (status.currentStatus === BookingStatusDTOCurrentStatusEnum.CANCELED ||
+      status.currentStatus === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE)
+  );
+}
 
 const canEditBookings = useIsPrivileged("bookings:manage");
 
