@@ -51,5 +51,5 @@ export const EMPTY_BOOKING_REQUEST_DATA: BookingRequestDTO = {
   } as ScheduleTemplate,
   status: "NEW",
   reasonForStatusChange: undefined,
-  bookingType: undefined,
+  bookingType: "DEFAULT",
 };
