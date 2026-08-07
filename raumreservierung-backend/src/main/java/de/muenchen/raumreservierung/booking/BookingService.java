@@ -95,10 +95,7 @@ public class BookingService {
 
         bookingValidationService.bookingIsValidOrThrowException(booking);
 
-        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-            booking.setInternalNotes(null);
-            booking.setBookingType(BookingType.DEFAULT);
-        }
+        applyOrganizerAuthorityRules(booking, BookingType.DEFAULT, null);
 
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
@@ -134,6 +131,8 @@ public class BookingService {
         } else {
             handleStandardBookingUpdate(bookingUpdates, existingBooking);
         }
+
+        updateBookingAppointments(existingBooking, bookingUpdates);
 
         saveAndDetach(existingBooking, bookingUpdates);
         log.debug("Updated booking with id {}", existingBooking.getId());
@@ -179,7 +178,7 @@ public class BookingService {
 
     private void handleStandardBookingUpdate(final Booking bookingUpdates, final Booking existingBooking) {
         validateAndAuthorizeUpdate(bookingUpdates, existingBooking);
-        protectInternalNotesAndType(bookingUpdates, existingBooking);
+        applyOrganizerAuthorityRules(bookingUpdates, existingBooking.getBookingType(), existingBooking.getInternalNotes());
         applyAutomaticStatusChangesIfApplicable(bookingUpdates, existingBooking);
         updateBookingAppointments(existingBooking, bookingUpdates);
     }
@@ -194,20 +193,6 @@ public class BookingService {
     private void validateAndAuthorizeUpdate(final Booking bookingUpdates, final Booking existingBooking) {
         bookingValidationService.bookingIsValidOrThrowException(bookingUpdates, existingBooking);
         checkAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
-    }
-
-    /**
-     * Prevents unauthorized changes to internal notes or booking type by restoring the existing value
-     * unless the current user has the required authority.
-     *
-     * @param bookingUpdates booking data with the requested changes
-     * @param existingBooking existing booking containing the original internal notes and type
-     */
-    private void protectInternalNotesAndType(final Booking bookingUpdates, final Booking existingBooking) {
-        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-            bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
-            bookingUpdates.setBookingType(existingBooking.getBookingType());
-        }
     }
 
     /**
@@ -325,6 +310,30 @@ public class BookingService {
             booking.setBookedBy(currentPerson);
         }
 
+    }
+
+    /**
+     * Resets bookingType/internalNotes to their previous values if the caller lacks
+     * Role TERMIN_ORGANISATOR, then sets the booking status accordingly.
+     *
+     * @param booking the booking to update (new or existing)
+     * @param previousType the type to fall back to if unauthorized
+     * @param previousNotes the notes to fall back to if unauthorized
+     */
+    private void applyOrganizerAuthorityRules(final Booking booking, final BookingType previousType, final String previousNotes) {
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            booking.setInternalNotes(previousNotes);
+            booking.setBookingType(previousType);
+        }
+
+        if (booking.getBookingType() == BookingType.DEFAULT) {
+            if (previousType != BookingType.DEFAULT) {
+                // if type changed from other than DEFAULT to DEFAULT then set status to ROOM_APPROVED
+                booking.setStatus(BookingStatus.ROOM_CHANGED);
+            }
+        } else {
+            booking.setStatus(BookingStatus.ORGANIZER_APPROVED);
+        }
     }
 
 }

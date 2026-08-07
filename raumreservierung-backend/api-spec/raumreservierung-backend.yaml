@@ -1420,6 +1420,12 @@ components:
           maxLength: 255
           minLength: 0
           type: string
+        bookingType:
+          type: string
+          enum:
+          - FREE
+          - SERVICE
+          - DEFAULT
     ScheduleTemplate:
       required:
       - occupancyEnd
@@ -1491,6 +1497,12 @@ components:
           $ref: "#/components/schemas/BookingStatusDTO"
         reasonForStatusChange:
           type: string
+        bookingType:
+          type: string
+          enum:
+          - FREE
+          - SERVICE
+          - DEFAULT
     BookingStatusDTO:
       required:
       - currentStatus

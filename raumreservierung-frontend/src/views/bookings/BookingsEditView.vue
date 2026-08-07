@@ -90,8 +90,8 @@
 
           <v-col
             v-if="isPrivileged"
-            cols="6"
-            md="3"
+            :cols="showStatus ? 6 : 12"
+            :md="showStatus ? 3 : 6"
           >
             <v-select
               v-model="bookingData.bookingType"
@@ -106,7 +106,7 @@
             </v-select>
           </v-col>
           <v-col
-            v-if="isPrivileged"
+            v-if="showStatus"
             cols="6"
             md="3"
           >
@@ -319,6 +319,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
 import {
+  BookingRequestDTOBookingTypeEnum,
   BookingRequestDTOStatusEnum,
   BookingStatusDTOCurrentStatusEnum,
 } from "@/api/raumreservierung-backend";
@@ -341,6 +342,7 @@ import {
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
+import { useBookingType } from "@/composables/useBookingType.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { EMPTY_BOOKING_STATUS_DATA } from "@/constants/BookingStatus";
@@ -389,6 +391,12 @@ const isSeriesBooking = computed({
     bookingData.value.recurringRule = isChecked ? DEFAULT_RRULE : undefined;
   },
 });
+
+const showStatus = computed(
+  () =>
+    isPrivileged &&
+    bookingData.value.bookingType == BookingRequestDTOBookingTypeEnum.DEFAULT
+);
 
 const bookingId = computed(() => (route.params.id as string) || undefined);
 
@@ -441,7 +449,7 @@ const snackbarStore = useSnackbarStore();
 
 const roomIdToFetch = computed(() => getBookingData.value?.room?.id);
 
-const { isPending: getRoomLoading, data: roomReqData } =
+const { isLoading: getRoomLoading, data: roomReqData } =
   useGetRoom(roomIdToFetch);
 
 watch(
