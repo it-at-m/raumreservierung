@@ -45,6 +45,7 @@ const rolePrivilegeMapping = {
   ],
   leseberechtigt: [
     "bookings:self",
+    "bookings:read",
     "calendar:read",
     "rooms:read",
     "appointments:self",
