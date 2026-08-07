@@ -9,7 +9,7 @@
         @click="router.back()"
       />
       <base-button
-        v-if="canCancel && !isCanceledOrUnfeasible"
+        v-if="canCancel && isBookingEditable"
         class="ml-4"
         :text="t('common.rescind')"
         secondary
@@ -67,7 +67,7 @@
       <v-form
         v-model="isValid"
         :disabled="createBookingLoading || updateBookingLoading"
-        :readonly="isCanceledOrUnfeasible"
+        :readonly="!isBookingEditable"
       >
         <v-row>
           <v-col
@@ -118,7 +118,7 @@
               :possible-status="statusFull?.nextPossibleStatus"
               :excluded-status="BookingStatusDTOCurrentStatusEnum.CANCELED"
               hide-details
-              :readonly="isCanceledOrUnfeasible && !isPrivileged"
+              :readonly="!isBookingEditable && !isPrivileged"
             />
           </v-col>
         </v-row>
@@ -344,6 +344,7 @@ import {
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
+import { useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { EMPTY_BOOKING_STATUS_DATA } from "@/constants/BookingStatus";
@@ -446,6 +447,8 @@ const roomIdToFetch = computed(() => getBookingData.value?.room?.id);
 
 const { isLoading: getRoomLoading, data: roomReqData } =
   useGetRoom(roomIdToFetch);
+
+const isBookingEditable = useIsBookingEditable(bookingData);
 
 watch(
   () => roomReqData.value?.id,
@@ -563,11 +566,6 @@ const updateRRule = (value: boolean | null) => {
     };
   }
 };
-const isCanceledOrUnfeasible = computed(
-  () =>
-    bookingData.value.status === BookingStatusDTOCurrentStatusEnum.CANCELED ||
-    bookingData.value.status === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE
-);
 
 const canCancel = computed(() => {
   const booking = getBookingData.value;
