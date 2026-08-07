@@ -178,7 +178,15 @@
                   cols="12"
                   sm="6"
                 >
-                  <action-button :icon="mdiCalendarEditOutline" />
+                  <action-button
+                    :icon="mdiCalendarEditOutline"
+                    @click="
+                      router.push({
+                        name: ROUTES.BOOKINGS_CALENDAR,
+                        params: { id: item.id },
+                      })
+                    "
+                  />
                 </v-col>
               </v-row>
             </template>
