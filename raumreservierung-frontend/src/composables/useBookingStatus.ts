@@ -1,8 +1,13 @@
-import type { GetBookingsByPageableAndFilterStatusEnum } from "@/api/raumreservierung-backend";
+import type {
+  BookingDetailResponseDTO,
+  BookingRequestDTO,
+  GetBookingsByPageableAndFilterStatusEnum,
+} from "@/api/raumreservierung-backend";
 import type { StatusGroup, StatusGroupKey } from "@/constants/BookingStatus.ts";
 import type { ChipConfig } from "@/types/ChipConfig.ts";
+import type { MaybeRefOrGetter } from "vue";
 
-import { computed } from "vue";
+import { computed, toValue } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
@@ -12,21 +17,31 @@ import {
 } from "@/constants/BookingStatus.ts";
 import { useUserStore } from "@/stores/user.ts";
 
-export function useBookingStatusConfig() {
+export const useIsBookingEditable = (
+  booking: MaybeRefOrGetter<BookingRequestDTO | BookingDetailResponseDTO>
+) => {
+  return computed(() => {
+    const bookingRef = toValue(booking);
+
+    const status =
+      typeof bookingRef.status === "string"
+        ? bookingRef.status
+        : bookingRef.status.currentStatus;
+
+    return status !== "CANCELED" && status !== "UNFEASIBLE";
+  });
+};
+
+export function useBookingStatusConfig(
+  statusRef?: MaybeRefOrGetter<string | undefined>
+) {
   const { t } = useI18n();
   const userStore = useUserStore();
 
-  const activeRole = userStore.user?.user_roles;
-
-  const applyText = (config: ChipConfig): ChipConfig => {
-    return { ...config, text: t(config.text) };
-  };
-
-  const getStatusConfig = (status: string | undefined): ChipConfig =>
-    applyText(findGroup(status)?.config ?? FALLBACK_CONFIG);
+  const activeRole = computed(() => userStore.user?.user_roles);
 
   const statusGroups = computed<StatusGroup[]>(() =>
-    activeRole ? ROLE_STATUS_GROUPS[activeRole] : []
+    activeRole.value ? ROLE_STATUS_GROUPS[activeRole.value] : []
   );
 
   const findGroup = (status: string | undefined) => {
@@ -39,6 +54,15 @@ export function useBookingStatusConfig() {
       group.status.includes(upperStatus)
     );
   };
+
+  const applyText = (config: ChipConfig): ChipConfig => {
+    return { ...config, text: t(config.text) };
+  };
+
+  const config = computed<ChipConfig>(() => {
+    const status = toValue(statusRef);
+    return applyText(findGroup(status)?.config ?? FALLBACK_CONFIG);
+  });
 
   const getStatusGroupKey = (status: string): StatusGroupKey | string =>
     findGroup(status)?.key ?? status;
@@ -57,7 +81,7 @@ export function useBookingStatusConfig() {
   ];
 
   return {
-    getStatusConfig,
+    config,
     getStatusGroupKey,
     expandStatus,
     statusGroups,
