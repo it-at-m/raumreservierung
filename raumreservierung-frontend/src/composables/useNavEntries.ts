@@ -23,6 +23,12 @@ const NAV_ENTRIES: readonly NavEntry[] = [
     requiredPrivilege: "bookings:self",
   },
   {
+    kind: "item",
+    textKey: "navigationDrawer.bookings",
+    to: { name: ROUTES.BOOKINGS_LIST },
+    requiredPrivilege: ["bookings:manage", "bookings:read"],
+  },
+  {
     kind: "group",
     textKey: "navigationDrawer.bookingGroup.groupTitle",
     requiredPrivilege: "bookings:manage",
@@ -39,12 +45,6 @@ const NAV_ENTRIES: readonly NavEntry[] = [
         requiredPrivilege: "calendar:write",
       },
     ],
-  },
-  {
-    kind: "item",
-    textKey: "navigationDrawer.bookings",
-    to: { name: ROUTES.BOOKINGS_LIST },
-    requiredPrivilege: ["bookings:manage", "bookings:read"],
   },
   {
     kind: "group",
