@@ -74,7 +74,7 @@
 import type { SeatingTypeResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import { onMounted, useTemplateRef } from "vue";
+import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
@@ -96,31 +96,26 @@ const snackbarStore = useSnackbarStore();
 
 const crudRef = useTemplateRef("crudRef");
 
-const {
-  data: allSeatingTypesData,
-  call: getAllSeatingTypes,
-  loading: getAllSeatingTypeLoading,
-} = useGetAllSeatingTypes();
+const { data: allSeatingTypesData, isPending: getAllSeatingTypeLoading } =
+  useGetAllSeatingTypes();
 
 const {
-  call: deleteSeatingTypeCall,
-  loading: deleteSeatingTypeLoading,
+  mutateAsync: deleteSeatingTypeCall,
+  isPending: deleteSeatingTypeLoading,
   error: deleteSeatingTypeError,
 } = useDeleteSeatingType();
 
 const {
-  call: createSeatingTypeCall,
-  loading: createSeatingTypeLoading,
+  mutateAsync: createSeatingTypeCall,
+  isPending: createSeatingTypeLoading,
   error: createSeatingTypeError,
 } = useCreateSeatingType();
 
 const {
-  call: updateSeatingTypeCall,
-  loading: updateSeatingTypeLoading,
+  mutateAsync: updateSeatingTypeCall,
+  isPending: updateSeatingTypeLoading,
   error: updateSeatingTypeError,
 } = useUpdateSeatingType();
-
-onMounted(() => getAllSeatingTypes());
 
 const headers: TableHeader<SeatingTypeResponseDto>[] = [
   { title: t("domain.seatingType.name"), value: "name", sortable: true },
@@ -171,7 +166,6 @@ const handleDelete = async (id: string) => {
 };
 
 const onSuccess = async (msg: string) => {
-  await getAllSeatingTypes();
   if (crudRef.value) {
     crudRef.value.closeDialog();
   }

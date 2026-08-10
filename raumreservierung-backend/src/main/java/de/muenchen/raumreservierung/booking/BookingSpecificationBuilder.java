@@ -4,12 +4,14 @@ import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.person.domain.Person_;
 import de.muenchen.raumreservierung.room.Room_;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.UUID;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class BookingSpecificationBuilder {
@@ -17,11 +19,16 @@ public final class BookingSpecificationBuilder {
     private BookingSpecificationBuilder() {
     }
 
-    public static <T extends Booking> Specification<T> fromFilter(final BookingFilterDTO bookingFilterDTO) {
-        return fromFilterWithPerson(bookingFilterDTO, null);
+    public static <T extends Booking> Specification<T> fromFilterWithNew(final BookingFilterDTO bookingFilterDTO, final boolean withNew) {
+        return fromFilterWithPersonOrStatusNew(bookingFilterDTO, null, withNew);
     }
 
     public static <T extends Booking> Specification<T> fromFilterWithPerson(final BookingFilterDTO bookingFilterDTO, final Person person) {
+        return fromFilterWithPersonOrStatusNew(bookingFilterDTO, person, true);
+    }
+
+    public static <T extends Booking> Specification<T> fromFilterWithPersonOrStatusNew(final BookingFilterDTO bookingFilterDTO, final Person person,
+            final boolean statusNew) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
         if (bookingFilterDTO.roomId() != null) {
@@ -35,8 +42,15 @@ public final class BookingSpecificationBuilder {
         if (end != null) {
             specificationList.add(filterForEnd(end.toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime()));
         }
+        final List<BookingStatus> statusList = bookingFilterDTO.status();
+        if (statusList != null && !statusList.isEmpty()) {
+            specificationList.add(filterForStatus(statusList));
+        }
         if (person != null && person.getId() != null) {
             specificationList.add(filterForPerson(person));
+        }
+        if (!statusNew) {
+            specificationList.add(filterForStatusNotNew());
         }
         if (bookingFilterDTO.bookedForId() != null) {
             specificationList.add(filterForPersonBookedFor(bookingFilterDTO.bookedForId()));
@@ -60,10 +74,33 @@ public final class BookingSpecificationBuilder {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyEnd), end);
     }
 
+    private static <T extends Booking> Specification<T> filterForStatusNotNew() {
+        return (root, query, cb) -> cb.notEqual(root.get(Booking_.status), BookingStatus.NEW);
+    }
+
+    private static <T extends Booking> Specification<T> filterForStatus(final List<BookingStatus> status) {
+        return (root, query, cb) -> root.get(Booking_.status).in(status);
+    }
+
     private static <T extends Booking> Specification<T> filterForPerson(final Person person) {
         return (root, query, cb) -> cb.or(
                 cb.equal(root.get(Booking_.bookedBy), person),
                 cb.equal(root.get(Booking_.bookedFor), person));
+    }
+
+    public static <T extends Booking> Specification<T> withFixedStatusOrder(final Sort.Direction direction) {
+        return (root, query, cb) -> {
+            CriteriaBuilder.Case<Integer> order = cb.selectCase();
+
+            for (final BookingStatus value : BookingStatus.values()) {
+                order = order.when(cb.equal(root.get(Booking_.status), value), value.getSortOrder());
+            }
+
+            if (query != null) {
+                query.orderBy(direction.isAscending() ? cb.asc(order) : cb.desc(order));
+            }
+            return null;
+        };
     }
 
     private static <T extends Booking> Specification<T> filterForPersonBookedFor(final UUID personId) {
@@ -73,5 +110,4 @@ public final class BookingSpecificationBuilder {
     private static <T extends Booking> Specification<T> filterForTitle(final String title) {
         return (root, query, cb) -> cb.like(cb.lower(root.get(Booking_.title)), "%" + title.toLowerCase(Locale.GERMAN) + "%");
     }
-
 }

@@ -9,14 +9,18 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
-@Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class })
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
+@Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class, BookingStatusMapper.class })
 public interface BookingMapper {
+
     @Mapping(target = "equipments", source = "equipment")
+    @Mapping(target = "status", source = "booking")
     BookingDetailResponseDTO toDetailDto(Booking booking);
 
     @Mapping(target = "hasEquipment", source = "booking", qualifiedByName = "hasEquipmentCheck")
     @Mapping(target = "hasNote", source = "booking", qualifiedByName = "hasNoteCheck")
     @Mapping(target = "isRecurring", source = "booking", qualifiedByName = "isRecurringCheck")
+    @Mapping(target = "status", source = "booking")
     BookingListResponseDTO toListDto(Booking booking);
 
     @Mapping(target = "roomId", source = "room.id")
@@ -36,7 +40,8 @@ public interface BookingMapper {
 
     @Named("hasNoteCheck")
     default boolean mapHasNote(final Booking booking) {
-        return !booking.getAdditionalNotes().isEmpty() || !booking.getInternalNotes().isEmpty();
+        return (booking.getAdditionalNotes() != null && !booking.getAdditionalNotes().isEmpty())
+                || (booking.getInternalNotes() != null && !booking.getInternalNotes().isEmpty());
     }
 
     @Named("isRecurringCheck")

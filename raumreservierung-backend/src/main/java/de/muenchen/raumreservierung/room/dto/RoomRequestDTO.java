@@ -16,6 +16,6 @@ public record RoomRequestDTO(@NotNull @Size(min = 2, max = 100) String name,
         int area,
         List<SeatingCapacityRequestDTO> roomSeatingCapacities,
         List<UUID> equipmentIds,
-        UUID contactPersonId) {
-
+        UUID contactPersonId,
+        UUID pictureId) {
 }

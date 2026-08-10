@@ -5,9 +5,12 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
+import de.muenchen.raumreservierung.file.FileAttachment;
+import de.muenchen.raumreservierung.file.FileAttachmentService;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.persistence.EntityManager;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +24,7 @@ public class RoomService {
 
     private final RoomRepository roomRepository;
     private final EntityManager entityManager;
+    private final FileAttachmentService fileAttachmentService;
 
     public Room getById(final UUID roomId) {
         return getEntityOrThrowException(roomId);
@@ -39,6 +43,13 @@ public class RoomService {
         final Room newRoom = new Room();
         newRoom.updateFrom(room);
 
+        if (room.getPicture() != null) {
+            newRoom.setPicture(room.getPicture());
+
+            fileAttachmentService.attachFileAttachment(room.getPicture().getId());
+
+        }
+
         final Room savedRoom = roomRepository.saveAndFlush(newRoom);
         entityManager.detach(savedRoom);
         if (savedRoom.getContactPerson() != null) {
@@ -53,6 +64,18 @@ public class RoomService {
     public Room updateRoom(final Room roomUpdates, final UUID roomId) {
         final Room existingRoom = getEntityOrThrowException(roomId);
         existingRoom.updateFrom(roomUpdates);
+
+        if (!Objects.equals(existingRoom.getPicture(), roomUpdates.getPicture())) {
+            if (existingRoom.getPicture() != null) {
+                fileAttachmentService.unAttachFileAttachment(existingRoom.getPicture().getId());
+            }
+
+            existingRoom.setPicture(roomUpdates.getPicture());
+
+            if (roomUpdates.getPicture() != null) {
+                fileAttachmentService.attachFileAttachment(roomUpdates.getPicture().getId());
+            }
+        }
 
         roomRepository.saveAndFlush(existingRoom);
         entityManager.detach(existingRoom);
@@ -74,6 +97,16 @@ public class RoomService {
 
         log.debug("Deleted room to {}", roomId);
         roomRepository.deleteById(roomId);
+    }
+
+    /**
+     * Returns if a fileAttachment is attached to a room
+     *
+     * @param fileAttachment the fileAttachment to look for
+     * @return if any room is attached to the fileAttachment
+     */
+    public boolean existsByFileAttachment(final FileAttachment fileAttachment) {
+        return roomRepository.existsByPicture(fileAttachment);
     }
 
     private Room getEntityOrThrowException(final UUID roomId) {

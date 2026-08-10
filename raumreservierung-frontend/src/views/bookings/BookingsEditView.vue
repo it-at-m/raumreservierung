@@ -9,23 +9,65 @@
         @click="router.back()"
       />
       <base-button
+        v-if="canCancel && !isCanceledOrUnfeasible"
         class="ml-4"
-        :text="isPrivileged ? t('common.deny') : t('common.rescind')"
-        :append-icon="mdiCalendarRemoveOutline"
+        :text="t('common.rescind')"
         secondary
-      />
-      <base-button
-        :disabled="!isValid"
-        class="ml-4"
-        :text="t('common.save')"
-        :append-icon="mdiContentSaveOutline"
-        @click="saveBooking"
-      />
+        @click="handleStatusChange(BookingRequestDTOStatusEnum.CANCELED)"
+      >
+        <template #prepend>
+          <v-icon
+            :icon="mdiCalendarRemoveOutline"
+            color="statusCanceled"
+          />
+        </template>
+      </base-button>
+      <v-dialog
+        v-model="isUnfeasibleDialogOpen"
+        max-width="800px"
+        width="90%"
+      >
+        <template #activator>
+          <base-button
+            :disabled="!isValid"
+            class="ml-4"
+            :text="t('common.save')"
+            :append-icon="mdiContentSaveOutline"
+            @click="handleSaveClick"
+          />
+        </template>
+        <template #default>
+          <confirm-card
+            :title="t('domain.booking.statusChange.cardTitle')"
+            :subtitle="t('domain.booking.statusChange.cardSubtitle')"
+            @cancel="isUnfeasibleDialogOpen = false"
+          >
+            <template #text="{ disabled }">
+              <v-text-field
+                v-model="bookingData.reasonForStatusChange"
+                :disabled="disabled"
+                :label="t('domain.booking.statusChange.enterReason')"
+                variant="outlined"
+                hide-details
+              />
+            </template>
+            <template #confirm="{ disabled }">
+              <base-button
+                :disabled="disabled"
+                :text="t('common.save')"
+                :append-icon="mdiContentSaveOutline"
+                @click="handleUnfeasibleConfirm"
+              />
+            </template>
+          </confirm-card>
+        </template>
+      </v-dialog>
     </template>
     <template #default>
       <v-form
         v-model="isValid"
         :disabled="createBookingLoading || updateBookingLoading"
+        :readonly="isCanceledOrUnfeasible"
       >
         <v-row>
           <v-col
@@ -50,11 +92,18 @@
             cols="12"
             md="4"
           >
-            <v-select
-              disabled
-              variant="outlined"
-              :label="t('domain.booking.status')"
+            <general-status-select
+              v-model="bookingData.status"
+              :label="t('domain.booking.statusTitle')"
+              :loading="
+                getBookingLoading ||
+                createBookingLoading ||
+                updateBookingLoading
+              "
+              :possible-status="statusFull?.nextPossibleStatus"
+              :excluded-status="BookingStatusDTOCurrentStatusEnum.CANCELED"
               hide-details
+              :readonly="isCanceledOrUnfeasible && !isPrivileged"
             />
           </v-col>
         </v-row>
@@ -246,19 +295,26 @@ import {
   mdiContentSaveOutline,
   mdiWindowClose,
 } from "@mdi/js";
-import { computed, onMounted, ref, toRaw } from "vue";
+import { computed, onMounted, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
+import {
+  BookingRequestDTOStatusEnum,
+  BookingStatusDTOCurrentStatusEnum,
+} from "@/api/raumreservierung-backend";
+import { type BookingStatusDTO as BookingStatusFull } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
 import ExternalPersonSelect from "@/components/booking/ExternalPersonSelect.vue";
+import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
 import SeatingTypeSelector from "@/components/booking/SeatingTypeParticipantsSelector.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
+import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import {
@@ -266,10 +322,12 @@ import {
   useGetBooking,
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
-import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
+import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
+import { EMPTY_BOOKING_STATUS_DATA } from "@/constants/BookingStatus";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
+import { useUserStore } from "@/stores/user.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import {
   EMPTY_BOOKING_REQUEST_DATA,
@@ -286,10 +344,22 @@ const route = useRoute();
 const router = useRouter();
 
 const isValid = ref<boolean>();
+const isUnfeasibleDialogOpen = ref(false);
 
 const currentRoom = ref<RoomRequestDTO>();
 const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
 const bookedFor = ref<FindById200Response>();
+const statusFull = ref<BookingStatusFull>(EMPTY_BOOKING_STATUS_DATA);
+
+const handleUnfeasibleConfirm = async () => {
+  await saveBooking();
+  isUnfeasibleDialogOpen.value = false;
+};
+
+const handleStatusChange = async (nextStatus: BookingRequestDTOStatusEnum) => {
+  bookingData.value.status = nextStatus;
+  await saveBooking();
+};
 
 const isSeriesBooking = computed({
   get: () => {
@@ -349,7 +419,19 @@ useUpdateBooking();
 
 const snackbarStore = useSnackbarStore();
 
-const { call: getRoom, loading: getRoomLoading } = useRoomCache();
+const roomIdToFetch = computed(() => getBookingData.value?.room?.id);
+
+const { isPending: getRoomLoading, data: roomReqData } =
+  useGetRoom(roomIdToFetch);
+
+watch(
+  () => roomReqData.value?.id,
+  () => {
+    if (roomReqData.value) {
+      currentRoom.value = mapResponseToRequest(roomReqData.value);
+    }
+  }
+);
 
 onMounted(async () => {
   if (bookingId.value) {
@@ -367,6 +449,7 @@ onMounted(async () => {
 
     bookingData.value = mapBookingResponseToRequest(getBookingData.value);
     bookedFor.value = structuredClone(toRaw(getBookingData.value.bookedFor));
+    statusFull.value = getBookingData.value.status;
 
     if (getBookingData.value.room?.id) {
       await updateRoom(getBookingData.value.room?.id);
@@ -385,8 +468,6 @@ onMounted(async () => {
 
 const updateRoom = async (roomId: string | undefined) => {
   if (roomId) {
-    currentRoom.value = mapResponseToRequest(await getRoom(roomId));
-
     if (bookingData?.value.equipmentIds) {
       const filteredEquipmentIds = bookingData.value.equipmentIds.filter(
         (chosenEq) => currentRoom.value?.equipmentIds?.includes(chosenEq)
@@ -414,6 +495,8 @@ const saveBooking = async () => {
       bookingRequestDTO: {
         ...bookingData.value,
         bookedForId: bookedFor.value?.id,
+        status: bookingData.value.status,
+        reasonForStatusChange: bookingData.value.reasonForStatusChange,
         seatingTypeId: currentRoom.value
           ? bookingData.value.seatingTypeId
           : undefined,
@@ -428,6 +511,7 @@ const saveBooking = async () => {
       bookingRequestDTO: {
         ...bookingData.value,
         bookedForId: bookedFor.value?.id,
+        status: bookingData.value.status,
         seatingTypeId: currentRoom.value
           ? bookingData.value.seatingTypeId
           : undefined,
@@ -444,7 +528,7 @@ const onSuccess = (msg: string) => {
   snackbarStore.add({ message: msg, level: Levels.SUCCESS });
 
   router.replace({
-    name: ROUTES.MY_BOOKINGS_LIST,
+    name: isMyBooking.value ? ROUTES.MY_BOOKINGS_LIST : ROUTES.BOOKINGS_LIST,
   });
 };
 
@@ -456,6 +540,35 @@ const updateRRule = (value: boolean | null) => {
     };
   }
 };
+const isCanceledOrUnfeasible = computed(
+  () =>
+    bookingData.value.status === BookingStatusDTOCurrentStatusEnum.CANCELED ||
+    bookingData.value.status === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE
+);
+
+const canCancel = computed(() => {
+  const booking = getBookingData.value;
+  if (!booking) {
+    return false;
+  }
+
+  const userOrgId = useUserStore().user?.lhmObjectID;
+  if (!userOrgId) {
+    return false;
+  }
+
+  const isInternalMatch = (person: FindById200Response) =>
+    person?.type === "INTERNAL" && person.organisationId === userOrgId;
+
+  return (
+    isInternalMatch(booking.bookedBy) || isInternalMatch(booking.bookedFor)
+  );
+});
+
+const handleSaveClick = () =>
+  bookingData.value.status === BookingRequestDTOStatusEnum.UNFEASIBLE
+    ? (isUnfeasibleDialogOpen.value = true)
+    : saveBooking();
 </script>
 
 <style scoped></style>

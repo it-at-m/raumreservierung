@@ -2,6 +2,7 @@ package de.muenchen.raumreservierung.room;
 
 import de.muenchen.raumreservierung.common.BaseEntity;
 import de.muenchen.raumreservierung.equipment.Equipment;
+import de.muenchen.raumreservierung.file.FileAttachment;
 import de.muenchen.raumreservierung.person.domain.Person;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -9,8 +10,10 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import java.io.Serial;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
@@ -54,6 +57,9 @@ public class Room extends BaseEntity {
     @ManyToMany
     private Set<Equipment> equipment = new HashSet<>();
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    private FileAttachment picture;
+
     public void updateFrom(final Room roomChanges) {
         this.name = roomChanges.getName();
         this.number = roomChanges.getNumber();
@@ -69,10 +75,27 @@ public class Room extends BaseEntity {
             this.equipment.addAll(roomChanges.getEquipment());
         }
 
-        this.roomSeatingCapacities.clear();
+        // update roomSeatingCapacities via merging new and old list
         if (roomChanges.getRoomSeatingCapacities() != null) {
-            this.roomSeatingCapacities.addAll(roomChanges.getRoomSeatingCapacities());
-            this.roomSeatingCapacities.forEach(csc -> csc.setRoom(this));
+            this.roomSeatingCapacities.removeIf(rsc -> roomChanges.getRoomSeatingCapacities()
+                    .stream()
+                    .noneMatch(incomingRsc -> incomingRsc.getSeatingType().equals(rsc.getSeatingType())));
+
+            for (final RoomSeatingCapacity incomingRsc : roomChanges.getRoomSeatingCapacities()) {
+                final Optional<RoomSeatingCapacity> opRsc = this.roomSeatingCapacities
+                        .stream()
+                        .filter(rsc -> incomingRsc.getSeatingType().equals(rsc.getSeatingType()))
+                        .findFirst();
+
+                if (opRsc.isPresent()) {
+                    opRsc.get().setCapacity(incomingRsc.getCapacity());
+                } else {
+                    incomingRsc.setRoom(this);
+                    this.roomSeatingCapacities.add(incomingRsc);
+                }
+            }
+        } else {
+            this.roomSeatingCapacities.clear();
         }
     }
 }
