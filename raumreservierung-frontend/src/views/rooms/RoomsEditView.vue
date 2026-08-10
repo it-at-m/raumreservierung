@@ -55,12 +55,22 @@
         class="ml-4"
         :text="t('common.save')"
         :append-icon="mdiContentSaveOutline"
+        :disabled="
+          !isValid ||
+          uploadFileLoading ||
+          updateRoomLoading ||
+          createRoomLoading ||
+          uploadFileLoading
+        "
         @click="handleSave"
       />
     </template>
 
     <template #default>
-      <v-form :readonly="loading || updateRoomLoading || createRoomLoading">
+      <v-form
+        v-model="isValid"
+        :readonly="getRoomLoading || updateRoomLoading || createRoomLoading"
+      >
         <v-row>
           <v-col>
             <v-text-field
@@ -134,12 +144,18 @@
           </v-col>
           <v-col>
             <v-file-input
+              :loading="uploadFileLoading"
+              :disabled="uploadFileLoading"
+              :model-value="pictureMetaData"
+              clearable
               color="accent"
+              show-size
               prepend-icon=""
+              accept="image/png, image/jpeg"
               :prepend-inner-icon="mdiImageOutline"
-              readonly
               :label="t('domain.room.image')"
               variant="outlined"
+              @update:model-value="uploadPicture"
             />
           </v-col>
         </v-row>
@@ -260,7 +276,7 @@ import {
   mdiTrashCanOutline,
   mdiWindowClose,
 } from "@mdi/js";
-import { computed, onMounted, ref, toRaw } from "vue";
+import { computed, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -272,17 +288,20 @@ import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import SeatingCapacityEditor from "@/components/rooms/SeatingCapacitySelector.vue";
+import { useUploadFile } from "@/composables/api/useFileAttachmentApi.ts";
 import {
   useCreateRoom,
   useDeleteRoom,
+  useGetRoom,
   useUpdateRoom,
 } from "@/composables/api/useRoomsApi.ts";
-import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
+import { mapResponseToFileMock } from "@/util/fileTypeUtility.ts";
 import { EMPTY_ROOM_DATA, mapResponseToRequest } from "@/util/roomTypeUtil.ts";
 
+const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
 
 const router = useRouter();
@@ -292,52 +311,87 @@ const route = useRoute();
 const snackbar = useSnackbarStore();
 
 const roomId = computed(() => (route.params.id as string) || undefined);
+const pictureMetaData = ref<File>();
 
 const isDeletable = ref<boolean>(false);
 
 const { t } = useI18n();
 
-const { call, loading, error: roomCacheError } = useRoomCache();
-
 const rules = useRules();
 
 const {
-  call: updateRoom,
+  data: roomReqData,
+  isLoading: getRoomLoading,
+  error: getRoomError,
+} = useGetRoom(roomId);
+
+const {
+  mutateAsync: updateRoom,
   data: updateRoomData,
-  loading: updateRoomLoading,
+  isPending: updateRoomLoading,
   error: updateRoomError,
 } = useUpdateRoom();
 
 const {
-  call: createRoom,
+  mutateAsync: createRoom,
   data: createRoomData,
-  loading: createRoomLoading,
+  isPending: createRoomLoading,
   error: createRoomError,
 } = useCreateRoom();
 
 const {
-  call: deleteRoom,
-  loading: deleteRoomLoading,
+  mutateAsync: deleteRoom,
+  isPending: deleteRoomLoading,
   error: deleteRoomError,
 } = useDeleteRoom();
 
-onMounted(async () => {
-  if (roomId.value) {
-    const result = await call(roomId.value);
+const {
+  mutateAsync: uploadFile,
+  isPending: uploadFileLoading,
+  data: uploadFileData,
+  error: uploadFileError,
+} = useUploadFile();
 
-    if (!result || roomCacheError.value) {
-      await router.push({ name: ROUTES.ROOMS_LIST });
+watch(
+  [() => roomReqData.value?.id, getRoomError],
+  ([newId, hasError]) => {
+    if (newId) {
+      if (!hasError && roomReqData.value) {
+        isDeletable.value = !roomReqData.value.isActive;
+        roomData.value = mapResponseToRequest(
+          toRaw(roomReqData.value) as RoomDetailsResponseDTO
+        );
+
+        pictureMetaData.value = mapResponseToFileMock(
+          roomReqData.value.picture
+        );
+      } else {
+        router.push({ name: ROUTES.ROOMS_LIST });
+        return;
+      }
+    }
+  },
+  { immediate: true }
+);
+
+const uploadPicture = async (value: File | File[]) => {
+  const pictureToUpload = Array.isArray(value) ? value[0] : value;
+
+  if (pictureToUpload) {
+    await uploadFile({ file: pictureToUpload });
+    if (uploadFileError.value) {
       return;
     }
-
-    isDeletable.value = !result.isActive;
-    roomData.value = mapResponseToRequest(
-      toRaw(result) as RoomDetailsResponseDTO
-    );
-  } else {
-    roomData.value = { ...EMPTY_ROOM_DATA };
   }
-});
+
+  const fileData = pictureToUpload ? uploadFileData.value : undefined;
+
+  pictureMetaData.value = mapResponseToFileMock(fileData);
+  roomData.value = {
+    ...roomData.value,
+    pictureId: fileData?.id,
+  };
+};
 
 const handleSave = async () => {
   if (roomId.value) {
@@ -373,11 +427,6 @@ const onSuccess = (
     message: msg,
   });
 
-  call.cache.set(
-    newRoomData.id,
-    Promise.resolve(newRoomData) as Promise<RoomDetailsResponseDTO>
-  );
-
   router.replace({
     name: ROUTES.ROOMS_DETAILS,
     params: { id: newRoomData.id },
@@ -389,8 +438,6 @@ const handleDelete = async () => {
     await deleteRoom({ roomId: roomId.value });
 
     if (!deleteRoomError.value) {
-      call.delete(roomId.value);
-
       snackbar.add({
         level: Levels.SUCCESS,
         message: t("generics.deleted", { domain: t("domain.room.header") }),

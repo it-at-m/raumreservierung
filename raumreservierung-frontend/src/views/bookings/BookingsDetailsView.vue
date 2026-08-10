@@ -9,6 +9,7 @@
     </template>
     <template #headerActions>
       <base-button
+        v-if="!isCanceledOrUnfeasible"
         secondary
         :append-icon="mdiPencil"
         :text="t('common.edit')"
@@ -41,6 +42,10 @@
                   :id="getBookingData?.id"
                   :title="getBookingData?.title"
                   :schedule="getBookingData?.schedule"
+                  :status="getBookingData?.status"
+                  :reason-for-status-change="
+                    getBookingData?.reasonForStatusChange
+                  "
                 />
               </v-responsive>
             </v-skeleton-loader>
@@ -243,6 +248,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify/framework";
 
+import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 import AppointmentListItem from "@/components/booking/AppointmentListItem.vue";
 import BookingGeneralInfoCard from "@/components/booking/BookingGeneralInfoCard.vue";
 import ScheduleTimelineCard from "@/components/booking/ScheduleTimelineCard.vue";
@@ -357,6 +363,15 @@ const computedRRule = computed(() => {
     return rrule.toText(rruleGetText, rruleDeLanguage);
   }
   return "";
+});
+
+const isCanceledOrUnfeasible = computed(() => {
+  const status = getBookingData.value?.status;
+  return (
+    !!status &&
+    (status.currentStatus === BookingStatusDTOCurrentStatusEnum.CANCELED ||
+      status.currentStatus === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE)
+  );
 });
 </script>
 

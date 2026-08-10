@@ -1,3 +1,5 @@
+import type { Role } from "@/types/Role.ts";
+
 class User {
   sub = "";
   name = "";
@@ -14,7 +16,7 @@ class User {
   // LHM_Extended
   preferred_username = "";
   memberof: string[] = [];
-  user_roles: string[] = [];
+  user_roles: Role | undefined;
   authorities: string[] = [];
   resource_access?: Record<string, { roles?: string[] }>;
 }
@@ -26,7 +28,7 @@ export function UserLocalDevelopment(): User {
   u.authorities = [
     // todo add authorities
   ];
-  u.user_roles = ["raumadmin"];
+  u.user_roles = "raumadmin";
   return u;
 }
 

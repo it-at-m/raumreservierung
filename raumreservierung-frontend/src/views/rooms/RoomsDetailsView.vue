@@ -37,7 +37,10 @@
 
     <template #default>
       <v-row class="mb-4">
-        <v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
           <v-skeleton-loader
             :loading="getRoomLoading"
             type="article"
@@ -77,28 +80,40 @@
             </v-responsive>
           </v-skeleton-loader>
         </v-col>
-        <v-col>
+        <v-col
+          cols="12"
+          md="6"
+        >
           <v-skeleton-loader
-            :loading="getRoomLoading"
+            :loading="getRoomLoading || pictureLoading"
             class="mb-4"
             type="image"
           >
-            <v-responsive>
-              <v-card
-                class="mb-4 d-flex align-center justify-center bg-grey-lighten-4"
-                height="250"
-                flat
-                border
+            <v-card
+              class="mb-4 bg-grey-lighten-4 overflow-hidden"
+              height="300"
+              flat
+              border
+            >
+              <v-img
+                v-if="pictureUrl"
+                :src="pictureUrl"
+                class="h-100"
+                cover
+              />
+
+              <div
+                v-else
+                class="h-100 d-flex flex-column align-center justify-center"
               >
-                <div class="text-center text-grey">
-                  <v-icon
-                    :icon="mdiImage"
-                    size="48"
-                    class="mb-2"
-                  />
-                </div>
-              </v-card>
-            </v-responsive>
+                <v-icon
+                  :icon="mdiImage"
+                  size="64"
+                  color="accent"
+                  class="mb-2"
+                />
+              </div>
+            </v-card>
           </v-skeleton-loader>
         </v-col>
       </v-row>
@@ -218,8 +233,6 @@
 </template>
 
 <script setup lang="ts">
-import type { RoomDetailsResponseDTO } from "@/api/raumreservierung-backend";
-
 import {
   mdiAccountOutline,
   mdiArrowLeft,
@@ -232,7 +245,8 @@ import {
   mdiSofaSingleOutline,
   mdiTextureBox,
 } from "@mdi/js";
-import { computed, onMounted, ref } from "vue";
+import { useObjectUrl } from "@vueuse/core";
+import { computed, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify/framework";
@@ -240,7 +254,8 @@ import { useDisplay } from "vuetify/framework";
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
-import { useRoomCache } from "@/composables/cache/useRoomCache.ts";
+import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
+import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
@@ -253,25 +268,23 @@ const { t } = useI18n();
 
 const id = computed(() => route.params.id as string | undefined);
 
-const roomData = ref<RoomDetailsResponseDTO>();
-
 const canEditRoom = useIsPrivileged("rooms:write");
 
-const { call, loading: getRoomLoading } = useRoomCache();
+const { data: roomData, isPending: getRoomLoading, error } = useGetRoom(id);
 
-onMounted(async () => {
-  if (id.value) {
-    const result = await call(id.value);
+const { data: picture, isLoading: pictureLoading } = useGetFile(
+  () => roomData.value?.picture?.id
+);
 
-    if (result) {
-      roomData.value = result as RoomDetailsResponseDTO;
-    } else {
-      await router.replace({
-        name: ROUTES.ROOMS_LIST,
-      });
-    }
+watch([error, () => roomData.value?.id], async () => {
+  if (error.value) {
+    await router.replace({
+      name: ROUTES.ROOMS_LIST,
+    });
   }
 });
+
+const pictureUrl = useObjectUrl(picture);
 </script>
 
 <style scoped>

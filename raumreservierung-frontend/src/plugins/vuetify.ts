@@ -45,10 +45,21 @@ export default createVuetify({
           info: "#03a9f4",
           warning: "#ff9800",
           // Status colors
-          blocked: "#7290D3",
-          reserved: "#809C00",
-          requested: "#af64d4", //#af64d4
-          canceled: "#D54234",
+          statusNew: "#909090",
+          statusRequested: "#668bdf",
+          statusApproved: "#809C00",
+          statusCoordination: "#af64d4",
+          statusCanceled: "#D54234",
+        },
+      },
+      dark: {
+        colors: {
+          // Status colors
+          statusNew: "#909090",
+          statusRequested: "#668bdf",
+          statusApproved: "#809C00",
+          statusCoordination: "#af64d4",
+          statusCanceled: "#D54234",
         },
       },
     },

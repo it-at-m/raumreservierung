@@ -23,14 +23,17 @@ const rolePrivilegeMapping = {
     "equipment:write",
     "seating:write",
     "users:manage",
+    "appointments:self",
   ],
   raumbuchung: [
     "bookings:self",
     "bookings:read",
     "bookings:write",
+    "bookings:read",
     "bookings:manage",
     "calendar:write",
     "rooms:read",
+    "appointments:self",
   ],
   terminorganisator: [
     "bookings:self",
@@ -38,17 +41,19 @@ const rolePrivilegeMapping = {
     "calendar:read",
     "rooms:read",
     "bookings:write",
+    "bookings:read",
+    "bookings:manage",
+    "appointments:self",
   ],
   leseberechtigt: [
     "bookings:self",
     "bookings:read",
     "calendar:read",
     "rooms:read",
+    "appointments:self",
   ],
-  anwender: ["bookings:self", "rooms:read"],
+  anwender: ["bookings:self", "rooms:read", "appointments:self"],
 } satisfies Record<Role, readonly Privilege[]>;
-
-const roleKeys = Object.keys(rolePrivilegeMapping) as Role[];
 
 /**
  * Compares the two array and determines if the provided privileges are sufficient
@@ -67,21 +72,15 @@ export const hasPrivileges = (
 };
 
 /**
- * Check if string matches one of the possible roles
+ * Calculates the corresponding privileges
  */
-const isRole = (value: string): value is Role =>
-  (roleKeys as readonly string[]).includes(value);
-
-/**
- * Maps string array to roles and calculates the corresponding privileges
- */
-export const mapSimpleRolesToPrivileges = (
-  userRoles: string[]
+export const mapSimpleRoleToPrivileges = (
+  userRole: Role | undefined
 ): Privilege[] => {
-  const privileges = userRoles
-    .map((value) => value.toLowerCase())
-    .filter(isRole)
-    .flatMap((role) => rolePrivilegeMapping[role]);
+  if (!userRole) {
+    return [];
+  }
+  const privileges = rolePrivilegeMapping[userRole];
 
   return [...new Set(privileges)];
 };

@@ -554,6 +554,29 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/HolidayResponseDTO"
+  /file:
+    post:
+      tags:
+      - file-attachment-controller
+      operationId: uploadFile
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              required:
+              - file
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        "201":
+          description: Created
+          content:
+            '*/*':
+              schema:
+                $ref: "#/components/schemas/FileAttachmentUploadResponse"
   /equipment:
     get:
       tags:
@@ -643,6 +666,24 @@ paths:
         schema:
           type: string
           format: date-time
+      - name: status
+        in: query
+        required: false
+        style: form
+        explode: false
+        schema:
+          type: array
+          items:
+            type: string
+            enum:
+            - NEW
+            - ROOM_CHANGED
+            - ORGANIZER_CHANGED
+            - ROOM_APPROVED
+            - COORDINATION_NEEDED
+            - ORGANIZER_APPROVED
+            - UNFEASIBLE
+            - CANCELED
       - name: self
         in: query
         required: false
@@ -673,6 +714,26 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BookingDetailResponseDTO"
+  /file/{fileId}:
+    get:
+      tags:
+      - file-attachment-controller
+      operationId: getFile
+      parameters:
+      - name: fileId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: OK
+          content:
+            '*/*':
+              schema:
+                type: string
+                format: byte
   /appointments:
     get:
       tags:
@@ -957,6 +1018,9 @@ components:
         contactPersonId:
           type: string
           format: uuid
+        pictureId:
+          type: string
+          format: uuid
     SeatingCapacityRequestDTO:
       required:
       - capacity
@@ -1029,6 +1093,19 @@ components:
             type: string
           note:
             type: string
+    FileAttachmentUploadResponse:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        fileName:
+          type: string
+        fileSize:
+          type: integer
+          format: int64
+        contentType:
+          type: string
     InternalPersonResponseDto:
       required:
       - email
@@ -1081,6 +1158,9 @@ components:
           type: string
       discriminator:
         propertyName: type
+        mapping:
+          INTERNAL: "#/components/schemas/InternalPersonResponseDto"
+          EXTERNAL: "#/components/schemas/ExternalPersonResponseDto"
     RoomDetailsResponseDTO:
       required:
       - area
@@ -1133,6 +1213,8 @@ components:
           oneOf:
           - $ref: "#/components/schemas/ExternalPersonResponseDto"
           - $ref: "#/components/schemas/InternalPersonResponseDto"
+        picture:
+          $ref: "#/components/schemas/FileAttachmentUploadResponse"
     SeatingCapacityResponseDTO:
       required:
       - capacity
@@ -1227,6 +1309,9 @@ components:
           type: string
       discriminator:
         propertyName: type
+        mapping:
+          INTERNAL: "#/components/schemas/InternalPersonRequestDto"
+          EXTERNAL: "#/components/schemas/ExternalPersonRequestDto"
     HolidayRequestDTO:
       required:
       - endDate
@@ -1281,6 +1366,7 @@ components:
     BookingRequestDTO:
       required:
       - schedule
+      - status
       - title
       type: object
       properties:
@@ -1319,6 +1405,21 @@ components:
         seatingTypeId:
           type: string
           format: uuid
+        status:
+          type: string
+          enum:
+          - NEW
+          - ROOM_CHANGED
+          - ORGANIZER_CHANGED
+          - ROOM_APPROVED
+          - COORDINATION_NEEDED
+          - ORGANIZER_APPROVED
+          - UNFEASIBLE
+          - CANCELED
+        reasonForStatusChange:
+          maxLength: 255
+          minLength: 0
+          type: string
     ScheduleTemplate:
       required:
       - occupancyEnd
@@ -1346,6 +1447,7 @@ components:
       - organisationUnit
       - participantCount
       - schedule
+      - status
       - title
       type: object
       properties:
@@ -1385,6 +1487,40 @@ components:
           $ref: "#/components/schemas/SeatingType"
         recurringRule:
           type: string
+        status:
+          $ref: "#/components/schemas/BookingStatusDTO"
+        reasonForStatusChange:
+          type: string
+    BookingStatusDTO:
+      required:
+      - currentStatus
+      - nextPossibleStatus
+      type: object
+      properties:
+        currentStatus:
+          type: string
+          enum:
+          - NEW
+          - ROOM_CHANGED
+          - ORGANIZER_CHANGED
+          - ROOM_APPROVED
+          - COORDINATION_NEEDED
+          - ORGANIZER_APPROVED
+          - UNFEASIBLE
+          - CANCELED
+        nextPossibleStatus:
+          type: array
+          items:
+            type: string
+            enum:
+            - NEW
+            - ROOM_CHANGED
+            - ORGANIZER_CHANGED
+            - ROOM_APPROVED
+            - COORDINATION_NEEDED
+            - ORGANIZER_APPROVED
+            - UNFEASIBLE
+            - CANCELED
     RoomListResponseDTO:
       required:
       - isActive
@@ -1405,6 +1541,9 @@ components:
           type: string
         isActive:
           type: boolean
+        pictureId:
+          type: string
+          format: uuid
     SeatingType:
       type: object
       properties:
@@ -1474,6 +1613,7 @@ components:
       - id
       - isRecurring
       - schedule
+      - status
       - title
       type: object
       properties:
@@ -1505,6 +1645,8 @@ components:
           - $ref: "#/components/schemas/InternalPersonResponseDto"
         recurringRule:
           type: string
+        status:
+          $ref: "#/components/schemas/BookingStatusDTO"
     PagedModelBookingListResponseDTO:
       type: object
       properties:

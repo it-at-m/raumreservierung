@@ -44,16 +44,27 @@
 
         <v-list-item class="px-0 mt-2">
           <v-list-item-subtitle class="mb-2">
-            {{ t("domain.booking.status") }}
+            {{ t("domain.booking.statusTitle") }}
           </v-list-item-subtitle>
-          <v-chip
-            size="small"
-            color="primary"
-            variant="tonal"
-            class="font-weight-bold"
-          >
-            {{ t("common.todo") }}
-          </v-chip>
+          <status-chip
+            :status="status?.currentStatus"
+            variant="outlined"
+          />
+        </v-list-item>
+        <v-list-item
+          v-if="
+            status?.currentStatus ===
+            BookingStatusDTOCurrentStatusEnum.UNFEASIBLE
+          "
+          class="px-0 mt-2"
+        >
+          <v-list-item-subtitle class="mb-2">
+            {{ t("domain.booking.statusChange.reason") }}
+          </v-list-item-subtitle>
+          {{
+            reasonForStatusChange ||
+            t("domain.booking.statusChange.noReasonForStatusChange")
+          }}
         </v-list-item>
       </v-list>
     </template>
@@ -61,12 +72,17 @@
 </template>
 
 <script setup lang="ts">
-import type { ScheduleTemplate } from "@/api/raumreservierung-backend";
+import type {
+  BookingStatusDTO,
+  ScheduleTemplate,
+} from "@/api/raumreservierung-backend";
 
 import { useDateFormat } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
+import StatusChip from "@/components/booking/StatusChip.vue";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 
@@ -74,22 +90,21 @@ const { t } = useI18n();
 
 const showId = useIsPrivileged("bookings:manage");
 
-const props = defineProps<{
+const { schedule } = defineProps<{
   id?: string;
   title?: string;
   schedule?: ScheduleTemplate;
+  status?: BookingStatusDTO;
+  reasonForStatusChange?: string;
 }>();
 
 const isMultiDay = computed(() => {
-  if (!props.schedule?.occupancyStart || !props.schedule?.occupancyEnd)
-    return false;
+  if (!schedule?.occupancyStart || !schedule?.occupancyEnd) return false;
   return (
-    props.schedule.occupancyStart.getDate() !==
-      props.schedule.occupancyEnd.getDate() ||
-    props.schedule.occupancyStart.getMonth() !==
-      props.schedule.occupancyEnd.getMonth() ||
-    props.schedule.occupancyStart.getFullYear() !==
-      props.schedule.occupancyEnd.getFullYear()
+    schedule.occupancyStart.getDate() !== schedule.occupancyEnd.getDate() ||
+    schedule.occupancyStart.getMonth() !== schedule.occupancyEnd.getMonth() ||
+    schedule.occupancyStart.getFullYear() !==
+      schedule.occupancyEnd.getFullYear()
   );
 });
 </script>

@@ -5,13 +5,19 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_ROOM_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_STATUS_CHANGE_NOT_POSSIBLE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UPDATE_OF_FIELDS_NOT_ALLOWED;
 
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.equipment.Equipment;
+import de.muenchen.raumreservierung.person.PersonService;
+import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
 import de.muenchen.raumreservierung.room.RoomService;
 import de.muenchen.raumreservierung.seating.SeatingType;
+import de.muenchen.raumreservierung.security.Roles;
+import de.muenchen.raumreservierung.security.SecurityContextService;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
@@ -23,6 +29,9 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class BookingValidationService {
     private final RoomService roomService;
+    private final BookingTransitionService bookingTransitionService;
+    private final SecurityContextService securityContextService;
+    private final PersonService personService;
 
     /**
      *
@@ -92,7 +101,52 @@ public class BookingValidationService {
     }
 
     /**
-     * VValidates a new booking.
+     * Determines whether the booking status must change automatically.
+     * Automatic changes only in bookings with state COORDINATION_NEEDED, ROOM_APPROVED or
+     * ORGANIZER_APPROVED.
+     * Users with role TERMIN_ORGANISATOR or higher are explicitly excepted from this automation.
+     *
+     * @param booking the booking entity to evaluate
+     * @return true if the booking is in an eligible state and the user is not a coordinator or higher,
+     *         false otherwise
+     */
+    public boolean isObligedToAutomaticStatusChange(final Booking booking) {
+        return (booking.getStatus() == BookingStatus.COORDINATION_NEEDED
+                || booking.getStatus() == BookingStatus.ROOM_APPROVED
+                || booking.getStatus() == BookingStatus.ORGANIZER_APPROVED)
+                && !securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR);
+    }
+
+    /**
+     * Validates if the current user has the authority to access or modify a booking.
+     *
+     * @param booking The booking entity to validate access against.
+     * @param role The specific security role that grants overriding access.
+     * @return true if the user is authorized; false otherwise.
+     */
+    public boolean validateBookingAuthority(final Booking booking, final String role) {
+        return securityContextService.hasAuthority(role) || isOwner(booking);
+    }
+
+    /**
+     * Validates the status transition for a booking update.
+     *
+     * @param existingBooking the current booking state
+     * @param bookingUpdates the requested booking updates
+     * @throws BadRequestException if the status transition or cancellation is invalid
+     */
+    public void validateBookingStatusTransitionOrThrowException(final Booking existingBooking, final Booking bookingUpdates) {
+        if (existingBooking != null) {
+            final boolean isTransitionAllowed = bookingTransitionService.isTransitionAllowed(existingBooking.getStatus(), bookingUpdates.getStatus());
+
+            if (!isTransitionAllowed) {
+                throw new BadRequestException(MSG_STATUS_CHANGE_NOT_POSSIBLE);
+            }
+        }
+    }
+
+    /**
+     * Validates a new booking.
      *
      * @param booking the booking data to validate
      * @throws BadRequestException if the room is inactive, seating type is missing, capacity is
@@ -122,7 +176,7 @@ public class BookingValidationService {
         }
     }
 
-    public void resourcesActiveOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
+    private void resourcesActiveOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
         if (roomChangedToInactive(bookingUpdates, existingBooking)) {
             throw new BadRequestException(MSG_ROOM_INACTIVE);
         }
@@ -131,6 +185,36 @@ public class BookingValidationService {
         }
         if (seatingTypeInactive(bookingUpdates, existingBooking)) {
             throw new BadRequestException(MSG_SEATINGTYPE_INACTIVE);
+        }
+    }
+
+    /**
+     * Validates if the update is restricted solely to a terminal booking status (and its reason if
+     * status is unfeasible).
+     *
+     * @param bookingUpdates the requested booking updates
+     * @param existingBooking the currently existing booking
+     * @throws BadRequestException if other fields are modified
+     */
+    public void validateTerminalStatusOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
+        if (existingBooking == null) {
+            return;
+        }
+        final Booking expectedBooking = new Booking();
+        expectedBooking.updateFrom(existingBooking);
+        // status is the only field that can be changed by user
+        expectedBooking.setStatus(bookingUpdates.getStatus());
+        // these fields can't be changed by user
+        expectedBooking.setId(bookingUpdates.getId());
+        expectedBooking.setBookedBy(bookingUpdates.getBookedBy());
+        expectedBooking.setOrganisationUnit(bookingUpdates.getOrganisationUnit());
+
+        if (bookingUpdates.getStatus() == BookingStatus.UNFEASIBLE) {
+            expectedBooking.setReasonForStatusChange(bookingUpdates.getReasonForStatusChange());
+        }
+
+        if (!bookingUpdates.equals(expectedBooking)) {
+            throw new BadRequestException(MSG_UPDATE_OF_FIELDS_NOT_ALLOWED);
         }
     }
 
@@ -167,6 +251,11 @@ public class BookingValidationService {
 
         return !Objects.equals(seatingTypeUpdate, existingSeatingType)
                 && seatingTypeUpdate.filter(s -> !s.isActive()).isPresent();
+    }
+
+    private boolean isOwner(final Booking booking) {
+        final InternalPerson internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
+        return booking.getBookedBy().getId().equals(internalPerson.getId()) || booking.getBookedFor().getId().equals(internalPerson.getId());
     }
 
 }
