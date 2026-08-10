@@ -422,7 +422,7 @@ const snackbarStore = useSnackbarStore();
 
 const roomIdToFetch = computed(() => getBookingData.value?.room?.id);
 
-const { isPending: getRoomLoading, data: roomReqData } =
+const { isLoading: getRoomLoading, data: roomReqData } =
   useGetRoom(roomIdToFetch);
 
 const isBookingEditable = useIsBookingEditable(bookingData);
