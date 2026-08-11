@@ -9,21 +9,27 @@
     item-title="name"
     variant="outlined"
     :disabled="getRoomsLoading || loading"
-    hide-details
+    hide-details="auto"
+    :multiple="multiple"
   />
 </template>
 
-<script setup lang="ts">
+<script setup lang="ts" generic="IsMultiple extends boolean = false">
 import { mdiDoor } from "@mdi/js";
 import { computed } from "vue";
 
 import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
 
-const modelValue = defineModel<string>();
+const modelValue = defineModel<IsMultiple extends true ? string[] : string>();
 
-const { loading = false, showInactive = false } = defineProps<{
+const {
+  loading = false,
+  showInactive = false,
+  multiple = false as IsMultiple,
+} = defineProps<{
   loading?: boolean;
   showInactive?: boolean;
+  multiple?: IsMultiple;
 }>();
 
 const filteredRooms = computed(
