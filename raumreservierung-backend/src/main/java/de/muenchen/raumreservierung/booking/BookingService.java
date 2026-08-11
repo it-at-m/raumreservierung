@@ -77,7 +77,7 @@ public class BookingService {
         final Page<Booking> bookings = bookingRepository.findAll(
                 statusOrder == null
                         ? bookingSpecification
-                        : bookingSpecification.and(BookingSpecificationBuilder.withFixedStatusOrder(statusOrder.getDirection())),
+                        : bookingSpecification.and(BookingSpecifications.withFixedStatusOrder(statusOrder.getDirection())),
                 statusOrder == null
                         ? pageable
                         : PageRequest.of(pageable.getPageNumber(), pageable.getPageSize()));
