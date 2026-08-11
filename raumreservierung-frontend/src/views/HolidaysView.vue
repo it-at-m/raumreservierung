@@ -130,27 +130,27 @@ const isPublic = computed(() => {
 
 const filteredHolidays = computed(() => {
   return holidayStore.currentHolidays.filter(
-    (holiday) =>
+    (holiday: HolidayResponseDTO) =>
       (holiday.startDate.getTime() === holiday.endDate.getTime()) ===
       isPublic.value
   );
 });
 
 const {
-  call: createHolidayCall,
-  loading: createHolidayLoading,
+  mutateAsync: createHolidayCall,
+  isPending: createHolidayLoading,
   error: createHolidayError,
 } = useCreateHoliday();
 
 const {
-  call: updateHolidayCall,
-  loading: updateHolidayLoading,
+  mutateAsync: updateHolidayCall,
+  isPending: updateHolidayLoading,
   error: updateHolidayError,
 } = useUpdateHoliday();
 
 const {
-  call: deleteHolidayCall,
-  loading: deleteHolidayLoading,
+  mutateAsync: deleteHolidayCall,
+  isPending: deleteHolidayLoading,
   error: deleteHolidayError,
 } = useDeleteHoliday();
 
@@ -228,9 +228,9 @@ const deleteHoliday = async (id: string) => {
  * @param yearOverride the year to refresh
  */
 const onSuccess = async (msg: string, yearOverride?: number) => {
-  await holidayStore.loadYear(selectedYear.value, true);
+  holidayStore.loadYear(selectedYear.value);
   if (yearOverride && yearOverride !== selectedYear.value) {
-    await holidayStore.loadYear(yearOverride, true);
+    holidayStore.loadYear(yearOverride);
   }
 
   if (tableRef.value) {
