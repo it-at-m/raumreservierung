@@ -37,6 +37,8 @@
         hide-details="auto"
         :label="t('domain.scheduleTemplate.date')"
         :rules="[requiredRule]"
+        :messages="dateHint ? [dateHint] : []"
+        :class="{ 'text-warning': dateHint }"
       />
     </v-col>
     <v-col v-if="multiDay">
@@ -48,6 +50,8 @@
         type="date"
         :label="t('domain.scheduleTemplate.endDate')"
         :rules="[requiredRule]"
+        :messages="dateHint ? [dateHint] : []"
+        :class="{ 'text-warning': dateHint }"
       />
     </v-col>
   </v-row>
@@ -122,13 +126,17 @@
 </template>
 
 <script setup lang="ts">
-import type { ScheduleTemplate } from "@/api/raumreservierung-backend";
+import type {
+  HolidayResponseDTO,
+  ScheduleTemplate,
+} from "@/api/raumreservierung-backend";
 
 import { mdiClockOutline } from "@mdi/js";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import DateTimeTextField from "@/components/common/date/DateTimeTextField.vue";
+import { useGetHolidays } from "@/composables/api/useHolidayApi.ts";
 import { useRules } from "@/composables/useRules";
 import { SCHEDULE_DEFAULT_DURATION } from "@/constants.ts";
 import { dateEquals } from "@/util/timeUtil.ts";
@@ -298,6 +306,83 @@ const validateApptEndWithinOccupancy = () =>
   !occupancyEnd.value ||
   appointmentEnd.value <= occupancyEnd.value ||
   t("common.rules.apptEndAfterOccupancy");
+
+const toYearParams = (date: Date | undefined) =>
+  date ? { year: date.getFullYear() } : undefined;
+
+const startParams = computed(() => toYearParams(occupancyStart.value));
+const endParams = computed(() =>
+  multiDay.value ? toYearParams(occupancyEnd.value) : undefined
+);
+
+const { data: startYearHolidays } = useGetHolidays(startParams);
+const { data: endYearHolidays } = useGetHolidays(endParams);
+
+const toDayStart = (date: Date) =>
+  new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+const rangesOverlap = (aStart: Date, aEnd: Date, bStart: Date, bEnd: Date) =>
+  toDayStart(aStart) <= toDayStart(bEnd) &&
+  toDayStart(bStart) <= toDayStart(aEnd);
+
+const holidaysInRange = computed(() => {
+  if (!occupancyStart.value) {
+    return false;
+  }
+
+  const bookingStart = occupancyStart.value;
+  const bookingEnd =
+    multiDay.value && occupancyEnd.value ? occupancyEnd.value : bookingStart;
+
+  const holidays = [
+    ...(startYearHolidays.value ?? []),
+    ...(endYearHolidays.value ?? []),
+  ];
+
+  const uniqueHolidays = Array.from(
+    new Map(
+      holidays.map((h) => [h.id ?? `${h.name}-${h.startDate}`, h])
+    ).values()
+  );
+
+  return uniqueHolidays.filter((h) =>
+    rangesOverlap(
+      bookingStart,
+      bookingEnd,
+      new Date(h.startDate),
+      new Date(h.endDate)
+    )
+  );
+});
+
+const formatDate = (date: Date) =>
+  date.toLocaleDateString("de-DE", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+  });
+
+const formatHolidayDate = (holiday: HolidayResponseDTO) => {
+  const start = new Date(holiday.startDate);
+  const end = new Date(holiday.endDate);
+
+  const isSingleDay =
+    start.getFullYear() === end.getFullYear() &&
+    start.getMonth() === end.getMonth() &&
+    start.getDate() === end.getDate();
+
+  return isSingleDay
+    ? formatDate(start)
+    : `${formatDate(start)} - ${formatDate(end)}`;
+};
+
+const dateHint = computed(() =>
+  holidaysInRange.value && holidaysInRange.value.length > 0
+    ? `Überschneidungen mit folgenden Ferien oder Feiertagen: ${holidaysInRange.value
+        .map((h) => `${h.name} (${formatHolidayDate(h)})`)
+        .join(", ")}`
+    : undefined
+);
 </script>
 
 <style scoped></style>
