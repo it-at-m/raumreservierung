@@ -4,6 +4,9 @@
     "no": "Nein",
     "cancel": "Abbrechen",
     "rescind": "Stornieren",
+    "reserve": "Vormerken",
+    "refuse": "Ablehnen",
+    "book": "Buchen",
     "delete": "Löschen",
     "save": "Speichern",
     "edit": "Bearbeiten",
@@ -30,7 +33,8 @@
     "format": {
       "idFormat": "#{id}",
       "dateSingle": "{date}",
-      "dateRange": "{start} - {end}"
+      "dateRange": "{start} - {end}",
+      "fullName": "{firstName} {lastName}"
     }
   },
   "app": {
@@ -44,6 +48,10 @@
   "components": {
     "roomResourceManagementCard": {
       "subtitle": "Neue {domain} zu bestehender Liste hinzufügen."
+    },
+    "bookingDetailsSummary": {
+      "annotation": "Anmerkung",
+      "selectedEquipment": "Gewählte Ausstattung"
     },
     "dateDisplay": "{day} den {date}",
     "scheduleTimelineCard": {
@@ -124,7 +132,7 @@
     },
     "bookingDetailsView": {
       "header": "Buchungsdetails",
-      "participants": "Teilnehmende {count}",
+      "participants": "{count} Teilnehmende",
       "chosenSeatingType": "Gewählte Bestuhlung",
       "bookedBy": "Gebucht von {firstName} {lastName}",
       "bookedFor": "Gebucht für {firstName} {lastName}",
@@ -198,6 +206,7 @@
     "booking": {
       "header": "Buchung | Buchungen",
       "participants": "Teilnehmende | Teilnehmenden",
+      "participantCount": "{count} Teilnehmende",
       "statusTitle": "Status",
       "date": "Datum",
       "recurrenceRule": "Terminserie",
@@ -205,6 +214,10 @@
       "internalNotes": "Interne Notizen",
       "appointment": "Veranstaltungszeit",
       "occupancy": "Belegungszeit",
+      "appointmentType": {
+        "single": "Einzeltermin",
+        "series": "Serientermin"
+      },
       "statusChange": {
         "noReasonForStatusChange": "Kein Grund angegeben",
         "enterReason": "Begründung eingeben",

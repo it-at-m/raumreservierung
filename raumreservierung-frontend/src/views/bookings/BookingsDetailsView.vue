@@ -98,7 +98,7 @@
             :title="t('domain.seatingType.header')"
             :icon="mdiSofaSingleOutline"
             :subtitle="
-              t('views.bookingDetailsView.participants', {
+              t('domain.booking.participantCount', {
                 count: getBookingData?.participantCount,
               })
             "
