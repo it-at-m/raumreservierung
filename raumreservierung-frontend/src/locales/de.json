@@ -261,7 +261,7 @@
       "appointmentEnd": "Veranstaltungsende"
     },
     "room": {
-      "header": "Raum",
+      "header": "Raum | Räume",
       "details": "Raumdetails",
       "contactPerson": "Kontaktperson",
       "capacity": {
