@@ -11,14 +11,12 @@
         :icon="config.icon"
         :color="config.color"
         class="mr-2"
-      ></v-icon>
+      />
     </template>
   </v-chip>
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-
 import { useBookingStatusConfig } from "@/composables/useBookingStatus";
 
 const { variant = "outlined", status } = defineProps<{
@@ -26,7 +24,5 @@ const { variant = "outlined", status } = defineProps<{
   variant?: "text" | "outlined";
 }>();
 
-const { getStatusConfig } = useBookingStatusConfig();
-
-const config = computed(() => getStatusConfig(status));
+const { config } = useBookingStatusConfig(() => status);
 </script>

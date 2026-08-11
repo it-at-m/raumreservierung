@@ -18,10 +18,16 @@ import {
 import { useUserStore } from "@/stores/user.ts";
 
 export const useIsBookingEditable = (
-  booking: MaybeRefOrGetter<BookingRequestDTO | BookingDetailResponseDTO>
+  booking: MaybeRefOrGetter<
+    BookingRequestDTO | BookingDetailResponseDTO | undefined
+  >
 ) => {
   return computed(() => {
     const bookingRef = toValue(booking);
+
+    if (!bookingRef) {
+      return false;
+    }
 
     const status =
       typeof bookingRef.status === "string"
