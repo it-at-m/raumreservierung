@@ -6,8 +6,13 @@ export function toDateString(date: Date): string {
   return date ? date.toLocaleDateString() : "";
 }
 
-export function toTimeString(date: Date): string {
-  return date ? date.toLocaleTimeString() : "";
+export function toTimeString(date?: Date | undefined): string {
+  return date
+    ? date.toLocaleTimeString(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
 }
 
 export function toDateAndTimeString(date: Date): string {
