@@ -342,10 +342,10 @@ const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
   }
 };
 
-const canViewBookedFor = useIsPrivileged("bookings:read");
+const canViewBookedBy = useIsPrivileged("bookings:read");
 
 const bookedByComputed = computed(() => {
-  if (!canViewBookedFor.value) {
+  if (!canViewBookedBy.value) {
     return "";
   }
   return getBookingData?.value?.bookedBy?.id ===
