@@ -23,12 +23,6 @@ const NAV_ENTRIES: readonly NavEntry[] = [
     requiredPrivilege: "bookings:self",
   },
   {
-    kind: "item",
-    textKey: "navigationDrawer.bookings",
-    to: { name: ROUTES.BOOKINGS_LIST },
-    requiredPrivilege: ["bookings:manage", "bookings:read"],
-  },
-  {
     kind: "group",
     textKey: "navigationDrawer.bookingGroup.groupTitle",
     requiredPrivilege: "bookings:manage",
@@ -45,6 +39,12 @@ const NAV_ENTRIES: readonly NavEntry[] = [
         requiredPrivilege: "calendar:write",
       },
     ],
+  },
+  {
+    kind: "item",
+    textKey: "navigationDrawer.bookings",
+    to: { name: ROUTES.BOOKINGS_LIST },
+    requiredPrivilege: ["bookings:manage", "bookings:read"],
   },
   {
     kind: "group",
@@ -122,13 +122,11 @@ const calculateNavEntries = (
 ): NavEntry[] => {
   const normalizedUserPrivileges = new Set(normalizePrivileges(userPrivileges));
 
-  const hasPrivilege = (required?: Privilege | Privilege[]) => {
-    if (!required) {
-      return true;
-    }
-    const requiredList = Array.isArray(required) ? required : [required];
-    return requiredList.some((r) => normalizedUserPrivileges.has(r));
-  };
+  const hasPrivilege = (required?: Privilege | Privilege[]) =>
+    !required ||
+    (Array.isArray(required) ? required : [required]).some((r) =>
+      normalizedUserPrivileges.has(r)
+    );
 
   return entries
     .filter((entry) => hasPrivilege(entry.requiredPrivilege))
