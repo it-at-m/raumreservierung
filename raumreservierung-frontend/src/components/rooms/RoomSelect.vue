@@ -2,6 +2,7 @@
   <v-select
     v-model="modelValue"
     v-bind="$attrs"
+    color="accent"
     :multiple="multiple"
     :prepend-inner-icon="mdiDoor"
     :loading="getRoomsLoading || loading"
