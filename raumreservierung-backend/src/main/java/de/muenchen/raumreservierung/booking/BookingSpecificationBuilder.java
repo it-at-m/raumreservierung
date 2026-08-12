@@ -3,6 +3,7 @@ package de.muenchen.raumreservierung.booking;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.room.Room_;
+import de.muenchen.raumreservierung.seating.SeatingType_;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
@@ -93,5 +94,19 @@ public final class BookingSpecificationBuilder {
             }
             return null;
         };
+    }
+
+    private static <T extends Booking> Specification<T> filterForSeatingTypeId(final UUID seatingTypeId) {
+        return (root, query, cb) -> cb.equal(root.get(Booking_.seatingType).get(SeatingType_.id), seatingTypeId);
+    }
+
+    private static <T extends Booking> Specification<T> filterForOccupancyEndAfter(final OffsetDateTime now) {
+        return (root, query, cb) -> cb.greaterThan(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyEnd), now);
+    }
+
+    public static <T extends Booking> Specification<T> forFutureSeatingTypeUsage(final UUID seatingTypeId) {
+        return Specification.allOf(
+                filterForSeatingTypeId(seatingTypeId),
+                filterForOccupancyEndAfter(OffsetDateTime.now()));
     }
 }

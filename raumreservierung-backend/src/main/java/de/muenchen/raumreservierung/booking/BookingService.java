@@ -325,4 +325,9 @@ public class BookingService {
 
     }
 
+    public boolean existsFutureBookingForSeatingType(final UUID seatingTypeId) {
+        final Specification<Booking> spec = BookingSpecificationBuilder.forFutureSeatingTypeUsage(seatingTypeId);
+        return bookingRepository.exists(spec);
+    }
+
 }

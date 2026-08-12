@@ -1,8 +1,10 @@
 package de.muenchen.raumreservierung.seating;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_IN_FUTURE_BOOKING;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
+import de.muenchen.raumreservierung.booking.BookingService;
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
@@ -19,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class SeatingService {
 
     private final SeatingRepository seatingRepository;
+    private final BookingService bookingService;
 
     public final SeatingType getReferenceById(final UUID seatingId) {
         return seatingRepository.getReferenceById(seatingId);
@@ -50,6 +53,10 @@ public class SeatingService {
 
         if (toDelete.isActive()) {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, seatingTypeId));
+        }
+
+        if (bookingService.existsFutureBookingForSeatingType(seatingTypeId)) {
+            throw new ConflictException(String.format(MSG_CANNOT_DELETE_IN_FUTURE_BOOKING, seatingTypeId));
         }
 
         log.debug("Deleting Seating {}", seatingTypeId);
