@@ -99,23 +99,14 @@ const crudRef = useTemplateRef("crudRef");
 const { data: allSeatingTypesData, isPending: getAllSeatingTypeLoading } =
   useGetAllSeatingTypes();
 
-const {
-  mutateAsync: deleteSeatingTypeCall,
-  isPending: deleteSeatingTypeLoading,
-  error: deleteSeatingTypeError,
-} = useDeleteSeatingType();
+const { mutate: deleteSeatingTypeCall, isPending: deleteSeatingTypeLoading } =
+  useDeleteSeatingType();
 
-const {
-  mutateAsync: createSeatingTypeCall,
-  isPending: createSeatingTypeLoading,
-  error: createSeatingTypeError,
-} = useCreateSeatingType();
+const { mutate: createSeatingTypeCall, isPending: createSeatingTypeLoading } =
+  useCreateSeatingType();
 
-const {
-  mutateAsync: updateSeatingTypeCall,
-  isPending: updateSeatingTypeLoading,
-  error: updateSeatingTypeError,
-} = useUpdateSeatingType();
+const { mutate: updateSeatingTypeCall, isPending: updateSeatingTypeLoading } =
+  useUpdateSeatingType();
 
 const headers: TableHeader<SeatingTypeResponseDto>[] = [
   { title: t("domain.seatingType.name"), value: "name", sortable: true },
@@ -134,35 +125,47 @@ const EMPTY_ITEM_TEMPLATE = {
 } as SeatingTypeResponseDto;
 
 const handleCreate = async (newItem: SeatingTypeResponseDto) => {
-  await createSeatingTypeCall({ seatingTypeRequestDto: newItem });
-  if (!createSeatingTypeError.value) {
-    await onSuccess(
-      t("generics.created", { domain: t("domain.seatingType.header") })
-    );
-  }
+  createSeatingTypeCall(
+    { seatingTypeRequestDto: newItem },
+    {
+      onSuccess: () => {
+        onSuccess(
+          t("generics.created", { domain: t("domain.seatingType.header") })
+        );
+      },
+    }
+  );
 };
 
 const handleUpdate = async (updatedItem: SeatingTypeResponseDto) => {
   if (updatedItem.id) {
-    await updateSeatingTypeCall({
-      seatingTypeRequestDto: updatedItem,
-      seatingTypeId: updatedItem.id,
-    });
-    if (!updateSeatingTypeError.value) {
-      await onSuccess(
-        t("generics.updated", { domain: t("domain.seatingType.header") })
-      );
-    }
+    updateSeatingTypeCall(
+      {
+        seatingTypeRequestDto: updatedItem,
+        seatingTypeId: updatedItem.id,
+      },
+      {
+        onSuccess: () => {
+          onSuccess(
+            t("generics.updated", { domain: t("domain.seatingType.header") })
+          );
+        },
+      }
+    );
   }
 };
 
 const handleDelete = async (id: string) => {
-  await deleteSeatingTypeCall({ seatingTypeId: id });
-  if (!deleteSeatingTypeError.value) {
-    await onSuccess(
-      t("generics.deleted", { domain: t("domain.seatingType.header") })
-    );
-  }
+  deleteSeatingTypeCall(
+    { seatingTypeId: id },
+    {
+      onSuccess: () => {
+        onSuccess(
+          t("generics.deleted", { domain: t("domain.seatingType.header") })
+        );
+      },
+    }
+  );
 };
 
 const onSuccess = async (msg: string) => {
