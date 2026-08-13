@@ -23,10 +23,6 @@ public class SeatingService {
     private final SeatingRepository seatingRepository;
     private final BookingService bookingService;
 
-    public final SeatingType getReferenceById(final UUID seatingId) {
-        return seatingRepository.getReferenceById(seatingId);
-    }
-
     public List<SeatingType> findAll() {
         final List<SeatingType> allSeatingTypes = seatingRepository.findAll();
         log.debug("Found {} Seatings", allSeatingTypes.size());
@@ -67,5 +63,9 @@ public class SeatingService {
         return seatingRepository
                 .findById(seatingTypeId)
                 .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, seatingTypeId)));
+    }
+
+    public boolean existsFutureBookingForSeatingType(final UUID seatingTypeId) {
+        return bookingService.existsFutureBookingForSeatingType(seatingTypeId);
     }
 }

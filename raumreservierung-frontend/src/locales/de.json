@@ -161,6 +161,8 @@
     "inActive": "{domain} inaktiv",
     "confirmMsg": "Möchten Sie den \"{domain}\" endgültig löschen?",
     "confirmDelete": "Möchten Sie den Eintrag aus \"{domain}\" endgültig löschen?",
+    "checkDelete": "Es wird geprüft, ob Entität gelöscht werden kann",
+    "cantDelete": "Das Löschen ist nicht möglich – die Entität wird in einer aktuellen oder zukünftigen Buchung verwendet. Bitte stattdessen deaktivieren.",
     "deleted": "{domain} wurde gelöscht.",
     "updated": "{domain} wurde aktualisiert.",
     "created": "{domain} wurde erstellt.",
