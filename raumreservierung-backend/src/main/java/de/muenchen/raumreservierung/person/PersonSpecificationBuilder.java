@@ -3,11 +3,10 @@ package de.muenchen.raumreservierung.person;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.person.domain.Person_;
 import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
+import jakarta.persistence.criteria.Expression;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
-
-import jakarta.persistence.criteria.Expression;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class PersonSpecificationBuilder {
@@ -36,8 +35,7 @@ public final class PersonSpecificationBuilder {
         return (root, query, cb) -> {
             final Expression<String> fullNameExpr = cb.concat(
                     root.get(Person_.firstName),
-                    cb.concat(" ", root.get(Person_.lastName))
-            );
+                    cb.concat(" ", root.get(Person_.lastName)));
             return cb.like(cb.lower(fullNameExpr), toLikePattern(searchName));
         };
     }
