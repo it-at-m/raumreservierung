@@ -46,9 +46,7 @@
                   :reason-for-status-change="
                     getBookingData?.reasonForStatusChange
                   "
-                  :booking-type="
-                    getBookingTypeText(getBookingData?.bookingType)
-                  "
+                  :booking-type="bookingTypeText(getBookingData?.bookingType)"
                 />
               </v-responsive>
             </v-skeleton-loader>
@@ -287,7 +285,7 @@ const {
 const { call: getAppointmentPage, data: appointmentPage } =
   useGetAppointments();
 
-const { getBookingTypeText } = useBookingType();
+const { bookingTypeOptions } = useBookingType();
 
 onMounted(async () => {
   if (bookingId.value) {
@@ -372,6 +370,11 @@ const isCanceledOrUnfeasible = computed(() => {
       status.currentStatus === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE)
   );
 });
+
+const bookingTypeText = (value?: string) => {
+  const key = bookingTypeOptions.find((opt) => opt.value === value)?.key;
+  return key ? t(key) : undefined;
+};
 </script>
 
 <style scoped>
