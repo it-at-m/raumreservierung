@@ -2,15 +2,11 @@
   <v-autocomplete
     v-model="modelValue"
     :label="
-      isInternalSelected
-        ? t('components.externalPersonSelect.coveredByInternal')
-        : t('components.externalPersonSelect.searchExternal')
+      hasOppositeTypeSelected
+        ? localization.labelCoveredBy
+        : localization.labelSearch
     "
-    :hint="
-      isInternalSelected
-        ? t('components.externalPersonSelect.internalAlreadySelectedHint')
-        : ''
-    "
+    :hint="hasOppositeTypeSelected ? localization.hintAlreadySelected : ''"
     persistent-hint
     color="accent"
     variant="outlined"
@@ -22,7 +18,7 @@
     item-value="id"
     return-object
     hide-no-data
-    :disabled="isInternalSelected"
+    :disabled="hasOppositeTypeSelected"
     @update:search="onSearch"
   >
     <template #selection="{ item }">
@@ -30,6 +26,7 @@
     </template>
   </v-autocomplete>
 </template>
+
 <script setup lang="ts">
 import type { FindById200Response } from "@/api/raumreservierung-backend";
 
@@ -40,11 +37,35 @@ import { useI18n } from "vue-i18n";
 
 import { useGetPersonPage } from "@/composables/api/usePersonApi.ts";
 
+const props = defineProps<{
+  type: "INTERNAL" | "EXTERNAL";
+}>();
+
 const { t } = useI18n();
 const modelValue = defineModel<FindById200Response>();
 
-const isInternalSelected = computed(() => {
-  return modelValue.value && modelValue.value.type === "INTERNAL";
+const localization = computed(() => {
+  if (props.type === "INTERNAL") {
+    return {
+      labelSearch: t("components.personSelect.searchInternal"),
+      labelCoveredBy: t("components.personSelect.coveredByExternal"),
+      hintAlreadySelected: t(
+        "components.personSelect.externalAlreadySelectedHint"
+      ),
+    } as const;
+  }
+
+  return {
+    labelSearch: t("components.personSelect.searchExternal"),
+    labelCoveredBy: t("components.personSelect.coveredByInternal"),
+    hintAlreadySelected: t(
+      "components.personSelect.internalAlreadySelectedHint"
+    ),
+  } as const;
+});
+
+const hasOppositeTypeSelected = computed(() => {
+  return modelValue.value && modelValue.value.type !== props.type;
 });
 
 const {
@@ -69,9 +90,7 @@ const onSearch = useDebounceFn((searchQuery: string) => {
     searchName: searchQuery,
     page: 0,
     size: 10,
-    personType: "EXTERNAL",
+    personType: props.type,
   });
 }, 500);
 </script>
-
-<style scoped></style>

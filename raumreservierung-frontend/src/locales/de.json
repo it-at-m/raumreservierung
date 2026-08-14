@@ -79,10 +79,13 @@
     "seatingTypeParticipantsSelector": {
       "suffix": "Maximale Kapazität {count}"
     },
-    "externalPersonSelect": {
+    "personSelect": {
       "coveredByInternal": "Wird durch interne Person abgedeckt",
       "searchExternal": "Externe Person suchen",
-      "internalAlreadySelectedHint": "Eine interne Person ist bereits ausgewählt."
+      "internalAlreadySelectedHint": "Eine interne Person ist bereits ausgewählt.",
+      "coveredByExternal": "Wird durch externe Person abgedeckt",
+      "searchInternal": "Interne Person suchen",
+      "externalAlreadySelectedHint": "Eine externe Person ist bereits ausgewählt."
     },
     "appointmentListItem": {
       "deviatingTimes": "Abweichende Zeit"
@@ -140,7 +143,6 @@
       "participantsCount": "Anzahl Teilnehmende",
       "cateringPlanned": "Catering geplant",
       "bookedForOthersCard": "Buchung für andere Person",
-      "internalPerson": "Interne Person",
       "dateTimeCard": "Datum und Uhrzeit"
     },
     "bookingListView": {
