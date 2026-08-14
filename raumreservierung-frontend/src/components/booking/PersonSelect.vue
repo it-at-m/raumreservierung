@@ -3,10 +3,20 @@
     v-model="modelValue"
     :label="
       hasOppositeTypeSelected
-        ? localization.labelCoveredBy
-        : localization.labelSearch
+        ? type === InternalPersonRequestDtoTypeEnum.INTERNAL
+          ? t('components.personSelect.coveredByExternal')
+          : t('components.personSelect.coveredByInternal')
+        : type === InternalPersonRequestDtoTypeEnum.INTERNAL
+          ? t('components.personSelect.searchInternal')
+          : t('components.personSelect.searchExternal')
     "
-    :hint="hasOppositeTypeSelected ? localization.hintAlreadySelected : ''"
+    :hint="
+      hasOppositeTypeSelected
+        ? type === InternalPersonRequestDtoTypeEnum.INTERNAL
+          ? t('components.personSelect.externalAlreadySelectedHint')
+          : t('components.personSelect.internalAlreadySelectedHint')
+        : ''
+    "
     persistent-hint
     color="accent"
     variant="outlined"
@@ -45,29 +55,9 @@ const { type } = defineProps<{
 const { t } = useI18n();
 const modelValue = defineModel<FindById200Response>();
 
-const localization = computed(() => {
-  if (props.type === "INTERNAL") {
-    return {
-      labelSearch: t("components.personSelect.searchInternal"),
-      labelCoveredBy: t("components.personSelect.coveredByExternal"),
-      hintAlreadySelected: t(
-        "components.personSelect.externalAlreadySelectedHint"
-      ),
-    } as const;
-  }
-
-  return {
-    labelSearch: t("components.personSelect.searchExternal"),
-    labelCoveredBy: t("components.personSelect.coveredByInternal"),
-    hintAlreadySelected: t(
-      "components.personSelect.internalAlreadySelectedHint"
-    ),
-  } as const;
-});
-
-const hasOppositeTypeSelected = computed(() => {
-  return modelValue.value && modelValue.value.type !== props.type;
-});
+const hasOppositeTypeSelected = computed(
+  () => modelValue.value && modelValue.value.type !== type
+);
 
 const {
   call: getPersonPage,
