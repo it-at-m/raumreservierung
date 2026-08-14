@@ -9,7 +9,6 @@ import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.person.PersonService;
-import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.security.AuthUtils;
@@ -304,8 +303,9 @@ public class BookingService {
         }
 
         final Person bookedFor = (Person) Hibernate.unproxy(booking.getBookedFor());
-        if (securityContextService.hasAuthority(Roles.RAUM_ADMIN) && !(bookedFor instanceof ExternalPerson)) {
-            booking.setBookedBy(bookedFor);
+        if (securityContextService.hasAuthority(Roles.RAUM_ADMIN) && (bookedFor instanceof InternalPerson internalPerson)) {
+            booking.setBookedBy(internalPerson);
+            booking.setOrganisationUnit(internalPerson.getOrganisationUnit());
         } else {
             booking.setBookedBy(currentPerson);
         }
@@ -328,7 +328,7 @@ public class BookingService {
 
         if (booking.getBookingType() == BookingType.DEFAULT) {
             if (previousType != BookingType.DEFAULT) {
-                // if type changed from other than DEFAULT to DEFAULT then set status to ROOM_APPROVED
+                // if type changed from other than DEFAULT to DEFAULT then set status to ROOM_CHANGED
                 booking.setStatus(BookingStatus.ROOM_CHANGED);
             }
         } else {
