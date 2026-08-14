@@ -195,7 +195,7 @@
                   >
                     <person-select
                       v-model="bookedFor"
-                      type="INTERNAL"
+                      :type="InternalPersonRequestDtoTypeEnum.INTERNAL"
                     />
                   </v-col>
                   <v-col
@@ -204,7 +204,7 @@
                   >
                     <person-select
                       v-model="bookedFor"
-                      type="EXTERNAL"
+                      :type="InternalPersonRequestDtoTypeEnum.EXTERNAL"
                     />
                   </v-col>
                 </v-row>
@@ -288,10 +288,10 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  BookingRequestDTO,
-  FindById200Response,
-  RoomRequestDTO,
+import  {
+  type BookingRequestDTO,
+  type FindById200Response, InternalPersonRequestDtoTypeEnum,
+  type RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
 import {

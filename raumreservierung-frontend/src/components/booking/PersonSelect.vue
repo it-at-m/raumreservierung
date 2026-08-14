@@ -35,10 +35,11 @@ import { useDebounceFn } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { InternalPersonRequestDtoTypeEnum } from "@/api/raumreservierung-backend";
 import { useGetPersonPage } from "@/composables/api/usePersonApi.ts";
 
-const props = defineProps<{
-  type: "INTERNAL" | "EXTERNAL";
+const { type } = defineProps<{
+  type: InternalPersonRequestDtoTypeEnum;
 }>();
 
 const { t } = useI18n();
@@ -90,7 +91,7 @@ const onSearch = useDebounceFn((searchQuery: string) => {
     searchName: searchQuery,
     page: 0,
     size: 10,
-    personType: props.type,
+    personType: type,
   });
 }, 500);
 </script>
