@@ -6,6 +6,8 @@ import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+
+import jakarta.persistence.criteria.Expression;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class PersonSpecificationBuilder {
@@ -19,6 +21,7 @@ public final class PersonSpecificationBuilder {
         if (personFilterDto.searchName() != null && !personFilterDto.searchName().isBlank()) {
             specificationList.add(filterForFirstName(personFilterDto.searchName()));
             specificationList.add(filterForLastName(personFilterDto.searchName()));
+            specificationList.add(filterForFullName(personFilterDto.searchName()));
             specificationList.add(filterForEmail(personFilterDto.searchName()));
         }
 
@@ -27,6 +30,16 @@ public final class PersonSpecificationBuilder {
 
     private static String toLikePattern(final String searchName) {
         return "%" + searchName.toLowerCase(Locale.GERMAN) + "%";
+    }
+
+    private static <T extends Person> Specification<T> filterForFullName(final String searchName) {
+        return (root, query, cb) -> {
+            final Expression<String> fullNameExpr = cb.concat(
+                    root.get(Person_.firstName),
+                    cb.concat(" ", root.get(Person_.lastName))
+            );
+            return cb.like(cb.lower(fullNameExpr), toLikePattern(searchName));
+        };
     }
 
     private static <T extends Person> Specification<T> filterForFirstName(final String searchName) {
