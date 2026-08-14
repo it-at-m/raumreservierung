@@ -288,10 +288,10 @@
 </template>
 
 <script setup lang="ts">
-import  {
-  type BookingRequestDTO,
-  type FindById200Response, InternalPersonRequestDtoTypeEnum,
-  type RoomRequestDTO,
+import type {
+  BookingRequestDTO,
+  FindById200Response,
+  RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
 import {
@@ -307,6 +307,7 @@ import { Levels } from "@/api/error.ts";
 import {
   BookingRequestDTOStatusEnum,
   BookingStatusDTOCurrentStatusEnum,
+  InternalPersonRequestDtoTypeEnum,
 } from "@/api/raumreservierung-backend";
 import { type BookingStatusDTO as BookingStatusFull } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
