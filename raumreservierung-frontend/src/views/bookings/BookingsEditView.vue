@@ -205,18 +205,23 @@
             >
               <template #text>
                 <v-row>
-                  <v-col>
-                    <v-select
-                      :model-value="bookedFor?.id"
-                      color=" accent"
-                      variant="outlined"
-                      :prepend-inner-icon="mdiAccountSearchOutline"
-                      disabled
-                      :label="t('views.bookingEditView.internalPerson')"
+                  <v-col
+                    cols="12"
+                    md="6"
+                  >
+                    <person-select
+                      v-model="bookedFor"
+                      :type="InternalPersonRequestDtoTypeEnum.INTERNAL"
                     />
                   </v-col>
-                  <v-col>
-                    <external-person-select v-model="bookedFor" />
+                  <v-col
+                    cols="12"
+                    md="6"
+                  >
+                    <person-select
+                      v-model="bookedFor"
+                      :type="InternalPersonRequestDtoTypeEnum.EXTERNAL"
+                    />
                   </v-col>
                 </v-row>
               </template>
@@ -306,7 +311,6 @@ import type {
 } from "@/api/raumreservierung-backend";
 
 import {
-  mdiAccountSearchOutline,
   mdiCalendarRemoveOutline,
   mdiContentSaveOutline,
   mdiWindowClose,
@@ -320,11 +324,12 @@ import {
   BookingRequestDTOBookingTypeEnum,
   BookingRequestDTOStatusEnum,
   BookingStatusDTOCurrentStatusEnum,
+  InternalPersonRequestDtoTypeEnum,
 } from "@/api/raumreservierung-backend";
 import { type BookingStatusDTO as BookingStatusFull } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
-import ExternalPersonSelect from "@/components/booking/ExternalPersonSelect.vue";
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
+import PersonSelect from "@/components/booking/PersonSelect.vue";
 import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
 import SeatingTypeSelector from "@/components/booking/SeatingTypeParticipantsSelector.vue";
