@@ -345,11 +345,8 @@ const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
 const canViewBookedBy = useIsPrivileged("bookings:read");
 
 const bookedByComputed = computed(() => {
-  if (!canViewBookedBy.value) {
-    return "";
-  }
-  return getBookingData?.value?.bookedBy?.id ===
-    getBookingData?.value?.bookedFor?.id
+  return !canViewBookedBy.value ||
+    getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
     ? ""
     : t("views.bookingDetailsView.bookedBy", {
         firstName: getBookingData?.value?.bookedBy?.firstName,
