@@ -1,7 +1,7 @@
 <template>
   <v-text-field
-    v-model="localValue"
-    label="Veranstaltungstitel"
+    v-model="modelValue"
+    :label="t('domain.booking.bookingTitle')"
     color="accent"
     variant="outlined"
     density="compact"
@@ -16,11 +16,11 @@
 <script setup lang="ts">
 import { mdiTextBoxSearchOutline } from "@mdi/js";
 import { useDebounceFn } from "@vueuse/core";
-import { ref } from "vue";
+import { useI18n } from "vue-i18n";
+
+const { t } = useI18n();
 
 const modelValue = defineModel<string>();
-
-const localValue = ref(modelValue.value);
 
 const onInput = useDebounceFn((value: string | undefined) => {
   modelValue.value = value || undefined;

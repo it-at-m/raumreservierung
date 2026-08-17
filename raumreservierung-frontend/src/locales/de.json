@@ -200,6 +200,7 @@
     "booking": {
       "header": "Buchung | Buchungen",
       "participants": "Teilnehmende | Teilnehmenden",
+      "bookingTitle": "Veranstaltungstitel",
       "statusTitle": "Status",
       "date": "Datum",
       "recurrenceRule": "Terminserie",
@@ -213,6 +214,10 @@
         "reason": "Grund",
         "cardTitle": "Buchung ablehnen",
         "cardSubtitle": "Bitte geben Sie einen Grund an, warum die Buchung nicht leistbar ist."
+      },
+      "filtering": {
+        "filterActive": "Aktive Filter:",
+        "noActiveFilter": "Keine Filter aktiv"
       },
       "status": {
         "filter": "Status filtern",

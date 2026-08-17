@@ -1386,6 +1386,8 @@ components:
           minLength: 2
           type: string
         participantCount:
+          maximum: 9223372036854775807
+          minimum: 0
           type: integer
           format: int32
         equipmentIds:

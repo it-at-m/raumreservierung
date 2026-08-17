@@ -47,6 +47,10 @@ public class PersonService {
     @PreAuthorize(Authorities.USERS_MANAGE)
     public Page<Person> getPersonsByPageableAndFilter(final Pageable pageable, final PersonFilterDto personFilterDto) {
 
+        if (personFilterDto.personType() == null) {
+            final Specification<Person> personSpecification = PersonSpecificationBuilder.fromFilter(personFilterDto);
+            return personRepository.findAll(personSpecification, pageable);
+        }
         // Persontype differentiation will be done without specs as this saves an inner join!
         if (personFilterDto.personType().equals(PersonType.EXTERNAL)) {
 
