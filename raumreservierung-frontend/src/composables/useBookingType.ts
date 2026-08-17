@@ -1,22 +1,38 @@
+import type { BookingDetailResponseDTOBookingTypeEnum } from "@/api/raumreservierung-backend";
+import type { MaybeRefOrGetter } from "vue";
+
+import { computed, toValue } from "vue";
+import { useI18n } from "vue-i18n";
+
 import { BookingRequestDTOBookingTypeEnum } from "@/api/raumreservierung-backend";
 
-export function useBookingType() {
-  const bookingTypeOptions = [
+export function useBookingType(
+  type?: MaybeRefOrGetter<BookingDetailResponseDTOBookingTypeEnum | undefined>
+) {
+  const { t } = useI18n();
+
+  const bookingTypeOptions = computed(() => [
     {
-      key: "domain.booking.types.default",
+      title: t("domain.booking.types.default"),
       value: BookingRequestDTOBookingTypeEnum.DEFAULT,
     },
     {
-      key: "domain.booking.types.free",
+      title: t("domain.booking.types.free"),
       value: BookingRequestDTOBookingTypeEnum.FREE,
     },
     {
-      key: "domain.booking.types.service",
+      title: t("domain.booking.types.service"),
       value: BookingRequestDTOBookingTypeEnum.SERVICE,
     },
-  ];
+  ]);
+
+  const bookingTypeText = computed(
+    () =>
+      bookingTypeOptions.value.find((opt) => opt.value === toValue(type))?.title
+  );
 
   return {
     bookingTypeOptions,
+    bookingTypeText,
   };
 }

@@ -328,7 +328,7 @@ public class BookingService {
 
         if (booking.getBookingType() == BookingType.DEFAULT) {
             if (previousType != BookingType.DEFAULT) {
-                // if type changed from other than DEFAULT to DEFAULT then set status to ROOM_CHANGED
+                // if type changed from other than DEFAULT to DEFAULT then set status to ROOM_CHANGED to not allow circumventing the status-state-machine                booking.setStatus(BookingStatus.ROOM_CHANGED);
                 booking.setStatus(BookingStatus.ROOM_CHANGED);
             }
         } else {

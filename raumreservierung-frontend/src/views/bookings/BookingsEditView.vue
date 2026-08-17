@@ -95,9 +95,7 @@
           >
             <v-select
               v-model="bookingData.bookingType"
-              :items="typeSelectItems"
-              item-title="title"
-              item-value="value"
+              :items="bookingTypeOptions"
               :label="t('domain.booking.typeLong')"
               variant="outlined"
               hide-selected
@@ -382,10 +380,6 @@ const handleStatusChange = async (nextStatus: BookingRequestDTOStatusEnum) => {
   bookingData.value.status = nextStatus;
   await saveBooking();
 };
-
-const typeSelectItems = computed(() =>
-  bookingTypeOptions.map((opt) => ({ title: t(opt.key), value: opt.value }))
-);
 
 const isSeriesBooking = computed({
   get: () => {
