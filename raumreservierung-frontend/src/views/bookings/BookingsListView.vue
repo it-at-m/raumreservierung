@@ -77,7 +77,7 @@
             cols="12"
             md="6"
           >
-            <person-select
+            <all-person-select
               v-model="bookedForId"
               @update:model-value="applyFilters"
             />
@@ -230,8 +230,8 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
+import AllPersonSelect from "@/components/booking/AllPersonSelect.vue";
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
-import PersonSelect from "@/components/booking/PersonSelect.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import TitleSelect from "@/components/booking/TitleSelect.vue";
 import BaseView from "@/components/common/BaseView.vue";
