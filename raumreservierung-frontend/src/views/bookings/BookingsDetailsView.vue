@@ -258,7 +258,7 @@ import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
-import { useBookingType } from "@/composables/useBookingType.ts";
+import { bookingTypeOptions } from "@/constants/BookingTypes.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
@@ -284,10 +284,6 @@ const {
 
 const { call: getAppointmentPage, data: appointmentPage } =
   useGetAppointments();
-
-const { bookingTypeText } = useBookingType(
-  () => getBookingData.value.bookingType
-);
 
 onMounted(async () => {
   if (bookingId.value) {
@@ -371,6 +367,13 @@ const isCanceledOrUnfeasible = computed(() => {
     (status.currentStatus === BookingStatusDTOCurrentStatusEnum.CANCELED ||
       status.currentStatus === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE)
   );
+});
+
+const bookingTypeText = computed(() => {
+  const option = bookingTypeOptions.find(
+    (opt) => opt.value === getBookingData.value?.bookingType
+  );
+  return option ? t(option.title) : "";
 });
 </script>
 

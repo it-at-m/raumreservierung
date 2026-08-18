@@ -101,6 +101,15 @@
               hide-selected
               hide-details
             >
+              <template #item="{ props, item }">
+                <v-list-item
+                  v-bind="props"
+                  :title="t(item.title)"
+                />
+              </template>
+              <template #selection="{ item }">
+                {{ t(item.title) }}
+              </template>
             </v-select>
           </v-col>
           <v-col
@@ -345,10 +354,10 @@ import {
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
-import { useBookingType } from "@/composables/useBookingType.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { EMPTY_BOOKING_STATUS_DATA } from "@/constants/BookingStatus";
+import { bookingTypeOptions } from "@/constants/BookingTypes.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { useUserStore } from "@/stores/user.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -365,8 +374,6 @@ const { t } = useI18n();
 const rules = useRules();
 const route = useRoute();
 const router = useRouter();
-
-const { bookingTypeOptions } = useBookingType();
 
 const isValid = ref<boolean>();
 const isUnfeasibleDialogOpen = ref(false);
