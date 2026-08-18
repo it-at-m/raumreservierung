@@ -11,12 +11,12 @@ import java.util.UUID;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 
+@SuppressWarnings("PMD.CommentDefaultAccessModifier")
 public final class BookingSpecifications {
 
     private BookingSpecifications() {
     }
 
-    /* package */
     static <T extends Booking> Specification<T> forRoomId(final UUID roomId) {
         if (roomId == null) {
             return null;
@@ -24,7 +24,6 @@ public final class BookingSpecifications {
         return (root, query, cb) -> cb.equal(root.get(Booking_.room).get(Room_.id), roomId);
     }
 
-    /* package */
     static <T extends Booking> Specification<T> forStart(final OffsetDateTime start) {
         if (start == null) {
             return null;
@@ -32,7 +31,6 @@ public final class BookingSpecifications {
         return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyStart), start);
     }
 
-    /* package */
     static <T extends Booking> Specification<T> forEnd(final OffsetDateTime end) {
         if (end == null) {
             return null;
@@ -40,12 +38,10 @@ public final class BookingSpecifications {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyEnd), end);
     }
 
-    /* package */
     static <T extends Booking> Specification<T> forStatusNotNew() {
         return (root, query, cb) -> cb.notEqual(root.get(Booking_.status), BookingStatus.NEW);
     }
 
-    /* package */
     static <T extends Booking> Specification<T> forStatus(final List<BookingStatus> status) {
         if (status == null || status.isEmpty()) {
             return null;
@@ -53,7 +49,6 @@ public final class BookingSpecifications {
         return (root, query, cb) -> root.get(Booking_.status).in(status);
     }
 
-    /* package */
     static <T extends Booking> Specification<T> forPerson(final Person person) {
         if (person == null || person.getId() == null) {
             return null;
@@ -63,7 +58,6 @@ public final class BookingSpecifications {
                 cb.equal(root.get(Booking_.bookedFor), person));
     }
 
-    /* package */
     static <T extends Booking> Specification<T> forPersonBookedFor(final UUID personId) {
         if (personId == null) {
             return null;
@@ -71,7 +65,6 @@ public final class BookingSpecifications {
         return (root, query, cb) -> cb.equal(root.get(Booking_.bookedFor).get(Person_.id), personId);
     }
 
-    /* package */
     static <T extends Booking> Specification<T> forTitle(final String title) {
         if (title == null) {
             return null;
@@ -79,7 +72,6 @@ public final class BookingSpecifications {
         return (root, query, cb) -> cb.like(cb.lower(root.get(Booking_.title)), "%" + title.toLowerCase(Locale.GERMAN) + "%");
     }
 
-    /* package */
     static <T extends Booking> Specification<T> withFixedStatusOrder(final Sort.Direction direction) {
         return (root, query, cb) -> {
             CriteriaBuilder.Case<Integer> order = cb.selectCase();

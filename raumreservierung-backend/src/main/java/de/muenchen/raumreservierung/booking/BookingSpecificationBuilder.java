@@ -6,7 +6,6 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class BookingSpecificationBuilder {
@@ -31,11 +30,11 @@ public final class BookingSpecificationBuilder {
         specificationList.add(BookingSpecifications.forEnd(normalizeEnd(bookingFilterDTO.end())));
         specificationList.add(BookingSpecifications.forStatus(bookingFilterDTO.status()));
         specificationList.add(BookingSpecifications.forPerson(person));
-        specificationList.add(statusNew ? null : BookingSpecifications.forStatusNotNew());
+        if (statusNew) {
+            specificationList.add(BookingSpecifications.forStatusNotNew());
+        }
         specificationList.add(BookingSpecifications.forPersonBookedFor(bookingFilterDTO.bookedForId()));
         specificationList.add(BookingSpecifications.forTitle(bookingFilterDTO.title()));
-
-        specificationList.removeIf(Objects::isNull);
 
         return Specification.allOf(specificationList);
     }
