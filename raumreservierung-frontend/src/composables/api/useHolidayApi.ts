@@ -4,28 +4,31 @@ import type {
   GetHolidaysRequest,
   UpdateHolidayRequest,
 } from "@/api/raumreservierung-backend/apis/HolidayControllerApi";
-import type { Ref } from "vue";
+import type { MaybeRefOrGetter } from "vue";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
-import { computed } from "vue";
+import { computed, toValue } from "vue";
 
 import { HolidayControllerApi } from "@/api/raumreservierung-backend/apis/HolidayControllerApi";
 import { ApiFactory } from "@/util/apiFactory.ts";
 
 const HOLIDAY_KEY = "holiday";
 
-export const useGetHolidays = (params: Ref<GetHolidaysRequest | undefined>) => {
+export const useGetHolidays = (
+  params: MaybeRefOrGetter<GetHolidaysRequest | undefined>
+) => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
+  const paramsRef = computed(() => toValue(params));
 
   return useQuery({
-    queryKey: [HOLIDAY_KEY, params],
+    queryKey: [HOLIDAY_KEY, paramsRef],
     queryFn: () => {
-      if (!params.value) {
+      if (!paramsRef.value) {
         throw new Error("Holiday year is required");
       }
-      return api.getHolidays(params.value);
+      return api.getHolidays(paramsRef.value);
     },
-    enabled: computed(() => !!params.value),
+    enabled: computed(() => !!paramsRef.value),
   });
 };
 
