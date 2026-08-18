@@ -27,12 +27,12 @@
     @update:search="onSearch"
   >
     <template #selection="{ item }">
-      <span class="text-body-1">{{ formatName(item) }}</span>
+      <span class="text-body-1">{{ selectionLabel(item) }}</span>
       <span
         v-if="showEmail && item.email"
         class="text-grey"
       >
-        {{ `(${item.email})` }}
+        {{ t("common.format.braces", { content: selectionEmail(item) }) }}
       </span>
     </template>
     <template
@@ -48,7 +48,7 @@
           v-if="item.email"
           class="text-grey"
         >
-          {{ `(${item.email})` }}
+          {{ t("common.format.braces", { content: item.email }) }}
         </span>
       </v-list-item>
     </template>
@@ -64,7 +64,10 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { InternalPersonRequestDtoTypeEnum } from "@/api/raumreservierung-backend";
-import { useGetPersonPage } from "@/composables/api/usePersonApi.ts";
+import {
+  useFindPerson,
+  useGetPersonPage,
+} from "@/composables/api/usePersonApi.ts";
 
 const {
   type,
@@ -118,7 +121,24 @@ const {
   loading: personPageLoading,
 } = useGetPersonPage();
 
-const formatName = (person: FindById200Response) => {
+const idForLookup = computed(() =>
+  typeof modelValue.value === "string" ? modelValue.value : undefined
+);
+
+const { data: initialPerson } = useFindPerson(idForLookup);
+
+const selectionLabel = (item: FindById200Response) => {
+  if (item?.firstName || item?.lastName) {
+    return formatName(item);
+  }
+  return formatName(initialPerson.value);
+};
+
+const selectionEmail = (item: FindById200Response) => {
+  return item?.email ?? initialPerson.value?.email;
+};
+
+const formatName = (person: FindById200Response | undefined) => {
   if (!person) {
     return "";
   }

@@ -30,7 +30,8 @@
     "format": {
       "idFormat": "#{id}",
       "dateSingle": "{date}",
-      "dateRange": "{start} - {end}"
+      "dateRange": "{start} - {end}",
+      "braces": "({content})"
     }
   },
   "app": {
@@ -216,8 +217,7 @@
         "cardSubtitle": "Bitte geben Sie einen Grund an, warum die Buchung nicht leistbar ist."
       },
       "filtering": {
-        "filterActive": "Aktive Filter:",
-        "noActiveFilter": "Keine Filter aktiv"
+        "filterActive": "Aktive Filter: {count}"
       },
       "status": {
         "filter": "Status filtern",

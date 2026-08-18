@@ -5,123 +5,17 @@
     "
   >
     <template #default>
-      <v-expansion-panels>
-        <v-expansion-panel eager>
-          <v-expansion-panel-title>
-            <div>
-              <span v-if="activeFilters.length > 0">{{
-                t("domain.booking.filtering.filterActive")
-              }}</span>
-              <span v-else>{{
-                t("domain.booking.filtering.noActiveFilter")
-              }}</span>
-              <v-chip
-                v-for="filter in activeFilters"
-                :key="filter.key"
-                :prepend-icon="filter.icon"
-                variant="outlined"
-                closable
-                @click:close="filter.clear"
-              >
-                {{ filter.label }}
-              </v-chip>
-            </div>
-          </v-expansion-panel-title>
-          <v-expansion-panel-text>
-            <v-row>
-              <v-col
-                cols="12"
-                md="6"
-              >
-                <room-select
-                  v-model="roomId"
-                  :label="
-                    t('generics.filter', { domain: t('domain.room.header') })
-                  "
-                  :show-inactive="canEditBookings"
-                  density="compact"
-                  clearable
-                  @update:model-value="applyFilters"
-                />
-              </v-col>
-              <v-col
-                cols="12"
-                md="6"
-              >
-                <general-status-select
-                  v-model="statusFilter"
-                  density="compact"
-                  clearable
-                  :label="t('domain.booking.status.filter')"
-                  multiple
-                  :group-by="getStatusGroupKey"
-                  @update:model-value="applyFilters"
-                />
-              </v-col>
-              <v-row>
-                <v-col
-                  cols="12"
-                  md="6"
-                >
-                  <v-date-input
-                    v-model="start"
-                    :label="t('views.bookingListView.periodFrom')"
-                    density="compact"
-                    variant="outlined"
-                    prepend-icon=""
-                    :prepend-inner-icon="mdiCalendarStartOutline"
-                    clearable
-                    hide-details
-                    @update:model-value="applyFilters"
-                  />
-                </v-col>
-                <v-col
-                  cols="12"
-                  md="6"
-                >
-                  <v-date-input
-                    v-model="end"
-                    prepend-icon=""
-                    :prepend-inner-icon="mdiCalendarEndOutline"
-                    :label="t('views.bookingListView.periodTo')"
-                    density="compact"
-                    variant="outlined"
-                    clearable
-                    hide-details
-                    @update:model-value="applyFilters"
-                  />
-                </v-col>
-              </v-row>
-            </v-row>
-            <v-row>
-              <v-col
-                cols="12"
-                md="6"
-              >
-                <person-select
-                  v-model="bookedForId"
-                  :label="t('views.bookingDetailsView.bookedFor')"
-                  density="compact"
-                  hide-details
-                  hide-menu-icon
-                  show-email
-                  :return-object="false"
-                  @update:model-value="applyFilters"
-                />
-              </v-col>
-              <v-col
-                cols="12"
-                md="6"
-              >
-                <title-select
-                  v-model="title"
-                  @update:model-value="applyFilters"
-                />
-              </v-col>
-            </v-row>
-          </v-expansion-panel-text>
-        </v-expansion-panel>
-      </v-expansion-panels>
+      <booking-filter-panel
+        v-model:room-id="roomId"
+        v-model:status-filter="statusFilter"
+        v-model:start="start"
+        v-model:end="end"
+        v-model:booked-for-id="bookedForId"
+        v-model:title="title"
+        :can-edit-bookings="canEditBookings"
+        :get-status-group-key="getStatusGroupKey"
+        @apply-filters="applyFilters"
+      />
       <v-card :title="t('views.bookingListView.tableTitle')">
         <template #text>
           <v-data-table-server
@@ -246,30 +140,17 @@ import type {
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import {
-  mdiAccountSearchOutline,
-  mdiCalendarEditOutline,
-  mdiCalendarEndOutline,
-  mdiCalendarStartOutline,
-  mdiCheck,
-  mdiDoor,
-  mdiLabelMultipleOutline,
-  mdiMinus,
-  mdiTextBoxSearchOutline,
-} from "@mdi/js";
+import { mdiCalendarEditOutline, mdiCheck, mdiMinus } from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
-import PersonSelect from "@/components/booking/PersonSelect.vue";
+import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
-import TitleSelect from "@/components/booking/TitleSelect.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
@@ -286,91 +167,6 @@ const { getStatusGroupKey, expandStatus, statusGroups } =
 const { t } = useI18n();
 
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
-
-interface ActiveFilter {
-  key: string;
-  label: string;
-  icon: string;
-  clear: () => void;
-}
-
-const activeFilters = computed<ActiveFilter[]>(() => {
-  const filters: ActiveFilter[] = [];
-
-  if (roomId.value) {
-    filters.push({
-      key: "room",
-      label: t("domain.room.header"),
-      icon: mdiDoor,
-      clear: () => {
-        roomId.value = undefined;
-        applyFilters();
-      },
-    });
-  }
-
-  if (statusFilter.value && statusFilter.value.length) {
-    filters.push({
-      key: "status",
-      label: t("domain.booking.statusTitle"),
-      icon: mdiLabelMultipleOutline,
-      clear: () => {
-        statusFilter.value = [];
-        applyFilters();
-      },
-    });
-  }
-
-  if (start.value) {
-    filters.push({
-      key: "start",
-      label: t("views.bookingListView.periodFrom"),
-      icon: mdiCalendarStartOutline,
-      clear: () => {
-        start.value = undefined;
-        applyFilters();
-      },
-    });
-  }
-
-  if (end.value) {
-    filters.push({
-      key: "end",
-      label: t("views.bookingListView.periodTo"),
-      icon: mdiCalendarEndOutline,
-      clear: () => {
-        end.value = undefined;
-        applyFilters();
-      },
-    });
-  }
-
-  if (bookedForId.value) {
-    filters.push({
-      key: "bookedFor",
-      label: t("views.bookingDetailsView.bookedFor"),
-      icon: mdiAccountSearchOutline,
-      clear: () => {
-        bookedForId.value = undefined;
-        applyFilters();
-      },
-    });
-  }
-
-  if (title.value) {
-    filters.push({
-      key: "title",
-      label: t("domain.booking.bookingTitle"),
-      icon: mdiTextBoxSearchOutline,
-      clear: () => {
-        title.value = undefined;
-        applyFilters();
-      },
-    });
-  }
-
-  return filters;
-});
 
 const canEditBookings = useIsPrivileged("bookings:manage");
 
