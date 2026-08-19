@@ -75,6 +75,22 @@ const filteredRooms = computed(() => {
   });
 });
 
+const selectedRoomData = computed<RoomDataPayload>(() => {
+  const value = modelValue.value;
+
+  if (isMultipleProp.value && Array.isArray(value)) {
+    return (allRooms.value?.filter((room) => {
+      return room.id && value.includes(room.id);
+    }) ?? []) as RoomDataPayload;
+  }
+
+  return (allRooms.value?.find((room) => {
+    return room.id === value;
+  }) ?? undefined) as RoomDataPayload;
+});
+
+defineExpose({ selectedRoomData });
+
 /**
  * Emits the roomData of the selected room / rooms
  */
