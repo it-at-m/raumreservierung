@@ -104,9 +104,14 @@ public final class BookingSpecificationBuilder {
         return (root, query, cb) -> cb.greaterThan(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyEnd), now);
     }
 
+    private static <T extends Booking> Specification<T> filterExcludingStatus(final BookingStatus... status) {
+        return (root, query, cb) -> cb.not(root.get(Booking_.status).in(status));
+    }
+
     public static <T extends Booking> Specification<T> forFutureSeatingTypeUsage(final UUID seatingTypeId) {
         return Specification.allOf(
                 filterForSeatingTypeId(seatingTypeId),
-                filterForOccupancyEndAfter(OffsetDateTime.now()));
+                filterForOccupancyEndAfter(OffsetDateTime.now()),
+                filterExcludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
     }
 }
