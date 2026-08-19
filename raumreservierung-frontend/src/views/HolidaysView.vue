@@ -12,7 +12,7 @@
         ref="tableRef"
         :domain="computedDomain"
         :empty-item-template="EMPTY_HOLIDAY"
-        :loading="holidayStore.loading || deleteHolidayLoading"
+        :loading="holidaysLoading || deleteHolidayLoading"
         @create="createHoliday"
         @delete="deleteHoliday"
         @update="updateHoliday"
@@ -86,7 +86,7 @@ import type {
 import type { TableHeader } from "@/types/TableHeader.ts";
 
 import { useDateFormat } from "@vueuse/core";
-import { computed, onMounted, ref, useTemplateRef } from "vue";
+import { computed, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
@@ -99,13 +99,13 @@ import HolidayForm from "@/components/HolidayForm.vue";
 import {
   useCreateHoliday,
   useDeleteHoliday,
+  useGetHolidays,
   useUpdateHoliday,
 } from "@/composables/api/useHolidayApi.ts";
 import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
-import { useHolidayStore } from "@/stores/holiday.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
-import { toApiDate } from "@/util/timeUtil.ts";
+import { dateEquals, toApiDate } from "@/util/timeUtil.ts";
 
 const PREVIOUS_YEARS = 5;
 const NEXT_YEARS = 10;
@@ -113,26 +113,24 @@ const NEXT_YEARS = 10;
 const selectedYear = ref(new Date().getFullYear());
 const currentYear = computed(() => new Date().getFullYear());
 
-onMounted(async () => {
-  await holidayStore.loadYear(currentYear.value);
-});
-
 const { t } = useI18n();
 const route = useRoute();
 const snackbar = useSnackbarStore();
 const tableRef = useTemplateRef("tableRef");
 
-const holidayStore = useHolidayStore();
-
 const isPublic = computed(() => {
   return route.name === ROUTES.PUBLIC_HOLIDAYS;
 });
 
+const params = computed(() => ({ year: selectedYear.value }));
+
+const { data: currentHolidays, isLoading: holidaysLoading } =
+  useGetHolidays(params);
+
 const filteredHolidays = computed(() => {
-  return holidayStore.currentHolidays.filter(
+  return (currentHolidays.value ?? []).filter(
     (holiday: HolidayResponseDTO) =>
-      (holiday.startDate.getTime() === holiday.endDate.getTime()) ===
-      isPublic.value
+      dateEquals(holiday.startDate, holiday.endDate) === isPublic.value
   );
 });
 
@@ -176,7 +174,6 @@ const toApiHoliday = (holiday: HolidayResponseDTO): HolidayRequestDTO => {
 
 const updatedYearSelection = (value: number) => {
   selectedYear.value = value;
-  holidayStore.loadYear(selectedYear.value);
 };
 
 const createHoliday = async (holiday: Partial<HolidayResponseDTO>) => {
@@ -223,16 +220,10 @@ const deleteHoliday = async (id: string) => {
 
 /**
  * Executed on successful api call.
- * Will refresh the holidayCache by loading the year of the currentSelection (when holiday was moved away from this year) and year of the updated/created holiday
  * @param msg the message to be displayed
  * @param yearOverride the year to refresh
  */
 const onSuccess = async (msg: string, yearOverride?: number) => {
-  holidayStore.loadYear(selectedYear.value);
-  if (yearOverride && yearOverride !== selectedYear.value) {
-    holidayStore.loadYear(yearOverride);
-  }
-
   if (tableRef.value) {
     selectedYear.value = yearOverride || selectedYear.value;
     tableRef.value.closeDialog();
