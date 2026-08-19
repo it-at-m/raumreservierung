@@ -30,7 +30,7 @@ public final class BookingSpecificationBuilder {
         specificationList.add(BookingSpecifications.forEnd(normalizeEnd(bookingFilterDTO.end())));
         specificationList.add(BookingSpecifications.forStatus(bookingFilterDTO.status()));
         specificationList.add(BookingSpecifications.forPerson(person));
-        if (statusNew) {
+        if (!statusNew) {
             specificationList.add(BookingSpecifications.forStatusNotNew());
         }
         specificationList.add(BookingSpecifications.forPersonBookedFor(bookingFilterDTO.bookedForId()));
