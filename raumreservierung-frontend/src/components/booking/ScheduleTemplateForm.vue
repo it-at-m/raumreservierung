@@ -331,28 +331,39 @@ const holidayOverlapMessage = computed(() => {
     return [];
   }
 
-  const overlapResult = allHolidaysInRange.value.find((holyday) =>
+  const overlapResults = allHolidaysInRange.value.filter((holiday) =>
     dateRangesOverlap(
-      holyday.startDate,
-      holyday.endDate,
+      holiday.startDate,
+      holiday.endDate,
       occupancyStart.value,
       occupancyEnd.value
     )
   );
 
-  return overlapResult
-    ? t("components.scheduleTemplateForm.message.overlappingHolidays", {
-        holidayName: overlapResult.name,
-        date: dateEquals(overlapResult.startDate, overlapResult.endDate)
-          ? t("common.format.dateSingle", {
-              date: formatDateShort(overlapResult.startDate),
-            })
-          : t("common.format.dateRange", {
-              start: formatDateShort(overlapResult.startDate),
-              end: formatDateShort(overlapResult.endDate),
-            }),
-      })
-    : undefined;
+  if (!overlapResults.length) {
+    return undefined;
+  }
+
+  const holidayList = overlapResults
+    .map((holiday) => {
+      const date = dateEquals(holiday.startDate, holiday.endDate)
+        ? t("common.format.dateSingle", {
+            date: formatDateShort(holiday.startDate),
+          })
+        : t("common.format.dateRange", {
+            start: formatDateShort(holiday.startDate),
+            end: formatDateShort(holiday.endDate),
+          });
+      return t(
+        "components.scheduleTemplateForm.message.overlappingHolidayItem",
+        { holidayName: holiday.name, date }
+      );
+    })
+    .join(", ");
+
+  return t("components.scheduleTemplateForm.message.overlappingHolidays", {
+    holidayList,
+  });
 });
 </script>
 
