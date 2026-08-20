@@ -347,7 +347,7 @@ const canViewBookedBy = useIsPrivileged("bookings:read");
 const bookedByComputed = computed(() => {
   return !canViewBookedBy.value ||
     getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
-    ? ""
+    ? undefined
     : t("views.bookingDetailsView.bookedBy", {
         firstName: getBookingData?.value?.bookedBy?.firstName,
         lastName: getBookingData?.value?.bookedBy?.lastName,
