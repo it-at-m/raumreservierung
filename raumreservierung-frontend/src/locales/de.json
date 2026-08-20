@@ -76,8 +76,7 @@
       "wholeDay": "Ganztägig",
       "appointmentDiffers": "Veranstaltungszeit abweichend",
       "message": {
-        "overlappingHolidays": "Überschneidungen mit folgenden Ferien oder Feiertagen: {holidayList}",
-        "overlappingHolidayItem": "{holidayName} ({date})"
+        "overlappingHolidays": "Überschneidungen mit folgenden Ferien oder Feiertagen: {holidayName} ({date})"
       }
     },
     "seatingTypeParticipantsSelector": {
