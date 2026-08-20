@@ -21,16 +21,17 @@
     :item-title="formatName"
     item-value="id"
     hide-no-data
-    :return-object="returnObject"
+    :no-filter="!type"
+    :return-object="!!type"
     :menu-icon="hideMenuIcon ? '' : undefined"
     :disabled="hasOppositeTypeSelected"
     @update:search="onSearch"
   >
     <template #selection="{ item }">
-      <span class="text-body-1">{{ selectionLabel(item) }}</span>
+      {{ selectionLabel(item) }}
       <span
-        v-if="showEmail && item.email"
-        class="text-grey"
+        v-if="showEmail && selectionEmail(item)"
+        class="text-grey ml-1"
       >
         {{ t("common.format.braces", { content: selectionEmail(item) }) }}
       </span>
@@ -55,7 +56,13 @@
   </v-autocomplete>
 </template>
 
-<script setup lang="ts">
+<script
+  setup
+  lang="ts"
+  generic="
+    Type extends InternalPersonRequestDtoTypeEnum | undefined = undefined
+  "
+>
 import type { FindById200Response } from "@/api/raumreservierung-backend";
 
 import { mdiAccountSearchOutline } from "@mdi/js";
@@ -76,7 +83,6 @@ const {
   hideDetails = false,
   hideMenuIcon = false,
   showEmail = false,
-  returnObject = true,
 } = defineProps<{
   type?: InternalPersonRequestDtoTypeEnum;
   label?: string;
@@ -84,23 +90,20 @@ const {
   hideDetails?: boolean;
   hideMenuIcon?: boolean;
   showEmail?: boolean;
-  returnObject?: boolean;
 }>();
 
 const { t } = useI18n();
-const modelValue = defineModel<FindById200Response | string>();
+const modelValue =
+  defineModel<Type extends undefined ? string : FindById200Response>();
 
 const isPersonObject = (
   value: FindById200Response | string | undefined
-): value is FindById200Response => typeof value === "object";
+): value is FindById200Response => typeof value === "object" && value !== null;
 
-const hasOppositeTypeSelected = computed(() => {
-  return !!(
-    modelValue.value &&
-    isPersonObject(modelValue.value) &&
-    modelValue.value.type !== type
-  );
-});
+const hasOppositeTypeSelected = computed(
+  () =>
+    !!type && isPersonObject(modelValue.value) && modelValue.value.type !== type
+);
 
 const computedLabel = computed(() => {
   if (label) {
