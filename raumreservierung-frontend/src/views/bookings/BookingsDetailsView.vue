@@ -258,7 +258,6 @@ import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
-import { bookingTypeOptions } from "@/constants/BookingTypes.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
@@ -370,10 +369,8 @@ const isCanceledOrUnfeasible = computed(() => {
 });
 
 const bookingTypeText = computed(() => {
-  const option = bookingTypeOptions.find(
-    (opt) => opt.value === getBookingData.value?.bookingType
-  );
-  return option ? t(option.title) : "";
+  const type = getBookingData.value?.bookingType;
+  return type ? t(`domain.booking.types.${type.toLowerCase()}`) : undefined;
 });
 </script>
 

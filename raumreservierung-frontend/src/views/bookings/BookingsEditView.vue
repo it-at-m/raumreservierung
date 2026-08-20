@@ -100,17 +100,7 @@
               variant="outlined"
               hide-selected
               hide-details
-            >
-              <template #item="{ props, item }">
-                <v-list-item
-                  v-bind="props"
-                  :title="t(item.title)"
-                />
-              </template>
-              <template #selection="{ item }">
-                {{ t(item.title) }}
-              </template>
-            </v-select>
+            />
           </v-col>
           <v-col
             v-if="showStatus"
@@ -357,7 +347,6 @@ import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { EMPTY_BOOKING_STATUS_DATA } from "@/constants/BookingStatus";
-import { bookingTypeOptions } from "@/constants/BookingTypes.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { useUserStore } from "@/stores/user.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -607,6 +596,13 @@ const handleSaveClick = () =>
   bookingData.value.status === BookingRequestDTOStatusEnum.UNFEASIBLE
     ? (isUnfeasibleDialogOpen.value = true)
     : saveBooking();
+
+const bookingTypeOptions = Object.values(BookingRequestDTOBookingTypeEnum).map(
+  (value) => ({
+    title: t(`domain.booking.types.${value.toLowerCase()}`),
+    value,
+  })
+);
 </script>
 
 <style scoped></style>
