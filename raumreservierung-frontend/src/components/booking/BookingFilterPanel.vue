@@ -1,34 +1,75 @@
 <template>
   <v-expansion-panels>
-    <v-expansion-panel eager>
+    <v-expansion-panel>
       <v-expansion-panel-title>
-        <div>
-          <v-chip
+        <v-row
+          density="comfortable"
+          class="mr-4"
+          @click.stop
+        >
+          <v-col
+            cols="12"
+            md="6"
+          >
+            <general-status-select
+              v-model="statusFilter"
+              density="compact"
+              clearable
+              :label="t('domain.booking.status.filter')"
+              multiple
+              :group-by="getStatusGroupKey"
+              @update:model-value="onFiltersChanged"
+            />
+          </v-col>
+          <v-col
+            cols="12"
+            sm="6"
+            md="3"
+          >
+            <v-date-input
+              v-model="start"
+              :label="t('views.bookingListView.periodFrom')"
+              density="compact"
+              variant="outlined"
+              prepend-icon=""
+              :prepend-inner-icon="mdiCalendarStartOutline"
+              clearable
+              hide-details
+              @update:model-value="onFiltersChanged"
+            />
+          </v-col>
+          <v-col
+            cols="12"
+            sm="6"
+            md="3"
+          >
+            <v-date-input
+              v-model="end"
+              prepend-icon=""
+              :prepend-inner-icon="mdiCalendarEndOutline"
+              :label="t('views.bookingListView.periodTo')"
+              density="compact"
+              variant="outlined"
+              clearable
+              hide-details
+              @update:model-value="onFiltersChanged"
+            />
+          </v-col>
+        </v-row>
+        <template #actions>
+          <v-badge
+            :content="hiddenActiveFilters.length"
+            :model-value="hiddenActiveFilters.length > 0"
             color="primary"
-            variant="outlined"
-            :prepend-icon="mdiFilterOutline"
+            location="top right"
+            offset-x="-5"
           >
-            {{
-              t("domain.booking.filtering.filterActive", {
-                count: activeFilters.length,
-              })
-            }}
-          </v-chip>
-          <v-chip
-            v-for="filter in activeFilters"
-            :key="filter.key"
-            :prepend-icon="filter.icon"
-            variant="outlined"
-            class="ml-2"
-            closable
-            @click:close="filter.clear"
-          >
-            {{ filter.label }}
-          </v-chip>
-        </div>
+            <v-icon />
+          </v-badge>
+        </template>
       </v-expansion-panel-title>
       <v-expansion-panel-text>
-        <v-row>
+        <v-row density="comfortable">
           <v-col
             cols="12"
             md="6"
@@ -46,56 +87,6 @@
             cols="12"
             md="6"
           >
-            <general-status-select
-              v-model="statusFilter"
-              density="compact"
-              clearable
-              :label="t('domain.booking.status.filter')"
-              multiple
-              :group-by="getStatusGroupKey"
-              @update:model-value="onFiltersChanged"
-            />
-          </v-col>
-          <v-row>
-            <v-col
-              cols="12"
-              md="6"
-            >
-              <v-date-input
-                v-model="start"
-                :label="t('views.bookingListView.periodFrom')"
-                density="compact"
-                variant="outlined"
-                prepend-icon=""
-                :prepend-inner-icon="mdiCalendarStartOutline"
-                clearable
-                hide-details
-                @update:model-value="onFiltersChanged"
-              />
-            </v-col>
-            <v-col
-              cols="12"
-              md="6"
-            >
-              <v-date-input
-                v-model="end"
-                prepend-icon=""
-                :prepend-inner-icon="mdiCalendarEndOutline"
-                :label="t('views.bookingListView.periodTo')"
-                density="compact"
-                variant="outlined"
-                clearable
-                hide-details
-                @update:model-value="onFiltersChanged"
-              />
-            </v-col>
-          </v-row>
-        </v-row>
-        <v-row>
-          <v-col
-            cols="12"
-            md="6"
-          >
             <person-select
               v-model="bookedForId"
               :label="t('views.bookingDetailsView.bookedFor')"
@@ -107,10 +98,7 @@
               @update:model-value="onFiltersChanged"
             />
           </v-col>
-          <v-col
-            cols="12"
-            md="6"
-          >
+          <v-col cols="12">
             <title-select
               v-model="title"
               @update:model-value="onFiltersChanged"
@@ -130,8 +118,6 @@ import {
   mdiCalendarEndOutline,
   mdiCalendarStartOutline,
   mdiDoor,
-  mdiFilterOutline,
-  mdiLabelMultipleOutline,
   mdiTextBoxSearchOutline,
 } from "@mdi/js";
 import { computed } from "vue";
@@ -176,7 +162,7 @@ interface ActiveFilter {
   clear: () => void;
 }
 
-const activeFilters = computed<ActiveFilter[]>(() => {
+const hiddenActiveFilters = computed<ActiveFilter[]>(() => {
   const filters: ActiveFilter[] = [];
 
   if (roomId.value) {
@@ -186,42 +172,6 @@ const activeFilters = computed<ActiveFilter[]>(() => {
       icon: mdiDoor,
       clear: () => {
         roomId.value = undefined;
-        onFiltersChanged();
-      },
-    });
-  }
-
-  if (statusFilter.value && statusFilter.value.length) {
-    filters.push({
-      key: "status",
-      label: t("domain.booking.statusTitle"),
-      icon: mdiLabelMultipleOutline,
-      clear: () => {
-        statusFilter.value = [];
-        onFiltersChanged();
-      },
-    });
-  }
-
-  if (start.value) {
-    filters.push({
-      key: "start",
-      label: t("views.bookingListView.periodFrom"),
-      icon: mdiCalendarStartOutline,
-      clear: () => {
-        start.value = undefined;
-        onFiltersChanged();
-      },
-    });
-  }
-
-  if (end.value) {
-    filters.push({
-      key: "end",
-      label: t("views.bookingListView.periodTo"),
-      icon: mdiCalendarEndOutline,
-      clear: () => {
-        end.value = undefined;
         onFiltersChanged();
       },
     });

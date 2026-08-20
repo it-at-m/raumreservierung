@@ -216,9 +216,6 @@
         "cardTitle": "Buchung ablehnen",
         "cardSubtitle": "Bitte geben Sie einen Grund an, warum die Buchung nicht leistbar ist."
       },
-      "filtering": {
-        "filterActive": "Aktive Filter: {count}"
-      },
       "status": {
         "filter": "Status filtern",
         "notAvailable": "Kein weiterer Status verfügbar",
