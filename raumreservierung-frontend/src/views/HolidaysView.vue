@@ -122,10 +122,9 @@ const isPublic = computed(() => {
   return route.name === ROUTES.PUBLIC_HOLIDAYS;
 });
 
-const params = computed(() => ({ year: selectedYear.value }));
-
-const { data: currentHolidays, isLoading: holidaysLoading } =
-  useGetHolidays(params);
+const { data: currentHolidays, isLoading: holidaysLoading } = useGetHolidays(
+  () => ({ year: selectedYear.value })
+);
 
 const filteredHolidays = computed(() => {
   return (currentHolidays.value ?? []).filter(
