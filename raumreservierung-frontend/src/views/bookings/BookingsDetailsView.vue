@@ -274,6 +274,8 @@ const appointments = ref<AppointmentDetailsResponseDTO[]>([]);
 const nextAppointmentPage = ref<number>(0);
 const totalPages = ref<number>(1);
 
+const canViewBookedBy = useIsPrivileged("bookings:read");
+
 const {
   call: getBooking,
   data: getBookingData,
@@ -341,8 +343,6 @@ const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
     done("error");
   }
 };
-
-const canViewBookedBy = useIsPrivileged("bookings:read");
 
 const bookedByComputed = computed(() => {
   return !canViewBookedBy.value ||
