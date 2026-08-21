@@ -56,13 +56,7 @@
   </v-autocomplete>
 </template>
 
-<script
-  setup
-  lang="ts"
-  generic="
-    Type extends InternalPersonRequestDtoTypeEnum | undefined = undefined
-  "
->
+<script setup lang="ts">
 import type { FindById200Response } from "@/api/raumreservierung-backend";
 
 import { mdiAccountSearchOutline } from "@mdi/js";
@@ -93,8 +87,7 @@ const {
 }>();
 
 const { t } = useI18n();
-const modelValue =
-  defineModel<Type extends undefined ? string : FindById200Response>();
+const modelValue = defineModel<FindById200Response | string>();
 
 const isPersonObject = (
   value: FindById200Response | string | undefined
