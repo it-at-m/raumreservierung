@@ -234,14 +234,14 @@ const { t } = useI18n();
 
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
 
-function isCanceledOrUnfeasible(booking: BookingListResponseDTO | undefined) {
-  const status = booking?.status;
-  return (
-    !!status &&
-    (status.currentStatus === BookingStatusDTOCurrentStatusEnum.CANCELED ||
-      status.currentStatus === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE)
-  );
-}
+const isCanceledOrUnfeasible = (
+  booking: BookingListResponseDTO | undefined
+): boolean =>
+  !!booking?.status &&
+  (booking.status.currentStatus ===
+    BookingStatusDTOCurrentStatusEnum.CANCELED ||
+    booking.status.currentStatus ===
+      BookingStatusDTOCurrentStatusEnum.UNFEASIBLE);
 
 const canEditBookings = useIsPrivileged("bookings:manage");
 
