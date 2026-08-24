@@ -46,6 +46,7 @@
                   :reason-for-status-change="
                     getBookingData?.reasonForStatusChange
                   "
+                  :booking-type="getBookingData?.bookingType"
                 />
               </v-responsive>
             </v-skeleton-loader>

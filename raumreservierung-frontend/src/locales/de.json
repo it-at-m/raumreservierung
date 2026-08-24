@@ -227,6 +227,13 @@
         "unfeasible": "Abgelehnt",
         "canceled": "Storniert",
         "reserved": "Vorgemerkt"
+      },
+      "typeShort": "Typ",
+      "typeLong": "Buchungstyp",
+      "types": {
+        "default": "Standard",
+        "free": "Frei",
+        "service": "Service"
       }
     },
     "scheduleTemplate": {

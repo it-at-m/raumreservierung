@@ -84,6 +84,10 @@ public class Booking extends BaseEntity {
     @Column
     private String reasonForStatusChange;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BookingType bookingType;
+
     public void updateFrom(final Booking booking) {
         this.room = booking.getRoom();
         this.title = booking.getTitle();
@@ -99,6 +103,7 @@ public class Booking extends BaseEntity {
         this.seatingType = booking.getSeatingType();
         this.status = booking.getStatus();
         this.reasonForStatusChange = booking.getReasonForStatusChange();
+        this.bookingType = booking.getBookingType();
 
         this.equipment.clear();
         if (booking.getEquipment() != null) {

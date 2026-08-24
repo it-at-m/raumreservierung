@@ -44,7 +44,7 @@ public class PersonService {
         return getPersonOrThrowException(personId);
     }
 
-    @PreAuthorize(Authorities.USERS_MANAGE)
+    @PreAuthorize(Authorities.USERS_READ)
     public Page<Person> getPersonsByPageableAndFilter(final Pageable pageable, final PersonFilterDto personFilterDto) {
 
         // Persontype differentiation will be done without specs as this saves an inner join!
