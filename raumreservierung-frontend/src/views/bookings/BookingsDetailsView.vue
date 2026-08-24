@@ -9,7 +9,7 @@
     </template>
     <template #headerActions>
       <base-button
-        v-if="!isCanceledOrUnfeasible"
+        v-if="!isCanceledOrUnfeasible && (canEditBooking || isMyBooking)"
         secondary
         :append-icon="mdiPencil"
         :text="t('common.edit')"
@@ -285,6 +285,8 @@ const {
 
 const { call: getAppointmentPage, data: appointmentPage } =
   useGetAppointments();
+
+const canEditBooking = useIsPrivileged("bookings:manage");
 
 onMounted(async () => {
   if (bookingId.value) {
