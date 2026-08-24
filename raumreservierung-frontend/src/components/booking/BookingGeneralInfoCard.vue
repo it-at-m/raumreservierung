@@ -16,32 +16,50 @@
         bg-color="transparent"
         class="pa-0 mt-2"
       >
-        <v-list-item class="px-0">
-          <v-list-item-subtitle>
-            {{ t("domain.booking.date") }}
-          </v-list-item-subtitle>
-          <v-list-item-title class="font-weight-medium mt-1">
-            <template v-if="isMultiDay">
-              {{
-                t("common.format.dateRange", {
-                  start: useDateFormat(
-                    schedule?.occupancyStart,
-                    DATE_FORMAT_DDMMYY
-                  ).value,
-                  end: useDateFormat(schedule?.occupancyEnd, DATE_FORMAT_DDMMYY)
-                    .value,
-                })
-              }}
-            </template>
-            <template v-else>
-              {{
-                useDateFormat(schedule?.occupancyStart, DATE_FORMAT_DDMMYY)
-                  .value
-              }}
-            </template>
-          </v-list-item-title>
-        </v-list-item>
-
+        <v-row class="ga-md-16">
+          <v-col cols="auto">
+            <v-list-item class="px-0">
+              <v-list-item-subtitle>
+                {{ t("domain.booking.date") }}
+              </v-list-item-subtitle>
+              <v-list-item-title class="font-weight-medium mt-1">
+                <template v-if="isMultiDay">
+                  {{
+                    t("common.format.dateRange", {
+                      start: useDateFormat(
+                        schedule?.occupancyStart,
+                        DATE_FORMAT_DDMMYY
+                      ).value,
+                      end: useDateFormat(
+                        schedule?.occupancyEnd,
+                        DATE_FORMAT_DDMMYY
+                      ).value,
+                    })
+                  }}
+                </template>
+                <template v-else>
+                  {{
+                    useDateFormat(schedule?.occupancyStart, DATE_FORMAT_DDMMYY)
+                      .value
+                  }}
+                </template>
+              </v-list-item-title>
+            </v-list-item>
+          </v-col>
+          <v-col cols="auto">
+            <v-list-item
+              v-if="isPrivileged"
+              class="px-0"
+            >
+              <v-list-item-subtitle>
+                {{ t("domain.booking.typeShort") }}
+              </v-list-item-subtitle>
+              <v-list-item-title class="mt-1">
+                {{ bookingType }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-col>
+        </v-row>
         <v-list-item class="px-0 mt-2">
           <v-list-item-subtitle class="mb-2">
             {{ t("domain.booking.statusTitle") }}
@@ -65,15 +83,6 @@
             reasonForStatusChange ||
             t("domain.booking.statusChange.noReasonForStatusChange")
           }}
-        </v-list-item>
-        <v-list-item
-          v-if="isPrivileged"
-          class="px-0 mt-2"
-        >
-          <v-list-item-subtitle class="mb-2">
-            {{ t("domain.booking.typeShort") }}
-          </v-list-item-subtitle>
-          {{ bookingType }}
         </v-list-item>
       </v-list>
     </template>
