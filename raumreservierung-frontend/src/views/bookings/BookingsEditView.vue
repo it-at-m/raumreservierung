@@ -393,7 +393,7 @@ const isSeriesBooking = computed({
 
 const showStatus = computed(
   () =>
-    isPrivileged &&
+    isPrivileged.value &&
     bookingData.value.bookingType == BookingRequestDTOBookingTypeEnum.DEFAULT
 );
 
@@ -418,11 +418,7 @@ const currentRoomSeatingTypeLimit = computed(
     0
 );
 
-const isPrivileged = useIsPrivileged([
-  "bookings:manage",
-  "bookings:write",
-  "bookings:read",
-]);
+const isPrivileged = useIsPrivileged(["bookings:manage", "bookings:write"]);
 
 const {
   call: getBooking,
