@@ -231,7 +231,7 @@
       "typeShort": "Typ",
       "typeLong": "Buchungstyp",
       "types": {
-        "default": "Normal",
+        "default": "Standard",
         "free": "Frei",
         "service": "Service"
       }
