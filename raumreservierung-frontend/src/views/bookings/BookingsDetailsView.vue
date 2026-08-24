@@ -9,7 +9,7 @@
     </template>
     <template #headerActions>
       <base-button
-        v-if="!isCanceledOrUnfeasible"
+        v-if="!isCanceledOrUnfeasible && (canEditBooking || isMyBooking)"
         secondary
         :append-icon="mdiPencil"
         :text="t('common.edit')"
@@ -258,6 +258,7 @@ import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
+import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
@@ -274,6 +275,8 @@ const appointments = ref<AppointmentDetailsResponseDTO[]>([]);
 const nextAppointmentPage = ref<number>(0);
 const totalPages = ref<number>(1);
 
+const canViewBookedBy = useIsPrivileged("bookings:read");
+
 const {
   call: getBooking,
   data: getBookingData,
@@ -283,6 +286,8 @@ const {
 
 const { call: getAppointmentPage, data: appointmentPage } =
   useGetAppointments();
+
+const canEditBooking = useIsPrivileged("bookings:manage");
 
 onMounted(async () => {
   if (bookingId.value) {
@@ -342,14 +347,15 @@ const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
   }
 };
 
-const bookedByComputed = computed(() =>
-  getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
-    ? ""
+const bookedByComputed = computed(() => {
+  return !canViewBookedBy.value ||
+    getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
+    ? undefined
     : t("views.bookingDetailsView.bookedBy", {
         firstName: getBookingData?.value?.bookedBy?.firstName,
         lastName: getBookingData?.value?.bookedBy?.lastName,
-      })
-);
+      });
+});
 
 const computedRRule = computed(() => {
   if (getBookingData?.value?.recurringRule) {

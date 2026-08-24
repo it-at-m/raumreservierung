@@ -44,7 +44,7 @@ const NAV_ENTRIES: readonly NavEntry[] = [
     kind: "item",
     textKey: "navigationDrawer.bookings",
     to: { name: ROUTES.BOOKINGS_LIST },
-    requiredPrivilege: "bookings:manage", // TODO this needs to change - right? should be array
+    requiredPrivilege: ["bookings:manage", "bookings:read"],
   },
   {
     kind: "group",
@@ -122,8 +122,11 @@ const calculateNavEntries = (
 ): NavEntry[] => {
   const normalizedUserPrivileges = new Set(normalizePrivileges(userPrivileges));
 
-  const hasPrivilege = (required?: Privilege) =>
-    !required || normalizedUserPrivileges.has(required);
+  const hasPrivilege = (required?: Privilege | Privilege[]) =>
+    !required ||
+    (Array.isArray(required) ? required : [required]).some((r) =>
+      normalizedUserPrivileges.has(r)
+    );
 
   return entries
     .filter((entry) => hasPrivilege(entry.requiredPrivilege))
