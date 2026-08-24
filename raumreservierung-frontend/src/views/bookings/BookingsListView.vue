@@ -140,19 +140,11 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  BookingListResponseDTO,
-} from "@/api/raumreservierung-backend";
+import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import {
-  mdiCalendarEditOutline,
-  mdiCalendarEndOutline,
-  mdiCalendarStartOutline,
-  mdiCheck,
-  mdiMinus,
-} from "@mdi/js";
+import { mdiCalendarEditOutline, mdiCheck, mdiMinus } from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
@@ -160,12 +152,10 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
-import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
