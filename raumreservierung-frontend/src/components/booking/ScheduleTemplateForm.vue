@@ -37,6 +37,7 @@
         hide-details="auto"
         :label="t('domain.scheduleTemplate.date')"
         :rules="[requiredRule]"
+        :messages="holidayOverlapMessage"
       />
     </v-col>
     <v-col v-if="multiDay">
@@ -48,6 +49,7 @@
         type="date"
         :label="t('domain.scheduleTemplate.endDate')"
         :rules="[requiredRule]"
+        :messages="holidayOverlapMessage"
       />
     </v-col>
   </v-row>
@@ -129,9 +131,14 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import DateTimeTextField from "@/components/common/date/DateTimeTextField.vue";
+import { useGetHolidays } from "@/composables/api/useHolidayApi.ts";
 import { useRules } from "@/composables/useRules";
 import { SCHEDULE_DEFAULT_DURATION } from "@/constants.ts";
-import { dateEquals } from "@/util/timeUtil.ts";
+import {
+  dateEquals,
+  dateRangesOverlap,
+  formatDateShort,
+} from "@/util/timeUtil.ts";
 
 const { t } = useI18n();
 const rules = useRules();
@@ -144,8 +151,8 @@ const { disabled = false } = defineProps<{
 
 const multiDay = computed<boolean>(
   () =>
-    modelValue.value.occupancyStart &&
-    modelValue.value.occupancyEnd &&
+    occupancyStart.value &&
+    occupancyEnd.value &&
     !dateEquals(modelValue.value.occupancyStart, modelValue.value.occupancyEnd)
 );
 
@@ -199,6 +206,21 @@ const appointmentEnd = computed({
   set: (val) =>
     (modelValue.value = { ...modelValue.value, appointmentEnd: val }),
 });
+
+const { data: startYearHolidays } = useGetHolidays(() =>
+  occupancyStart.value
+    ? {
+        year: occupancyStart.value.getFullYear(),
+      }
+    : undefined
+);
+
+const { data: endYearHolidays } = useGetHolidays(() =>
+  !multiDay.value ||
+  occupancyStart.value.getFullYear() !== occupancyEnd.value.getFullYear()
+    ? { year: occupancyEnd.value.getFullYear() }
+    : undefined
+);
 
 const syncDatePart = (source: Date, target: Date) => {
   const baseYear = source.getFullYear();
@@ -298,6 +320,40 @@ const validateApptEndWithinOccupancy = () =>
   !occupancyEnd.value ||
   appointmentEnd.value <= occupancyEnd.value ||
   t("common.rules.apptEndAfterOccupancy");
+
+const allHolidaysInRange = computed(() => [
+  ...(startYearHolidays.value || []),
+  ...(endYearHolidays.value || []),
+]);
+
+const holidayOverlapMessage = computed(() => {
+  if (!occupancyStart.value) {
+    return [];
+  }
+
+  const overlapResult = allHolidaysInRange.value.find((holyday) =>
+    dateRangesOverlap(
+      holyday.startDate,
+      holyday.endDate,
+      occupancyStart.value,
+      occupancyEnd.value
+    )
+  );
+
+  return overlapResult
+    ? t("components.scheduleTemplateForm.message.overlappingHolidays", {
+        holidayName: overlapResult.name,
+        date: dateEquals(overlapResult.startDate, overlapResult.endDate)
+          ? t("common.format.dateSingle", {
+              date: formatDateShort(overlapResult.startDate),
+            })
+          : t("common.format.dateRange", {
+              start: formatDateShort(overlapResult.startDate),
+              end: formatDateShort(overlapResult.endDate),
+            }),
+      })
+    : undefined;
+});
 </script>
 
 <style scoped></style>

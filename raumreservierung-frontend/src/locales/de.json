@@ -74,7 +74,10 @@
     "scheduleTemplateForm": {
       "multiDay": "Mehrtägiger Termin",
       "wholeDay": "Ganztägig",
-      "appointmentDiffers": "Veranstaltungszeit abweichend"
+      "appointmentDiffers": "Veranstaltungszeit abweichend",
+      "message": {
+        "overlappingHolidays": "Überschneidungen mit folgenden Ferien oder Feiertagen: {holidayName} ({date})"
+      }
     },
     "seatingTypeParticipantsSelector": {
       "suffix": "Maximale Kapazität {count}"
