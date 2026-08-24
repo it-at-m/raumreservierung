@@ -9,7 +9,6 @@ import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.person.PersonService;
-import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.security.AuthUtils;
@@ -95,9 +94,7 @@ public class BookingService {
 
         bookingValidationService.bookingIsValidOrThrowException(booking);
 
-        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-            booking.setInternalNotes(null);
-        }
+        applyOrganizerAuthorityRules(booking, BookingType.DEFAULT, null);
 
         final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
@@ -133,6 +130,8 @@ public class BookingService {
         } else {
             handleStandardBookingUpdate(bookingUpdates, existingBooking);
         }
+
+        updateBookingAppointments(existingBooking, bookingUpdates);
 
         saveAndDetach(existingBooking, bookingUpdates);
         log.debug("Updated booking with id {}", existingBooking.getId());
@@ -178,7 +177,7 @@ public class BookingService {
 
     private void handleStandardBookingUpdate(final Booking bookingUpdates, final Booking existingBooking) {
         validateAndAuthorizeUpdate(bookingUpdates, existingBooking);
-        protectInternalNotes(bookingUpdates, existingBooking);
+        applyOrganizerAuthorityRules(bookingUpdates, existingBooking.getBookingType(), existingBooking.getInternalNotes());
         applyAutomaticStatusChangesIfApplicable(bookingUpdates, existingBooking);
         updateBookingAppointments(existingBooking, bookingUpdates);
     }
@@ -193,19 +192,6 @@ public class BookingService {
     private void validateAndAuthorizeUpdate(final Booking bookingUpdates, final Booking existingBooking) {
         bookingValidationService.bookingIsValidOrThrowException(bookingUpdates, existingBooking);
         checkAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
-    }
-
-    /**
-     * Prevents unauthorized changes to internal notes by restoring the existing value
-     * unless the current user has the required authority.
-     *
-     * @param bookingUpdates booking data with the requested changes
-     * @param existingBooking existing booking containing the original internal notes
-     */
-    private void protectInternalNotes(final Booking bookingUpdates, final Booking existingBooking) {
-        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
-            bookingUpdates.setInternalNotes(existingBooking.getInternalNotes());
-        }
     }
 
     /**
@@ -317,12 +303,37 @@ public class BookingService {
         }
 
         final Person bookedFor = (Person) Hibernate.unproxy(booking.getBookedFor());
-        if (securityContextService.hasAuthority(Roles.RAUM_ADMIN) && !(bookedFor instanceof ExternalPerson)) {
-            booking.setBookedBy(bookedFor);
+        if (securityContextService.hasAuthority(Roles.RAUM_ADMIN) && (bookedFor instanceof InternalPerson internalPerson)) {
+            booking.setBookedBy(internalPerson);
+            booking.setOrganisationUnit(internalPerson.getOrganisationUnit());
         } else {
             booking.setBookedBy(currentPerson);
         }
 
+    }
+
+    /**
+     * Resets bookingType/internalNotes to their previous values if the caller lacks
+     * Role TERMIN_ORGANISATOR, then sets the booking status accordingly.
+     *
+     * @param booking the booking to update (new or existing)
+     * @param previousType the type to fall back to if unauthorized
+     * @param previousNotes the notes to fall back to if unauthorized
+     */
+    private void applyOrganizerAuthorityRules(final Booking booking, final BookingType previousType, final String previousNotes) {
+        if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
+            booking.setInternalNotes(previousNotes);
+            booking.setBookingType(previousType);
+        }
+
+        if (booking.getBookingType() == BookingType.DEFAULT) {
+            if (previousType != BookingType.DEFAULT) {
+                // if type changed from other than DEFAULT to DEFAULT then set status to ROOM_CHANGED to not allow circumventing the status-state-machine                booking.setStatus(BookingStatus.ROOM_CHANGED);
+                booking.setStatus(BookingStatus.ROOM_CHANGED);
+            }
+        } else {
+            booking.setStatus(BookingStatus.ORGANIZER_APPROVED);
+        }
     }
 
 }

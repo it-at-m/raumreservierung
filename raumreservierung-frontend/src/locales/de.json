@@ -173,13 +173,13 @@
     "emptyList": "Keine {domain} vorhanden."
   },
   "navigationDrawer": {
-    "myBookings": "Meine Buchungen einsehen",
+    "myBookings": "Meine Buchungen",
     "bookingGroup": {
       "groupTitle": "Buchen",
       "bookRooms": "über Räume buchen",
       "bookCalendar": "über Kalendar buchen"
     },
-    "bookings": "Buchungen verwalten",
+    "bookings": "Alle Buchungen",
     "personGroup": {
       "groupTitle": "Personen verwalten",
       "internalPersons": "Interne Personen verwalten",
@@ -230,6 +230,13 @@
         "unfeasible": "Abgelehnt",
         "canceled": "Storniert",
         "reserved": "Vorgemerkt"
+      },
+      "typeShort": "Typ",
+      "typeLong": "Buchungstyp",
+      "types": {
+        "default": "Standard",
+        "free": "Frei",
+        "service": "Service"
       }
     },
     "scheduleTemplate": {

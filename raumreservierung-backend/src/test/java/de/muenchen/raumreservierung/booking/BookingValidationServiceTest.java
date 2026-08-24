@@ -82,7 +82,6 @@ public class BookingValidationServiceTest {
     private Booking baseBookingExisting;
     private Room testRoom;
     private Room testRoomInactive;
-    private Room testRoomWithSeatingCapacity;
     private SeatingType testSeatingType;
     private SeatingType testSeatingType2Inactive;
     private Equipment testEquipment;
@@ -127,43 +126,37 @@ public class BookingValidationServiceTest {
         testSeatingType.setActive(true);
         testSeatingType.setId(testSeatingTypeId);
 
-        SeatingType testSeatingTypeInactive = new SeatingType();
-        testSeatingTypeInactive.setName("TEST_SEATING");
-        testSeatingTypeInactive.setActive(false);
-        testSeatingTypeInactive.setId(testSeatingTypeId);
-
         testSeatingType2Inactive = new SeatingType();
         testSeatingType2Inactive.setName("TEST_SEATING_2");
         testSeatingType2Inactive.setActive(false);
         testSeatingType2Inactive.setId(UUID.randomUUID());
 
-        RoomSeatingCapacity roomSeatingCapacity = new RoomSeatingCapacity();
-        roomSeatingCapacity.setCapacity(10);
-        roomSeatingCapacity.setSeatingType(testSeatingType);
+        RoomSeatingCapacity roomSeatingCapacityForTestRoom = new RoomSeatingCapacity();
+        roomSeatingCapacityForTestRoom.setCapacity(10);
+        roomSeatingCapacityForTestRoom.setSeatingType(testSeatingType);
+        roomSeatingCapacityForTestRoom.setRoom(testRoom);
+
+        RoomSeatingCapacity roomSeatingCapacityForTestRoomInactive = new RoomSeatingCapacity();
+        roomSeatingCapacityForTestRoomInactive.setCapacity(10);
+        roomSeatingCapacityForTestRoomInactive.setSeatingType(testSeatingType);
+        roomSeatingCapacityForTestRoom.setRoom(testRoomInactive);
 
         RoomSeatingCapacity roomSeatingCapacity2 = new RoomSeatingCapacity();
         roomSeatingCapacity2.setCapacity(10);
         roomSeatingCapacity2.setSeatingType(testSeatingType2Inactive);
+        roomSeatingCapacityForTestRoom.setRoom(testRoom);
 
         testRoom = new Room();
         testRoom.setName("TEST_ROOM");
         testRoom.setNumber("TEST_NUMBER");
         testRoom.setActive(true);
-        testRoom.setRoomSeatingCapacities(Set.of(roomSeatingCapacity, roomSeatingCapacity2));
+        testRoom.setRoomSeatingCapacities(Set.of(roomSeatingCapacityForTestRoom, roomSeatingCapacity2));
 
         testRoomInactive = new Room();
         testRoomInactive.setName("TEST_ROOM_INACTIVE");
         testRoomInactive.setNumber("TEST_NUMBER_INACTIVE");
         testRoomInactive.setActive(false);
-        testRoomInactive.setRoomSeatingCapacities(Set.of(roomSeatingCapacity));
-
-        testRoomWithSeatingCapacity = new Room();
-        testRoomWithSeatingCapacity.setName("TEST_ROOM_WITH_SEATING_CAPACITY");
-        testRoomWithSeatingCapacity.setNumber("TEST_NUMBER_WITH_SEATING_CAPACITY");
-        testRoomWithSeatingCapacity.setActive(true);
-        testRoomWithSeatingCapacity.setRoomSeatingCapacities(Set.of(roomSeatingCapacity));
-
-        roomSeatingCapacity.setRoom(testRoomWithSeatingCapacity);
+        testRoomInactive.setRoomSeatingCapacities(Set.of(roomSeatingCapacityForTestRoom));
 
         when(personService.resolveInternalPersonByOrganisationIDOrThrowException(anyString()))
                 .thenReturn(testPerson);
@@ -229,14 +222,14 @@ public class BookingValidationServiceTest {
 
                 // Valid: Within seating capacity (10)
                 Arguments.of((Consumer<Booking>) b -> {
-                    b.setRoom(testRoomWithSeatingCapacity);
+                    b.setRoom(testRoom);
                     b.setSeatingType(testSeatingType);
                     b.setParticipantCount(9);
                 }, null),
 
                 // Invalid: Exceeds seating capacity (10)
                 Arguments.of((Consumer<Booking>) b -> {
-                    b.setRoom(testRoomWithSeatingCapacity);
+                    b.setRoom(testRoom);
                     b.setSeatingType(testSeatingType);
                     b.setParticipantCount(11);
                 }, MSG_PARTICIPANT_COUNT_INVALID));
@@ -281,13 +274,13 @@ public class BookingValidationServiceTest {
                     different.setId(UUID.randomUUID());
                     different.setActive(true);
                     b.setSeatingType(different);
-                    b.setRoom(testRoomWithSeatingCapacity);
+                    b.setRoom(testRoom);
                 }, MSG_SEATINGTYPE_NOT_AVAILABLE),
 
                 // Valid: Requested seating type is available in room
                 Arguments.of((Consumer<Booking>) b -> {
                     b.setSeatingType(testSeatingType);
-                    b.setRoom(testRoomWithSeatingCapacity);
+                    b.setRoom(testRoom);
                 }, null));
     }
 
