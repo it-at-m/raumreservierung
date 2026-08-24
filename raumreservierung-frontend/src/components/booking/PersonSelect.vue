@@ -1,12 +1,21 @@
 <template>
   <v-autocomplete
     v-model="modelValue"
-    :label="computedLabel"
+    :label="
+      label ||
+      (hasOppositeTypeSelected
+        ? t('components.personSelect.coveredBy', {
+            type: oppositeType,
+          })
+        : t('components.personSelect.search', {
+            type: currentType,
+          }))
+    "
     :hint="
       hasOppositeTypeSelected
-        ? type === InternalPersonRequestDtoTypeEnum.INTERNAL
-          ? t('components.personSelect.externalAlreadySelectedHint')
-          : t('components.personSelect.internalAlreadySelectedHint')
+        ? t('components.personSelect.alreadySelectedHint', {
+            type: oppositeType,
+          })
         : ''
     "
     persistent-hint
@@ -98,18 +107,11 @@ const hasOppositeTypeSelected = computed(
     !!type && isPersonObject(modelValue.value) && modelValue.value.type !== type
 );
 
-const computedLabel = computed(() => {
-  if (label) {
-    return label;
-  }
-  return hasOppositeTypeSelected.value
-    ? type === InternalPersonRequestDtoTypeEnum.INTERNAL
-      ? t("components.personSelect.coveredByExternal")
-      : t("components.personSelect.coveredByInternal")
-    : type === InternalPersonRequestDtoTypeEnum.INTERNAL
-      ? t("components.personSelect.searchInternal")
-      : t("components.personSelect.searchExternal");
-});
+const isInternal = computed(
+  () => type === InternalPersonRequestDtoTypeEnum.INTERNAL
+);
+const oppositeType = computed(() => (isInternal.value ? "externe" : "interne"));
+const currentType = computed(() => (isInternal.value ? "Interne" : "Externe"));
 
 const {
   call: getPersonPage,
@@ -138,7 +140,8 @@ const formatName = (person: FindById200Response | undefined) => {
   if (!person) {
     return "";
   }
-  return `${person.firstName || ""} ${person.lastName || ""}`.trim();
+  const name = `${person.firstName || ""} ${person.lastName || ""}`.trim();
+  return name || t("components.personSelect.noName");
 };
 
 const onSearch = useDebounceFn((searchQuery: string) => {

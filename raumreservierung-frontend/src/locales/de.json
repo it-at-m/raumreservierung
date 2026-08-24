@@ -81,12 +81,10 @@
       "suffix": "Maximale Kapazität {count}"
     },
     "personSelect": {
-      "coveredByInternal": "Wird durch interne Person abgedeckt",
-      "coveredByExternal": "Wird durch externe Person abgedeckt",
-      "searchInternal": "Interne Person suchen",
-      "searchExternal": "Externe Person suchen",
-      "internalAlreadySelectedHint": "Eine interne Person ist bereits ausgewählt.",
-      "externalAlreadySelectedHint": "Eine externe Person ist bereits ausgewählt."
+      "noName": "Kein Name angegeben",
+      "coveredBy": "Wird durch {type} Person abgedeckt",
+      "search": "{type} Person suchen",
+      "alreadySelectedHint": "Eine {type} Person ist bereits ausgewählt."
     },
     "appointmentListItem": {
       "deviatingTimes": "Abweichende Zeit"
