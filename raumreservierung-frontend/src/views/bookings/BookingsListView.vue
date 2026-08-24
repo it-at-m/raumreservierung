@@ -16,7 +16,10 @@
         :get-status-group-key="getStatusGroupKey"
         @apply-filters="applyFilters"
       />
-      <v-card :title="t('views.bookingListView.tableTitle')">
+      <v-card
+        :title="t('views.bookingListView.tableTitle')"
+        class="mt-6"
+      >
         <template #text>
           <v-data-table-server
             v-model:sort-by="sortBy"
