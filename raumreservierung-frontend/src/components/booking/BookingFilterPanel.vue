@@ -56,15 +56,16 @@
             />
           </v-col>
         </v-row>
-        <template #actions>
+        <template #actions="{ expanded }">
           <v-badge
-            :content="hiddenActiveFilters.length"
-            :model-value="hiddenActiveFilters.length > 0"
-            color="primary"
-            location="top right"
-            offset-x="-5"
+            :content="hiddenActiveFiltersCount"
+            :model-value="hiddenActiveFiltersCount > 0"
+            color="accent"
+            offset-x="-2"
           >
-            <v-icon />
+            <v-icon
+              :icon="expanded ? mdiFilterOutline : mdiFilterMenuOutline"
+            />
           </v-badge>
         </template>
       </v-expansion-panel-title>
@@ -114,11 +115,10 @@ import type { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-b
 import type { StatusGroupKey } from "@/constants/BookingStatus.ts";
 
 import {
-  mdiAccountSearchOutline,
   mdiCalendarEndOutline,
   mdiCalendarStartOutline,
-  mdiDoor,
-  mdiTextBoxSearchOutline,
+  mdiFilterMenuOutline,
+  mdiFilterOutline,
 } from "@mdi/js";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
@@ -155,54 +155,9 @@ const onFiltersChanged = () => {
   emit("apply-filters");
 };
 
-interface ActiveFilter {
-  key: string;
-  label: string;
-  icon: string;
-  clear: () => void;
-}
-
-const hiddenActiveFilters = computed<ActiveFilter[]>(() => {
-  const filters: ActiveFilter[] = [];
-
-  if (roomId.value) {
-    filters.push({
-      key: "room",
-      label: t("domain.room.header"),
-      icon: mdiDoor,
-      clear: () => {
-        roomId.value = undefined;
-        onFiltersChanged();
-      },
-    });
-  }
-
-  if (bookedForId.value) {
-    filters.push({
-      key: "bookedFor",
-      label: t("views.bookingDetailsView.bookedFor"),
-      icon: mdiAccountSearchOutline,
-      clear: () => {
-        bookedForId.value = undefined;
-        onFiltersChanged();
-      },
-    });
-  }
-
-  if (title.value) {
-    filters.push({
-      key: "title",
-      label: t("domain.booking.bookingTitle"),
-      icon: mdiTextBoxSearchOutline,
-      clear: () => {
-        title.value = undefined;
-        onFiltersChanged();
-      },
-    });
-  }
-
-  return filters;
-});
+const hiddenActiveFiltersCount = computed(
+  () => [roomId.value, bookedForId.value, title.value].filter(Boolean).length
+);
 </script>
 
 <style scoped></style>
