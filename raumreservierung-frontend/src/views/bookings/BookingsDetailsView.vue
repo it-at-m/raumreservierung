@@ -46,7 +46,7 @@
                   :reason-for-status-change="
                     getBookingData?.reasonForStatusChange
                   "
-                  :booking-type="bookingTypeText"
+                  :booking-type="getBookingData?.bookingType"
                 />
               </v-responsive>
             </v-skeleton-loader>
@@ -372,11 +372,6 @@ const isCanceledOrUnfeasible = computed(() => {
     (status.currentStatus === BookingStatusDTOCurrentStatusEnum.CANCELED ||
       status.currentStatus === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE)
   );
-});
-
-const bookingTypeText = computed(() => {
-  const type = getBookingData.value?.bookingType;
-  return type ? t(`domain.booking.types.${type.toLowerCase()}`) : undefined;
 });
 </script>
 

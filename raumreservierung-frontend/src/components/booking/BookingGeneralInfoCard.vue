@@ -48,14 +48,14 @@
           </v-col>
           <v-col cols="auto">
             <v-list-item
-              v-if="isPrivileged"
+              v-if="isPrivileged && bookingType"
               class="px-0"
             >
               <v-list-item-subtitle>
                 {{ t("domain.booking.typeShort") }}
               </v-list-item-subtitle>
               <v-list-item-title class="mt-1">
-                {{ bookingType }}
+                {{ t(`domain.booking.types.${bookingType.toLowerCase()}`) }}
               </v-list-item-title>
             </v-list-item>
           </v-col>
@@ -91,6 +91,7 @@
 
 <script setup lang="ts">
 import type {
+  BookingDetailResponseDTOBookingTypeEnum,
   BookingStatusDTO,
   ScheduleTemplate,
 } from "@/api/raumreservierung-backend";
@@ -114,7 +115,7 @@ const { schedule, bookingType } = defineProps<{
   schedule?: ScheduleTemplate;
   status?: BookingStatusDTO;
   reasonForStatusChange?: string;
-  bookingType?: string;
+  bookingType?: BookingDetailResponseDTOBookingTypeEnum;
 }>();
 
 const isMultiDay = computed(() => {
