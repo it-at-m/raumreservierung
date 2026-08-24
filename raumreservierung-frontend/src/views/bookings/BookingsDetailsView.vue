@@ -274,6 +274,8 @@ const appointments = ref<AppointmentDetailsResponseDTO[]>([]);
 const nextAppointmentPage = ref<number>(0);
 const totalPages = ref<number>(1);
 
+const canViewBookedBy = useIsPrivileged("bookings:read");
+
 const {
   call: getBooking,
   data: getBookingData,
@@ -344,14 +346,15 @@ const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
   }
 };
 
-const bookedByComputed = computed(() =>
-  getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
-    ? ""
+const bookedByComputed = computed(() => {
+  return !canViewBookedBy.value ||
+    getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
+    ? undefined
     : t("views.bookingDetailsView.bookedBy", {
         firstName: getBookingData?.value?.bookedBy?.firstName,
         lastName: getBookingData?.value?.bookedBy?.lastName,
-      })
-);
+      });
+});
 
 const computedRRule = computed(() => {
   if (getBookingData?.value?.recurringRule) {
