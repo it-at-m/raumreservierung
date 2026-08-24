@@ -257,6 +257,7 @@ import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
 import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
+import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
 
@@ -272,6 +273,8 @@ const bookingId = computed(() => (route.params.id as string) || undefined);
 const appointments = ref<AppointmentDetailsResponseDTO[]>([]);
 const nextAppointmentPage = ref<number>(0);
 const totalPages = ref<number>(1);
+
+const canViewBookedBy = useIsPrivileged("bookings:read");
 
 const {
   call: getBooking,
@@ -341,14 +344,15 @@ const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
   }
 };
 
-const bookedByComputed = computed(() =>
-  getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
-    ? ""
+const bookedByComputed = computed(() => {
+  return !canViewBookedBy.value ||
+    getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
+    ? undefined
     : t("views.bookingDetailsView.bookedBy", {
         firstName: getBookingData?.value?.bookedBy?.firstName,
         lastName: getBookingData?.value?.bookedBy?.lastName,
-      })
-);
+      });
+});
 
 const computedRRule = computed(() => {
   if (getBookingData?.value?.recurringRule) {
