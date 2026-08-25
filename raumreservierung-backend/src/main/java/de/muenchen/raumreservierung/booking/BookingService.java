@@ -9,7 +9,6 @@ import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.person.PersonService;
-import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.security.AuthUtils;
@@ -18,6 +17,7 @@ import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -342,4 +342,10 @@ public class BookingService {
         return bookingRepository.exists(spec);
     }
 
+    @Transactional
+    public void removeSeatingTypeFromBookings(final UUID seatingTypeId) {
+        final List<Booking> affectedBookings = bookingRepository.findBySeatingTypeId(seatingTypeId);
+        affectedBookings.forEach(booking -> booking.setSeatingType(null));
+        bookingRepository.saveAll(affectedBookings);
+    }
 }

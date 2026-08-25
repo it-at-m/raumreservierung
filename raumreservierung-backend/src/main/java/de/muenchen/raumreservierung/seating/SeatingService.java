@@ -7,6 +7,7 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import de.muenchen.raumreservierung.booking.BookingService;
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
+import de.muenchen.raumreservierung.room.RoomService;
 import de.muenchen.raumreservierung.security.Authorities;
 import java.util.List;
 import java.util.UUID;
@@ -22,6 +23,7 @@ public class SeatingService {
 
     private final SeatingRepository seatingRepository;
     private final BookingService bookingService;
+    private final RoomService roomService;
 
     public List<SeatingType> findAll() {
         final List<SeatingType> allSeatingTypes = seatingRepository.findAll();
@@ -54,6 +56,9 @@ public class SeatingService {
         if (bookingService.existsFutureBookingForSeatingType(seatingTypeId)) {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_IN_FUTURE_BOOKING, seatingTypeId));
         }
+
+        roomService.deleteRoomSeatingCapacitiesForSeatingType(seatingTypeId);
+        bookingService.removeSeatingTypeFromBookings(seatingTypeId);
 
         log.debug("Deleting Seating {}", seatingTypeId);
         seatingRepository.delete(toDelete);
