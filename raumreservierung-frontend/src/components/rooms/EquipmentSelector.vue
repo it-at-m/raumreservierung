@@ -19,7 +19,11 @@
               class="w-100 py-0"
               color="accent"
               density="compact"
-              :disabled="loading"
+              :disabled="
+                loading ||
+                (!equip.isActive &&
+                  !(equip.id && modelValue?.includes(equip.id)))
+              "
               hide-details
             >
               <template #label>

@@ -187,6 +187,9 @@
                   v-tooltip:end="capacity.seatingType.description"
                   :title="capacity.seatingType.name"
                   :subtitle="`${capacity.capacity} Personen`"
+                  :style="{
+                    color: capacity.seatingType.isActive ? undefined : 'grey',
+                  }"
                 />
                 <v-list-item
                   v-if="roomData?.roomSeatingCapacities.length === 0"

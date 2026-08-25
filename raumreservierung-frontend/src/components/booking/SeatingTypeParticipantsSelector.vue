@@ -39,9 +39,12 @@ const { allowedIds = [] } = defineProps<{
 const filteredSeatingTypes = computed(() =>
   allSeatingTypes?.value
     ? !allowedIds || allowedIds.length === 0
-      ? allSeatingTypes.value
+      ? allSeatingTypes.value.filter((seatingType) => seatingType.isActive)
       : allSeatingTypes.value?.filter(
-          (seatingType) => seatingType.id && allowedIds.includes(seatingType.id)
+          (seatingType) =>
+            seatingType.id &&
+            allowedIds.includes(seatingType.id) &&
+            seatingType.isActive
         )
     : []
 );
