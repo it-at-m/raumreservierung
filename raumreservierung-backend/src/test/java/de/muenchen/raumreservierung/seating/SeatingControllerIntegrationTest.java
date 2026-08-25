@@ -11,6 +11,7 @@ import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.BookingRepository;
 import de.muenchen.raumreservierung.booking.BookingStatus;
+import de.muenchen.raumreservierung.booking.BookingType;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.booking.WithMockJwt;
 import de.muenchen.raumreservierung.person.PersonRepository;
@@ -175,6 +176,7 @@ public class SeatingControllerIntegrationTest {
                 occupancyEnd,
                 occupancyEnd.minusHours(1).minusMinutes(45),
                 occupancyEnd.minusMinutes(30)));
+        booking.setBookingType(BookingType.DEFAULT);
         bookingRepository.save(booking);
     }
 }
