@@ -1,11 +1,13 @@
 package de.muenchen.raumreservierung.person;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_INTERNAL_PERSON;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND_LDAP;
 
 import de.muenchen.raumreservierung.adapter.ldap.ActiveDirectoryServiceImpl;
 import de.muenchen.raumreservierung.adapter.ldap.LdapPersonDto;
 import de.muenchen.raumreservierung.adapter.ldap.LdapService;
+import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
@@ -21,6 +23,7 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -38,6 +41,7 @@ public class PersonService {
     private final ExternalPersonRepository externalPersonRepository;
     private final LdapService ldapService;
     private final PersonMapper personMapper;
+    private final ApplicationEventPublisher eventPublisher;
 
     // TODO consider returning less information here
     public Person findById(final UUID personId) {
@@ -91,6 +95,11 @@ public class PersonService {
     @Transactional
     @PreAuthorize(Authorities.USERS_MANAGE)
     public void deletePerson(final UUID personId) {
+        final Person person = getPersonOrThrowException(personId);
+        if (!(person instanceof ExternalPerson)) {
+            throw new ConflictException(MSG_CANNOT_DELETE_INTERNAL_PERSON);
+        }
+        eventPublisher.publishEvent(new PersonDeleteEvent(personId));
         personRepository.deleteById(personId);
     }
 
