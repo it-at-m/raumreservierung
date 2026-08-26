@@ -89,6 +89,7 @@
                 :key="equipment.id"
                 :title="equipment.name"
                 :subtitle="equipment.description"
+                :class="{ 'text-grey': !equipment.isActive }"
               >
               </v-list-item>
             </v-list>
@@ -108,7 +109,7 @@
             <v-list>
               <v-list-item
                 :title="t('views.bookingDetailsView.chosenSeatingType')"
-                :subtitle="t('common.todo')"
+                :subtitle="`${getBookingData?.seatingType?.name ?? t('views.bookingDetailsView.noSeatingSelected')}`"
               />
             </v-list>
           </details-card>

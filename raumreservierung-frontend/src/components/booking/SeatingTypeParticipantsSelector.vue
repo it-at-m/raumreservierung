@@ -16,7 +16,15 @@
         count: infoMaxCapacity,
       })
     "
-  />
+  >
+    <template #item="{ props, item }">
+      <v-list-item
+        v-bind="props"
+        :disabled="!item.isActive"
+        :class="{ 'text-disabled': !item.isActive }"
+      />
+    </template>
+  </v-select>
 </template>
 
 <script setup lang="ts">
@@ -39,12 +47,9 @@ const { allowedIds = [] } = defineProps<{
 const filteredSeatingTypes = computed(() =>
   allSeatingTypes?.value
     ? !allowedIds || allowedIds.length === 0
-      ? allSeatingTypes.value.filter((seatingType) => seatingType.isActive)
+      ? allSeatingTypes.value
       : allSeatingTypes.value?.filter(
-          (seatingType) =>
-            seatingType.id &&
-            allowedIds.includes(seatingType.id) &&
-            seatingType.isActive
+          (seatingType) => seatingType.id && allowedIds.includes(seatingType.id)
         )
     : []
 );

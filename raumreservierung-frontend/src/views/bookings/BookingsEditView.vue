@@ -444,9 +444,7 @@ useUpdateBooking();
 
 const snackbarStore = useSnackbarStore();
 
-const roomIdToFetch = computed(
-  () => getBookingData.value?.room?.id ?? selectedRoomId.value
-);
+const roomIdToFetch = computed(() => selectedRoomId.value);
 
 const applyRoomChange = (room: RoomDetailsResponseDTO) => {
   currentRoom.value = mapResponseToRequest(room);
@@ -509,7 +507,7 @@ onMounted(async () => {
   }
 });
 
-const updateRoom = async (roomId: string | undefined) => {
+const updateRoom = (roomId: string | undefined) => {
   selectedRoomId.value = roomId;
 };
 
