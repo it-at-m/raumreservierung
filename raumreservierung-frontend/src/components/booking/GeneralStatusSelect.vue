@@ -13,8 +13,19 @@
     hide-details
     :prepend-inner-icon="multiple ? mdiLabelMultipleOutline : undefined"
   >
-    <template #selection="{ item }">
-      <status-chip :status="item" />
+    <template #selection="{ item, index }">
+      <status-chip
+        v-if="index < 3"
+        :status="item"
+      />
+      <v-chip
+        v-if="index === 3"
+        size="small"
+        variant="outlined"
+        color="grey"
+      >
+        +{{ (model?.length ?? 0) - 3 }}
+      </v-chip>
     </template>
 
     <template #item="{ item, props }">
@@ -79,6 +90,7 @@ const {
 }>();
 
 const statusOptions = computed(() => {
+  const selectedArr = ([] as AllowedStatus[]).concat(model.value ?? []);
   let baseList = [...possibleStatus];
   // Exclude CANCELED unless currently selected (uses dedicated cancel button).
   if (excludedStatus) {
@@ -86,9 +98,22 @@ const statusOptions = computed(() => {
       (status: string) => status !== excludedStatus || status === model.value
     );
   }
+  const representatives = new Map<string, AllowedStatus>();
+  for (const status of baseList) {
+    const key = groupBy(status);
+    const isSelected = selectedArr.includes(status);
+    const currentRepresentative = representatives.get(key);
+
+    if (
+      !currentRepresentative ||
+      (isSelected && !selectedArr.includes(currentRepresentative))
+    ) {
+      representatives.set(key, status);
+    }
+  }
+
   return baseList.filter(
-    (status, index, arr) =>
-      arr.findIndex((other) => groupBy(other) === groupBy(status)) === index
+    (status) => representatives.get(groupBy(status)) === status
   );
 });
 </script>
