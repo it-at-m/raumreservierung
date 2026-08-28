@@ -297,6 +297,12 @@
         "diverse": "Divers",
         "none": "Keine Angabe"
       },
+      "titlePrefix": {
+        "mr": "@:domain.person.titles.mr",
+        "ms": "@:domain.person.titles.ms",
+        "diverse": "",
+        "none": ""
+      },
       "firstName": "Vorname",
       "lastName": "Nachname",
       "email": "E-Mail",
