@@ -43,6 +43,7 @@ export default defineConfigWithVueTs(
             "/^navigationDrawer\\./",
             "/^domain\\.booking\\.status\\./",
             "/^domain\\.booking\\.types\\./",
+            "/^domain\\.person\\.titlePrefix\\./",
           ],
         },
       ],
