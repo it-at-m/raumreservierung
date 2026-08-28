@@ -9,7 +9,7 @@
         >
           <v-col
             cols="12"
-            md="6"
+            xl="6"
           >
             <general-status-select
               v-model="statusFilter"
@@ -24,7 +24,7 @@
           <v-col
             cols="12"
             sm="6"
-            md="3"
+            xl="3"
           >
             <v-date-input
               v-model="start"
@@ -41,7 +41,7 @@
           <v-col
             cols="12"
             sm="6"
-            md="3"
+            xl="3"
           >
             <v-date-input
               v-model="end"
@@ -69,7 +69,8 @@
           </v-badge>
         </template>
       </v-expansion-panel-title>
-      <v-expansion-panel-text>
+      <v-divider />
+      <v-expansion-panel-text class="pt-2 pr-10">
         <v-row density="comfortable">
           <v-col
             cols="12"
