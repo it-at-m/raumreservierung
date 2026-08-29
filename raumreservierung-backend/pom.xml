@@ -94,7 +94,7 @@
         <!-- Added to fix CVE-2026-54291 -->
         <postgresql.version>42.7.12</postgresql.version>
         <!-- Added to fix CVE-2026-64607 -->
-        <httpclient5.version>5.6.3</httpclient5.version>
+        <httpclient5.version>5.6.4</httpclient5.version>
     </properties>
 
 
