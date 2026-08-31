@@ -89,7 +89,6 @@
                 :key="equipment.id"
                 :title="equipment.name"
                 :subtitle="equipment.description"
-                :class="{ 'text-grey': !equipment.isActive }"
               >
               </v-list-item>
             </v-list>

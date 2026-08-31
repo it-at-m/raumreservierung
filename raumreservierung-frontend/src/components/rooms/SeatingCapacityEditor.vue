@@ -12,15 +12,7 @@
         variant="outlined"
         hide-details
         @update:model-value="handleUpdateSeatingType"
-      >
-        <template #item="{ props, item }">
-          <v-list-item
-            v-bind="props"
-            :disabled="!item.isActive"
-            :class="{ 'text-disabled': !item.isActive }"
-          />
-        </template>
-      </v-select>
+      />
     </v-col>
     <v-col cols="4">
       <v-number-input
