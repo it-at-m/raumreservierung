@@ -17,7 +17,7 @@ public class BookingEventListener {
 
     private final BookingRepository bookingRepository;
     private final BookingValidationService bookingValidationService;
-    private final BookingPersistenceHelper bookingPersistenceHelper;
+    private final BookingService bookingService;
 
     /**
      * Automatically updates and saves a booking's status to {@link BookingStatus#ROOM_CHANGED}
@@ -28,13 +28,13 @@ public class BookingEventListener {
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void handleAppointmentChange(final UUID bookingId) {
-        final Booking bookingToChange = bookingPersistenceHelper.getEntityOrThrowException(bookingId);
+        final Booking bookingToChange = bookingService.getEntityOrThrowException(bookingId);
         if (bookingValidationService.isObligedToAutomaticStatusChange(bookingToChange)) {
             final Booking bookingChange = new Booking();
             bookingChange.updateFrom(bookingToChange);
             bookingChange.setStatus(BookingStatus.ROOM_CHANGED);
 
-            bookingPersistenceHelper.saveAndDetach(bookingToChange, bookingChange);
+            bookingService.saveAndDetach(bookingToChange, bookingChange);
         }
     }
 

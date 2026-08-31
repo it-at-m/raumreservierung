@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.booking;
 
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 import de.muenchen.raumreservierung.appointment.Appointment;
@@ -14,6 +15,7 @@ import de.muenchen.raumreservierung.security.AuthUtils;
 import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
+import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
 import java.util.Objects;
 import java.util.Set;
@@ -33,13 +35,14 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("PMD.CommentDefaultAccessModifier")
 public class BookingService {
     private final BookingRepository bookingRepository;
+    private final EntityManager entityManager;
     private final SecurityContextService securityContextService;
     private final AppointmentService appointmentService;
     private final PersonService personService;
     private final BookingValidationService bookingValidationService;
-    private final BookingPersistenceHelper bookingPersistenceHelper;
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
@@ -95,7 +98,7 @@ public class BookingService {
 
         assignBookingContext(booking);
 
-        final Booking savedBooking = bookingPersistenceHelper.saveAndDetach(new Booking(), booking);
+        final Booking savedBooking = saveAndDetach(new Booking(), booking);
 
         log.debug("Created booking with id {}", savedBooking.getId());
         return getSanitizedBooking(savedBooking.getId());
@@ -115,7 +118,7 @@ public class BookingService {
      */
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
-        final Booking existingBooking = bookingPersistenceHelper.getEntityOrThrowException(bookingId);
+        final Booking existingBooking = getEntityOrThrowException(bookingId);
 
         bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
         assignBookingContext(bookingUpdates);
@@ -127,14 +130,14 @@ public class BookingService {
 
         updateBookingAppointments(existingBooking, bookingUpdates);
 
-        bookingPersistenceHelper.saveAndDetach(existingBooking, bookingUpdates);
+        saveAndDetach(existingBooking, bookingUpdates);
         log.debug("Updated booking with id {}", existingBooking.getId());
         return getSanitizedBooking(existingBooking.getId());
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public void deleteBooking(final UUID bookingId) {
-        final Booking existingBooking = bookingPersistenceHelper.getEntityOrThrowException(bookingId);
+        final Booking existingBooking = getEntityOrThrowException(bookingId);
         checkAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
         log.debug("Deleted booking with id {}", bookingId);
         bookingRepository.deleteById(bookingId);
@@ -233,11 +236,34 @@ public class BookingService {
     }
 
     private Booking getSanitizedBooking(final UUID bookingId) {
-        final Booking booking = bookingPersistenceHelper.getEntityOrThrowException(bookingId);
+        final Booking booking = getEntityOrThrowException(bookingId);
         if (!securityContextService.hasAuthority(Roles.TERMIN_ORGANISATOR)) {
             booking.setInternalNotes(null);
         }
         return booking;
+    }
+
+    Booking getEntityOrThrowException(final UUID bookingId) {
+        return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, bookingId)));
+    }
+
+    Booking saveAndDetach(final Booking bookingToUpdate, final Booking sourceData) {
+        bookingToUpdate.updateFrom(sourceData);
+
+        final Booking savedBooking = bookingRepository.saveAndFlush(bookingToUpdate);
+
+        entityManager.detach(savedBooking);
+        if (savedBooking.getBookedBy() != null) {
+            entityManager.detach(savedBooking.getBookedBy());
+        }
+        if (savedBooking.getBookedFor() != null) {
+            entityManager.detach(savedBooking.getBookedFor());
+        }
+        if (savedBooking.getSeatingType() != null) {
+            entityManager.detach(savedBooking.getSeatingType());
+        }
+
+        return savedBooking;
     }
 
     /**

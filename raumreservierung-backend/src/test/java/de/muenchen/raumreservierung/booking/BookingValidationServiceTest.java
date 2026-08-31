@@ -55,7 +55,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
                 BookingService.class,
                 BookingValidationService.class,
                 BookingTransitionService.class,
-                BookingPersistenceHelper.class,
                 SecurityConfiguration.class,
                 SecurityContextService.class
         }
