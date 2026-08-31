@@ -45,7 +45,7 @@
         <maven.compiler.release>${java.version}</maven.compiler.release>
 
         <!-- Core Frameworks -->
-        <spring-cloud-dependencies.version>2025.1.2</spring-cloud-dependencies.version> <!-- Must match the chosen Spring Boot version -->
+        <spring-cloud-dependencies.version>2025.1.3</spring-cloud-dependencies.version> <!-- Must match the chosen Spring Boot version -->
         <hibernate-processor.version>7.2.24.Final</hibernate-processor.version>
         <httpclient5.version>5.6.3</httpclient5.version>
 
@@ -94,7 +94,7 @@
         <!-- Added to fix CVE-2026-54291 -->
         <postgresql.version>42.7.12</postgresql.version>
         <!-- Added to fix CVE-2026-64607 -->
-        <httpclient5.version>5.6.3</httpclient5.version>
+        <httpclient5.version>5.6.4</httpclient5.version>
     </properties>
 
 
@@ -123,7 +123,7 @@
             <dependency> <!-- Added to fix CVE-2026-34483, CVE-2026-34486, CVE-2026-34487 -->
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>
-                <version>10.1.57</version>
+                <version>10.1.59</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
