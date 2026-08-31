@@ -133,7 +133,7 @@
                 <v-list-item-title>
                   {{
                     $t(
-                      `domain.person.titlePrefix.${(roomData?.contactPerson?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`
+                      `views.roomDetailsView.titlePrefix.${(roomData?.contactPerson?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`
                     )
                   }}
                   {{ roomData?.contactPerson?.firstName }}

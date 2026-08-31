@@ -128,6 +128,14 @@
         "link": "Anfrage ohne Raumauswahl"
       }
     },
+    "roomDetailsView": {
+      "titlePrefix": {
+        "mr": "@:domain.person.titles.mr",
+        "ms": "@:domain.person.titles.ms",
+        "diverse": "",
+        "none": ""
+      }
+    },
     "bookingDetailsView": {
       "header": "Buchungsdetails",
       "participants": "Teilnehmende {count}",
@@ -296,12 +304,6 @@
         "ms": "Frau",
         "diverse": "Divers",
         "none": "Keine Angabe"
-      },
-      "titlePrefix": {
-        "mr": "@:domain.person.titles.mr",
-        "ms": "@:domain.person.titles.ms",
-        "diverse": "",
-        "none": ""
       },
       "firstName": "Vorname",
       "lastName": "Nachname",
