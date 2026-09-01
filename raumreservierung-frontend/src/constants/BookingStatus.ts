@@ -222,7 +222,7 @@ const ADMIN_GROUPS: StatusGroup[] = [
   {
     key: "changed",
     status: [status.ROOM_CHANGED],
-    config: CHANGED_STATUS_STYLE,
+    config: { ...CHANGED_STATUS_STYLE, color: NEW_COLOR },
   },
   {
     key: "approved",
