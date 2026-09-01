@@ -7,6 +7,7 @@
   >
     <div
       class="text-caption px-1 text-white text-truncate position-relative z-1"
+      style="left: 15px"
     >
       {{ event.raw.bookingMinimal.title }}
     </div>
@@ -15,12 +16,12 @@
       v-if="
         event.raw.schedule.appointmentStart && event.raw.schedule.appointmentEnd
       "
-      class="position-absolute solid-hatched-overlay rounded"
+      class="position-absolute hatched-overlay rounded"
       style="width: 15px"
       :style="appointmentStyle"
     />
     <div
-      class="position-absolute hatched-overlay rounded top-0 h-100"
+      class="position-absolute solid-hatched-overlay rounded top-0 h-100"
       style="width: 15px"
     />
   </v-sheet>
@@ -81,14 +82,14 @@ const appointmentStyle = computed(() => {
 
 <style scoped>
 .solid-hatched-overlay {
-  background-color: rgba(255, 255, 255, 0.4);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .hatched-overlay {
   background-image: repeating-linear-gradient(
     45deg,
-    rgba(255, 255, 255, 0.4) 0px,
-    rgba(255, 255, 255, 0.4) 10px,
+    rgba(255, 255, 255, 0.5) 0px,
+    rgba(255, 255, 255, 0.5) 10px,
     transparent 11px,
     transparent 21px
   );
