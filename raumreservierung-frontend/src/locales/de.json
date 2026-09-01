@@ -45,7 +45,7 @@
     "roomResourceManagementCard": {
       "subtitle": "Neue {domain} zu bestehender Liste hinzufügen."
     },
-    "dateDisplay": "{day} den {date}",
+    "dateDisplay": "{day}, {date}",
     "scheduleTimelineCard": {
       "header": "Zeitlicher Ablauf",
       "end": "Ende",
@@ -242,8 +242,8 @@
     "scheduleTemplate": {
       "date": "Datum",
       "endDate": "Enddatum",
-      "startTime": "Startzeit",
-      "endTime": "Endzeit",
+      "startTime": "Buchungsbeginn",
+      "endTime": "Buchungsende",
       "appointmentStart": "Veranstaltungsbeginn",
       "appointmentEnd": "Veranstaltungsende"
     },
