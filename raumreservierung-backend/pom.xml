@@ -6,12 +6,12 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>3.5.16</version>
-        <relativePath/>
+        <relativePath />
     </parent>
 
     <groupId>de.muenchen.raumreservierung</groupId>
     <artifactId>raumreservierung-backend</artifactId>
-    <version>0.4.1-SNAPSHOT</version>
+    <version>0.9.2-SNAPSHOT</version>
 
     <name>raumreservierung-backend</name>
     <description>This is the backend-project of the renewal of the raumreservierung</description>
@@ -59,7 +59,7 @@
 
         <!-- Testing -->
         <jacoco-maven-plugin.version>0.8.14</jacoco-maven-plugin.version>
-        <argLine/> <!-- Must be empty, definition needed for integration of Jacoco and Surefire via @{argLine} lazy property evaluation -->
+        <argLine /> <!-- Must be empty, definition needed for integration of Jacoco and Surefire via @{argLine} lazy property evaluation -->
 
         <!-- Release -->
         <maven-release-plugin.version>3.3.1</maven-release-plugin.version>
@@ -84,8 +84,8 @@
         <flyway.locations>classpath:db/migration/schema,classpath:db/migration/testdata</flyway.locations>
 
         <!-- Spotless P2 Mirror configuration (e.g. required when using company internal registry -->
-        <p2.username/> <!-- must be empty, override via Maven settings.xml if needed -->
-        <p2.password/> <!-- must be empty, override via Maven settings.xml if needed -->
+        <p2.username /> <!-- must be empty, override via Maven settings.xml if needed -->
+        <p2.password /> <!-- must be empty, override via Maven settings.xml if needed -->
         <p2.mirror>download.eclipse.org</p2.mirror>
 
         <!-- Calendar dependency -->
@@ -450,12 +450,12 @@
                                 </p2Mirror>
                             </p2Mirrors>
                         </eclipse>
-                        <trimTrailingWhitespace/>
-                        <endWithNewline/>
-                        <importOrder/>
-                        <removeUnusedImports/>
-                        <forbidWildcardImports/>
-                        <formatAnnotations/>
+                        <trimTrailingWhitespace />
+                        <endWithNewline />
+                        <importOrder />
+                        <removeUnusedImports />
+                        <forbidWildcardImports />
+                        <formatAnnotations />
                     </java>
                     <lintSuppressions>
                         <!-- Add your own Spotless suppressions, see https://github.com/diffplug/spotless/tree/main/plugin-maven#suppressing-lint-errors -->
