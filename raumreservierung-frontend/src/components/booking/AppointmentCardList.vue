@@ -132,8 +132,9 @@ const fetchPage = async () => {
     page: nextAppointmentPage.value,
     startDate: new Date(),
     bookingId: bookingId,
-    endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
+    endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 5)),
     size: 5,
+    sort: ["schedule.occupancyStart,asc"],
   });
 };
 
