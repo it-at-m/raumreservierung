@@ -175,15 +175,8 @@ const showEvent = (nativeEvent: Event, payload: { event: unknown }) => {
 };
 
 // ############## Drag and Drop Stuff
-interface TMSType {
-  year: number;
-  month: number;
-  day: number;
-  hour: number;
-  minute: number;
-}
 
-const dragEvent = ref<CalendarAppointmentEvent | undefined>(undefined);
+const draggedEventIndex = ref<number | undefined>(undefined);
 const dragTime = ref<number | undefined>(undefined);
 const dragWasPerformed = ref<boolean>(false);
 const dragOriginalData = ref<
@@ -199,64 +192,64 @@ const startDrag = (
   nativeEvent: Event,
   payload: { event: unknown; timed: boolean }
 ) => {
-  const event = payload.event as CalendarAppointmentEvent;
+  const payloadEvent = payload.event as CalendarAppointmentEvent;
 
-  // only current booking shall be moveable
-  if (event.raw.bookingMinimal.id === booking.id) {
-    dragEvent.value = event;
-    dragTime.value = undefined;
-    dragWasPerformed.value = false;
+  if (payloadEvent.raw.bookingMinimal.id === booking.id && payload.timed) {
+    const index = localEvents.value.findIndex(
+      (e) => e.raw.id === payloadEvent.raw.id
+    );
 
-    dragOriginalData.value = {
-      start: event.start.getTime(),
-      end: event.end.getTime(),
-      category: event.category,
-    };
+    if (index !== -1) {
+      draggedEventIndex.value = index;
+      dragTime.value = undefined;
+      dragWasPerformed.value = false;
 
-    nativeEvent.preventDefault();
-  }
+      const originalEvent = localEvents.value[
+        index
+      ] as CalendarAppointmentEvent;
+      dragOriginalData.value = {
+        start: originalEvent.start.getTime(),
+        end: originalEvent.end.getTime(),
+        category: originalEvent.category,
+      };
 
-  if (event && payload.timed) {
-    dragEvent.value = event;
-    dragTime.value = undefined;
+      nativeEvent.preventDefault();
+    }
   }
 };
 
-const endDrag = (_: Event, payload: CalendarDayBodySlotScope) => {
-  if (!dragEvent.value || !dragOriginalData.value) {
+const endDrag = (_: Event, payload: unknown) => {
+  if (draggedEventIndex.value === undefined || !dragOriginalData.value) {
     return;
   }
 
   if (dragWasPerformed.value) {
+    const finalEvent = localEvents.value[draggedEventIndex.value];
     // TODO: Emit oder Backend-Call für das Zurückschreiben
-    // Die neuen Daten liegen in:
-    // dragEvent.value.start
-    // dragEvent.value.end
-    // dragEvent.value.category (das ist die roomId)
   }
 
-  dragEvent.value = undefined;
+  draggedEventIndex.value = undefined;
   dragTime.value = undefined;
   dragOriginalData.value = undefined;
 };
 
 const cancelDrag = () => {
-  if (dragEvent.value && dragOriginalData.value) {
-    dragEvent.value = {
-      ...dragEvent.value,
-      start: new Date(dragOriginalData.value.start),
-      end: new Date(dragOriginalData.value.end),
-      category: dragOriginalData.value.category,
-    };
+  if (draggedEventIndex.value !== undefined && dragOriginalData.value) {
+    const activeEvent = localEvents.value[
+      draggedEventIndex.value
+    ] as CalendarAppointmentEvent;
+    activeEvent.start = new Date(dragOriginalData.value.start);
+    activeEvent.end = new Date(dragOriginalData.value.end);
+    activeEvent.category = dragOriginalData.value.category;
   }
 
-  dragEvent.value = undefined;
+  draggedEventIndex.value = undefined;
   dragTime.value = undefined;
   dragOriginalData.value = undefined;
   dragWasPerformed.value = false;
 };
 
-const toTime = (tms: TMSType): number => {
+const toTime = (tms: CalendarDayBodySlotScope): number => {
   return new Date(
     tms.year,
     tms.month - 1,
@@ -280,32 +273,32 @@ const roundTime = (time: number, down = true) => {
 };
 
 const mouseMove = (_: Event, payload: CalendarDayBodySlotScope) => {
-  if (!dragEvent.value) {
+  if (draggedEventIndex.value === undefined || !dragOriginalData.value) {
     return;
   }
 
-  const mouse = toTime(payload.tms);
+  const mouse = toTime(payload);
+  const activeEvent = localEvents.value[
+    draggedEventIndex.value
+  ] as CalendarAppointmentEvent;
 
   if (dragTime.value === undefined) {
-    dragTime.value = mouse - dragEvent.value.start.getTime();
+    dragTime.value = mouse - activeEvent.start.getTime();
   } else {
     dragWasPerformed.value = true;
   }
-  const duration =
-    dragEvent.value.end.getTime() - dragEvent.value.start.getTime();
+
+  const duration = dragOriginalData.value.end - dragOriginalData.value.start;
   const newStartTime = mouse - dragTime.value;
   const newStart = roundTime(newStartTime);
 
-  // TODO: check if below is possible ... this wont trigger any refs but that may be okay
-  dragEvent.value = {
-    ...dragEvent.value,
-    start: new Date(newStart),
-    end: new Date(newStart + duration),
-    category: payload.category
-      ? payload.category.categoryName
-      : payload.tms.category.categoryName,
-  };
+  activeEvent.start = new Date(newStart);
+  activeEvent.end = new Date(newStart + duration);
 
-  localEvents.value = [...localEvents.value];
+  const targetCategory =
+    payload.category?.categoryName || payload.category?.categoryName;
+  if (targetCategory) {
+    activeEvent.category = targetCategory;
+  }
 };
 </script>
