@@ -26,6 +26,7 @@
             :text="t('generics.delete', { domain: t('domain.room.header') })"
             secondary
             :append-icon="mdiTrashCanOutline"
+            @click="deleteRoomId = roomId"
           />
         </template>
         <template #default="{ isActive }">
@@ -34,22 +35,71 @@
             :text="
               t('generics.confirmMsg', { domain: t('domain.room.header') })
             "
-            :loading="deleteRoomLoading"
+            :loading="deleteRoomLoading || deleteCheckLoading"
             @cancel="isActive.value = false"
             @confirm="
               handleDelete();
               isActive.value = false;
             "
           >
+            <template #text>
+              <div v-if="deleteCheckLoading">
+                {{ t("generics.checkDelete") }}
+              </div>
+              <div v-if="!deleteCheckLoading && canDeleteItem === true">
+                {{
+                  t("generics.confirmDelete", {
+                    domain: t("domain.room.header"),
+                  })
+                }}
+              </div>
+              <v-alert
+                v-if="canDeleteItem === false"
+                type="warning"
+                variant="outlined"
+                density="compact"
+              >
+                {{ t("generics.cantDelete") }}
+              </v-alert>
+            </template>
             <template #confirm="{ props }">
               <base-button
                 :text="t('common.delete')"
                 :append-icon="mdiTrashCanOutline"
                 v-bind="props"
+                :disabled="deleteCheckLoading || !canDeleteItem"
               />
             </template>
           </confirm-card>
         </template>
+      </v-dialog>
+      <v-dialog
+        v-model="showDeactivateConfirm"
+        max-width="800px"
+        width="90%"
+      >
+        <confirm-card
+          :title="t('views.roomEditView.deactivationConfirmTitle')"
+          @cancel="showDeactivateConfirm = false"
+          @confirm="handleConfirmedSave"
+        >
+          <template #text>
+            <v-alert
+              v-if="canDeactivate === false"
+              type="warning"
+              variant="outlined"
+              density="compact"
+            >
+              {{ t("views.roomEditView.deactivationFutureBookingsWarning") }}
+            </v-alert>
+          </template>
+          <template #confirm="{ props }">
+            <base-button
+              :text="t('common.save')"
+              v-bind="props"
+            />
+          </template>
+        </confirm-card>
       </v-dialog>
       <base-button
         class="ml-4"
@@ -59,8 +109,7 @@
           !isValid ||
           uploadFileLoading ||
           updateRoomLoading ||
-          createRoomLoading ||
-          uploadFileLoading
+          createRoomLoading
         "
         @click="handleSave"
       />
@@ -290,6 +339,7 @@ import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import SeatingCapacityEditor from "@/components/rooms/SeatingCapacitySelector.vue";
 import { useUploadFile } from "@/composables/api/useFileAttachmentApi.ts";
 import {
+  useCheckRoomDeletable,
   useCreateRoom,
   useDeleteRoom,
   useGetRoom,
@@ -304,6 +354,9 @@ import { EMPTY_ROOM_DATA, mapResponseToRequest } from "@/util/roomTypeUtil.ts";
 const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
 
+const showDeactivateConfirm = ref<boolean>(false);
+const deactivateCheckId = ref<string>();
+
 const router = useRouter();
 
 const route = useRoute();
@@ -314,6 +367,7 @@ const roomId = computed(() => (route.params.id as string) || undefined);
 const pictureMetaData = ref<File>();
 
 const isDeletable = ref<boolean>(false);
+const deleteRoomId = ref<string>();
 
 const { t } = useI18n();
 
@@ -325,25 +379,11 @@ const {
   error: getRoomError,
 } = useGetRoom(roomId);
 
-const {
-  mutateAsync: updateRoom,
-  data: updateRoomData,
-  isPending: updateRoomLoading,
-  error: updateRoomError,
-} = useUpdateRoom();
+const { mutate: updateRoom, isPending: updateRoomLoading } = useUpdateRoom();
 
-const {
-  mutateAsync: createRoom,
-  data: createRoomData,
-  isPending: createRoomLoading,
-  error: createRoomError,
-} = useCreateRoom();
+const { mutate: createRoom, isPending: createRoomLoading } = useCreateRoom();
 
-const {
-  mutateAsync: deleteRoom,
-  isPending: deleteRoomLoading,
-  error: deleteRoomError,
-} = useDeleteRoom();
+const { mutate: deleteRoom, isPending: deleteRoomLoading } = useDeleteRoom();
 
 const {
   mutateAsync: uploadFile,
@@ -351,6 +391,12 @@ const {
   data: uploadFileData,
   error: uploadFileError,
 } = useUploadFile();
+
+const { data: canDeleteItem, isFetching: deleteCheckLoading } =
+  useCheckRoomDeletable(deleteRoomId);
+
+const { data: canDeactivate, refetch: refetchDeactivateCheck } =
+  useCheckRoomDeletable(deactivateCheckId);
 
 watch(
   [() => roomReqData.value?.id, getRoomError],
@@ -393,28 +439,54 @@ const uploadPicture = async (value: File | File[]) => {
   };
 };
 
-const handleSave = async () => {
-  if (roomId.value) {
-    await updateRoom({
-      roomId: roomId.value,
-      roomRequestDTO: roomData.value,
+const handleSave = () => {
+  if (roomData.value.isActive === false && roomId.value) {
+    deactivateCheckId.value = roomId.value;
+    refetchDeactivateCheck().then(({ data }) => {
+      if (data === false) {
+        showDeactivateConfirm.value = true;
+      } else {
+        performSave();
+      }
     });
+    return;
+  }
+  performSave();
+};
 
-    if (!updateRoomError.value && updateRoomData.value) {
-      onSuccess(
-        updateRoomData.value,
-        t("generics.updated", { domain: t("domain.room.header") })
-      );
-    }
+const handleConfirmedSave = () => {
+  showDeactivateConfirm.value = false;
+  performSave();
+};
+
+const performSave = () => {
+  if (roomId.value) {
+    updateRoom(
+      {
+        roomId: roomId.value,
+        roomRequestDTO: roomData.value,
+      },
+      {
+        onSuccess: (updatedRoom) => {
+          onSuccess(
+            updatedRoom,
+            t("generics.updated", { domain: t("domain.room.header") })
+          );
+        },
+      }
+    );
   } else {
-    await createRoom({ roomRequestDTO: roomData.value });
-
-    if (!createRoomError.value && createRoomData.value) {
-      onSuccess(
-        createRoomData.value,
-        t("generics.created", { domain: t("domain.room.header") })
-      );
-    }
+    createRoom(
+      { roomRequestDTO: roomData.value },
+      {
+        onSuccess: (createdRoom) => {
+          onSuccess(
+            createdRoom,
+            t("generics.created", { domain: t("domain.room.header") })
+          );
+        },
+      }
+    );
   }
 };
 
@@ -435,16 +507,18 @@ const onSuccess = (
 
 const handleDelete = async () => {
   if (roomId.value) {
-    await deleteRoom({ roomId: roomId.value });
-
-    if (!deleteRoomError.value) {
-      snackbar.add({
-        level: Levels.SUCCESS,
-        message: t("generics.deleted", { domain: t("domain.room.header") }),
-      });
-
-      await router.push({ name: ROUTES.ROOMS_LIST });
-    }
+    deleteRoom(
+      { roomId: roomId.value },
+      {
+        onSuccess: () => {
+          snackbar.add({
+            level: Levels.SUCCESS,
+            message: t("generics.deleted", { domain: t("domain.room.header") }),
+          });
+          router.push({ name: ROUTES.ROOMS_LIST });
+        },
+      }
+    );
   }
 };
 </script>
