@@ -446,4 +446,51 @@ public class BookingServiceIntegrationTest {
         assertNotNull(result);
         assertThat(result.getStatus()).isEqualTo(BookingStatus.ROOM_APPROVED);
     }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void existsFutureBookingForRoom_shouldReturnTrue_whenRoomHasBookingExtendingIntoTheFuture() {
+        boolean result = bookingService.existsFutureBookingForRoom(existingBooking.getRoom().getId());
+
+        assertThat(result).isTrue();
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void existsFutureBookingForRoom_shouldReturnFalse_whenRoomHasNoBookingsAtAll() {
+        boolean result = bookingService.existsFutureBookingForRoom(room2.getId());
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void existsFutureBookingForRoom_shouldReturnFalse_whenRoomOnlyHasBookingsEntirelyInThePast() {
+        OffsetDateTime past = OffsetDateTime.now(ZoneOffset.UTC).minusDays(2);
+        ScheduleTemplate pastSchedule = new ScheduleTemplate(
+                past,
+                past.plusHours(2),
+                past.plusMinutes(15),
+                past.plusHours(1).plusMinutes(30));
+
+        Booking pastBooking = new Booking();
+        pastBooking.updateFrom(existingBooking);
+        pastBooking.setSchedule(pastSchedule);
+        pastBooking.setRoom(room2);
+        pastBooking.setSchedule(null);
+        bookingRepository.save(pastBooking);
+
+        boolean result = bookingService.existsFutureBookingForRoom(room2.getId());
+
+        assertThat(result).isFalse();
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void removeRoomFromBookings_shouldClearRoomOnAllBookingsAssignedToThatRoom() {
+        bookingService.removeRoomFromBookings(existingBooking.getRoom().getId());
+
+        Booking reloaded = bookingRepository.findById(existingBooking.getId()).orElseThrow();
+        assertThat(reloaded.getRoom()).isNull();
+    }
 }

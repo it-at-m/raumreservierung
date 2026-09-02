@@ -94,4 +94,19 @@ public final class BookingSpecificationBuilder {
             return null;
         };
     }
+
+    private static <T extends Booking> Specification<T> filterForOccupancyEndAfter(final OffsetDateTime now) {
+        return (root, query, cb) -> cb.greaterThan(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyEnd), now);
+    }
+
+    private static <T extends Booking> Specification<T> filterExcludingStatus(final BookingStatus... status) {
+        return (root, query, cb) -> cb.not(root.get(Booking_.status).in(status));
+    }
+
+    public static <T extends Booking> Specification<T> forFutureRoomUsage(final UUID roomId) {
+        return Specification.allOf(
+                filterForRoomId(roomId),
+                filterForOccupancyEndAfter(OffsetDateTime.now()),
+                filterExcludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
+    }
 }
