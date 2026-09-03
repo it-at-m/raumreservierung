@@ -40,6 +40,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("PMD.CommentDefaultAccessModifier")
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final EntityManager entityManager;
@@ -337,13 +338,12 @@ public class BookingService {
         }
     }
 
-    public boolean existsFutureBookingForSeatingType(final UUID seatingTypeId) {
+    boolean existsFutureBookingForSeatingType(final UUID seatingTypeId) {
         final Specification<Booking> spec = BookingSpecificationBuilder.forFutureSeatingTypeUsage(seatingTypeId);
         return bookingRepository.exists(spec);
     }
 
-    @Transactional
-    public void removeSeatingTypeFromBookings(final UUID seatingTypeId) {
+    void removeSeatingTypeFromBookings(final UUID seatingTypeId) {
         final List<Booking> affectedBookings = bookingRepository.findBySeatingTypeId(seatingTypeId);
         affectedBookings.forEach(booking -> booking.setSeatingType(null));
         bookingRepository.saveAll(affectedBookings);

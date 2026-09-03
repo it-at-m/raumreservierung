@@ -4,7 +4,8 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_IN_FUTURE_BOOKING;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
-import de.muenchen.raumreservierung.booking.BookingService;
+import de.muenchen.raumreservierung.booking.events.FutureBookingCheckEvent;
+import de.muenchen.raumreservierung.booking.events.RemoveSeatingTypeFromBookingsEvent;
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.room.RoomService;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -22,8 +24,8 @@ import org.springframework.stereotype.Service;
 public class SeatingService {
 
     private final SeatingRepository seatingRepository;
-    private final BookingService bookingService;
     private final RoomService roomService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public List<SeatingType> findAll() {
         final List<SeatingType> allSeatingTypes = seatingRepository.findAll();
@@ -53,12 +55,12 @@ public class SeatingService {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, seatingTypeId));
         }
 
-        if (bookingService.existsFutureBookingForSeatingType(seatingTypeId)) {
+        if (existsFutureBookingForSeatingType(seatingTypeId)) {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_IN_FUTURE_BOOKING, seatingTypeId));
         }
 
         roomService.deleteRoomSeatingCapacitiesForSeatingType(seatingTypeId);
-        bookingService.removeSeatingTypeFromBookings(seatingTypeId);
+        eventPublisher.publishEvent(new RemoveSeatingTypeFromBookingsEvent(seatingTypeId));
 
         log.debug("Deleting Seating {}", seatingTypeId);
         seatingRepository.delete(toDelete);
@@ -71,6 +73,8 @@ public class SeatingService {
     }
 
     public boolean existsFutureBookingForSeatingType(final UUID seatingTypeId) {
-        return bookingService.existsFutureBookingForSeatingType(seatingTypeId);
+        final FutureBookingCheckEvent event = new FutureBookingCheckEvent(seatingTypeId);
+        eventPublisher.publishEvent(event);
+        return event.isFutureBookingExists();
     }
 }
