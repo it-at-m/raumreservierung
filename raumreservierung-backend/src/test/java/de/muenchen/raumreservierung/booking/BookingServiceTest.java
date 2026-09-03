@@ -128,7 +128,7 @@ public class BookingServiceTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
     void findAllWithSanitizedNotes_ShouldKeepNotes_WhenUserIsOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED), null, null);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");
@@ -147,7 +147,7 @@ public class BookingServiceTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void findAllWithSanitizedNotes_ShouldNullNotes_WhenUserIsNotOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED), null, null);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");
@@ -166,7 +166,7 @@ public class BookingServiceTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
     void findOwnWithSanitizedNotes_ShouldKeepNotes_WhenUserIsOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED), null, null);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");
@@ -185,7 +185,7 @@ public class BookingServiceTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void findOwnWithSanitizedNotes_ShouldNullNotes_WhenUserIsNotOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED), null, null);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");

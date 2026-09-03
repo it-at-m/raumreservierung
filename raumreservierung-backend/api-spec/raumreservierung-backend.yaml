@@ -684,6 +684,17 @@ paths:
             - ORGANIZER_APPROVED
             - UNFEASIBLE
             - CANCELED
+      - name: bookedForId
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: title
+        in: query
+        required: false
+        schema:
+          type: string
       - name: self
         in: query
         required: false
