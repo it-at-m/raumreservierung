@@ -440,18 +440,19 @@ const uploadPicture = async (value: File | File[]) => {
 };
 
 const handleSave = () => {
-  if (roomData.value.isActive === false && roomId.value) {
-    deactivateCheckId.value = roomId.value;
-    refetchDeactivateCheck().then(({ data }) => {
-      if (data === false) {
-        showDeactivateConfirm.value = true;
-      } else {
-        performSave();
-      }
-    });
+  if (roomData.value.isActive === true || !roomId.value) {
+    performSave();
     return;
   }
-  performSave();
+
+  deactivateCheckId.value = roomId.value;
+  refetchDeactivateCheck().then(({ data }) => {
+    if (data === false) {
+      showDeactivateConfirm.value = true;
+    } else {
+      performSave();
+    }
+  });
 };
 
 const handleConfirmedSave = () => {
