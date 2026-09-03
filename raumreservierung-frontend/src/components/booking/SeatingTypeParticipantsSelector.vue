@@ -41,7 +41,10 @@ const filteredSeatingTypes = computed(() =>
     ? !allowedIds || allowedIds.length === 0
       ? allSeatingTypes.value
       : allSeatingTypes.value?.filter(
-          (seatingType) => seatingType.id && allowedIds.includes(seatingType.id)
+          (seatingType) =>
+            seatingType.isActive &&
+            seatingType.id &&
+            allowedIds.includes(seatingType.id)
         )
     : []
 );
