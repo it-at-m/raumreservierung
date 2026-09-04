@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.room;
 
+import de.muenchen.raumreservierung.booking.BookingService;
 import de.muenchen.raumreservierung.room.dto.RoomDetailsResponseDTO;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
 import de.muenchen.raumreservierung.room.dto.RoomMapper;
@@ -31,6 +32,7 @@ public class RoomController {
     private final RoomService roomService;
 
     private final RoomMapper roomMapper;
+    private final BookingService bookingService;
 
     @Transactional
     @GetMapping
@@ -70,5 +72,18 @@ public class RoomController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteRoom(@Valid @PathVariable("roomId") final UUID roomId) {
         roomService.deleteRoom(roomId);
+    }
+
+    /**
+     * Check whether a room can be deleted.
+     * Returns false if the room is still referenced in a future booking.
+     *
+     * @param roomId the UUID of the room to check
+     * @return true if the room can be safely deleted, false otherwise
+     */
+    @GetMapping("/{roomId}/deletable")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean isRoomDeletable(@PathVariable final UUID roomId) {
+        return !roomService.existsFutureBookingForRoom(roomId);
     }
 }

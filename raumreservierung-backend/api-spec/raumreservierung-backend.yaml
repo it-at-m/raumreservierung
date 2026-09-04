@@ -714,6 +714,30 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BookingDetailResponseDTO"
+  /rooms/{roomId}/deletable:
+    get:
+      tags:
+      - room-controller
+      summary: Check whether a room can be deleted.
+      description: |-
+        Check whether a room can be deleted.
+         Returns false if the room is still referenced in a future booking.
+      operationId: isRoomDeletable
+      parameters:
+      - name: roomId
+        in: path
+        description: the UUID of the room to check
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: "true if the room can be safely deleted, false otherwise"
+          content:
+            '*/*':
+              schema:
+                type: boolean
   /file/{fileId}:
     get:
       tags:
