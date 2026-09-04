@@ -1,14 +1,14 @@
 <template>
   <v-sheet
-    class="position-relative w-100 h-100 rounded overflow-hidden"
+    class="position-relative w-100 h-100"
     :class="{ 'current-booking': isCurrentBooking }"
-    :color="config.color"
-    :elevation="isCurrentBooking ? 4 : 0"
+    color="transparent"
   >
     <div
       class="text-caption px-1 text-white text-truncate position-relative z-1"
       style="left: 15px"
     >
+      {{ event.raw.bookingMinimal.status }}
       {{ event.raw.bookingMinimal.title }}
     </div>
 
@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import type { AppointmentDetailsResponseDTO } from "@/api/raumreservierung-backend";
 
-import { computed } from "vue";
+import { computed, watch } from "vue";
 
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 

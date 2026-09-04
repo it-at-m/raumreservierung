@@ -1,5 +1,8 @@
 <template>
-  <div class="mb-4">{{ appointments?.content?.length }}</div>
+  <div class="mb-4">
+    {{ bookingAppointments?.content?.length }} # {{ calendarCategories.length }}
+    {{ isDayView }}
+  </div>
   <v-sheet height="750px">
     <v-calendar
       color="accent"
@@ -8,17 +11,18 @@
       :end="isDayView ? undefined : endDate"
       :categories="calendarCategories"
       category-text="name"
+      category-show-all
       :interval-minutes="60"
       :max-days="10"
       event-overlap-mode="column"
       :interval-height="60"
-      :first-interval="6"
       :events="localEvents"
-      event-color="color"
+      :event-color="getEventColor"
       @click:event="showEvent"
       @mousedown:event="startDrag"
       @mouseleave="cancelDrag"
       @mousemove:time="mouseMove"
+      @mousemove:time-category="mouseMove"
       @mouseup:time="endDrag"
     >
       <template #category="{ category }">
@@ -28,6 +32,7 @@
       </template>
       <template #event="{ event }">
         <rr-calendar-appointment-event
+          :id="event.raw.id"
           class="v-event-draggable"
           :event="event as unknown as CalendarAppointmentEvent"
           :is-current-booking="event.raw.bookingMinimal.id === booking.id"
@@ -61,12 +66,15 @@ import { computed, ref, watch } from "vue";
 import RrCalendarAppointmentEvent from "@/components/booking/calendar/rrCalendarAppointmentEvent.vue";
 import RrCalendarAppointmentPopup from "@/components/booking/calendar/rrCalendarAppointmentPopup.vue";
 import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
+import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
 
 const { displayedRooms, booking } = defineProps<{
   booking: BookingDetailResponseDTO;
   displayedRooms: RoomListResponseDTO[];
 }>();
+
+const { resolveColor } = useBookingStatusConfig();
 
 const selectedOpen = ref<boolean>(false);
 const selectedEvent = ref<CalendarAppointmentEvent | undefined>(undefined);
@@ -78,14 +86,23 @@ const localEvents = ref<CalendarAppointmentEvent[]>([]);
 /**
  * Each room needs to be mapped to id and name for correct displayment
  */
-const calendarCategories = computed(() =>
-  displayedRooms.map((room) => ({
+const calendarCategories = computed(() => {
+  const categories = displayedRooms.map((room) => ({
     name: room.name,
     categoryName: room.id,
-  }))
-);
+  }));
 
-const isDayView = computed(() => displayedRooms.length > 1);
+  if (!booking.room) {
+    categories.push({
+      name: "Ohne Raum (Entwurf)",
+      categoryName: "unassigned",
+    });
+  }
+
+  return categories;
+});
+
+const isDayView = computed(() => calendarCategories.value.length > 1);
 const startDate = computed(() => {
   const date = new Date(booking.schedule.occupancyStart);
   if (isDayView.value) {
@@ -120,27 +137,55 @@ const { data: appointments } = useGetAppointments(() => {
   };
 });
 
+const { data: bookingAppointments } = useGetAppointments(() => {
+  return booking.room?.id
+    ? undefined
+    : {
+        bookingId: booking.id,
+        startDate: new Date(toStartOfDay(startDate.value)),
+        endDate: new Date(toEndofDay(endDate.value)),
+      };
+});
+
 /**
  * Watcher for changing localEvents in case of new data from api
  */
 watch(
-  () => appointments.value?.content,
-  (newContent) => {
-    if (!newContent) {
-      localEvents.value = [];
-      return;
+  [() => appointments.value?.content, () => bookingAppointments.value?.content],
+  ([newAppointments, newBookingAppointments]) => {
+    const events: CalendarAppointmentEvent[] = [];
+
+    if (newAppointments) {
+      events.push(
+        ...newAppointments.map(
+          (appointment) =>
+            ({
+              start: new Date(appointment.schedule.occupancyStart),
+              end: new Date(appointment.schedule.occupancyEnd),
+              category: appointment.bookingMinimal.roomId,
+              timed: true,
+              raw: appointment,
+            }) as CalendarAppointmentEvent
+        )
+      );
     }
 
-    localEvents.value = newContent.map(
-      (appointment) =>
-        ({
-          start: new Date(appointment.schedule.occupancyStart),
-          end: new Date(appointment.schedule.occupancyEnd),
-          category: appointment.bookingMinimal.roomId,
-          timed: true,
-          raw: appointment,
-        }) as CalendarAppointmentEvent
-    );
+    if (newBookingAppointments) {
+      events.push(
+        ...newBookingAppointments.map(
+          (appointment) =>
+            ({
+              start: new Date(appointment.schedule.occupancyStart),
+              end: new Date(appointment.schedule.occupancyEnd),
+              category: "unassigned",
+              timed: true,
+              raw: appointment,
+            }) as CalendarAppointmentEvent
+        )
+      );
+    }
+
+    localEvents.value = events;
   },
   { immediate: true }
 );
@@ -174,9 +219,14 @@ const showEvent = (nativeEvent: Event, payload: { event: unknown }) => {
   nativeEvent.stopPropagation();
 };
 
-// ############## Drag and Drop Stuff
+const getEventColor = (event: unknown): string => {
+  const eventPayload = event as CalendarAppointmentEvent;
 
-const draggedEventIndex = ref<number | undefined>(undefined);
+  return resolveColor(eventPayload.raw.bookingMinimal.status);
+};
+
+// ############## Drag and Drop Stuff
+const dragEvent = ref<CalendarAppointmentEvent | undefined>(undefined);
 const dragTime = ref<number | undefined>(undefined);
 const dragWasPerformed = ref<boolean>(false);
 const dragOriginalData = ref<
@@ -194,23 +244,20 @@ const startDrag = (
 ) => {
   const payloadEvent = payload.event as CalendarAppointmentEvent;
 
-  if (payloadEvent.raw.bookingMinimal.id === booking.id && payload.timed) {
-    const index = localEvents.value.findIndex(
+  if (payloadEvent.raw.bookingMinimal.id == booking.id && payload.timed) {
+    const realEvent = localEvents.value.find(
       (e) => e.raw.id === payloadEvent.raw.id
     );
 
-    if (index !== -1) {
-      draggedEventIndex.value = index;
+    if (realEvent) {
+      dragEvent.value = realEvent;
       dragTime.value = undefined;
       dragWasPerformed.value = false;
 
-      const originalEvent = localEvents.value[
-        index
-      ] as CalendarAppointmentEvent;
       dragOriginalData.value = {
-        start: originalEvent.start.getTime(),
-        end: originalEvent.end.getTime(),
-        category: originalEvent.category,
+        start: realEvent.start.getTime(),
+        end: realEvent.end.getTime(),
+        category: realEvent.category,
       };
 
       nativeEvent.preventDefault();
@@ -218,32 +265,29 @@ const startDrag = (
   }
 };
 
-const endDrag = (_: Event, payload: unknown) => {
-  if (draggedEventIndex.value === undefined || !dragOriginalData.value) {
+const endDrag = () => {
+  if (!dragEvent.value || !dragOriginalData.value) {
     return;
   }
 
   if (dragWasPerformed.value) {
-    const finalEvent = localEvents.value[draggedEventIndex.value];
+    // const finalEvent = dragEvent.value;
     // TODO: Emit oder Backend-Call für das Zurückschreiben
   }
 
-  draggedEventIndex.value = undefined;
+  dragEvent.value = undefined;
   dragTime.value = undefined;
   dragOriginalData.value = undefined;
 };
 
 const cancelDrag = () => {
-  if (draggedEventIndex.value !== undefined && dragOriginalData.value) {
-    const activeEvent = localEvents.value[
-      draggedEventIndex.value
-    ] as CalendarAppointmentEvent;
-    activeEvent.start = new Date(dragOriginalData.value.start);
-    activeEvent.end = new Date(dragOriginalData.value.end);
-    activeEvent.category = dragOriginalData.value.category;
+  if (dragEvent.value && dragOriginalData.value) {
+    dragEvent.value.start = new Date(dragOriginalData.value.start);
+    dragEvent.value.end = new Date(dragOriginalData.value.end);
+    dragEvent.value.category = dragOriginalData.value.category;
   }
 
-  draggedEventIndex.value = undefined;
+  dragEvent.value = undefined;
   dragTime.value = undefined;
   dragOriginalData.value = undefined;
   dragWasPerformed.value = false;
@@ -273,17 +317,14 @@ const roundTime = (time: number, down = true) => {
 };
 
 const mouseMove = (_: Event, payload: CalendarDayBodySlotScope) => {
-  if (draggedEventIndex.value === undefined || !dragOriginalData.value) {
+  if (!dragEvent.value || !dragOriginalData.value) {
     return;
   }
 
   const mouse = toTime(payload);
-  const activeEvent = localEvents.value[
-    draggedEventIndex.value
-  ] as CalendarAppointmentEvent;
 
   if (dragTime.value === undefined) {
-    dragTime.value = mouse - activeEvent.start.getTime();
+    dragTime.value = mouse - dragEvent.value.start.getTime();
   } else {
     dragWasPerformed.value = true;
   }
@@ -292,13 +333,13 @@ const mouseMove = (_: Event, payload: CalendarDayBodySlotScope) => {
   const newStartTime = mouse - dragTime.value;
   const newStart = roundTime(newStartTime);
 
-  activeEvent.start = new Date(newStart);
-  activeEvent.end = new Date(newStart + duration);
+  // Vue 3 Proxy fängt diese Mutationen ab und löst Re-Render aus
+  dragEvent.value.start = new Date(newStart);
+  dragEvent.value.end = new Date(newStart + duration);
 
-  const targetCategory =
-    payload.category?.categoryName || payload.category?.categoryName;
+  const targetCategory = payload.category?.categoryName;
   if (targetCategory) {
-    activeEvent.category = targetCategory;
+    dragEvent.value.category = targetCategory;
   }
 };
 </script>
