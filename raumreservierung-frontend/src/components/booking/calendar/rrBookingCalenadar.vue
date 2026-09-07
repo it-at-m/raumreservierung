@@ -1,8 +1,4 @@
 <template>
-  <div class="mb-4">
-    {{ bookingAppointments?.content?.length }} # {{ calendarCategories.length }}
-    {{ isDayView }}
-  </div>
   <v-sheet height="750px">
     <v-calendar
       color="accent"
@@ -69,6 +65,11 @@ import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
 
+const FALLBACK_CATEGORY_ROOM = {
+  name: "Ohne Raum",
+  categoryName: "unassigned",
+};
+
 const { displayedRooms, booking } = defineProps<{
   booking: BookingDetailResponseDTO;
   displayedRooms: RoomListResponseDTO[];
@@ -83,6 +84,10 @@ const selectedElement = ref<HTMLElement | undefined>(undefined);
 // Events for displayment inside v-calendar
 const localEvents = ref<CalendarAppointmentEvent[]>([]);
 
+const emit = defineEmits<{
+  updatedSchedule: [event: CalendarAppointmentEvent];
+}>();
+
 /**
  * Each room needs to be mapped to id and name for correct displayment
  */
@@ -93,10 +98,7 @@ const calendarCategories = computed(() => {
   }));
 
   if (!booking.room) {
-    categories.push({
-      name: "Ohne Raum (Entwurf)",
-      categoryName: "unassigned",
-    });
+    categories.push(FALLBACK_CATEGORY_ROOM);
   }
 
   return categories;
@@ -177,7 +179,7 @@ watch(
             ({
               start: new Date(appointment.schedule.occupancyStart),
               end: new Date(appointment.schedule.occupancyEnd),
-              category: "unassigned",
+              category: FALLBACK_CATEGORY_ROOM.categoryName,
               timed: true,
               raw: appointment,
             }) as CalendarAppointmentEvent
@@ -271,6 +273,7 @@ const endDrag = () => {
   }
 
   if (dragWasPerformed.value) {
+    emit("updatedSchedule", dragEvent.value);
     // const finalEvent = dragEvent.value;
     // TODO: Emit oder Backend-Call für das Zurückschreiben
   }
