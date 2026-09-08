@@ -36,6 +36,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
+import java.util.HashSet;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -237,11 +239,17 @@ public class BookingService {
      * @param bookingUpdates the updated booking data
      */
     public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
-        if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())) {
+        if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule()) && Objects.equals(existingBooking.getSchedule(), bookingUpdates.getSchedule())) {
+            bookingUpdates.setAppointments(new HashSet<>(existingBooking.getAppointments()));
             return;
         }
 
         final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
+        if (bookingUpdates.getRecurringRule() == null || bookingUpdates.getRecurringRule().isBlank()) {
+            bookingUpdates.setAppointments(newAppointments);
+            return;
+        }
+
         final OffsetDateTime now = OffsetDateTime.now();
 
         final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
