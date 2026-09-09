@@ -12,7 +12,6 @@
     variant="outlined"
     :disabled="getRoomsLoading || loading"
     hide-details="auto"
-    @update:model-value="emitRoomData"
   />
 </template>
 
@@ -90,20 +89,4 @@ const selectedRoomData = computed<RoomDataPayload>(() => {
 });
 
 defineExpose({ selectedRoomData });
-
-/**
- * Emits the roomData of the selected room / rooms
- */
-const emitRoomData = (value: string | string[] | null | undefined) => {
-  const selectedRoomData =
-    isMultipleProp.value && Array.isArray(value)
-      ? (allRooms.value?.filter((room) => {
-          return room.id && value.includes(room.id);
-        }) ?? [])
-      : allRooms.value?.find((room) => {
-          return room.id === value;
-        });
-
-  emit("update:roomData", selectedRoomData as RoomDataPayload);
-};
 </script>
