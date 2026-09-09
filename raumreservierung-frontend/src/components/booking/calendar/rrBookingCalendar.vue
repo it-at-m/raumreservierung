@@ -1,52 +1,66 @@
 <template>
-  <v-sheet height="750px">
-    <v-calendar
-      color="accent"
-      :type="isDayView ? 'category' : 'custom-daily'"
-      :start="startDate"
-      :end="isDayView ? undefined : endDate"
-      :categories="calendarCategories"
-      category-text="name"
-      category-show-all
-      :interval-minutes="60"
-      :max-days="10"
-      event-overlap-mode="column"
-      :interval-height="60"
-      :events="localEvents"
-      :event-color="getEventColor"
-      @click:event="showEvent"
-      @mousedown:event="startDrag"
-      @mouseleave="cancelDrag"
-      @mousemove:time="mouseMove"
-      @mousemove:time-category="mouseMove"
-      @mouseup:time="endDrag"
-    >
-      <template #category="{ category }">
-        <div class="text-caption text-center pa-2">
-          {{ category.name }}
-        </div>
-      </template>
-      <template #event="{ event }">
-        <rr-calendar-appointment-event
-          :id="event.raw.id"
-          class="v-event-draggable"
-          :event="event as unknown as CalendarAppointmentEvent"
-          :is-current-booking="event.raw.bookingMinimal.id === bookingId"
+  <div class="d-flex flex-column h-100">
+    <v-sheet>
+      <v-toolbar flat>
+        <v-btn :icon="mdiChevronLeft" variant="text" @click="prev" />
+        <v-toolbar-title>{{ calendarTitle }}</v-toolbar-title>
+        <v-spacer />
+        <v-btn
+          v-if="!isFocusedWeek"
+          class="mr-2"
+          variant="tonal"
+          :text="t('components.rrBookingCalendar.toBooking')"
+          @click="jumpToBooking"
         />
-      </template>
-    </v-calendar>
-    <v-menu
-      v-model="selectedOpen"
-      :activator="selectedElement"
-      :close-on-content-click="false"
-      location="end"
-    >
-      <rr-calendar-appointment-popup
-        v-if="selectedEvent"
-        :appointment="selectedEvent.raw"
-      />
-    </v-menu>
-  </v-sheet>
+        <v-btn :icon="mdiChevronRight" variant="text" @click="next" />
+      </v-toolbar>
+    </v-sheet>
+    <v-sheet height="750px">
+      <v-calendar
+        color="accent"
+        :type="isDayView ? 'category' : 'custom-daily'"
+        :start="startDate"
+        :end="isDayView ? undefined : endDate"
+        :categories="calendarCategories"
+        category-text="name"
+        category-show-all
+        :interval-minutes="60"
+        :max-days="10"
+        event-overlap-mode="column"
+        :interval-height="60"
+        :events="localEvents"
+        :event-color="getEventColor"
+        @click:event="showEvent"
+        @mousedown:event="startDrag"
+        @mouseleave="cancelDrag"
+        @mousemove:time="mouseMove"
+        @mousemove:time-category="mouseMove"
+        @mouseup:time="endDrag"
+      >
+        <template #category="{ category }">
+          <div class="text-caption text-center pa-2">
+            {{ category.name }}
+          </div>
+        </template>
+        <template #event="{ event }">
+          <rr-calendar-appointment-event
+            :id="event.raw.id"
+            class="v-event-draggable"
+            :event="event as unknown as CalendarAppointmentEvent"
+            :is-current-booking="event.raw.bookingMinimal.id === bookingId"
+          />
+        </template>
+      </v-calendar>
+      <v-menu
+        v-model="selectedOpen"
+        :activator="selectedElement"
+        :close-on-content-click="false"
+        location="end"
+      >
+        <rr-calendar-appointment-popup v-if="selectedEvent" :appointment="selectedEvent.raw" />
+      </v-menu>
+    </v-sheet>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -54,18 +68,18 @@ import type { RoomListResponseDTO } from "@/api/raumreservierung-backend";
 import type { CalendarAppointmentEvent } from "@/components/booking/calendar/rrCalendarAppointmentEvent.vue";
 import type { CalendarDayBodySlotScope } from "vuetify/lib/components/VCalendar/types";
 
+import { mdiChevronLeft, mdiChevronRight } from "@mdi/js";
 import { computed, ref, watch } from "vue";
 
 import RrCalendarAppointmentEvent from "@/components/booking/calendar/rrCalendarAppointmentEvent.vue";
 import RrCalendarAppointmentPopup from "@/components/booking/calendar/rrCalendarAppointmentPopup.vue";
 import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
-import { toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
+import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
+import { useI18n } from "vue-i18n";
+import { FALLBACK_CATEGORY_ROOM } from "@/constants.ts";
 
-const FALLBACK_CATEGORY_ROOM = {
-  name: "Ohne Raum",
-  categoryName: "unassigned",
-};
+const { t } = useI18n();
 
 const { displayedRooms, bookingId, roomId, focusDate } = defineProps<{
   focusDate: Date;
@@ -76,6 +90,8 @@ const { displayedRooms, bookingId, roomId, focusDate } = defineProps<{
 
 const { resolveColor } = useBookingStatusConfig();
 
+const currentCalendarDate = ref<Date>(new Date(focusDate));
+
 const selectedOpen = ref<boolean>(false);
 const selectedEvent = ref<CalendarAppointmentEvent | undefined>(undefined);
 const selectedElement = ref<HTMLElement | undefined>(undefined);
@@ -83,9 +99,7 @@ const selectedElement = ref<HTMLElement | undefined>(undefined);
 const localEvents = ref<CalendarAppointmentEvent[]>([]);
 
 // Local edited events
-const editedAppointments = ref<Map<string, CalendarAppointmentEvent>>(
-  new Map()
-);
+const editedAppointments = ref<Map<string, CalendarAppointmentEvent>>(new Map());
 
 const emit = defineEmits<{
   updatedSchedule: [event: CalendarAppointmentEvent];
@@ -109,7 +123,7 @@ const calendarCategories = computed(() => {
 
 const isDayView = computed(() => calendarCategories.value.length > 1);
 const startDate = computed(() => {
-  const date = new Date(focusDate);
+  const date = new Date(currentCalendarDate.value);
   if (isDayView.value) {
     return date;
   }
@@ -131,18 +145,39 @@ const endDate = computed(() => {
   return end;
 });
 
-const { data: appointments, refetch: resetAppointments } = useGetAppointments(
-  () => {
-    return {
-      startDate: new Date(toStartOfDay(startDate.value)),
-      endDate: new Date(toEndofDay(endDate.value)),
-      roomIds: displayedRooms
-        .map((roomData) => roomData.id)
-        .filter((id) => id !== undefined),
-      size: 20,
-    };
-  }
-);
+const isFocusedWeek = computed(() => dateEquals(currentCalendarDate.value, focusDate));
+
+const calendarTitle = computed(() => {
+  return startDate.value.toLocaleDateString("de-DE", {
+    month: "long",
+    year: "numeric",
+  });
+});
+
+const next = () => {
+  const newDate = new Date(currentCalendarDate.value);
+  newDate.setDate(newDate.getDate() + (isDayView.value ? 1 : 7));
+  currentCalendarDate.value = newDate;
+};
+
+const prev = () => {
+  const newDate = new Date(currentCalendarDate.value);
+  newDate.setDate(newDate.getDate() - (isDayView.value ? 1 : 7));
+  currentCalendarDate.value = newDate;
+};
+
+const jumpToBooking = () => {
+  currentCalendarDate.value = new Date(focusDate);
+};
+
+const { data: appointments, refetch: resetAppointments } = useGetAppointments(() => {
+  return {
+    startDate: new Date(toStartOfDay(startDate.value)),
+    endDate: new Date(toEndofDay(endDate.value)),
+    roomIds: displayedRooms.map((roomData) => roomData.id).filter((id) => id !== undefined),
+    size: 20,
+  };
+});
 
 const { data: bookingAppointments } = useGetAppointments(() => {
   return roomId
@@ -169,8 +204,8 @@ const buildLocalEvents = () => {
             category: appointment.bookingMinimal.roomId,
             timed: true,
             raw: appointment,
-          }) as CalendarAppointmentEvent
-      )
+          }) as CalendarAppointmentEvent,
+      ),
     );
   }
 
@@ -184,8 +219,8 @@ const buildLocalEvents = () => {
             category: FALLBACK_CATEGORY_ROOM.categoryName,
             timed: true,
             raw: appointment,
-          }) as CalendarAppointmentEvent
-      )
+          }) as CalendarAppointmentEvent,
+      ),
     );
   }
 
@@ -203,6 +238,7 @@ const buildLocalEvents = () => {
 
 const resetAppointmentsAndEdits = () => {
   editedAppointments.value.clear();
+  jumpToBooking();
   resetAppointments();
   buildLocalEvents();
 };
@@ -219,7 +255,7 @@ watch(
   ([newAppointments, newBookingAppointments]) => {
     buildLocalEvents();
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 /**
@@ -236,9 +272,7 @@ const showEvent = (nativeEvent: Event, payload: { event: unknown }) => {
   const open = () => {
     selectedEvent.value = event;
     selectedElement.value = nativeEvent.target as HTMLElement;
-    requestAnimationFrame(() =>
-      requestAnimationFrame(() => (selectedOpen.value = true))
-    );
+    requestAnimationFrame(() => requestAnimationFrame(() => (selectedOpen.value = true)));
   };
 
   if (selectedOpen.value) {
@@ -270,16 +304,11 @@ const dragOriginalData = ref<
   | undefined
 >(undefined);
 
-const startDrag = (
-  nativeEvent: Event,
-  payload: { event: unknown; timed: boolean }
-) => {
+const startDrag = (nativeEvent: Event, payload: { event: unknown; timed: boolean }) => {
   const payloadEvent = payload.event as CalendarAppointmentEvent;
 
   if (payloadEvent.raw.bookingMinimal.id == bookingId && payload.timed) {
-    const realEvent = localEvents.value.find(
-      (e) => e.raw.id === payloadEvent.raw.id
-    );
+    const realEvent = localEvents.value.find((e) => e.raw.id === payloadEvent.raw.id);
 
     if (realEvent) {
       dragEvent.value = realEvent;
@@ -333,13 +362,7 @@ const cancelDrag = () => {
 };
 
 const toTime = (tms: CalendarDayBodySlotScope): number => {
-  return new Date(
-    tms.year,
-    tms.month - 1,
-    tms.day,
-    tms.hour,
-    tms.minute
-  ).getTime();
+  return new Date(tms.year, tms.month - 1, tms.day, tms.hour, tms.minute).getTime();
 };
 
 /**
@@ -350,9 +373,7 @@ const toTime = (tms: CalendarDayBodySlotScope): number => {
 const roundTime = (time: number, down = true) => {
   const roundDownTime = 15 * 60 * 1000; // 15 minutes
 
-  return down
-    ? time - (time % roundDownTime)
-    : time + (roundDownTime - (time % roundDownTime));
+  return down ? time - (time % roundDownTime) : time + (roundDownTime - (time % roundDownTime));
 };
 
 const mouseMove = (_: Event, payload: CalendarDayBodySlotScope) => {
