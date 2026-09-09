@@ -1,19 +1,11 @@
 <template>
   <base-view
-    :header-text="
-      t('generics.manage', { domain: t('domain.booking.header', { count: 2 }) })
-    "
+    :header-text="t('generics.manage', { domain: t('domain.booking.header', { count: 2 }) })"
   >
     <template #default>
-      <v-sheet
-        class="mb-6"
-        rounded
-      >
+      <v-sheet class="mb-6" rounded>
         <v-row>
-          <v-col
-            cols="12"
-            md="4"
-          >
+          <v-col cols="12" md="4">
             <room-select
               v-model="roomId"
               :label="t('generics.filter', { domain: t('domain.room.header') })"
@@ -23,10 +15,7 @@
               @update:model-value="applyFilters"
             />
           </v-col>
-          <v-col
-            cols="12"
-            md="4"
-          >
+          <v-col cols="12" md="4">
             <general-status-select
               v-model="statusFilter"
               density="compact"
@@ -37,11 +26,7 @@
               @update:model-value="applyFilters"
             />
           </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-            md="2"
-          >
+          <v-col cols="12" sm="6" md="2">
             <v-date-input
               v-model="start"
               :label="t('views.bookingListView.periodFrom')"
@@ -54,11 +39,7 @@
               @update:model-value="applyFilters"
             />
           </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-            md="2"
-          >
+          <v-col cols="12" sm="6" md="2">
             <v-date-input
               v-model="end"
               prepend-icon=""
@@ -87,29 +68,16 @@
             @click:row="handleRowClick"
           >
             <template #[`item.status`]="{ item }">
-              <status-chip
-                :status="item.status?.currentStatus"
-                variant="text"
-              />
+              <status-chip :status="item.status?.currentStatus" variant="text" />
             </template>
             <template #[`item.hasEquipment`]="{ item }">
               <v-icon :icon="item.hasEquipment ? mdiCheck : mdiMinus" />
             </template>
             <template #[`item.schedule.appointmentStart`]="{ item }">
-              <span
-                v-if="
-                  dateEquals(
-                    item.schedule.occupancyStart,
-                    item.schedule.occupancyEnd
-                  )
-                "
-              >
+              <span v-if="dateEquals(item.schedule.occupancyStart, item.schedule.occupancyEnd)">
                 {{
                   t("common.format.dateSingle", {
-                    date: useDateFormat(
-                      item.schedule.occupancyStart,
-                      DATE_FORMAT_DDMMYY
-                    ).value,
+                    date: useDateFormat(item.schedule.occupancyStart, DATE_FORMAT_DDMMYY).value,
                   })
                 }}
               </span>
@@ -117,14 +85,8 @@
               <span v-else>
                 {{
                   t("common.format.dateRange", {
-                    start: useDateFormat(
-                      item.schedule.occupancyStart,
-                      DATE_FORMAT_DDMMYY
-                    ).value,
-                    end: useDateFormat(
-                      item.schedule.occupancyEnd,
-                      DATE_FORMAT_DDMMYY
-                    ).value,
+                    start: useDateFormat(item.schedule.occupancyStart, DATE_FORMAT_DDMMYY).value,
+                    end: useDateFormat(item.schedule.occupancyEnd, DATE_FORMAT_DDMMYY).value,
                   })
                 }}
               </span>
@@ -133,33 +95,21 @@
               <span>
                 {{
                   t("common.format.dateRange", {
-                    start: useDateFormat(
-                      item.schedule.occupancyStart,
-                      TIME_FORMAT_HHMM
-                    ).value,
-                    end: useDateFormat(
-                      item.schedule.occupancyEnd,
-                      TIME_FORMAT_HHMM
-                    ).value,
+                    start: useDateFormat(item.schedule.occupancyStart, TIME_FORMAT_HHMM).value,
+                    end: useDateFormat(item.schedule.occupancyEnd, TIME_FORMAT_HHMM).value,
                   })
                 }}
               </span>
             </template>
             <template #[`item.bookedBy`]="{ item }">
-              <span>
-                {{ item.bookedFor.firstName }} {{ item.bookedFor.lastName }}
-              </span>
+              <span> {{ item.bookedFor.firstName }} {{ item.bookedFor.lastName }} </span>
             </template>
             <template #[`item.hasNote`]="{ item }">
               <v-icon :icon="item.hasNote ? mdiCheck : mdiMinus" />
             </template>
             <template #[`item.actions`]="{ item }">
               <v-row align-content="center">
-                <v-col
-                  class="pa-0"
-                  cols="12"
-                  sm="6"
-                >
+                <v-col class="pa-0" cols="12" sm="6">
                   <action-button
                     :disabled="
                       isCanceledOrUnfeasible(item) ||
@@ -169,19 +119,13 @@
                     type="edit"
                     @click="
                       router.push({
-                        name: isMyBooking
-                          ? ROUTES.MY_BOOKINGS_EDIT
-                          : ROUTES.BOOKINGS_EDIT,
+                        name: isMyBooking ? ROUTES.MY_BOOKINGS_EDIT : ROUTES.BOOKINGS_EDIT,
                         params: { id: item.id },
                       })
                     "
                   />
                 </v-col>
-                <v-col
-                  class="pa-0"
-                  cols="12"
-                  sm="6"
-                >
+                <v-col class="pa-0" cols="12" sm="6">
                   <action-button
                     :icon="mdiCalendarEditOutline"
                     @click="
@@ -230,18 +174,12 @@ import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
-import {
-  dateEquals,
-  toApiDate,
-  toEndofDay,
-  toStartOfDay,
-} from "@/util/timeUtil.ts";
+import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
 
 const route = useRoute();
 const router = useRouter();
 
-const { getStatusGroupKey, expandStatus, statusGroups } =
-  useBookingStatusConfig();
+const { getStatusGroupKey, expandStatus, statusGroups } = useBookingStatusConfig();
 
 const { t } = useI18n();
 
@@ -276,73 +214,54 @@ const end = useRouteQuery("end", undefined, {
   transform: dateTransform,
 });
 
-const statusFilter = useRouteQuery<string, BookingStatusDTOCurrentStatusEnum[]>(
-  "status",
-  "",
-  {
-    transform: {
-      get: (v) => {
-        const keys = v ? v.split(",") : [];
-        return keys.flatMap((key) => {
-          const status = statusGroups.value.find((g) => g.key === key)
-            ?.status[0];
-          return status ? [status] : [];
-        });
-      },
-      set: (v) =>
-        [...new Set(v.map((status) => getStatusGroupKey(status)))].join(","),
+const statusFilter = useRouteQuery<string, BookingStatusDTOCurrentStatusEnum[]>("status", "", {
+  transform: {
+    get: (v) => {
+      const keys = v ? v.split(",") : [];
+      return keys.flatMap((key) => {
+        const status = statusGroups.value.find((g) => g.key === key)?.status[0];
+        return status ? [status] : [];
+      });
     },
-  }
-);
+    set: (v) => [...new Set(v.map((status) => getStatusGroupKey(status)))].join(","),
+  },
+});
 
 const requestStatus = computed(() => expandStatus(statusFilter.value));
 
-const sortBy = useRouteQuery<string | undefined, SortItem[]>(
-  "sort",
-  undefined,
-  {
-    transform: {
-      get: (v) => {
-        if (!v) {
-          return [];
-        }
+const sortBy = useRouteQuery<string | undefined, SortItem[]>("sort", undefined, {
+  transform: {
+    get: (v) => {
+      if (!v) {
+        return [];
+      }
 
-        const parts = v.split(",");
-        const key = parts[0];
-        const order = parts[1];
+      const parts = v.split(",");
+      const key = parts[0];
+      const order = parts[1];
 
-        return !key
-          ? []
-          : [
-              {
-                key,
-                order: order === "desc" ? "desc" : "asc",
-              },
-            ];
-      },
-      set: (v) => {
-        return !v[0] ? undefined : `${v[0].key},${v[0].order}`;
-      },
+      return !key
+        ? []
+        : [
+            {
+              key,
+              order: order === "desc" ? "desc" : "asc",
+            },
+          ];
     },
-  }
-);
+    set: (v) => {
+      return !v[0] ? undefined : `${v[0].key},${v[0].order}`;
+    },
+  },
+});
 
 // ####### Page Filter and Options #########
 
-const {
-  call: getBookings,
-  data: bookingsPage,
-  loading: getBookingsLoading,
-} = useGetBookings();
+const { call: getBookings, data: bookingsPage, loading: getBookingsLoading } = useGetBookings();
 
-const handleRowClick = (
-  event: PointerEvent,
-  { item }: { item: BookingListResponseDTO }
-) => {
+const handleRowClick = (event: PointerEvent, { item }: { item: BookingListResponseDTO }) => {
   router.push({
-    name: isMyBooking.value
-      ? ROUTES.MY_BOOKINGS_DETAILS
-      : ROUTES.BOOKINGS_DETAILS,
+    name: isMyBooking.value ? ROUTES.MY_BOOKINGS_DETAILS : ROUTES.BOOKINGS_DETAILS,
     params: { id: item.id },
   });
 };
@@ -399,7 +318,7 @@ const headers = computed(
             },
           ]
         : []),
-    ] as TableHeader<BookingListResponseDTO>[]
+    ] as TableHeader<BookingListResponseDTO>[],
 );
 </script>
 
