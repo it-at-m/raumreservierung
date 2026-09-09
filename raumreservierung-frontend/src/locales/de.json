@@ -101,6 +101,9 @@
     },
     "dateSelectorCard": {
       "subtitle": "Datum und Uhrzeit"
+    },
+    "rrBookingCalendar": {
+      "toBooking": "Zum Termin"
     }
   },
   "views": {

@@ -13,26 +13,19 @@
     </div>
 
     <div
-      v-if="
-        event.raw.schedule.appointmentStart && event.raw.schedule.appointmentEnd
-      "
+      v-if="event.raw.schedule.appointmentStart && event.raw.schedule.appointmentEnd"
       class="position-absolute hatched-overlay rounded"
       style="width: 15px"
       :style="appointmentStyle"
     />
-    <div
-      class="position-absolute solid-hatched-overlay rounded top-0 h-100"
-      style="width: 15px"
-    />
+    <div class="position-absolute solid-hatched-overlay rounded top-0 h-100" style="width: 15px" />
   </v-sheet>
 </template>
 
 <script setup lang="ts">
 import type { AppointmentDetailsResponseDTO } from "@/api/raumreservierung-backend";
 
-import { computed, watch } from "vue";
-
-import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
+import { computed } from "vue";
 
 export interface CalendarAppointmentEvent {
   start: Date;
@@ -48,10 +41,7 @@ const { event } = defineProps<{
 }>();
 
 const appointmentStyle = computed(() => {
-  if (
-    !event.raw.schedule.appointmentStart ||
-    !event.raw.schedule.appointmentEnd
-  ) {
+  if (!event.raw.schedule.appointmentStart || !event.raw.schedule.appointmentEnd) {
     return undefined;
   }
 
