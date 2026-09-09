@@ -228,7 +228,12 @@ import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
-import { dateEquals, toApiDate } from "@/util/timeUtil.ts";
+import {
+  dateEquals,
+  toApiDate,
+  toEndofDay,
+  toStartOfDay,
+} from "@/util/timeUtil.ts";
 
 const route = useRoute();
 const router = useRouter();
@@ -351,8 +356,8 @@ const fetchPage = async () => {
     size: itemsPerPage.value,
     sort,
     roomId: roomId.value,
-    start: toApiDate(start.value),
-    end: toApiDate(end.value),
+    start: start.value ? new Date(toStartOfDay(start.value)) : undefined,
+    end: end.value ? new Date(toEndofDay(end.value)) : undefined,
     self: isMyBooking.value,
     status: requestStatus.value,
   });
