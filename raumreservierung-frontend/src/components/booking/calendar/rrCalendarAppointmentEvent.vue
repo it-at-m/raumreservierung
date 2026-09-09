@@ -47,8 +47,6 @@ const { event } = defineProps<{
   isCurrentBooking: boolean;
 }>();
 
-const { config } = useBookingStatusConfig(event.raw.bookingMinimal.status);
-
 const appointmentStyle = computed(() => {
   if (
     !event.raw.schedule.appointmentStart ||
