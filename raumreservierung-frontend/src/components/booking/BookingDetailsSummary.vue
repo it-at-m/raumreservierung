@@ -1,5 +1,5 @@
 <template>
-  <v-card :loading="updateBookingLoading">
+  <v-card :loading="loading">
     <v-card-item
       :class="`bg-${config.color}`"
       :title="booking?.title"
@@ -127,19 +127,22 @@
           <base-button
             v-if="isBookingEditable"
             color="statusCanceled"
-            :disabled="updateBookingLoading"
+            :disabled="loading"
             :prepend-icon="mdiCalendarRemoveOutline"
             secondary
             :text="t('common.refuse')"
-            @click="updateBookingStatus('UNFEASIBLE')"
+            @click="emitNewBookingStatus('UNFEASIBLE')"
           />
         </v-col>
-        <v-col cols="auto">
+        <v-col
+          v-if="!bookingChanged"
+          cols="auto"
+        >
           <base-button
             secondary
             :text="t('common.edit')"
             :append-icon="mdiPencil"
-            :disabled="updateBookingLoading"
+            :disabled="loading"
             @click="
               router.push({
                 name: ROUTES.BOOKINGS_EDIT,
@@ -154,13 +157,13 @@
               equalsAnyBookingStatus(['ROOM_CHANGED', 'NEW'])
             "
             secondary
-            :disabled="updateBookingLoading"
+            :disabled="loading"
             color="statusRequested"
             :append-icon="mdiCalendarLockOutline"
             class="ml-2"
             :text="t('common.reserve')"
             @click="
-              updateBookingStatus(
+              emitNewBookingStatus(
                 booking?.status.currentStatus === 'NEW'
                   ? 'ROOM_APPROVED'
                   : 'ORGANIZER_CHANGED'
@@ -177,13 +180,30 @@
                 'ORGANIZER_CHANGED',
               ])
             "
-            :disabled="updateBookingLoading"
+            :disabled="loading"
             secondary
             class="ml-2"
             color="statusApproved"
             :append-icon="mdiCalendarCheckOutline"
             :text="t('common.book')"
-            @click="updateBookingStatus('ORGANIZER_APPROVED')"
+            @click="emitNewBookingStatus('ORGANIZER_APPROVED')"
+          />
+        </v-col>
+        <v-col
+          v-else
+          cols="auto"
+        >
+          <base-button
+            secondary
+            :disabled="loading"
+            :text="t('common.cancel')"
+            @click="emit('cancel')"
+          />
+          <base-button
+            class="ml-2"
+            :disabled="loading"
+            :text="t('common.save')"
+            @click="emit('confirm')"
           />
         </v-col>
       </v-row>
@@ -217,22 +237,26 @@ import { useRouter } from "vue-router";
 
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import IconInformation from "@/components/common/IconInformation.vue";
-import { useUpdateBooking } from "@/composables/api/useBookingsApi.ts";
 import {
   useBookingStatusConfig,
   useIsBookingEditable,
 } from "@/composables/useBookingStatus.ts";
 import { useHasRole } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
-import { mapBookingResponseToRequest } from "@/util/bookingTypeUtil.ts";
 import { toDateString, toTimeString } from "@/util/formatter.ts";
 
 const { t } = useI18n();
 
 const router = useRouter();
 
-const { booking } = defineProps<{
+const {
+  booking,
+  loading = false,
+  bookingChanged = false,
+} = defineProps<{
   booking?: BookingDetailResponseDTO;
+  loading?: boolean;
+  bookingChanged?: boolean;
 }>();
 
 const isTO = useHasRole("terminorganisator");
@@ -243,8 +267,11 @@ const isBookingEditable = useIsBookingEditable(() => booking);
 
 const { config } = useBookingStatusConfig(() => booking?.status.currentStatus);
 
-const { call: updateBooking, loading: updateBookingLoading } =
-  useUpdateBooking();
+const emit = defineEmits<{
+  statusAction: [newStatus: BookingStatusDTOCurrentStatusEnum];
+  confirm: [];
+  cancel: [];
+}>();
 
 const equalsAnyBookingStatus = (
   status:
@@ -258,21 +285,10 @@ const equalsAnyBookingStatus = (
   return false;
 };
 
-const updateBookingStatus = async (
+const emitNewBookingStatus = async (
   newStatus: BookingStatusDTOCurrentStatusEnum
 ) => {
-  if (booking) {
-    const bookingRequest = mapBookingResponseToRequest(booking);
-
-    await updateBooking({
-      bookingId: booking.id,
-      bookingRequestDTO: { ...bookingRequest, status: newStatus },
-    });
-
-    await router.push({
-      name: ROUTES.BOOKINGS_LIST,
-    });
-  }
+  emit("statusAction", newStatus);
 };
 </script>
 

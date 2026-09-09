@@ -56,6 +56,7 @@ export function useBookingStatusConfig(
     }
     const upperStatus =
       status.toUpperCase() as BookingStatusDTOCurrentStatusEnum;
+
     return statusGroups.value.find((group) =>
       group.status.includes(upperStatus)
     );
@@ -63,6 +64,12 @@ export function useBookingStatusConfig(
 
   const applyText = (config: ChipConfig): ChipConfig => {
     return { ...config, text: t(config.text) };
+  };
+
+  // NEU: Direkte Auflösung der Farbe für einen statischen Status-String
+  const resolveColor = (status: string | undefined): string => {
+    const group = findGroup(status);
+    return group?.config.color ?? FALLBACK_CONFIG.color;
   };
 
   const config = computed<ChipConfig>(() => {
@@ -91,5 +98,6 @@ export function useBookingStatusConfig(
     getStatusGroupKey,
     expandStatus,
     statusGroups,
+    resolveColor,
   };
 }

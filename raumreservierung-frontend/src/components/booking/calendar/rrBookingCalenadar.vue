@@ -31,7 +31,7 @@
           :id="event.raw.id"
           class="v-event-draggable"
           :event="event as unknown as CalendarAppointmentEvent"
-          :is-current-booking="event.raw.bookingMinimal.id === booking.id"
+          :is-current-booking="event.raw.bookingMinimal.id === bookingId"
         />
       </template>
     </v-calendar>
@@ -50,10 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  BookingDetailResponseDTO,
-  RoomListResponseDTO,
-} from "@/api/raumreservierung-backend";
+import type { RoomListResponseDTO } from "@/api/raumreservierung-backend";
 import type { CalendarAppointmentEvent } from "@/components/booking/calendar/rrCalendarAppointmentEvent.vue";
 import type { CalendarDayBodySlotScope } from "vuetify/lib/components/VCalendar/types";
 
@@ -70,8 +67,10 @@ const FALLBACK_CATEGORY_ROOM = {
   categoryName: "unassigned",
 };
 
-const { displayedRooms, booking } = defineProps<{
-  booking: BookingDetailResponseDTO;
+const { displayedRooms, bookingId, roomId, focusDate } = defineProps<{
+  focusDate: Date;
+  roomId?: string;
+  bookingId: string;
   displayedRooms: RoomListResponseDTO[];
 }>();
 
@@ -80,9 +79,13 @@ const { resolveColor } = useBookingStatusConfig();
 const selectedOpen = ref<boolean>(false);
 const selectedEvent = ref<CalendarAppointmentEvent | undefined>(undefined);
 const selectedElement = ref<HTMLElement | undefined>(undefined);
-
 // Events for displayment inside v-calendar
 const localEvents = ref<CalendarAppointmentEvent[]>([]);
+
+// Local edited events
+const editedAppointments = ref<Map<string, CalendarAppointmentEvent>>(
+  new Map()
+);
 
 const emit = defineEmits<{
   updatedSchedule: [event: CalendarAppointmentEvent];
@@ -97,7 +100,7 @@ const calendarCategories = computed(() => {
     categoryName: room.id,
   }));
 
-  if (!booking.room) {
+  if (!roomId) {
     categories.push(FALLBACK_CATEGORY_ROOM);
   }
 
@@ -106,7 +109,7 @@ const calendarCategories = computed(() => {
 
 const isDayView = computed(() => calendarCategories.value.length > 1);
 const startDate = computed(() => {
-  const date = new Date(booking.schedule.occupancyStart);
+  const date = new Date(focusDate);
   if (isDayView.value) {
     return date;
   }
@@ -128,25 +131,84 @@ const endDate = computed(() => {
   return end;
 });
 
-const { data: appointments } = useGetAppointments(() => {
-  return {
-    startDate: new Date(toStartOfDay(startDate.value)),
-    endDate: new Date(toEndofDay(endDate.value)),
-    roomIds: displayedRooms
-      .map((roomData) => roomData.id)
-      .filter((id) => id !== undefined),
-    size: 20,
-  };
-});
+const { data: appointments, refetch: resetAppointments } = useGetAppointments(
+  () => {
+    return {
+      startDate: new Date(toStartOfDay(startDate.value)),
+      endDate: new Date(toEndofDay(endDate.value)),
+      roomIds: displayedRooms
+        .map((roomData) => roomData.id)
+        .filter((id) => id !== undefined),
+      size: 20,
+    };
+  }
+);
 
 const { data: bookingAppointments } = useGetAppointments(() => {
-  return booking.room?.id
+  return roomId
     ? undefined
     : {
-        bookingId: booking.id,
+        bookingId: bookingId,
         startDate: new Date(toStartOfDay(startDate.value)),
         endDate: new Date(toEndofDay(endDate.value)),
       };
+});
+
+const buildLocalEvents = () => {
+  const events: CalendarAppointmentEvent[] = [];
+  const newAppointments = appointments.value?.content;
+  const newBookingAppointments = bookingAppointments.value?.content;
+
+  if (newAppointments) {
+    events.push(
+      ...newAppointments.map(
+        (appointment) =>
+          ({
+            start: new Date(appointment.schedule.occupancyStart),
+            end: new Date(appointment.schedule.occupancyEnd),
+            category: appointment.bookingMinimal.roomId,
+            timed: true,
+            raw: appointment,
+          }) as CalendarAppointmentEvent
+      )
+    );
+  }
+
+  if (newBookingAppointments) {
+    events.push(
+      ...newBookingAppointments.map(
+        (appointment) =>
+          ({
+            start: new Date(appointment.schedule.occupancyStart),
+            end: new Date(appointment.schedule.occupancyEnd),
+            category: FALLBACK_CATEGORY_ROOM.categoryName,
+            timed: true,
+            raw: appointment,
+          }) as CalendarAppointmentEvent
+      )
+    );
+  }
+
+  editedAppointments.value.forEach((editedEvent, id) => {
+    const index = events.findIndex((e) => e.raw.id === id);
+    if (index !== -1) {
+      events[index] = editedEvent;
+    } else {
+      events.push(editedEvent);
+    }
+  });
+
+  localEvents.value = events;
+};
+
+const resetAppointmentsAndEdits = () => {
+  editedAppointments.value.clear();
+  resetAppointments();
+  buildLocalEvents();
+};
+
+defineExpose({
+  resetAppointments: resetAppointmentsAndEdits,
 });
 
 /**
@@ -155,39 +217,7 @@ const { data: bookingAppointments } = useGetAppointments(() => {
 watch(
   [() => appointments.value?.content, () => bookingAppointments.value?.content],
   ([newAppointments, newBookingAppointments]) => {
-    const events: CalendarAppointmentEvent[] = [];
-
-    if (newAppointments) {
-      events.push(
-        ...newAppointments.map(
-          (appointment) =>
-            ({
-              start: new Date(appointment.schedule.occupancyStart),
-              end: new Date(appointment.schedule.occupancyEnd),
-              category: appointment.bookingMinimal.roomId,
-              timed: true,
-              raw: appointment,
-            }) as CalendarAppointmentEvent
-        )
-      );
-    }
-
-    if (newBookingAppointments) {
-      events.push(
-        ...newBookingAppointments.map(
-          (appointment) =>
-            ({
-              start: new Date(appointment.schedule.occupancyStart),
-              end: new Date(appointment.schedule.occupancyEnd),
-              category: FALLBACK_CATEGORY_ROOM.categoryName,
-              timed: true,
-              raw: appointment,
-            }) as CalendarAppointmentEvent
-        )
-      );
-    }
-
-    localEvents.value = events;
+    buildLocalEvents();
   },
   { immediate: true }
 );
@@ -197,7 +227,7 @@ watch(
  */
 const showEvent = (nativeEvent: Event, payload: { event: unknown }) => {
   if (dragWasPerformed.value) {
-    dragWasPerformed.value = false; // Reset für den nächsten regulären Klick
+    dragWasPerformed.value = false;
     nativeEvent.stopPropagation();
     return;
   }
@@ -246,7 +276,7 @@ const startDrag = (
 ) => {
   const payloadEvent = payload.event as CalendarAppointmentEvent;
 
-  if (payloadEvent.raw.bookingMinimal.id == booking.id && payload.timed) {
+  if (payloadEvent.raw.bookingMinimal.id == bookingId && payload.timed) {
     const realEvent = localEvents.value.find(
       (e) => e.raw.id === payloadEvent.raw.id
     );
@@ -273,9 +303,15 @@ const endDrag = () => {
   }
 
   if (dragWasPerformed.value) {
+    editedAppointments.value.set(dragEvent.value.raw.id, {
+      ...dragEvent.value,
+      start: new Date(dragEvent.value.start),
+      end: new Date(dragEvent.value.end),
+    });
+
     emit("updatedSchedule", dragEvent.value);
-    // const finalEvent = dragEvent.value;
-    // TODO: Emit oder Backend-Call für das Zurückschreiben
+
+    buildLocalEvents();
   }
 
   dragEvent.value = undefined;
@@ -336,7 +372,6 @@ const mouseMove = (_: Event, payload: CalendarDayBodySlotScope) => {
   const newStartTime = mouse - dragTime.value;
   const newStart = roundTime(newStartTime);
 
-  // Vue 3 Proxy fängt diese Mutationen ab und löst Re-Render aus
   dragEvent.value.start = new Date(newStart);
   dragEvent.value.end = new Date(newStart + duration);
 
