@@ -1,8 +1,14 @@
 import type { CalendarAppointmentEvent } from "@/components/booking/calendar/rrCalendarAppointmentEvent.vue";
+import type { CalendarTimestamp } from "@/types/CalendarTimestamp.ts";
 import type { Ref } from "vue";
-import type { CalendarDayBodySlotScope } from "vuetify/lib/components/VCalendar/types";
+
+
 
 import { ref } from "vue";
+
+
+
+
 
 export function useCalendarDragAndDrop(
   bookingId: Ref<string>,
@@ -78,7 +84,7 @@ export function useCalendarDragAndDrop(
     dragWasPerformed.value = false;
   };
 
-  const toTime = (tms: CalendarDayBodySlotScope): number => {
+  const toTime = (tms: CalendarTimestamp): number => {
     return new Date(
       tms.year,
       tms.month - 1,
@@ -95,7 +101,7 @@ export function useCalendarDragAndDrop(
       : time + (roundDownTime - (time % roundDownTime));
   };
 
-  const mouseMove = (_: Event, payload: CalendarDayBodySlotScope) => {
+  const mouseMove = (_: Event, payload: CalendarTimestamp) => {
     if (!dragEvent.value || !dragOriginalData.value) {
       return;
     }
