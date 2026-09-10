@@ -1,4 +1,4 @@
-import type { BookingDetailResponseDTO, BookingRequestDTO, GetBookingsByPageableAndFilterStatusEnum } from "@/api/raumreservierung-backend";
+import type { BookingDetailResponseDTO, BookingListResponseDTO, BookingRequestDTO, GetBookingsByPageableAndFilterStatusEnum } from "@/api/raumreservierung-backend";
 import type { StatusGroup, StatusGroupKey } from "@/constants/BookingStatus.ts";
 import type { ChipConfig } from "@/types/ChipConfig.ts";
 import type { ComputedRef, MaybeRefOrGetter } from "vue";
@@ -16,39 +16,52 @@ import { useUserStore } from "@/stores/user.ts";
 
 
 export function useIsBookingEditable(): (
-  booking: BookingRequestDTO | BookingDetailResponseDTO | undefined
+  booking: BookingRequestDTO | BookingDetailResponseDTO | BookingListResponseDTO |  undefined
 ) => boolean;
 
 export function useIsBookingEditable(
   booking: MaybeRefOrGetter<
-    BookingRequestDTO | BookingDetailResponseDTO | undefined
+    | BookingRequestDTO
+    | BookingDetailResponseDTO
+    | BookingListResponseDTO
+    | undefined
   >
 ): ComputedRef<boolean>;
 
-export function useIsBookingEditable (booking?: MaybeRefOrGetter<BookingRequestDTO | BookingDetailResponseDTO | undefined>)   {
-
-    const evaluateIsEditable = (
-      booking: BookingRequestDTO | BookingDetailResponseDTO | undefined
-    ) => {
-      if (!booking) {
-        return false;
-      }
-
-      const status =
-        typeof booking.status === "string"
-          ? booking.status
-          : booking.status.currentStatus;
-
-      return status !== "CANCELED" && status !== "UNFEASIBLE";
-    };
-
-    if (booking === undefined) {
-      return evaluateIsEditable;
+export function useIsBookingEditable(
+  booking?: MaybeRefOrGetter<
+    | BookingRequestDTO
+    | BookingListResponseDTO
+    | BookingDetailResponseDTO
+    | undefined
+  >
+) {
+  const evaluateIsEditable = (
+    booking:
+      | BookingRequestDTO
+      | BookingDetailResponseDTO
+      | BookingListResponseDTO
+      | undefined
+  ) => {
+    if (!booking) {
+      return false;
     }
 
-    const bookingRef = toValue(booking);
+    const status =
+      typeof booking.status === "string"
+        ? booking.status
+        : booking.status.currentStatus;
 
-    return computed(() => evaluateIsEditable(bookingRef));
+    return status !== "CANCELED" && status !== "UNFEASIBLE";
+  };
+
+  if (booking === undefined) {
+    return evaluateIsEditable;
+  }
+
+  const bookingRef = toValue(booking);
+
+  return computed(() => evaluateIsEditable(bookingRef));
 };
 
 export function useBookingStatusConfig(
