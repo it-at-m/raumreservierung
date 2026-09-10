@@ -89,7 +89,7 @@
         <p2.mirror>download.eclipse.org</p2.mirror>
 
         <!-- Calendar dependency -->
-        <iCal4j.version>4.2.5</iCal4j.version>
+        <iCal4j.version>4.3.0</iCal4j.version>
 
         <!-- Added to fix CVE-2026-54291 -->
         <postgresql.version>42.7.12</postgresql.version>
