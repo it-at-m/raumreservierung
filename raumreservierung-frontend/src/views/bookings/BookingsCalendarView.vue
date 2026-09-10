@@ -1,7 +1,13 @@
 <template>
-  <base-view :header-text="t('generics.manage', { domain: t('domain.booking.header') })">
+  <base-view
+    :header-text="t('generics.manage', { domain: t('domain.booking.header') })"
+  >
     <template #headerPrepend>
-      <v-icon size="30" :icon="mdiArrowLeft" @click="router.back()" />
+      <v-icon
+        size="30"
+        :icon="mdiArrowLeft"
+        @click="router.back()"
+      />
     </template>
     <template #default>
       <room-select
@@ -26,7 +32,10 @@
         ref="bookingCalendar"
         :booking-id="getBookingData.id"
         :room-id="booking?.roomId"
-        :focus-date="booking?.schedule.occupancyStart ?? getBookingData.schedule.occupancyStart"
+        :focus-date="
+          booking?.schedule.occupancyStart ??
+          getBookingData.schedule.occupancyStart
+        "
         :displayed-rooms="selectedRoomDataRef.selectedRoomData"
         @updated-schedule="updateSchedule"
       />
@@ -63,11 +72,15 @@ import BookingDetailsSummary from "@/components/booking/BookingDetailsSummary.vu
 import RrBookingCalendar from "@/components/booking/calendar/rrBookingCalendar.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
-import { useGetBookingTS, useUpdateBooking } from "@/composables/api/useBookingsApi.ts";
+import {
+  useGetBookingTS,
+  useUpdateBooking,
+} from "@/composables/api/useBookingsApi.ts";
+import { useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { useRules } from "@/composables/useRules.ts";
+import { FALLBACK_CATEGORY_ROOM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { mapBookingResponseToRequest } from "@/util/bookingTypeUtil.ts";
-import { FALLBACK_CATEGORY_ROOM } from "@/constants.ts";
 
 interface RoomSelectExposed extends ComponentPublicInstance {
   selectedRoomData: RoomListResponseDTO[];
@@ -82,27 +95,37 @@ const route = useRoute();
 const router = useRouter();
 
 const rules = useRules();
+const isBookingEditable = useIsBookingEditable();
 
 const booking = ref<BookingRequestDTO>();
 
 const bookingId = computed(() => (route.params.id as string) || undefined);
 const selectedRoomDataRef = useTemplateRef<RoomSelectExposed>("roomSelect");
-const bookingCalendarRef = useTemplateRef<RrBookingCalendarExposed>("bookingCalendar");
+const bookingCalendarRef =
+  useTemplateRef<RrBookingCalendarExposed>("bookingCalendar");
 
 const manualRoomIds = ref<string[] | null>(null);
 
-const { data: getBookingData, isLoading: getBookingLoading } = useGetBookingTS(bookingId.value);
+const { data: getBookingData, isLoading: getBookingLoading } = useGetBookingTS(
+  bookingId.value
+);
 
-const { call: updateBooking, loading: updateBookingLoading } = useUpdateBooking();
+const { call: updateBooking, loading: updateBookingLoading } =
+  useUpdateBooking();
 
 watch(
   getBookingData,
   () => {
     if (getBookingData.value) {
+      if (!isBookingEditable(getBookingData.value)) {
+        router.push({
+          name: ROUTES.BOOKINGS_LIST
+        })
+      }
       booking.value = mapBookingResponseToRequest(getBookingData.value);
     }
   },
-  { immediate: true },
+  { immediate: true }
 );
 
 const computedBooking = computed(() => {
@@ -121,7 +144,8 @@ const eventChanged = computed(
     booking.value &&
     (getBookingData.value.schedule.occupancyStart.getTime() !==
       booking.value.schedule.occupancyStart.getTime() ||
-      (getBookingData.value.room && getBookingData.value.room.id !== booking.value.roomId)),
+      (getBookingData.value.room &&
+        getBookingData.value.room.id !== booking.value.roomId))
 );
 
 const selectedRoomIds = computed({
@@ -144,7 +168,8 @@ const updateSchedule = (event: CalendarAppointmentEvent) => {
   if (!booking.value) {
     return;
   }
-  const diffMs = event.start.getTime() - booking.value.schedule.occupancyStart.getTime();
+  const diffMs =
+    event.start.getTime() - booking.value.schedule.occupancyStart.getTime();
 
   const newSchedule: ScheduleTemplate = {
     occupancyStart: event.start,
@@ -160,7 +185,10 @@ const updateSchedule = (event: CalendarAppointmentEvent) => {
   booking.value = {
     ...booking.value,
     schedule: newSchedule,
-    roomId: event.category === FALLBACK_CATEGORY_ROOM.categoryName ? undefined : event.category,
+    roomId:
+      event.category === FALLBACK_CATEGORY_ROOM.categoryName
+        ? undefined
+        : event.category,
   };
 };
 
@@ -168,7 +196,9 @@ const updateSchedule = (event: CalendarAppointmentEvent) => {
  * Updates the status of the current booking and ignores the other fields
  * @param newStatus to be saved
  */
-const updateBookingStatus = async (newStatus: BookingStatusDTOCurrentStatusEnum) => {
+const updateBookingStatus = async (
+  newStatus: BookingStatusDTOCurrentStatusEnum
+) => {
   if (getBookingData.value) {
     const bookingRequest = mapBookingResponseToRequest(getBookingData.value);
 
