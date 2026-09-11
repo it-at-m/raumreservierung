@@ -29,14 +29,6 @@ type RoomDataPayload = IsMultiple extends true
 
 const modelValue = defineModel<IsMultiple extends true ? string[] : string>();
 
-const emit = defineEmits<{
-  "update:roomData": [
-    data: IsMultiple extends true
-      ? RoomListResponseDTO[]
-      : RoomListResponseDTO | undefined,
-  ];
-}>();
-
 const {
   loading = false,
   showInactive = false,
