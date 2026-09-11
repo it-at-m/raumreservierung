@@ -1,22 +1,29 @@
-import type { BookingDetailResponseDTO, BookingListResponseDTO, BookingRequestDTO, GetBookingsByPageableAndFilterStatusEnum } from "@/api/raumreservierung-backend";
+import type {
+  BookingDetailResponseDTO,
+  BookingListResponseDTO,
+  BookingRequestDTO,
+  GetBookingsByPageableAndFilterStatusEnum,
+} from "@/api/raumreservierung-backend";
 import type { StatusGroup, StatusGroupKey } from "@/constants/BookingStatus.ts";
 import type { ChipConfig } from "@/types/ChipConfig.ts";
 import type { ComputedRef, MaybeRefOrGetter } from "vue";
 
-
-
 import { computed, toValue } from "vue";
 import { useI18n } from "vue-i18n";
 
-
-
 import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
-import { FALLBACK_CONFIG, ROLE_STATUS_GROUPS } from "@/constants/BookingStatus.ts";
+import {
+  FALLBACK_CONFIG,
+  ROLE_STATUS_GROUPS,
+} from "@/constants/BookingStatus.ts";
 import { useUserStore } from "@/stores/user.ts";
 
-
 export function useIsBookingEditable(): (
-  booking: BookingRequestDTO | BookingDetailResponseDTO | BookingListResponseDTO |  undefined
+  booking:
+    | BookingRequestDTO
+    | BookingDetailResponseDTO
+    | BookingListResponseDTO
+    | undefined
 ) => boolean;
 
 export function useIsBookingEditable(
@@ -62,7 +69,7 @@ export function useIsBookingEditable(
   const bookingRef = toValue(booking);
 
   return computed(() => evaluateIsEditable(bookingRef));
-};
+}
 
 export function useBookingStatusConfig(
   statusRef?: MaybeRefOrGetter<string | undefined>

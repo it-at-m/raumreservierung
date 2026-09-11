@@ -2,13 +2,7 @@ import type { CalendarAppointmentEvent } from "@/components/booking/calendar/rrC
 import type { CalendarTimestamp } from "@/types/CalendarTimestamp.ts";
 import type { Ref } from "vue";
 
-
-
 import { ref } from "vue";
-
-
-
-
 
 export function useCalendarDragAndDrop(
   bookingId: Ref<string>,
@@ -121,7 +115,11 @@ export function useCalendarDragAndDrop(
     dragEvent.value.start = new Date(newStart);
     dragEvent.value.end = new Date(newStart + duration);
 
-    const targetCategory = payload.category?.categoryName;
+    const targetCategory =
+      typeof payload.category === "string"
+        ? payload.category
+        : payload.category?.categoryName;
+
     if (targetCategory) {
       dragEvent.value.category = targetCategory;
     }

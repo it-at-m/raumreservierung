@@ -1,7 +1,13 @@
-import { computed, ref, type Ref } from "vue";
+import type { Ref } from "vue";
+
+import { computed, ref } from "vue";
+
 import { dateEquals } from "@/util/timeUtil.ts";
 
-export const useCalendarNavigation = (focusDate: Ref<Date>, displayedRoomsCount: Ref<number>) => {
+export const useCalendarNavigation = (
+  focusDate: Ref<Date>,
+  displayedRoomsCount: Ref<number>
+) => {
   const currentCalendarDate = ref<Date>(new Date(focusDate.value));
 
   const isDayView = computed(() => {
