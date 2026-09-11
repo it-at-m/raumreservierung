@@ -5,8 +5,10 @@ export interface CalendarTimestamp {
   day: number;
   hour: number;
   minute: number;
-  category?: {
-    categoryName: string;
-    name?: string;
-  };
+  category?:
+    | string
+    | {
+        categoryName?: string;
+        name?: string;
+      };
 }

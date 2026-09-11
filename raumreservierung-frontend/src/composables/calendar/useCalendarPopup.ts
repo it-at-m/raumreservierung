@@ -19,7 +19,9 @@ export const useCalendarPopup = (dragWasPerformed: Ref<boolean>) => {
     const open = () => {
       selectedEvent.value = event;
       selectedElement.value = nativeEvent.target as HTMLElement;
-      requestAnimationFrame(() => requestAnimationFrame(() => (selectedOpen.value = true)));
+      requestAnimationFrame(() =>
+        requestAnimationFrame(() => (selectedOpen.value = true))
+      );
     };
 
     if (selectedOpen.value) {

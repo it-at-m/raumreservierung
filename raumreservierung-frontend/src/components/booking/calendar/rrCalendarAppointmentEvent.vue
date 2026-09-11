@@ -13,12 +13,17 @@
     </div>
 
     <div
-      v-if="event.raw.schedule.appointmentStart && event.raw.schedule.appointmentEnd"
+      v-if="
+        event.raw.schedule.appointmentStart && event.raw.schedule.appointmentEnd
+      "
       class="position-absolute hatched-overlay rounded"
       style="width: 15px"
       :style="appointmentStyle"
     />
-    <div class="position-absolute solid-hatched-overlay rounded top-0 h-100" style="width: 15px" />
+    <div
+      class="position-absolute solid-hatched-overlay rounded top-0 h-100"
+      style="width: 15px"
+    />
   </v-sheet>
 </template>
 
@@ -41,7 +46,10 @@ const { event } = defineProps<{
 }>();
 
 const appointmentStyle = computed(() => {
-  if (!event.raw.schedule.appointmentStart || !event.raw.schedule.appointmentEnd) {
+  if (
+    !event.raw.schedule.appointmentStart ||
+    !event.raw.schedule.appointmentEnd
+  ) {
     return undefined;
   }
 

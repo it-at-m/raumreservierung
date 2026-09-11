@@ -2,7 +2,11 @@
   <div class="d-flex flex-column h-100">
     <v-sheet>
       <v-toolbar flat>
-        <v-btn :icon="mdiChevronLeft" variant="text" @click="prev" />
+        <v-btn
+          :icon="mdiChevronLeft"
+          variant="text"
+          @click="prev"
+        />
         <v-toolbar-title>{{ calendarTitle }}</v-toolbar-title>
         <v-spacer />
         <v-btn
@@ -12,7 +16,11 @@
           :text="t('components.rrBookingCalendar.toBooking')"
           @click="jumpToBooking"
         />
-        <v-btn :icon="mdiChevronRight" variant="text" @click="next" />
+        <v-btn
+          :icon="mdiChevronRight"
+          variant="text"
+          @click="next"
+        />
       </v-toolbar>
     </v-sheet>
     <v-sheet height="730px">
@@ -57,7 +65,10 @@
         :close-on-content-click="false"
         location="end"
       >
-        <rr-calendar-appointment-popup v-if="selectedEvent" :appointment="selectedEvent.raw" />
+        <rr-calendar-appointment-popup
+          v-if="selectedEvent"
+          :appointment="selectedEvent.raw"
+        />
       </v-menu>
     </v-sheet>
   </div>
@@ -88,7 +99,9 @@ interface CalendarCategories {
 
 const { t } = useI18n();
 const localEvents = ref<CalendarAppointmentEvent[]>([]);
-const editedAppointments = ref<Map<string, CalendarAppointmentEvent>>(new Map());
+const editedAppointments = ref<Map<string, CalendarAppointmentEvent>>(
+  new Map()
+);
 
 const { displayedRooms, bookingId, roomId, focusDate } = defineProps<{
   focusDate: Date;
@@ -109,7 +122,7 @@ const calendarCategories = computed(() => {
       ({
         name: room.name,
         categoryName: room.id,
-      }) as CalendarCategories,
+      }) as CalendarCategories
   );
 
   if (!roomId) {
@@ -121,20 +134,32 @@ const calendarCategories = computed(() => {
 
 const categoriesCount = computed(() => calendarCategories.value.length);
 
-const { isDayView, startDate, endDate, isFocusedWeek, calendarTitle, next, prev, jumpToBooking } =
-  useCalendarNavigation(
-    toRef(() => focusDate),
-    categoriesCount,
-  );
+const {
+  isDayView,
+  startDate,
+  endDate,
+  isFocusedWeek,
+  calendarTitle,
+  next,
+  prev,
+  jumpToBooking,
+} = useCalendarNavigation(
+  toRef(() => focusDate),
+  categoriesCount
+);
 
-const { data: appointments, refetch: resetAppointments } = useGetAppointments(() => {
-  return {
-    startDate: new Date(toStartOfDay(startDate.value)),
-    endDate: new Date(toEndofDay(endDate.value)),
-    roomIds: displayedRooms.map((roomData) => roomData.id).filter((id) => id !== undefined),
-    size: 20,
-  };
-});
+const { data: appointments, refetch: resetAppointments } = useGetAppointments(
+  () => {
+    return {
+      startDate: new Date(toStartOfDay(startDate.value)),
+      endDate: new Date(toEndofDay(endDate.value)),
+      roomIds: displayedRooms
+        .map((roomData) => roomData.id)
+        .filter((id) => id !== undefined),
+      size: 20,
+    };
+  }
+);
 
 const { data: bookingAppointments } = useGetAppointments(() => {
   return roomId
@@ -161,8 +186,8 @@ const buildLocalEvents = () => {
             category: appointment.bookingMinimal.roomId,
             timed: true,
             raw: appointment,
-          }) as CalendarAppointmentEvent,
-      ),
+          }) as CalendarAppointmentEvent
+      )
     );
   }
 
@@ -176,8 +201,8 @@ const buildLocalEvents = () => {
             category: FALLBACK_CATEGORY_ROOM.categoryName,
             timed: true,
             raw: appointment,
-          }) as CalendarAppointmentEvent,
-      ),
+          }) as CalendarAppointmentEvent
+      )
     );
   }
 
@@ -193,6 +218,29 @@ const buildLocalEvents = () => {
   localEvents.value = events;
 };
 
+const { dragWasPerformed, startDrag, endDrag, cancelDrag, mouseMove } =
+  useCalendarDragAndDrop(
+    toRef(() => bookingId),
+    localEvents,
+    (dragEvent) => {
+      editedAppointments.value.set(dragEvent.raw.id, {
+        ...dragEvent,
+        start: new Date(dragEvent.start),
+        end: new Date(dragEvent.end),
+      });
+      emit("updatedSchedule", dragEvent);
+      buildLocalEvents();
+    }
+  );
+
+const { selectedOpen, selectedEvent, selectedElement, showEvent } =
+  useCalendarPopup(dragWasPerformed);
+
+const getEventColor = (event: unknown): string => {
+  const eventPayload = event as CalendarAppointmentEvent;
+  return resolveColor(eventPayload.raw.bookingMinimal.status);
+};
+
 const resetAppointmentsAndEdits = () => {
   editedAppointments.value.clear();
   jumpToBooking();
@@ -205,31 +253,8 @@ watch(
   () => {
     buildLocalEvents();
   },
-  { immediate: true },
+  { immediate: true }
 );
-// --- Ende lokaler State ---
-
-const { dragWasPerformed, startDrag, endDrag, cancelDrag, mouseMove } = useCalendarDragAndDrop(
-  toRef(() => bookingId),
-  localEvents,
-  (dragEvent) => {
-    editedAppointments.value.set(dragEvent.raw.id, {
-      ...dragEvent,
-      start: new Date(dragEvent.start),
-      end: new Date(dragEvent.end),
-    });
-    emit("updatedSchedule", dragEvent);
-    buildLocalEvents();
-  },
-);
-
-const { selectedOpen, selectedEvent, selectedElement, showEvent } =
-  useCalendarPopup(dragWasPerformed);
-
-const getEventColor = (event: unknown): string => {
-  const eventPayload = event as CalendarAppointmentEvent;
-  return resolveColor(eventPayload.raw.bookingMinimal.status);
-};
 
 defineExpose({
   resetAppointments: resetAppointmentsAndEdits,

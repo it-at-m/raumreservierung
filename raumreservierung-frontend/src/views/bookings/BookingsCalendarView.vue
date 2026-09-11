@@ -119,8 +119,8 @@ watch(
     if (getBookingData.value) {
       if (!isBookingEditable(getBookingData.value)) {
         router.push({
-          name: ROUTES.BOOKINGS_LIST
-        })
+          name: ROUTES.BOOKINGS_LIST,
+        });
       }
       booking.value = mapBookingResponseToRequest(getBookingData.value);
     }
