@@ -5,25 +5,32 @@
     color="transparent"
   >
     <div
-      class="text-caption px-1 text-white text-truncate position-relative z-1"
-      style="left: 15px"
+      class="text-caption px-1 text-white text-truncate position-relative z-1 text-offset"
     >
       {{ event.raw.bookingMinimal.status }}
       {{ event.raw.bookingMinimal.title }}
     </div>
-
     <div
-      v-if="
-        event.raw.schedule.appointmentStart && event.raw.schedule.appointmentEnd
-      "
-      class="position-absolute hatched-overlay rounded"
-      style="width: 15px"
-      :style="appointmentStyle"
-    />
-    <div
-      class="position-absolute solid-hatched-overlay rounded top-0 h-100"
-      style="width: 15px"
-    />
+      class="position-absolute top-0 h-100 status-bar d-flex flex-column rounded overflow-hidden"
+    >
+      <template v-if="segmentHeights">
+        <div
+          class="overlay-hatched w-100 rounded"
+          :style="{ height: segmentHeights.before }"
+        />
+        <div
+          class="overlay-solid w-100 rounded"
+          :style="{ height: segmentHeights.appt }"
+        />
+        <div
+          class="overlay-hatched w-100 rounded"
+          :style="{ height: segmentHeights.after }"
+        />
+      </template>
+      <template v-else>
+        <div class="overlay-solid w-100 h-100" />
+      </template>
+    </div>
   </v-sheet>
 </template>
 
@@ -45,7 +52,7 @@ const { event } = defineProps<{
   isCurrentBooking: boolean;
 }>();
 
-const appointmentStyle = computed(() => {
+const segmentHeights = computed(() => {
   if (
     !event.raw.schedule.appointmentStart ||
     !event.raw.schedule.appointmentEnd
@@ -59,42 +66,52 @@ const appointmentStyle = computed(() => {
   const apptEnd = new Date(event.raw.schedule.appointmentEnd).getTime();
 
   const totalDuration = occupancyEnd - occupancyStart;
-  const apptOffset = apptStart - occupancyStart;
-  const apptDuration = apptEnd - apptStart;
 
   if (totalDuration <= 0) {
-    return {};
+    return undefined;
   }
 
-  const topPercent = (apptOffset / totalDuration) * 100;
-  const heightPercent = (apptDuration / totalDuration) * 100;
+  const validApptStart = Math.max(occupancyStart, apptStart);
+  const validApptEnd = Math.min(occupancyEnd, apptEnd);
+
+  const beforeDuration = validApptStart - occupancyStart;
+  const apptDuration = validApptEnd - validApptStart;
+  const afterDuration = occupancyEnd - validApptEnd;
 
   return {
-    top: `${topPercent}%`,
-    height: `${heightPercent}%`,
+    before: `${(beforeDuration / totalDuration) * 100}%`,
+    appt: `${(apptDuration / totalDuration) * 100}%`,
+    after: `${(afterDuration / totalDuration) * 100}%`,
   };
 });
 </script>
 
 <style scoped>
-.solid-hatched-overlay {
-  background-color: rgba(255, 255, 255, 0.2);
+.text-offset {
+  left: 15px;
 }
 
-.hatched-overlay {
+.status-bar {
+  width: 15px;
+}
+
+.overlay-solid {
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.overlay-hatched {
   background-image: repeating-linear-gradient(
     45deg,
     rgba(255, 255, 255, 0.5) 0px,
-    rgba(255, 255, 255, 0.5) 10px,
-    transparent 11px,
-    transparent 21px
+    rgba(255, 255, 255, 0.5) 4px,
+    transparent 4px,
+    transparent 8px
   );
 }
 
 .current-booking {
   z-index: 4;
   cursor: grab;
-
   animation: booking-pulse 1s infinite alternate ease-in-out;
 }
 
