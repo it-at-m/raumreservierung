@@ -135,7 +135,6 @@
     },
     "bookingDetailsView": {
       "header": "Buchungsdetails",
-      "participants": "{count} Teilnehmende",
       "chosenSeatingType": "Gewählte Bestuhlung",
       "bookedBy": "Gebucht von {firstName} {lastName}",
       "bookedFor": "Gebucht für {firstName} {lastName}",

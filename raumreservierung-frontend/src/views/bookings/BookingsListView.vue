@@ -205,7 +205,6 @@ import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-import { useDisplay } from "vuetify/framework";
 
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
