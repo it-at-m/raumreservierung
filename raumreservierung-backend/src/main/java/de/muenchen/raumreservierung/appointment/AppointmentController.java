@@ -5,8 +5,13 @@ import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentMapper;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentRequestDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentResponseDTO;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.Explode;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.ParameterStyle;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
-import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springdoc.core.annotations.ParameterObject;
@@ -22,6 +27,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.UUID;
+
 @RestController
 @Slf4j
 @RequiredArgsConstructor
@@ -33,8 +40,16 @@ public class AppointmentController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    // This is temporal and not permanent!
+    @Parameter(
+            name = "roomIds",
+            in = ParameterIn.QUERY,
+            style = ParameterStyle.FORM,
+            explode = Explode.FALSE,
+            array = @ArraySchema(schema = @Schema(implementation = UUID.class))
+    )
     public Page<AppointmentDetailsResponseDTO> getAppointmentsByPageableAndFilter(@ParameterObject final Pageable pageable,
-            @Valid @ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
+                                                                                  @Valid @ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
         final Page<Appointment> appointmentPage = appointmentService.getAppointmentsByPageableAndFilter(pageable, appointmentFilterDTO);
         return appointmentPage.map(appointmentMapper::toDetailsDto);
     }
@@ -42,7 +57,7 @@ public class AppointmentController {
     @PutMapping("/{appointmentId}")
     @ResponseStatus(HttpStatus.OK)
     public AppointmentResponseDTO updateAppointment(@Valid @RequestBody final AppointmentRequestDTO appointmentRequestDTO,
-            @PathVariable final UUID appointmentId) {
+                                                    @PathVariable final UUID appointmentId) {
         return appointmentMapper.toDto(appointmentService.updateAppointment(appointmentMapper.toEntity(appointmentRequestDTO), appointmentId));
     }
 

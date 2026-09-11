@@ -154,37 +154,30 @@
               <v-icon :icon="item.hasNote ? mdiCheck : mdiMinus" />
             </template>
             <template #[`item.actions`]="{ item }">
-              <v-row align-content="center">
-                <v-col
-                  class="pa-0"
-                  cols="12"
-                  sm="6"
-                >
-                  <action-button
-                    :disabled="
-                      isCanceledOrUnfeasible(item) ||
-                      !(canEditBookings || isMyBooking)
-                    "
-                    class="mr-1"
-                    type="edit"
-                    @click="
-                      router.push({
-                        name: isMyBooking
-                          ? ROUTES.MY_BOOKINGS_EDIT
-                          : ROUTES.BOOKINGS_EDIT,
-                        params: { id: item.id },
-                      })
-                    "
-                  />
-                </v-col>
-                <v-col
-                  class="pa-0"
-                  cols="12"
-                  sm="6"
-                >
-                  <action-button :icon="mdiCalendarEditOutline" />
-                </v-col>
-              </v-row>
+              <rr-button-group>
+                <action-button
+                  :disabled="!isBookingEditable(item)"
+                  type="edit"
+                  @click="
+                    router.push({
+                      name: isMyBooking
+                        ? ROUTES.MY_BOOKINGS_EDIT
+                        : ROUTES.BOOKINGS_EDIT,
+                      params: { id: item.id },
+                    })
+                  "
+                />
+                <action-button
+                  :disabled="!isBookingEditable(item)"
+                  :icon="mdiCalendarEditOutline"
+                  @click="
+                    router.push({
+                      name: ROUTES.BOOKINGS_CALENDAR,
+                      params: { id: item.id },
+                    })
+                  "
+                />
+              </rr-button-group>
             </template>
           </v-data-table-server>
         </template>
@@ -194,7 +187,10 @@
 </template>
 
 <script setup lang="ts">
-import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
+import type {
+  BookingListResponseDTO,
+  BookingStatusDTOCurrentStatusEnum,
+} from "@/api/raumreservierung-backend";
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
@@ -211,37 +207,32 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
-import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
+import {
+  useBookingStatusConfig,
+  useIsBookingEditable,
+} from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
-import { dateEquals, toApiDate } from "@/util/timeUtil.ts";
+import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
 
 const route = useRoute();
 const router = useRouter();
 
 const { getStatusGroupKey, expandStatus, statusGroups } =
   useBookingStatusConfig();
+const isBookingEditable = useIsBookingEditable();
 
 const { t } = useI18n();
 
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
-
-const isCanceledOrUnfeasible = (
-  booking: BookingListResponseDTO | undefined
-): boolean =>
-  !!booking?.status &&
-  (booking.status.currentStatus ===
-    BookingStatusDTOCurrentStatusEnum.CANCELED ||
-    booking.status.currentStatus ===
-      BookingStatusDTOCurrentStatusEnum.UNFEASIBLE);
 
 const canEditBookings = useIsPrivileged("bookings:manage");
 
@@ -354,8 +345,8 @@ const fetchPage = async () => {
     size: itemsPerPage.value,
     sort,
     roomId: roomId.value,
-    start: toApiDate(start.value),
-    end: toApiDate(end.value),
+    start: start.value ? new Date(toStartOfDay(start.value)) : undefined,
+    end: end.value ? new Date(toEndofDay(end.value)) : undefined,
     self: isMyBooking.value,
     status: requestStatus.value,
   });

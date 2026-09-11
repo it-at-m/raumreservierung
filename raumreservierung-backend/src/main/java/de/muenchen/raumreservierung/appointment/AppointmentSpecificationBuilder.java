@@ -4,13 +4,15 @@ import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.booking.Booking_;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate_;
 import de.muenchen.raumreservierung.room.Room_;
-import java.time.LocalTime;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
+
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import org.springframework.data.jpa.domain.Specification;
 
+@Slf4j
 public final class AppointmentSpecificationBuilder {
 
     private AppointmentSpecificationBuilder() {
@@ -27,11 +29,13 @@ public final class AppointmentSpecificationBuilder {
         }
         final OffsetDateTime start = appointmentFilterDTO.startDate();
         if (start != null) {
-            specificationList.add(filterForStartDate(start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime()));
+            log.debug("Appointment start date: {} - {}", start, start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime());
+            specificationList.add(filterForStartDate(start));
         }
         final OffsetDateTime end = appointmentFilterDTO.endDate();
         if (end != null) {
-            specificationList.add(filterForEndDate(end.toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime()));
+            log.debug("Appointment start date: {} - {}", end, end.toLocalDate().atStartOfDay(end.getOffset()).toOffsetDateTime());
+            specificationList.add(filterForEndDate(end));
         }
 
         return Specification.allOf(specificationList);

@@ -10,6 +10,11 @@ export const enum STATUS_INDICATORS {
   ERROR = "error",
 }
 
+export const FALLBACK_CATEGORY_ROOM = {
+  name: "Ohne Raum",
+  categoryName: "unassigned",
+};
+
 export const DATE_FORMAT_DDMMYY = "DD.MM.YY";
 export const DATE_FORMAT_YYYYMMDD = "YYYY-MM-DD";
 export const DATE_TIME_FORMAT_YYYYMMDDTHHMM = "YYYY-MM-DDTHH:mm";
