@@ -80,4 +80,16 @@ public class SeatingController {
         seatingService.deleteSeating(seatingId);
     }
 
+    /**
+     * Check whether a seating type can be deleted.
+     * Returns false if the seating type is still referenced in a booking.
+     *
+     * @param seatingTypeId the UUID of the seating type to check
+     * @return true if the seating type can be safely deleted, false otherwise
+     */
+    @GetMapping("/{seatingTypeId}/deletable")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean isSeatingTypeDeletable(@PathVariable final UUID seatingTypeId) {
+        return !seatingService.existsFutureBookingForSeatingType(seatingTypeId);
+    }
 }

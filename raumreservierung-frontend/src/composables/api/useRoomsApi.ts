@@ -12,7 +12,7 @@ import { computed } from "vue";
 import { RoomControllerApi } from "@/api/raumreservierung-backend";
 import { ApiFactory } from "@/util/apiFactory.ts";
 
-const ROOM_KEY = "room";
+export const ROOM_KEY = "room";
 
 export const useGetAllRooms = (params: GetAllRoomsRequest) => {
   const api = ApiFactory.getInstance(RoomControllerApi);
