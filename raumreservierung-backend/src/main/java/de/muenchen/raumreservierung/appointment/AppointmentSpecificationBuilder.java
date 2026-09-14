@@ -53,4 +53,14 @@ public final class AppointmentSpecificationBuilder {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyEnd), end);
     }
 
+    private static <T extends Appointment> Specification<T> filterForOccupancyEndAfter(final OffsetDateTime now) {
+        return (root, query, cb) -> cb.greaterThan(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyEnd), now);
+    }
+
+    public static <T extends Appointment> Specification<T> filterForFutureRoomUsage(final UUID roomId) {
+        return Specification.allOf(
+                filterForRoomIds(List.of(roomId)),
+                filterForOccupancyEndAfter(OffsetDateTime.now()));
+    }
+
 }

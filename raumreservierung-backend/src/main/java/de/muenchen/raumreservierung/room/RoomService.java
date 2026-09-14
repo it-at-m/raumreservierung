@@ -1,8 +1,11 @@
 package de.muenchen.raumreservierung.room;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_IN_FUTURE_BOOKING;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
+import de.muenchen.raumreservierung.booking.events.FutureBookingCheckEvent;
+import de.muenchen.raumreservierung.booking.events.RemoveRoomFromBookingsEvent;
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.file.FileAttachment;
@@ -14,6 +17,7 @@ import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -25,6 +29,7 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final EntityManager entityManager;
     private final FileAttachmentService fileAttachmentService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Room getById(final UUID roomId) {
         return getEntityOrThrowException(roomId);
@@ -95,6 +100,12 @@ public class RoomService {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, roomId));
         }
 
+        if (existsFutureBookingForRoom(roomId)) {
+            throw new ConflictException(String.format(MSG_CANNOT_DELETE_IN_FUTURE_BOOKING, roomId));
+        }
+
+        eventPublisher.publishEvent(new RemoveRoomFromBookingsEvent(roomId));
+
         log.debug("Deleted room to {}", roomId);
         roomRepository.deleteById(roomId);
     }
@@ -120,4 +131,9 @@ public class RoomService {
         return roomRepository.findFirstByOrderByCapacityDesc().map(Room::getCapacity).orElse(0);
     }
 
+    public boolean existsFutureBookingForRoom(final UUID roomId) {
+        final FutureBookingCheckEvent event = new FutureBookingCheckEvent(roomId);
+        eventPublisher.publishEvent(event);
+        return event.isFutureBookingExists();
+    }
 }
