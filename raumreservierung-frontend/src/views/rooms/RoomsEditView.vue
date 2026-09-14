@@ -220,10 +220,9 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-text-field
-              v-model="roomData.contactPersonId"
-              color="accent"
-              readonly
+            <person-select
+              v-model="contactPersonObject"
+              :type="InternalPersonRequestDtoTypeEnum.INTERNAL"
               :label="t('domain.room.contactPerson')"
             />
           </v-col>
@@ -265,6 +264,7 @@
 
 <script setup lang="ts">
 import type {
+  FindById200Response,
   RoomDetailsResponseDTO,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
@@ -281,7 +281,11 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
-import { RoomDetailsResponseDTOPropertyValidationAttributesMap } from "@/api/raumreservierung-backend";
+import {
+  InternalPersonRequestDtoTypeEnum,
+  RoomDetailsResponseDTOPropertyValidationAttributesMap,
+} from "@/api/raumreservierung-backend";
+import PersonSelect from "@/components/booking/PersonSelect.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
@@ -314,6 +318,8 @@ const roomId = computed(() => (route.params.id as string) || undefined);
 const pictureMetaData = ref<File>();
 
 const isDeletable = ref<boolean>(false);
+
+const contactPersonObject = ref<FindById200Response>();
 
 const { t } = useI18n();
 
@@ -369,6 +375,10 @@ watch(
         router.push({ name: ROUTES.ROOMS_LIST });
         return;
       }
+    } else {
+      roomData.value = { ...EMPTY_ROOM_DATA };
+      pictureMetaData.value = undefined;
+      isDeletable.value = false;
     }
   },
   { immediate: true }
@@ -394,10 +404,14 @@ const uploadPicture = async (value: File | File[]) => {
 };
 
 const handleSave = async () => {
+  const payload: RoomRequestDTO = {
+    ...roomData.value,
+    contactPersonId: contactPersonObject.value?.id,
+  };
   if (roomId.value) {
     await updateRoom({
       roomId: roomId.value,
-      roomRequestDTO: roomData.value,
+      roomRequestDTO: payload,
     });
 
     if (!updateRoomError.value && updateRoomData.value) {
@@ -407,7 +421,7 @@ const handleSave = async () => {
       );
     }
   } else {
-    await createRoom({ roomRequestDTO: roomData.value });
+    await createRoom({ roomRequestDTO: payload });
 
     if (!createRoomError.value && createRoomData.value) {
       onSuccess(

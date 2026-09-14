@@ -131,7 +131,11 @@
             <v-list density="compact">
               <v-list-item class="py-0">
                 <v-list-item-title>
-                  {{ roomData?.contactPerson?.title }}
+                  {{
+                    $t(
+                      `views.roomDetailsView.titlePrefix.${(roomData?.contactPerson?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`
+                    )
+                  }}
                   {{ roomData?.contactPerson?.firstName }}
                   {{ roomData?.contactPerson?.lastName }}
                 </v-list-item-title>
@@ -251,6 +255,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify/framework";
 
+import { ExternalPersonResponseDtoTitleEnum } from "@/api/raumreservierung-backend";
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
