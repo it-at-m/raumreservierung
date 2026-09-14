@@ -31,14 +31,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.transaction.event.TransactionPhase;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("PMD.CommentDefaultAccessModifier")
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final EntityManager entityManager;
@@ -146,25 +143,6 @@ public class BookingService {
         bookingRepository.deleteById(bookingId);
     }
 
-    /**
-     * Automatically updates and saves a booking's status to {@link BookingStatus#ROOM_CHANGED}
-     * after an associated appointment has changed.
-     *
-     * @param bookingId the id of the booking to process
-     */
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public void handleAppointmentChange(final UUID bookingId) {
-        final Booking bookingToChange = getEntityOrThrowException(bookingId);
-        if (bookingValidationService.isObligedToAutomaticStatusChange(bookingToChange)) {
-            final Booking bookingChange = new Booking();
-            bookingChange.updateFrom(bookingToChange);
-            bookingChange.setStatus(BookingStatus.ROOM_CHANGED);
-
-            saveAndDetach(bookingToChange, bookingChange);
-        }
-    }
-
     private void checkAuthorityOrThrowException(final Booking booking, final String role) {
         if (!bookingValidationService.validateBookingAuthority(booking, role)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
@@ -265,11 +243,11 @@ public class BookingService {
         return booking;
     }
 
-    private Booking getEntityOrThrowException(final UUID bookingId) {
+    Booking getEntityOrThrowException(final UUID bookingId) {
         return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, bookingId)));
     }
 
-    private Booking saveAndDetach(final Booking bookingToUpdate, final Booking sourceData) {
+    Booking saveAndDetach(final Booking bookingToUpdate, final Booking sourceData) {
         bookingToUpdate.updateFrom(sourceData);
 
         final Booking savedBooking = bookingRepository.saveAndFlush(bookingToUpdate);
