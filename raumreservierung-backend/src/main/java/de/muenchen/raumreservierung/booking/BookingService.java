@@ -340,7 +340,7 @@ public class BookingService {
 
     boolean existsFutureBookingForRoom(final UUID roomId) {
         final Specification<Booking> spec = BookingSpecificationBuilder.forFutureRoomUsage(roomId);
-        return bookingRepository.exists(spec);
+        return bookingRepository.exists(spec) || appointmentService.existsFutureAppointmentForRoom(roomId);
     }
 
     void removeRoomFromBookings(final UUID roomId) {

@@ -477,12 +477,45 @@ public class BookingServiceIntegrationTest {
         pastBooking.updateFrom(existingBooking);
         pastBooking.setSchedule(pastSchedule);
         pastBooking.setRoom(room2);
-        pastBooking.setSchedule(null);
         bookingRepository.save(pastBooking);
 
         boolean result = bookingService.existsFutureBookingForRoom(room2.getId());
 
         assertThat(result).isFalse();
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
+    void existsFutureBookingForRoom_shouldReturnTrue_whenRoomHasBookingScheduleInPastButAppointmentInFuture() {
+        OffsetDateTime past = OffsetDateTime.now(ZoneOffset.UTC).minusDays(2);
+        ScheduleTemplate pastSchedule = new ScheduleTemplate(
+                past,
+                past.plusHours(2),
+                past.plusMinutes(15),
+                past.plusHours(1).plusMinutes(30));
+
+        OffsetDateTime now = OffsetDateTime.now(ZoneOffset.UTC);
+        ScheduleTemplate futureSchedule = new ScheduleTemplate(
+                now,
+                now.plusHours(2),
+                now.plusMinutes(15),
+                now.plusHours(1).plusMinutes(30));
+
+        Booking pastBooking = new Booking();
+        pastBooking.updateFrom(existingBooking);
+        pastBooking.setSchedule(pastSchedule);
+        pastBooking.setRoom(room2);
+        pastBooking.setSchedule(null);
+        bookingRepository.save(pastBooking);
+
+        appointment = new Appointment();
+        appointment.setBooking(pastBooking);
+        appointment.setSchedule(futureSchedule);
+        appointment = appointmentRepository.save(appointment);
+
+        boolean result = bookingService.existsFutureBookingForRoom(room2.getId());
+
+        assertThat(result).isTrue();
     }
 
     @Test
