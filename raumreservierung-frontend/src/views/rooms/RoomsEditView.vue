@@ -339,7 +339,7 @@ import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import SeatingCapacityEditor from "@/components/rooms/SeatingCapacitySelector.vue";
 import { useUploadFile } from "@/composables/api/useFileAttachmentApi.ts";
 import {
-  useCheckRoomDeletable,
+  useCheckRoomHasFutureBookings,
   useCreateRoom,
   useDeleteRoom,
   useGetRoom,
@@ -393,10 +393,10 @@ const {
 } = useUploadFile();
 
 const { data: canDeleteItem, isFetching: deleteCheckLoading } =
-  useCheckRoomDeletable(deleteRoomId);
+  useCheckRoomHasFutureBookings(deleteRoomId);
 
 const { data: canDeactivate, refetch: refetchDeactivateCheck } =
-  useCheckRoomDeletable(deactivateCheckId);
+  useCheckRoomHasFutureBookings(deactivateCheckId);
 
 watch(
   [() => roomReqData.value?.id, getRoomError],

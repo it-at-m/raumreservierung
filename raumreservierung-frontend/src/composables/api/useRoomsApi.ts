@@ -87,15 +87,17 @@ export const useCreateRoom = () => {
   });
 };
 
-export const useCheckRoomDeletable = (roomId: Ref<string | undefined>) => {
+export const useCheckRoomHasFutureBookings = (
+  roomId: Ref<string | undefined>
+) => {
   const api = ApiFactory.getInstance(RoomControllerApi);
   return useQuery({
-    queryKey: [ROOM_KEY, "deletable", roomId],
+    queryKey: [ROOM_KEY, "hasFutureBookings", roomId],
     queryFn: () => {
       if (!roomId.value) {
         throw new Error("Room ID is required");
       }
-      return api.isRoomDeletable({
+      return api.hasFutureBookingsForRoom({
         roomId: roomId.value,
       });
     },

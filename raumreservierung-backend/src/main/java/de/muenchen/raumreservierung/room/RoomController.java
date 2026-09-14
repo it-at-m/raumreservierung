@@ -75,15 +75,14 @@ public class RoomController {
     }
 
     /**
-     * Check whether a room can be deleted.
-     * Returns false if the room is still referenced in a future booking.
+     * Check whether a future booking exists for the given room.
      *
      * @param roomId the UUID of the room to check
-     * @return true if the room can be safely deleted, false otherwise
+     * @return true if a future booking exists for the room, false otherwise
      */
-    @GetMapping("/{roomId}/deletable")
+    @GetMapping("/{roomId}/has-future-bookings")
     @ResponseStatus(HttpStatus.OK)
-    public boolean isRoomDeletable(@PathVariable final UUID roomId) {
+    public boolean hasFutureBookingsForRoom(@PathVariable final UUID roomId) {
         return !roomService.existsFutureBookingForRoom(roomId);
     }
 }
