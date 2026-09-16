@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: raumreservierung-backend
   description: This is the backend-project of the renewal of the raumreservierung
-  version: 0.4.1-SNAPSHOT
+  version: 0.9.3-SNAPSHOT
 servers:
 - url: http://localhost:8086
   description: Generated server url
@@ -714,6 +714,28 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BookingDetailResponseDTO"
+  /rooms/{roomId}/has-future-bookings:
+    get:
+      tags:
+      - room-controller
+      summary: Check whether a future booking exists for the given room.
+      description: Check whether a future booking exists for the given room.
+      operationId: hasFutureBookingsForRoom
+      parameters:
+      - name: roomId
+        in: path
+        description: the UUID of the room to check
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: "true if a future booking exists for the room, false otherwise"
+          content:
+            '*/*':
+              schema:
+                type: boolean
   /file/{fileId}:
     get:
       tags:
