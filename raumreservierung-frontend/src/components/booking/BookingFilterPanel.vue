@@ -64,7 +64,15 @@
             offset-x="-2"
           >
             <v-icon
-              :icon="expanded ? mdiFilterOutline : mdiFilterMenuOutline"
+              :icon="
+                expanded
+                  ? hiddenActiveFiltersCount > 0
+                    ? mdiFilterMinus
+                    : mdiFilterMinusOutline
+                  : hiddenActiveFiltersCount > 0
+                    ? mdiFilterPlus
+                    : mdiFilterPlusOutline
+              "
             />
           </v-badge>
         </template>
@@ -79,7 +87,7 @@
             <room-select
               v-model="roomId"
               :label="t('generics.filter', { domain: t('domain.room.header') })"
-              :show-inactive="canEditBookings"
+              :show-inactive="showInactiveRooms"
               density="compact"
               clearable
               @update:model-value="onFiltersChanged"
@@ -101,9 +109,17 @@
             />
           </v-col>
           <v-col cols="12">
-            <title-select
-              v-model="title"
-              @update:model-value="onFiltersChanged"
+            <v-text-field
+              v-model="titleInput"
+              :label="t('domain.booking.bookingTitle')"
+              color="accent"
+              variant="outlined"
+              density="compact"
+              clearable
+              hide-details
+              :prepend-inner-icon="mdiTextBoxSearchOutline"
+              @update:model-value="onTitleInput"
+              @click:clear="onTitleInput(undefined)"
             />
           </v-col>
         </v-row>
@@ -118,26 +134,29 @@ import type { StatusGroupKey } from "@/constants/BookingStatus.ts";
 import {
   mdiCalendarEndOutline,
   mdiCalendarStartOutline,
-  mdiFilterMenuOutline,
-  mdiFilterOutline,
+  mdiFilterMinus,
+  mdiFilterMinusOutline,
+  mdiFilterPlus,
+  mdiFilterPlusOutline,
+  mdiTextBoxSearchOutline,
 } from "@mdi/js";
-import { computed } from "vue";
+import { useDebounceFn } from "@vueuse/core";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import PersonSelect from "@/components/booking/PersonSelect.vue";
-import TitleSelect from "@/components/booking/TitleSelect.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 
 const { t } = useI18n();
 
 defineProps<{
-  canEditBookings?: boolean;
+  showInactiveRooms?: boolean;
   getStatusGroupKey?: (item: string) => StatusGroupKey | string;
 }>();
 
 const emit = defineEmits<{
-  "apply-filters": [];
+  "updated:filters": [];
 }>();
 
 const roomId = defineModel<string>("roomId");
@@ -151,14 +170,20 @@ const start = defineModel<Date | null>("start");
 const end = defineModel<Date | null>("end");
 const bookedForId = defineModel<string>("bookedForId");
 const title = defineModel<string>("title");
+const titleInput = ref(title.value);
 
 const onFiltersChanged = () => {
-  emit("apply-filters");
+  emit("updated:filters");
 };
 
 const hiddenActiveFiltersCount = computed(
   () => [roomId.value, bookedForId.value, title.value].filter(Boolean).length
 );
+
+const onTitleInput = useDebounceFn((value: string | undefined) => {
+  title.value = value || undefined;
+  onFiltersChanged();
+}, 500);
 </script>
 
 <style scoped></style>

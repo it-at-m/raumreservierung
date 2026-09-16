@@ -22,8 +22,6 @@
     color="accent"
     variant="outlined"
     clearable
-    :density="density"
-    :hide-details="hideDetails"
     :prepend-inner-icon="mdiAccountSearchOutline"
     :items="foundPersons?.content ?? []"
     :loading="personPageLoading"
@@ -82,15 +80,11 @@ import {
 const {
   type,
   label,
-  density = "default",
-  hideDetails = false,
   hideMenuIcon = false,
   showEmail = false,
 } = defineProps<{
   type?: InternalPersonRequestDtoTypeEnum;
   label?: string;
-  density?: "compact" | "default";
-  hideDetails?: boolean;
   hideMenuIcon?: boolean;
   showEmail?: boolean;
 }>();
@@ -110,8 +104,20 @@ const hasOppositeTypeSelected = computed(
 const isInternal = computed(
   () => type === InternalPersonRequestDtoTypeEnum.INTERNAL
 );
-const oppositeType = computed(() => (isInternal.value ? "externe" : "interne"));
-const currentType = computed(() => (isInternal.value ? "Interne" : "Externe"));
+const oppositeType = computed(() =>
+  t(
+    isInternal.value
+      ? "components.personSelect.externalType"
+      : "components.personSelect.internalType"
+  )
+);
+const currentType = computed(() =>
+  t(
+    isInternal.value
+      ? "components.personSelect.internalType"
+      : "components.personSelect.externalType"
+  )
+);
 
 const {
   call: getPersonPage,
@@ -125,6 +131,7 @@ const idForLookup = computed(() =>
 
 const { data: initialPerson } = useFindPerson(idForLookup);
 
+//fallback if only id is present
 const selectionLabel = (item: FindById200Response) => {
   if (item?.firstName || item?.lastName) {
     return formatName(item);
@@ -138,7 +145,7 @@ const selectionEmail = (item: FindById200Response) => {
 
 const formatName = (person: FindById200Response | undefined) => {
   if (!person) {
-    return "";
+    return t("components.personSelect.personNotFound");
   }
   const name = `${person.firstName || ""} ${person.lastName || ""}`.trim();
   return name || t("components.personSelect.noName");

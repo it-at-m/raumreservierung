@@ -90,31 +90,23 @@ const {
 }>();
 
 const statusOptions = computed(() => {
-  const selectedArr = ([] as AllowedStatus[]).concat(model.value ?? []);
-  let baseList = [...possibleStatus];
+  const selected = Array.isArray(model.value)
+    ? model.value
+    : model.value
+      ? [model.value]
+      : [];
+
   // Exclude CANCELED unless currently selected (uses dedicated cancel button).
-  if (excludedStatus) {
-    baseList = baseList.filter(
-      (status: string) => status !== excludedStatus || status === model.value
-    );
-  }
-  const representatives = new Map<string, AllowedStatus>();
-  for (const status of baseList) {
-    const key = groupBy(status);
-    const isSelected = selectedArr.includes(status);
-    const currentRepresentative = representatives.get(key);
-
-    if (
-      !currentRepresentative ||
-      (isSelected && !selectedArr.includes(currentRepresentative))
-    ) {
-      representatives.set(key, status);
-    }
-  }
-
-  return baseList.filter(
-    (status) => representatives.get(groupBy(status)) === status
+  const valid = possibleStatus.filter(
+    (s) => s !== excludedStatus || selected.includes(s)
   );
+
+  return valid.filter((status, _, arr) => {
+    const group = arr.filter((x) => groupBy(x) === groupBy(status));
+    const representative = group.find((x) => selected.includes(x)) || group[0];
+
+    return status === representative;
+  });
 });
 </script>
 

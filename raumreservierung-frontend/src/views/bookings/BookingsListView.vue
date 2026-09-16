@@ -12,9 +12,9 @@
         v-model:end="end"
         v-model:booked-for-id="bookedForId"
         v-model:title="title"
-        :can-edit-bookings="canEditBookings"
+        :show-inactive-rooms="showInactiveRooms"
         :get-status-group-key="getStatusGroupKey"
-        @apply-filters="applyFilters"
+        @updated:filters="applyFilters"
       />
       <v-card
         :title="t('views.bookingListView.tableTitle')"
@@ -109,7 +109,7 @@
                   <action-button
                     :disabled="
                       isCanceledOrUnfeasible(item) ||
-                      !(canEditBookings || isMyBooking)
+                      !(showInactiveRooms || isMyBooking)
                     "
                     class="mr-1"
                     type="edit"
@@ -182,7 +182,7 @@ const isCanceledOrUnfeasible = (
     booking.status.currentStatus ===
       BookingStatusDTOCurrentStatusEnum.UNFEASIBLE);
 
-const canEditBookings = useIsPrivileged("bookings:manage");
+const showInactiveRooms = useIsPrivileged("bookings:manage");
 
 // ####### Page Filter and Options #########
 const bookedForId = useRouteQuery("bookedForId", undefined);
@@ -320,7 +320,7 @@ const headers = computed(
       { title: "Gebucht für", value: "bookedBy", sortable: true },
       { title: "Ausstattung", value: "hasEquipment", align: "center" },
       { title: "Bemerkung", value: "hasNote", align: "center" },
-      ...(canEditBookings
+      ...(showInactiveRooms
         ? [
             {
               title: t("common.action", { count: 2 }),
