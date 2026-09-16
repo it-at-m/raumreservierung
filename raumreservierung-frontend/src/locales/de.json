@@ -89,8 +89,10 @@
       "coveredBy": "Wird durch {type} Person abgedeckt",
       "search": "@.capitalize:{type} Person suchen",
       "alreadySelectedHint": "Eine {type} Person ist bereits ausgewählt.",
-      "externalType": "externe",
-      "internalType": "interne"
+      "types": {
+        "externalType": "externe",
+        "internalType": "interne"
+      }
     },
     "appointmentListItem": {
       "deviatingTimes": "Abweichende Zeit"

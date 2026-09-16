@@ -24,7 +24,7 @@
         variant="outlined"
         color="grey"
       >
-        +{{ (model?.length ?? 0) - 3 }}
+        {{ (model?.length ?? 0) - 3 }}
       </v-chip>
     </template>
 

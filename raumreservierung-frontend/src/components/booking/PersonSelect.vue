@@ -104,20 +104,12 @@ const hasOppositeTypeSelected = computed(
 const isInternal = computed(
   () => type === InternalPersonRequestDtoTypeEnum.INTERNAL
 );
-const oppositeType = computed(() =>
-  t(
-    isInternal.value
-      ? "components.personSelect.externalType"
-      : "components.personSelect.internalType"
-  )
-);
-const currentType = computed(() =>
-  t(
-    isInternal.value
-      ? "components.personSelect.internalType"
-      : "components.personSelect.externalType"
-  )
-);
+const typeLabel = (internal: boolean) =>
+  internal
+    ? t("components.personSelect.types.internalType")
+    : t("components.personSelect.types.externalType");
+const oppositeType = computed(() => typeLabel(!isInternal.value));
+const currentType = computed(() => typeLabel(isInternal.value));
 
 const {
   call: getPersonPage,
