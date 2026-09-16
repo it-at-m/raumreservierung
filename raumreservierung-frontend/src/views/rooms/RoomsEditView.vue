@@ -373,7 +373,6 @@ watch(
         );
       } else {
         router.push({ name: ROUTES.ROOMS_LIST });
-        return;
       }
     } else {
       roomData.value = { ...EMPTY_ROOM_DATA };
