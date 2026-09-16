@@ -449,17 +449,16 @@ const roomIdToFetch = computed(() => selectedRoomId.value);
 const applyRoomChange = (room: RoomDetailsResponseDTO) => {
   currentRoom.value = mapResponseToRequest(room);
 
-  bookingData.value = {
-    ...bookingData.value,
-    equipmentIds: bookingData.value.equipmentIds?.filter((chosenEq) =>
-      currentRoom.value?.equipmentIds?.includes(chosenEq)
-    ),
-    seatingTypeId:
-      bookingData?.value?.seatingTypeId &&
-      currentRoomSeatingTypeIds.value?.includes(bookingData.value.seatingTypeId)
-        ? bookingData.value.seatingTypeId
-        : undefined,
-  };
+  bookingData.value.equipmentIds = bookingData.value.equipmentIds?.filter(
+    (chosenEq) => currentRoom.value?.equipmentIds?.includes(chosenEq)
+  );
+  const seatingTypeId = bookingData.value.seatingTypeId;
+  if (
+    !seatingTypeId ||
+    !currentRoomSeatingTypeIds.value?.includes(seatingTypeId)
+  ) {
+    bookingData.value.seatingTypeId = undefined;
+  }
 };
 
 const { isLoading: getRoomLoading, data: roomReqData } =
