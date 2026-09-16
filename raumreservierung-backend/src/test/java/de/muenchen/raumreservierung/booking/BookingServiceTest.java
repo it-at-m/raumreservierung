@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.muenchen.raumreservierung.appointment.AppointmentService;
@@ -14,6 +16,7 @@ import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.room.RoomService;
+import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
@@ -198,5 +201,31 @@ public class BookingServiceTest {
 
         assertEquals(1, result.getContent().size());
         assertNull(result.getContent().getFirst().getInternalNotes());
+    }
+
+    @Test
+    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
+    void removeSeatingTypeFromBookings_ShouldClearSeatingType_ForAllAffectedBookings() {
+        UUID seatingTypeId = UUID.randomUUID();
+
+        SeatingType seatingType = new SeatingType();
+        seatingType.setId(seatingTypeId);
+
+        Booking booking1 = new Booking();
+        booking1.setSeatingType(seatingType);
+
+        Booking booking2 = new Booking();
+        booking2.setSeatingType(seatingType);
+
+        List<Booking> affectedBookings = List.of(booking1, booking2);
+
+        when(bookingRepository.findBySeatingTypeId(seatingTypeId)).thenReturn(affectedBookings);
+
+        bookingService.removeSeatingTypeFromBookings(seatingTypeId);
+
+        verify(bookingRepository).saveAll(anyList());
+
+        assertNull(booking1.getSeatingType());
+        assertNull(booking2.getSeatingType());
     }
 }
