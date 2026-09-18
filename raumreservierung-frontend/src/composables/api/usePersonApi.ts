@@ -2,22 +2,35 @@ import type {
   CreatePersonRequest,
   DeletePersonRequest,
   FindById200Response,
-  FindByIdRequest,
   GetPersonsByPageableAndFilterRequest,
   PagedModelPersonResponseDto,
   UpdatePersonOperationRequest,
 } from "@/api/raumreservierung-backend";
+import type { Ref } from "vue";
+
+import { useQuery } from "@tanstack/vue-query";
+import { computed } from "vue";
 
 import { PersonControllerApi } from "@/api/raumreservierung-backend";
 import { useApi } from "@/composables/api/useApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
 
-export const useFindPerson = () => {
+const PERSON_KEY = "person";
+
+export const useFindPerson = (personId: Ref<string | undefined>) => {
   const api = ApiFactory.getInstance(PersonControllerApi);
 
-  return useApi<FindByIdRequest, FindById200Response>((params) =>
-    api.findById(params)
-  );
+  return useQuery({
+    queryKey: [PERSON_KEY, personId],
+    queryFn: () => {
+      if (!personId.value) {
+        throw new Error("Person ID is required");
+      }
+
+      return api.findById({ personId: personId.value });
+    },
+    enabled: computed(() => !!personId.value),
+  });
 };
 
 export const useGetPersonPage = () => {
