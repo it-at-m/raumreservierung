@@ -121,6 +121,7 @@ const combinedSeatingTypesCapacities = computed(() => {
 const filteredSeatingTypes = computed(() =>
   seatingTypes.value?.filter(
     (seatType) =>
+      seatType.isActive &&
       !modelValue.value.some((seatCap) => seatCap.seatingTypeId === seatType.id)
   )
 );

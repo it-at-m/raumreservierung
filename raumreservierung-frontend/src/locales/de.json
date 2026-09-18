@@ -14,7 +14,6 @@
     "action": "Aktion | Aktionen",
     "messages": {},
     "squareMeterAbr": "qm",
-    "todo": "TODO",
     "rules": {
       "notEmpty": "{field} darf nicht leer sein.",
       "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
@@ -137,7 +136,8 @@
       "seriesDate": "Serientermin",
       "notes": "Notizen",
       "internalNotes": "Interne Notizen",
-      "noRoomSelected": "Kein Raum gewählt"
+      "noRoomSelected": "Kein Raum gewählt",
+      "noSeatingSelected": "Keine Bestuhlung ausgewählt"
     },
     "bookingEditView": {
       "header": "Buchung bearbeiten",
