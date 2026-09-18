@@ -54,6 +54,9 @@ export default createI18n<[MessageSchema], Locales>({
   messages,
   // @ts-expect-error false positive for type mismatch (no tsc compilation error)
   datetimeFormats,
+  modifiers: {
+    trim: (str) => (typeof str === "string" ? str.trim() : str),
+  },
 });
 
 const germanStrings: Record<string, string> = {
