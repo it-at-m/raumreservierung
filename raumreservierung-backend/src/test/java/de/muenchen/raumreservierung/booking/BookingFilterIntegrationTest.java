@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+import ch.martinelli.oss.testcontainers.mailpit.MailpitContainer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.DocumentContext;
@@ -51,6 +52,9 @@ public class BookingFilterIntegrationTest {
     @SuppressWarnings("unused")
     private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>(
             DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
+    @Container
+    @ServiceConnection
+    private static final MailpitContainer MAILPIT_CONTAINER = new MailpitContainer().withExposedPorts(1025, 8025);
 
     private static final String BOOKINGS_URL = "/bookings";
 

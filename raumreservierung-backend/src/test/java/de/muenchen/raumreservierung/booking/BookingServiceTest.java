@@ -7,10 +7,12 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
+import ch.martinelli.oss.testcontainers.mailpit.MailpitContainer;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
+import de.muenchen.raumreservierung.notification.StatusNotificationMailService;
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.room.RoomService;
@@ -24,12 +26,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.testcontainers.junit.jupiter.Container;
 
 @SpringBootTest(
         classes = {
@@ -41,8 +45,14 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
         }
 )
 public class BookingServiceTest {
+    @Container
+    @ServiceConnection
+    private static final MailpitContainer MAILPIT_CONTAINER = new MailpitContainer().withExposedPorts(1025);
+
     @Autowired
     private BookingService bookingService;
+    @MockitoBean
+    private StatusNotificationMailService statusNotificationMailService;
     @Autowired
     private SecurityContextService securityContextService;
     @MockitoBean

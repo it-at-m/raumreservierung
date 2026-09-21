@@ -194,6 +194,17 @@
 
         <!-- Other -->
         <dependency>
+            <groupId>ch.martinelli.oss</groupId>
+            <artifactId>testcontainers-mailpit</artifactId>
+            <version>1.2.0</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>de.muenchen.oss.refarch</groupId>
+            <artifactId>refarch-email-integration-starter</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
         </dependency>

@@ -12,6 +12,7 @@ import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.EquipmentRepository;
+import de.muenchen.raumreservierung.notification.StatusNotificationMailService;
 import de.muenchen.raumreservierung.person.ExternalPersonRepository;
 import de.muenchen.raumreservierung.person.InternalPersonRepository;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
@@ -88,6 +89,8 @@ public class BookingServiceIntegrationTest {
     private PlatformTransactionManager txManager;
     @MockitoBean
     private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
+    @MockitoBean
+    private StatusNotificationMailService statusNotificationMailService;
 
     private Booking baseBooking;
     private Booking existingBooking;

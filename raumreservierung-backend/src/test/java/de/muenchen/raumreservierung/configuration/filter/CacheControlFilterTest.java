@@ -5,6 +5,7 @@ import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import ch.martinelli.oss.testcontainers.mailpit.MailpitContainer;
 import de.muenchen.raumreservierung.MicroServiceApplication;
 import de.muenchen.raumreservierung.TestConstants;
 import org.junit.jupiter.api.Test;
@@ -37,6 +38,9 @@ class CacheControlFilterTest {
     @SuppressWarnings("unused")
     private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>(
             DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
+    @Container
+    @ServiceConnection
+    private static final MailpitContainer MAILPIT_CONTAINER = new MailpitContainer().withExposedPorts(1025, 8025);
 
     private static final String EQUIPMENT_ENDPOINT_URL = "/equipment";
 

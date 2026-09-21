@@ -25,6 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -46,6 +47,10 @@ public class AppointmentFilterIntegrationTest {
     @SuppressWarnings("unused")
     private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>(
             DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
+    @Container
+    @SuppressWarnings("unused")
+    private static GenericContainer<?> mailpit = new GenericContainer<>(TestConstants.TESTCONTAINERS_MAILPIT_IMAGE)
+            .withExposedPorts(1025);
 
     private static final String APPOINTMENTS_URL = "/appointments";
 
