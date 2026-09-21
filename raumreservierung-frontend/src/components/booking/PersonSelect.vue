@@ -1,23 +1,8 @@
 <template>
   <v-autocomplete
     v-model="modelValue"
-    :label="
-      label ||
-      (hasOppositeTypeSelected
-        ? t('components.personSelect.coveredBy', {
-            type: oppositeType,
-          })
-        : t('components.personSelect.search', {
-            type: currentType,
-          }))
-    "
-    :hint="
-      hasOppositeTypeSelected
-        ? t('components.personSelect.alreadySelectedHint', {
-            type: oppositeType,
-          })
-        : ''
-    "
+    :label="computedLabel"
+    :hint="computedHint"
     persistent-hint
     color="accent"
     variant="outlined"
@@ -30,12 +15,12 @@
     hide-no-data
     :no-filter="!type"
     :return-object="!!type"
-    :menu-icon="hideMenuIcon ? '' : undefined"
     :disabled="hasOppositeTypeSelected"
     @update:search="onSearch"
   >
     <template #selection="{ item }">
-      {{ selectionLabel(item) }}
+      <!-- intialPerson is fallback if only id is present -->
+      {{ formatName(item.firstName || item.lastName ? item : initialPerson) }}
       <span
         v-if="showEmail && selectionEmail(item)"
         class="text-grey ml-1"
@@ -80,12 +65,10 @@ import {
 const {
   type,
   label,
-  hideMenuIcon = false,
   showEmail = false,
 } = defineProps<{
   type?: InternalPersonRequestDtoTypeEnum;
   label?: string;
-  hideMenuIcon?: boolean;
   showEmail?: boolean;
 }>();
 
@@ -104,12 +87,33 @@ const hasOppositeTypeSelected = computed(
 const isInternal = computed(
   () => type === InternalPersonRequestDtoTypeEnum.INTERNAL
 );
-const typeLabel = (internal: boolean) =>
-  internal
+
+const typeLabel = (isInternal: boolean) =>
+  isInternal
     ? t("components.personSelect.types.internalType")
     : t("components.personSelect.types.externalType");
-const oppositeType = computed(() => typeLabel(!isInternal.value));
-const currentType = computed(() => typeLabel(isInternal.value));
+
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+const computedLabel = computed(
+  () =>
+    label ||
+    (hasOppositeTypeSelected.value
+      ? t("components.personSelect.coveredBy", {
+          type: typeLabel(!isInternal.value),
+        })
+      : t("components.personSelect.search", {
+          type: capitalize(typeLabel(isInternal.value)),
+        }))
+);
+
+const computedHint = computed(() =>
+  hasOppositeTypeSelected.value
+    ? t("components.personSelect.alreadySelectedHint", {
+        type: typeLabel(!isInternal.value),
+      })
+    : ""
+);
 
 const {
   call: getPersonPage,
@@ -123,24 +127,16 @@ const idForLookup = computed(() =>
 
 const { data: initialPerson } = useFindPerson(idForLookup);
 
-//fallback if only id is present
-const selectionLabel = (item: FindById200Response) => {
-  if (item?.firstName || item?.lastName) {
-    return formatName(item);
-  }
-  return formatName(initialPerson.value);
-};
+const formatName = (person: FindById200Response | undefined) =>
+  person
+    ? t("common.format.fullName", {
+        firstName: person.firstName,
+        lastName: person.lastName,
+      })
+    : t("components.personSelect.personNotFound");
 
 const selectionEmail = (item: FindById200Response) => {
   return item?.email ?? initialPerson.value?.email;
-};
-
-const formatName = (person: FindById200Response | undefined) => {
-  if (!person) {
-    return t("components.personSelect.personNotFound");
-  }
-  const name = `${person.firstName || ""} ${person.lastName || ""}`.trim();
-  return name || t("components.personSelect.noName");
 };
 
 const onSearch = useDebounceFn((searchQuery: string) => {

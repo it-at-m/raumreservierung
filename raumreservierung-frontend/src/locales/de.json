@@ -31,7 +31,9 @@
       "idFormat": "#{id}",
       "dateSingle": "{date}",
       "dateRange": "{start} - {end}",
-      "braces": "({content})"
+      "braces": "({content})",
+      "fullNameRaw": "{firstName} {lastName}",
+      "fullName": "@.trim:common.format.fullNameRaw"
     }
   },
   "app": {
@@ -84,10 +86,9 @@
       "suffix": "Maximale Kapazität {count}"
     },
     "personSelect": {
-      "noName": "Kein Name angegeben",
       "personNotFound": "Person nicht gefunden",
       "coveredBy": "Wird durch {type} Person abgedeckt",
-      "search": "@.capitalize:{type} Person suchen",
+      "search": "{type} Person suchen",
       "alreadySelectedHint": "Eine {type} Person ist bereits ausgewählt.",
       "types": {
         "externalType": "externe",
@@ -103,6 +104,9 @@
     },
     "dateSelectorCard": {
       "subtitle": "Datum und Uhrzeit"
+    },
+    "filterPanel": {
+      "bookedFor": "Gebucht für"
     }
   },
   "views": {
@@ -136,8 +140,8 @@
       "header": "Buchungsdetails",
       "participants": "Teilnehmende {count}",
       "chosenSeatingType": "Gewählte Bestuhlung",
-      "bookedBy": "Gebucht von {firstName} {lastName}",
-      "bookedFor": "Gebucht für {firstName} {lastName}",
+      "bookedBy": "Gebucht von @:common.format.fullName",
+      "bookedFor": "@:components.filterPanel.bookedFor @:common.format.fullName",
       "seriesDate": "Serientermin",
       "notes": "Notizen",
       "internalNotes": "Interne Notizen",

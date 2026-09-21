@@ -99,10 +99,9 @@
           >
             <person-select
               v-model="bookedForId"
-              :label="t('views.bookingDetailsView.bookedFor')"
+              :label="t('components.filterPanel.bookedFor')"
               density="compact"
               hide-details
-              hide-menu-icon
               show-email
               :return-object="false"
               @update:model-value="onFiltersChanged"
