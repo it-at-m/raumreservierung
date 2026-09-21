@@ -8,6 +8,7 @@ import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
+import de.muenchen.raumreservierung.notification.StatusNotificationMailService;
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
@@ -47,6 +48,7 @@ public class BookingService {
     private final AppointmentService appointmentService;
     private final PersonService personService;
     private final BookingValidationService bookingValidationService;
+    private final StatusNotificationMailService statusNotificationMailService;
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
@@ -125,7 +127,6 @@ public class BookingService {
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
-
         bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
         assignBookingContext(bookingUpdates);
         if (isTerminalStatus(bookingUpdates.getStatus())) {
@@ -134,8 +135,9 @@ public class BookingService {
             handleStandardBookingUpdate(bookingUpdates, existingBooking);
         }
 
-        saveAndDetach(existingBooking, bookingUpdates);
+        Booking updated = saveAndDetach(existingBooking, bookingUpdates);
         log.debug("Updated booking with id {}", existingBooking.getId());
+        statusNotificationMailService.sendStatusNotificationMail("", updated, existingBooking.getStatus());
         return getSanitizedBooking(existingBooking.getId());
     }
 

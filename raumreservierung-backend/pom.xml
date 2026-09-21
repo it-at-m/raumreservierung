@@ -194,6 +194,11 @@
 
         <!-- Other -->
         <dependency>
+            <groupId>de.muenchen.oss.refarch</groupId>
+            <artifactId>refarch-email-integration-starter</artifactId>
+            <version>3.0.1</version>
+        </dependency>
+        <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
         </dependency>

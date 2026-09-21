@@ -1,6 +1,9 @@
 server:
   port: 8086
 spring:
+  mail:
+    host: localhost
+    port: 1025
   # Spring JPA
   jpa:
     # Logging for database operation
@@ -61,3 +64,7 @@ raumreservierung:
     logging-mode: all
     client-id: ${sso.client}
     permissions-uri: ${sso.url}/auth/realms/${sso.realm}/protocol/openid-connect/token
+
+mail:
+  environment: LOCAL
+  domain: localhost:8083
