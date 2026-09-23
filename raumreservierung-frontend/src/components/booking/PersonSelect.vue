@@ -10,10 +10,9 @@
     :prepend-inner-icon="mdiAccountSearchOutline"
     :items="foundPersons?.content ?? []"
     :loading="personPageLoading"
-    :item-title="formatName"
     item-value="id"
     hide-no-data
-    :no-filter="!type"
+    no-filter
     :return-object="!!type"
     :disabled="hasOppositeTypeSelected"
     @update:search="onSearch"
@@ -28,21 +27,14 @@
         {{ t("common.format.braces", { content: selectionEmail(item) }) }}
       </span>
     </template>
-    <template
-      v-if="showEmail"
-      #item="{ item, props }"
-    >
+    <template #item="{ item, props }">
       <v-list-item
         v-bind="props"
-        :title="undefined"
+        :title="formatName(item)"
+        :subtitle="
+          showEmail ? t('common.format.braces', { content: item.email }) : ''
+        "
       >
-        {{ formatName(item) }}
-        <span
-          v-if="item.email"
-          class="text-grey"
-        >
-          {{ t("common.format.braces", { content: item.email }) }}
-        </span>
       </v-list-item>
     </template>
   </v-autocomplete>
