@@ -1,6 +1,6 @@
 <html>
 <div>
-Guten Tag Vorname Nachname,<br>
+Guten Tag ${booking.bookedBy.firstName} ${booking.bookedBy.lastName},<br>
 <br>
 der Status Ihrer Buchung „${booking.title}“ hat sich geändert.<br>
 Unter folgendem Link können Sie die Buchung und alle Details einsehen: <a target="_blank" href="${domain}/bookings/${booking.id}">Zur Buchung</a><br>
