@@ -4,6 +4,7 @@ import de.muenchen.oss.refarch.integration.email.application.port.out.MailOutPor
 import de.muenchen.oss.refarch.integration.email.domain.model.TemplateMail;
 import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.BookingStatus;
+import de.muenchen.raumreservierung.configuration.MailInfoConfiguration;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import freemarker.template.Configuration;
@@ -29,12 +30,7 @@ public class StatusNotificationMailService {
 
     private final MailOutPort mailOutPort;
     private final Configuration freemarkerConfig;
-
-    @Value("${mail.environment}")
-    private String environment;
-
-    @Value("${mail.domain}")
-    private String domain;
+    private final MailInfoConfiguration mailInfoConfiguration;
 
     @Async("mailExecutor")
     public void sendStatusNotificationMail(final Booking booking, final BookingStatus oldStatus) {
@@ -49,8 +45,8 @@ public class StatusNotificationMailService {
 
         final Map<String, Object> content = new HashMap<>();
         content.put("booking", booking);
-        content.put("environment", environment);
-        content.put("domain", domain);
+        content.put("environment", mailInfoConfiguration.getEnvironment());
+        content.put("domain", mailInfoConfiguration.getDomain());
 
         final String receivers = booking.getBookedBy() instanceof InternalPerson ? booking.getBookedBy().getEmail() : null;
 

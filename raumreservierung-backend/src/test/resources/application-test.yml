@@ -24,11 +24,10 @@ raumreservierung:
     logging-mode: all
     client-id: "test-client"
     permissions-uri: "http://not-needed"
-mail:
-  environment: LOCAL
-  domain: localhost:8083
 refarch:
   mail:
     fromAddress: "test@test.muenchen.de"
     default-reply-to-address: "test@test.muenchen.de"
     test-connection: true
+    environment: LOCAL
+    domain: localhost:8083
