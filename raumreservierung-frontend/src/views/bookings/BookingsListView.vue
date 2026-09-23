@@ -4,6 +4,43 @@
       t('generics.manage', { domain: t('domain.booking.header', { count: 2 }) })
     "
   >
+    <template #headerActions>
+      <v-dialog
+        v-model="isExportDialogOpen"
+        max-width="800px"
+        width="90%"
+      >
+        <template #activator>
+          <base-button
+            v-if="!isMyBooking"
+            class="ml-4"
+            text="CSV-Export"
+            :append-icon="mdiFileDownloadOutline"
+            :loading="getCSVExportLoading"
+            @click="isExportDialogOpen = true"
+          />
+        </template>
+        <template #default>
+          <confirm-card
+            title="CSV Export"
+            subtitle="Bitte wählen sie das Jahr für das sie alle Buchungen als CSV exportieren möchten."
+            @cancel="isExportDialogOpen = false"
+          >
+            <template #text> bitte jahreszahl auswählen </template>
+            <template #confirm>
+              <base-button
+                text="Exportieren"
+                :append-icon="mdiFileDownloadOutline"
+                @click="
+                  getCSVExport;
+                  isExportDialogOpen = false;
+                "
+              />
+            </template>
+          </confirm-card>
+        </template>
+      </v-dialog>
+    </template>
     <template #default>
       <v-sheet
         class="mb-6"
@@ -203,11 +240,12 @@ import {
   mdiCalendarEndOutline,
   mdiCalendarStartOutline,
   mdiCheck,
+  mdiFileDownloadOutline,
   mdiMinus,
 } from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -216,8 +254,13 @@ import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
-import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
+import {
+  useExportBookingsAsCSV,
+  useGetBookings,
+} from "@/composables/api/useBookingsApi.ts";
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
@@ -233,6 +276,7 @@ const { getStatusGroupKey, expandStatus, statusGroups } =
 const { t } = useI18n();
 
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
+const isExportDialogOpen = ref(false);
 
 const isCanceledOrUnfeasible = (
   booking: BookingListResponseDTO | undefined
@@ -321,6 +365,24 @@ const {
   data: bookingsPage,
   loading: getBookingsLoading,
 } = useGetBookings();
+
+const {
+  call: fetchCSVExport,
+  data: csvData,
+  loading: getCSVExportLoading,
+} = useExportBookingsAsCSV();
+
+const getCSVExport = async () => {
+  await fetchCSVExport({ year: 2026 });
+  if (!csvData.value) return;
+
+  const url = URL.createObjectURL(csvData.value);
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "buchungen.csv";
+  link.click();
+  URL.revokeObjectURL(url);
+};
 
 const handleRowClick = (
   event: PointerEvent,

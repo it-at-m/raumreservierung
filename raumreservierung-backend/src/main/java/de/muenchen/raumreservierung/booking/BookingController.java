@@ -6,6 +6,7 @@ import de.muenchen.raumreservierung.booking.dto.BookingListResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingMapper;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
 import jakarta.validation.Valid;
+import java.io.IOException;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -73,4 +75,11 @@ public class BookingController {
     public void deleteBooking(@PathVariable @Valid final UUID bookingId) {
         bookingService.deleteBooking(bookingId);
     }
+
+    @Transactional
+    @GetMapping("/export")
+    public ResponseEntity<String> exportBookingsAsCSV(@RequestParam int year) throws IOException {
+        return bookingService.exportBookingsAsCSV(year);
+    }
+
 }

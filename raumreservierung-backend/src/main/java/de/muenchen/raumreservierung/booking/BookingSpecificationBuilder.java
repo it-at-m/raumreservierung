@@ -6,6 +6,8 @@ import de.muenchen.raumreservierung.room.Room_;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -93,5 +95,13 @@ public final class BookingSpecificationBuilder {
             }
             return null;
         };
+    }
+
+    private static final ZoneId BERLIN = ZoneId.of("Europe/Berlin");
+
+    public static <T extends Booking> Specification<T> filterForYear(final int year) {
+        final OffsetDateTime yearEnd = ZonedDateTime.of(year, 12, 31, 23, 59, 59, 999_999_999, BERLIN).toOffsetDateTime();
+
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyStart), yearEnd);
     }
 }

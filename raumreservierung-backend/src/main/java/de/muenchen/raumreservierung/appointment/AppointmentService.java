@@ -42,6 +42,14 @@ public class AppointmentService {
     }
 
     @PreAuthorize(Authorities.APPOINTMENT_SELF)
+    public List<Appointment> getAllAppointmentsByYearAndBookingId(final int year, final UUID bookingId) {
+        Specification<Appointment> spec = AppointmentSpecificationBuilder.forYearAndBookingId(year, bookingId);
+        final List<Appointment> appointments = appointmentRepository.findAll(spec);
+        log.debug("Found {} appointments", appointments.size());
+        return appointments;
+    }
+
+    @PreAuthorize(Authorities.APPOINTMENT_SELF)
     @Transactional
     public Appointment updateAppointment(final Appointment appointmentUpdates, final UUID appointmentId) {
         final Appointment existingAppointment = getEntityOrThrowException(appointmentId);

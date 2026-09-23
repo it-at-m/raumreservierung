@@ -91,6 +91,9 @@
         <!-- Calendar dependency -->
         <iCal4j.version>4.2.5</iCal4j.version>
 
+        <!-- Apache Commons CSV dependency -->
+        <commons-csv.version>1.14.1</commons-csv.version>
+
         <!-- Added to fix CVE-2026-54291 -->
         <postgresql.version>42.7.12</postgresql.version>
         <!-- Added to fix CVE-2026-64607 -->
@@ -230,6 +233,11 @@
             <groupId>org.mnode.ical4j</groupId>
             <artifactId>ical4j</artifactId>
             <version>${iCal4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-csv</artifactId>
+            <version>${commons-csv.version}</version>
         </dependency>
 
         <!-- Testing -->

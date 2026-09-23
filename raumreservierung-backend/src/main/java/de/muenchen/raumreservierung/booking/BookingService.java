@@ -8,27 +8,42 @@ import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
+import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.PersonService;
+import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
+import de.muenchen.raumreservierung.room.Room;
+import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.AuthUtils;
 import de.muenchen.raumreservierung.security.Authorities;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
+import java.io.IOException;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVPrinter;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -163,6 +178,122 @@ public class BookingService {
 
             saveAndDetach(bookingToChange, bookingChange);
         }
+    }
+
+    private static final ZoneId BERLIN = ZoneId.of("Europe/Berlin");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            .withZone(BERLIN);
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm")
+            .withZone(BERLIN);
+
+    private String formatTime(OffsetDateTime dateTime) {
+        return dateTime != null ? TIME_FORMAT.format(dateTime) : null;
+    }
+
+    private String formatDate(OffsetDateTime dateTime) {
+        return dateTime != null ? DATE_FORMAT.format(dateTime) : null;
+    }
+
+    public ResponseEntity<String> exportBookingsAsCSV(int year) throws IOException {
+        Specification<Booking> spec = BookingSpecificationBuilder.filterForYear(year);
+        List<Booking> bookings = bookingRepository.findAll(spec);
+
+        StringWriter stringWriter = new StringWriter();
+        CSVFormat csvFormat = CSVFormat.DEFAULT.builder()
+                .setHeader(
+                        "Titel",
+                        "Datum_Buchungsbeginn",
+                        "Datum_Buchungsende",
+                        "Uhrzeit_Buchungsbeginn",
+                        "Uhrzeit_Buchungsende",
+                        "Teilnehmeranzahl",
+                        "Buchungstyp",
+                        "Status",
+                        "Raumname",
+                        "Ausstattung",
+                        "Bestuhlung",
+                        "Catering",
+                        "Gebucht von",
+                        "Gebucht von_Orgakürzel",
+                        "Firma_Extern",
+                        "Gebucht für",
+                        "Gebucht für_Orgakürzel",
+                        "Terminserie",
+                        "Veranstaltungszeitpunkt_Abweichend",
+                        "Datum_Veranstaltungsbeginn",
+                        "Datum_Veranstaltungsende",
+                        "Uhrzeit_Veranstaltungsbeginn",
+                        "Uhrzeit_Veranstaltungsende",
+                        "Notizen",
+                        "Interne Notizen")
+                .get();
+
+        try (CSVPrinter csvPrinter = new CSVPrinter(stringWriter, csvFormat)) {
+            for (Booking booking : bookings) {
+                String equipmentNames = booking.getEquipment().stream()
+                        .map(Equipment::getName)
+                        .collect(Collectors.joining("; "));
+                List<Appointment> appointments = appointmentService.getAllAppointmentsByYearAndBookingId(year, booking.getId());
+
+                boolean isSeries = booking.getRecurringRule() != null && !booking.getRecurringRule().isBlank();
+
+                String roomName = fieldOf(booking.getRoom(), Room::getName);
+                String seatingTypeName = fieldOf(booking.getSeatingType(), SeatingType::getName);
+                String bookedByEmail = fieldOf(booking.getBookedBy(), Person::getEmail);
+                String bookedByOrga = organisationUnitOf(booking.getBookedBy());
+                String bookedForCompany = companyOf(booking.getBookedFor());
+                String bookedForEmail = fieldOf(booking.getBookedFor(), Person::getEmail);
+                String bookedForOrga = organisationUnitOf(booking.getBookedFor());
+
+                for (Appointment appointment : appointments) {
+                    ScheduleTemplate schedule = appointment.getSchedule();
+                    boolean doOccupancyAndAppointmentDiffer = !(schedule.occupancyStart().isEqual(schedule.appointmentStart())
+                            && schedule.occupancyEnd().isEqual(schedule.appointmentEnd()));
+
+                    csvPrinter.printRecord(
+                            booking.getTitle(),
+                            formatDate(schedule.occupancyStart()),
+                            formatDate(schedule.occupancyEnd()),
+                            formatTime(schedule.occupancyStart()),
+                            formatTime(schedule.occupancyEnd()),
+                            booking.getParticipantCount(),
+                            booking.getBookingType(),
+                            booking.getStatus(),
+                            roomName,
+                            equipmentNames,
+                            seatingTypeName,
+                            booking.isCateringNeeded(),
+                            bookedByEmail,
+                            bookedByOrga,
+                            bookedForCompany,
+                            bookedForEmail,
+                            bookedForOrga,
+                            isSeries,
+                            doOccupancyAndAppointmentDiffer,
+                            formatDate(schedule.appointmentStart()),
+                            formatDate(schedule.appointmentEnd()),
+                            formatTime(schedule.appointmentStart()),
+                            formatTime(schedule.appointmentEnd()),
+                            booking.getAdditionalNotes(),
+                            booking.getInternalNotes());
+                }
+            }
+        }
+        return ResponseEntity.ok()
+                .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
+                .body(stringWriter.toString());
+    }
+
+    private <T> String fieldOf(T entity, Function<T, String> fieldGetter) {
+        return entity != null ? fieldGetter.apply(entity) : null;
+    }
+
+    private String organisationUnitOf(Person person) {
+        return person instanceof InternalPerson internalPerson ? internalPerson.getOrganisationUnit() : null;
+    }
+
+    private String companyOf(Person person) {
+        return person instanceof ExternalPerson externalPerson ? externalPerson.getCompany() : null;
     }
 
     private void checkAuthorityOrThrowException(final Booking booking, final String role) {

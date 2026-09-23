@@ -1,6 +1,7 @@
 import type {
   BookingDetailResponseDTO,
   CreateBookingRequest,
+  ExportBookingsAsCSVRequest,
   GetBookingRequest,
   GetBookingsByPageableAndFilterRequest,
   PagedModelBookingListResponseDTO,
@@ -42,4 +43,13 @@ export const useUpdateBooking = () => {
   return useApi<UpdateBookingRequest, BookingDetailResponseDTO>((params) =>
     api.updateBooking(params)
   );
+};
+
+export const useExportBookingsAsCSV = () => {
+  const api = ApiFactory.getInstance(BookingControllerApi);
+
+  return useApi<ExportBookingsAsCSVRequest, Blob>(async (params) => {
+    const apiResponse = await api.exportBookingsAsCSVRaw(params);
+    return await apiResponse.raw.blob();
+  });
 };

@@ -6,6 +6,8 @@ import de.muenchen.raumreservierung.booking.ScheduleTemplate_;
 import de.muenchen.raumreservierung.room.Room_;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -53,4 +55,21 @@ public final class AppointmentSpecificationBuilder {
         return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyEnd), end);
     }
 
+    private static final ZoneId BERLIN = ZoneId.of("Europe/Berlin");
+
+    private static <T extends Appointment> Specification<T> filterForYear(final int year) {
+        final OffsetDateTime yearStart = ZonedDateTime.of(year, 1, 1, 0, 0, 0, 0, BERLIN).toOffsetDateTime();
+        final OffsetDateTime yearEnd = ZonedDateTime.of(year, 12, 31, 23, 59, 59, 999_999_999, BERLIN).toOffsetDateTime();
+
+        return (root, query, cb) -> cb.and(
+                cb.greaterThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyStart), yearStart),
+                cb.lessThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyStart), yearEnd));
+    }
+
+    public static <T extends Appointment> Specification<T> forYearAndBookingId(final int year, final UUID bookingId) {
+        final List<Specification<T>> specificationList = new ArrayList<>();
+        specificationList.add(filterForYear(year));
+        specificationList.add(filterForBookingId(bookingId));
+        return Specification.allOf(specificationList);
+    }
 }
