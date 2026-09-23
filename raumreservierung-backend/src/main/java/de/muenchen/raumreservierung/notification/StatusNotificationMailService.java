@@ -15,15 +15,12 @@ import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @RequiredArgsConstructor
 @Slf4j
 @Service
-@SuppressFBWarnings(
-        value = "TEMPLATE_INJECTION_FREEMARKER",
-        justification = "Templates werden ausschließlich aus einer sicheren Quelle geladen (Hardcoded in Enum)."
-)
 public class StatusNotificationMailService {
 
     private final MailOutPort mailOutPort;
@@ -35,6 +32,7 @@ public class StatusNotificationMailService {
     @Value("${mail.domain}")
     private String domain;
 
+    @Async("mailExecutor")
     public void sendStatusNotificationMail(final Booking booking, final BookingStatus oldStatus) {
         final MailType mailType = StatusNotificationTransitionMap.getMailTypeForTransition(oldStatus, booking.getStatus());
 

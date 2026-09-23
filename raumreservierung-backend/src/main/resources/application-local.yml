@@ -65,11 +65,10 @@ raumreservierung:
     client-id: ${sso.client}
     permissions-uri: ${sso.url}/auth/realms/${sso.realm}/protocol/openid-connect/token
 
-mail:
-  environment: "LOCAL"
-  domain: localhost:8083
 refarch:
   mail:
     fromAddress: "test@test.muenchen.de"
     default-reply-to-address: "test@test.muenchen.de"
     test-connection: true
+    environment: "LOCAL"
+    appdomain: localhost:8083
