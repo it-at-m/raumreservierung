@@ -1,22 +1,8 @@
 <template>
   <v-autocomplete
     v-model="modelValue"
-    :label="
-      hasOppositeTypeSelected
-        ? type === InternalPersonRequestDtoTypeEnum.INTERNAL
-          ? t('components.personSelect.coveredByExternal')
-          : t('components.personSelect.coveredByInternal')
-        : type === InternalPersonRequestDtoTypeEnum.INTERNAL
-          ? t('components.personSelect.searchInternal')
-          : t('components.personSelect.searchExternal')
-    "
-    :hint="
-      hasOppositeTypeSelected
-        ? type === InternalPersonRequestDtoTypeEnum.INTERNAL
-          ? t('components.personSelect.externalAlreadySelectedHint')
-          : t('components.personSelect.internalAlreadySelectedHint')
-        : ''
-    "
+    :label="computedLabel"
+    :hint="computedHint"
     persistent-hint
     color="accent"
     variant="outlined"
@@ -24,15 +10,32 @@
     :prepend-inner-icon="mdiAccountSearchOutline"
     :items="foundPersons?.content ?? []"
     :loading="personPageLoading"
-    :item-title="formatName"
     item-value="id"
-    return-object
     hide-no-data
+    no-filter
+    :return-object="!!type"
     :disabled="hasOppositeTypeSelected"
     @update:search="onSearch"
   >
     <template #selection="{ item }">
-      <span class="text-body-1">{{ formatName(item) }}</span>
+      <!-- intialPerson is fallback if only id is present -->
+      {{ formatName(item.firstName || item.lastName ? item : initialPerson) }}
+      <span
+        v-if="showEmail && selectionEmail(item)"
+        class="text-grey ml-1"
+      >
+        {{ t("common.format.braces", { content: selectionEmail(item) }) }}
+      </span>
+    </template>
+    <template #item="{ item, props }">
+      <v-list-item
+        v-bind="props"
+        :title="formatName(item)"
+        :subtitle="
+          showEmail ? t('common.format.braces', { content: item.email }) : ''
+        "
+      >
+      </v-list-item>
     </template>
   </v-autocomplete>
 </template>
@@ -46,17 +49,62 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { InternalPersonRequestDtoTypeEnum } from "@/api/raumreservierung-backend";
-import { useGetPersonPage } from "@/composables/api/usePersonApi.ts";
+import {
+  useFindPerson,
+  useGetPersonPage,
+} from "@/composables/api/usePersonApi.ts";
 
-const { type } = defineProps<{
-  type: InternalPersonRequestDtoTypeEnum;
+const {
+  type,
+  label,
+  showEmail = false,
+} = defineProps<{
+  type?: InternalPersonRequestDtoTypeEnum;
+  label?: string;
+  showEmail?: boolean;
 }>();
 
 const { t } = useI18n();
-const modelValue = defineModel<FindById200Response>();
+const modelValue = defineModel<FindById200Response | string>();
+
+const isPersonObject = (
+  value: FindById200Response | string | undefined
+): value is FindById200Response => typeof value === "object" && value !== null;
 
 const hasOppositeTypeSelected = computed(
-  () => modelValue.value && modelValue.value.type !== type
+  () =>
+    !!type && isPersonObject(modelValue.value) && modelValue.value.type !== type
+);
+
+const isInternal = computed(
+  () => type === InternalPersonRequestDtoTypeEnum.INTERNAL
+);
+
+const typeLabel = (isInternal: boolean) =>
+  isInternal
+    ? t("components.personSelect.types.internalType")
+    : t("components.personSelect.types.externalType");
+
+const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
+
+const computedLabel = computed(
+  () =>
+    label ||
+    (hasOppositeTypeSelected.value
+      ? t("components.personSelect.coveredBy", {
+          type: typeLabel(!isInternal.value),
+        })
+      : t("components.personSelect.search", {
+          type: capitalize(typeLabel(isInternal.value)),
+        }))
+);
+
+const computedHint = computed(() =>
+  hasOppositeTypeSelected.value
+    ? t("components.personSelect.alreadySelectedHint", {
+        type: typeLabel(!isInternal.value),
+      })
+    : ""
 );
 
 const {
@@ -65,11 +113,22 @@ const {
   loading: personPageLoading,
 } = useGetPersonPage();
 
-const formatName = (person: FindById200Response) => {
-  if (!person) {
-    return "";
-  }
-  return `${person.firstName || ""} ${person.lastName || ""}`.trim();
+const idForLookup = computed(() =>
+  typeof modelValue.value === "string" ? modelValue.value : undefined
+);
+
+const { data: initialPerson } = useFindPerson(idForLookup);
+
+const formatName = (person: FindById200Response | undefined) =>
+  person
+    ? t("common.format.fullName", {
+        firstName: person.firstName,
+        lastName: person.lastName,
+      })
+    : t("components.personSelect.personNotFound");
+
+const selectionEmail = (item: FindById200Response) => {
+  return item?.email ?? initialPerson.value?.email;
 };
 
 const onSearch = useDebounceFn((searchQuery: string) => {

@@ -30,7 +30,10 @@
     "format": {
       "idFormat": "#{id}",
       "dateSingle": "{date}",
-      "dateRange": "{start} - {end}"
+      "dateRange": "{start} - {end}",
+      "braces": "({content})",
+      "fullNameRaw": "{firstName} {lastName}",
+      "fullName": "@.trim:common.format.fullNameRaw"
     }
   },
   "app": {
@@ -83,12 +86,14 @@
       "suffix": "Maximale Kapazität {count}"
     },
     "personSelect": {
-      "coveredByInternal": "Wird durch interne Person abgedeckt",
-      "coveredByExternal": "Wird durch externe Person abgedeckt",
-      "searchInternal": "Interne Person suchen",
-      "searchExternal": "Externe Person suchen",
-      "internalAlreadySelectedHint": "Eine interne Person ist bereits ausgewählt.",
-      "externalAlreadySelectedHint": "Eine externe Person ist bereits ausgewählt."
+      "personNotFound": "Person nicht gefunden",
+      "coveredBy": "Wird durch {type} Person abgedeckt",
+      "search": "{type} Person suchen",
+      "alreadySelectedHint": "Eine {type} Person ist bereits ausgewählt.",
+      "types": {
+        "externalType": "externe",
+        "internalType": "interne"
+      }
     },
     "appointmentListItem": {
       "deviatingTimes": "Abweichende Zeit"
@@ -99,6 +104,9 @@
     },
     "dateSelectorCard": {
       "subtitle": "Datum und Uhrzeit"
+    },
+    "filterPanel": {
+      "bookedFor": "Gebucht für"
     }
   },
   "views": {
@@ -132,8 +140,8 @@
       "header": "Buchungsdetails",
       "participants": "Teilnehmende {count}",
       "chosenSeatingType": "Gewählte Bestuhlung",
-      "bookedBy": "Gebucht von {firstName} {lastName}",
-      "bookedFor": "Gebucht für {firstName} {lastName}",
+      "bookedBy": "Gebucht von @:common.format.fullName",
+      "bookedFor": "@:components.filterPanel.bookedFor @:common.format.fullName",
       "seriesDate": "Serientermin",
       "notes": "Notizen",
       "internalNotes": "Interne Notizen",
@@ -203,6 +211,7 @@
     "booking": {
       "header": "Buchung | Buchungen",
       "participants": "Teilnehmende | Teilnehmenden",
+      "bookingTitle": "Veranstaltungstitel",
       "statusTitle": "Status",
       "date": "Datum",
       "recurrenceRule": "Terminserie",
