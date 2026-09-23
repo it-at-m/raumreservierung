@@ -30,4 +30,4 @@ refarch:
     default-reply-to-address: "test@test.muenchen.de"
     test-connection: true
     environment: LOCAL
-    domain: localhost:8083
+    appdomain: localhost:8083

@@ -1,6 +1,11 @@
 package de.muenchen.raumreservierung.notification;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import de.muenchen.oss.refarch.integration.email.application.port.out.MailOutPort;
 import de.muenchen.raumreservierung.booking.Booking;
@@ -8,18 +13,15 @@ import de.muenchen.raumreservierung.booking.BookingStatus;
 import de.muenchen.raumreservierung.configuration.MailInfoConfiguration;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import java.io.IOException;
+import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-
-import java.io.IOException;
-import java.util.*;
 
 public class StatusNotificationMailServiceTest {
 
