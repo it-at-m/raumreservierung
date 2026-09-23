@@ -21,6 +21,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 @Slf4j
 @Service
+@SuppressFBWarnings(
+        value = "TEMPLATE_INJECTION_FREEMARKER",
+        justification = "Templates werden aus Classpath geladen"
+)
 public class StatusNotificationMailService {
 
     private final MailOutPort mailOutPort;
@@ -48,14 +52,14 @@ public class StatusNotificationMailService {
         content.put("environment", environment);
         content.put("domain", domain);
 
-        String subject;
-        String receivers = booking.getBookedBy() instanceof InternalPerson ? booking.getBookedBy().getEmail() : null;
+        final String receivers = booking.getBookedBy() instanceof InternalPerson ? booking.getBookedBy().getEmail() : null;
 
         if (receivers == null) {
             log.error("BookedBy contains no email address. Skip sending notification mail for booking id: {}; name: {}", booking.getId(), booking.getTitle());
             return;
         }
 
+        String subject;
         try {
             final Template t = freemarkerConfig.getTemplate(mailType.getSubjectTemplate());
             final StringWriter writer = new StringWriter();
