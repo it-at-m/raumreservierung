@@ -1375,6 +1375,8 @@ components:
           minLength: 2
           type: string
         participantCount:
+          maximum: 9223372036854775807
+          minimum: 0
           type: integer
           format: int32
         equipmentIds:
@@ -1420,6 +1422,12 @@ components:
           maxLength: 255
           minLength: 0
           type: string
+        bookingType:
+          type: string
+          enum:
+          - FREE
+          - SERVICE
+          - DEFAULT
     ScheduleTemplate:
       required:
       - occupancyEnd
@@ -1491,6 +1499,12 @@ components:
           $ref: "#/components/schemas/BookingStatusDTO"
         reasonForStatusChange:
           type: string
+        bookingType:
+          type: string
+          enum:
+          - FREE
+          - SERVICE
+          - DEFAULT
     BookingStatusDTO:
       required:
       - currentStatus

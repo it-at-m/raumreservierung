@@ -1,0 +1,2 @@
+ALTER TABLE booking
+    ADD COLUMN booking_type VARCHAR NOT NULL DEFAULT 'DEFAULT';

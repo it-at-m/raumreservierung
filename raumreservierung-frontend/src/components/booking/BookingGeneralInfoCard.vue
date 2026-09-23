@@ -16,32 +16,50 @@
         bg-color="transparent"
         class="pa-0 mt-2"
       >
-        <v-list-item class="px-0">
-          <v-list-item-subtitle>
-            {{ t("domain.booking.date") }}
-          </v-list-item-subtitle>
-          <v-list-item-title class="font-weight-medium mt-1">
-            <template v-if="isMultiDay">
-              {{
-                t("common.format.dateRange", {
-                  start: useDateFormat(
-                    schedule?.occupancyStart,
-                    DATE_FORMAT_DDMMYY
-                  ).value,
-                  end: useDateFormat(schedule?.occupancyEnd, DATE_FORMAT_DDMMYY)
-                    .value,
-                })
-              }}
-            </template>
-            <template v-else>
-              {{
-                useDateFormat(schedule?.occupancyStart, DATE_FORMAT_DDMMYY)
-                  .value
-              }}
-            </template>
-          </v-list-item-title>
-        </v-list-item>
-
+        <v-row class="ga-md-16">
+          <v-col cols="auto">
+            <v-list-item class="px-0">
+              <v-list-item-subtitle>
+                {{ t("domain.booking.date") }}
+              </v-list-item-subtitle>
+              <v-list-item-title class="font-weight-medium mt-1">
+                <template v-if="isMultiDay">
+                  {{
+                    t("common.format.dateRange", {
+                      start: useDateFormat(
+                        schedule?.occupancyStart,
+                        DATE_FORMAT_DDMMYY
+                      ).value,
+                      end: useDateFormat(
+                        schedule?.occupancyEnd,
+                        DATE_FORMAT_DDMMYY
+                      ).value,
+                    })
+                  }}
+                </template>
+                <template v-else>
+                  {{
+                    useDateFormat(schedule?.occupancyStart, DATE_FORMAT_DDMMYY)
+                      .value
+                  }}
+                </template>
+              </v-list-item-title>
+            </v-list-item>
+          </v-col>
+          <v-col cols="auto">
+            <v-list-item
+              v-if="isPrivileged && bookingType"
+              class="px-0"
+            >
+              <v-list-item-subtitle>
+                {{ t("domain.booking.typeShort") }}
+              </v-list-item-subtitle>
+              <v-list-item-title class="mt-1">
+                {{ t(`domain.booking.types.${bookingType.toLowerCase()}`) }}
+              </v-list-item-title>
+            </v-list-item>
+          </v-col>
+        </v-row>
         <v-list-item class="px-0 mt-2">
           <v-list-item-subtitle class="mb-2">
             {{ t("domain.booking.statusTitle") }}
@@ -73,6 +91,7 @@
 
 <script setup lang="ts">
 import type {
+  BookingDetailResponseDTOBookingTypeEnum,
   BookingStatusDTO,
   ScheduleTemplate,
 } from "@/api/raumreservierung-backend";
@@ -90,12 +109,13 @@ const { t } = useI18n();
 
 const showId = useIsPrivileged("bookings:manage");
 
-const { schedule } = defineProps<{
+const { schedule, bookingType } = defineProps<{
   id?: string;
   title?: string;
   schedule?: ScheduleTemplate;
   status?: BookingStatusDTO;
   reasonForStatusChange?: string;
+  bookingType?: BookingDetailResponseDTOBookingTypeEnum;
 }>();
 
 const isMultiDay = computed(() => {
@@ -107,4 +127,6 @@ const isMultiDay = computed(() => {
       schedule.occupancyEnd.getFullYear()
   );
 });
+
+const isPrivileged = useIsPrivileged("bookings:write");
 </script>

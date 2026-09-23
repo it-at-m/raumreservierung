@@ -4,10 +4,21 @@
     :type="type"
     :model-value="displayValue"
     @update:model-value="updateDate"
-  />
+  >
+    <template #message="{ message: vTextMessage }">
+      <div class="d-flex align-center">
+        <v-icon
+          class="mr-1"
+          :icon="mdiInformationOutline"
+        />
+        <span>{{ vTextMessage }}</span>
+      </div>
+    </template>
+  </v-text-field>
 </template>
 
 <script setup lang="ts">
+import { mdiInformationOutline } from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { computed } from "vue";
 
@@ -20,6 +31,7 @@ import {
 // datetime-local is chosen as the default case as it edits the whole date-objekt
 const { type = "datetime-local" } = defineProps<{
   type?: "date" | "time" | "datetime-local";
+  message?: string;
 }>();
 
 const modelValue = defineModel<Date>();

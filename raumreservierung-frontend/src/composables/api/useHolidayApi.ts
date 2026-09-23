@@ -4,37 +4,66 @@ import type {
   GetHolidaysRequest,
   UpdateHolidayRequest,
 } from "@/api/raumreservierung-backend/apis/HolidayControllerApi";
-import type { HolidayResponseDTO } from "@/api/raumreservierung-backend/models/HolidayResponseDTO.ts";
+import type { MaybeRefOrGetter } from "vue";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
+import { computed, toValue } from "vue";
 
 import { HolidayControllerApi } from "@/api/raumreservierung-backend/apis/HolidayControllerApi";
-import { useApi } from "@/composables/api/useApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
 
-export const useGetHolidays = () => {
+const HOLIDAY_KEY = "holiday";
+
+export const useGetHolidays = (
+  params: MaybeRefOrGetter<GetHolidaysRequest | undefined>
+) => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
-  return useApi<GetHolidaysRequest, HolidayResponseDTO[]>((params) =>
-    api.getHolidays(params)
-  );
+  const paramsRef = computed(() => toValue(params));
+
+  return useQuery({
+    queryKey: [HOLIDAY_KEY, paramsRef],
+    queryFn: () => {
+      if (!paramsRef.value) {
+        throw new Error("Holiday year is required");
+      }
+      return api.getHolidays(paramsRef.value);
+    },
+    enabled: computed(() => !!paramsRef.value),
+  });
 };
 
 export const useDeleteHoliday = () => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
-  // eslint-disable-next-line @typescript-eslint/no-invalid-void-type
-  return useApi<DeleteHolidayRequest, void>((params) =>
-    api.deleteHoliday(params)
-  );
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: DeleteHolidayRequest) => api.deleteHoliday(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [HOLIDAY_KEY] });
+    },
+  });
 };
 
 export const useCreateHoliday = () => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
-  return useApi<CreateHolidayRequest, HolidayResponseDTO>((params) =>
-    api.createHoliday(params)
-  );
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: CreateHolidayRequest) => api.createHoliday(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [HOLIDAY_KEY] });
+    },
+  });
 };
 
 export const useUpdateHoliday = () => {
   const api = ApiFactory.getInstance(HolidayControllerApi);
-  return useApi<UpdateHolidayRequest, HolidayResponseDTO>((params) =>
-    api.updateHoliday(params)
-  );
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: UpdateHolidayRequest) => api.updateHoliday(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: [HOLIDAY_KEY] });
+    },
+  });
 };

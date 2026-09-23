@@ -42,6 +42,7 @@ export default defineConfigWithVueTs(
           ignores: [
             "/^navigationDrawer\\./",
             "/^domain\\.booking\\.status\\./",
+            "/^domain\\.booking\\.types\\./",
           ],
         },
       ],

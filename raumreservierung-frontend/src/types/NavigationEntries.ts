@@ -6,7 +6,7 @@ type NavKind = "item" | "group";
 interface NavBase {
   textKey: string;
   icon?: string;
-  requiredPrivilege?: Privilege;
+  requiredPrivilege?: Privilege | Privilege[];
   kind: NavKind;
 }
 

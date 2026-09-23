@@ -72,7 +72,7 @@
         <v-row>
           <v-col
             cols="12"
-            :md="isPrivileged ? 8 : 12"
+            :md="isPrivileged ? 6 : 12"
           >
             <v-text-field
               v-model="bookingData.title"
@@ -87,10 +87,25 @@
               hide-details="auto"
             />
           </v-col>
+
           <v-col
             v-if="isPrivileged"
-            cols="12"
-            md="4"
+            :cols="showStatus ? 6 : 12"
+            :md="showStatus ? 3 : 6"
+          >
+            <v-select
+              v-model="bookingData.bookingType"
+              :items="bookingTypeOptions"
+              :label="t('domain.booking.typeLong')"
+              variant="outlined"
+              hide-selected
+              hide-details
+            />
+          </v-col>
+          <v-col
+            v-if="showStatus"
+            cols="6"
+            md="3"
           >
             <general-status-select
               v-model="bookingData.status"
@@ -189,18 +204,23 @@
             >
               <template #text>
                 <v-row>
-                  <v-col>
-                    <v-select
-                      :model-value="bookedFor?.id"
-                      color=" accent"
-                      variant="outlined"
-                      :prepend-inner-icon="mdiAccountSearchOutline"
-                      disabled
-                      :label="t('views.bookingEditView.internalPerson')"
+                  <v-col
+                    cols="12"
+                    md="6"
+                  >
+                    <person-select
+                      v-model="bookedFor"
+                      :type="InternalPersonRequestDtoTypeEnum.INTERNAL"
                     />
                   </v-col>
-                  <v-col>
-                    <external-person-select v-model="bookedFor" />
+                  <v-col
+                    cols="12"
+                    md="6"
+                  >
+                    <person-select
+                      v-model="bookedFor"
+                      :type="InternalPersonRequestDtoTypeEnum.EXTERNAL"
+                    />
                   </v-col>
                 </v-row>
               </template>
@@ -290,7 +310,6 @@ import type {
 } from "@/api/raumreservierung-backend";
 
 import {
-  mdiAccountSearchOutline,
   mdiCalendarRemoveOutline,
   mdiContentSaveOutline,
   mdiWindowClose,
@@ -301,13 +320,15 @@ import { useRoute, useRouter } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
 import {
+  BookingRequestDTOBookingTypeEnum,
   BookingRequestDTOStatusEnum,
   BookingStatusDTOCurrentStatusEnum,
+  InternalPersonRequestDtoTypeEnum,
 } from "@/api/raumreservierung-backend";
 import { type BookingStatusDTO as BookingStatusFull } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
-import ExternalPersonSelect from "@/components/booking/ExternalPersonSelect.vue";
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
+import PersonSelect from "@/components/booking/PersonSelect.vue";
 import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
 import SeatingTypeSelector from "@/components/booking/SeatingTypeParticipantsSelector.vue";
@@ -370,6 +391,12 @@ const isSeriesBooking = computed({
   },
 });
 
+const showStatus = computed(
+  () =>
+    isPrivileged.value &&
+    bookingData.value.bookingType == BookingRequestDTOBookingTypeEnum.DEFAULT
+);
+
 const bookingId = computed(() => (route.params.id as string) || undefined);
 
 const isMyBooking = computed(
@@ -391,11 +418,7 @@ const currentRoomSeatingTypeLimit = computed(
     0
 );
 
-const isPrivileged = useIsPrivileged([
-  "bookings:manage",
-  "bookings:write",
-  "bookings:read",
-]);
+const isPrivileged = useIsPrivileged(["bookings:manage", "bookings:write"]);
 
 const {
   call: getBooking,
@@ -569,6 +592,13 @@ const handleSaveClick = () =>
   bookingData.value.status === BookingRequestDTOStatusEnum.UNFEASIBLE
     ? (isUnfeasibleDialogOpen.value = true)
     : saveBooking();
+
+const bookingTypeOptions = Object.values(BookingRequestDTOBookingTypeEnum).map(
+  (value) => ({
+    title: t(`domain.booking.types.${value.toLowerCase()}`),
+    value,
+  })
+);
 </script>
 
 <style scoped></style>

@@ -74,15 +74,21 @@
     "scheduleTemplateForm": {
       "multiDay": "Mehrtägiger Termin",
       "wholeDay": "Ganztägig",
-      "appointmentDiffers": "Veranstaltungszeit abweichend"
+      "appointmentDiffers": "Veranstaltungszeit abweichend",
+      "message": {
+        "overlappingHolidays": "Überschneidungen mit folgenden Ferien oder Feiertagen: {holidayName} ({date})"
+      }
     },
     "seatingTypeParticipantsSelector": {
       "suffix": "Maximale Kapazität {count}"
     },
-    "externalPersonSelect": {
+    "personSelect": {
       "coveredByInternal": "Wird durch interne Person abgedeckt",
+      "coveredByExternal": "Wird durch externe Person abgedeckt",
+      "searchInternal": "Interne Person suchen",
       "searchExternal": "Externe Person suchen",
-      "internalAlreadySelectedHint": "Eine interne Person ist bereits ausgewählt."
+      "internalAlreadySelectedHint": "Eine interne Person ist bereits ausgewählt.",
+      "externalAlreadySelectedHint": "Eine externe Person ist bereits ausgewählt."
     },
     "appointmentListItem": {
       "deviatingTimes": "Abweichende Zeit"
@@ -140,7 +146,6 @@
       "participantsCount": "Anzahl Teilnehmende",
       "cateringPlanned": "Catering geplant",
       "bookedForOthersCard": "Buchung für andere Person",
-      "internalPerson": "Interne Person",
       "dateTimeCard": "Datum und Uhrzeit"
     },
     "bookingListView": {
@@ -168,13 +173,13 @@
     "emptyList": "Keine {domain} vorhanden."
   },
   "navigationDrawer": {
-    "myBookings": "Meine Buchungen einsehen",
+    "myBookings": "Meine Buchungen",
     "bookingGroup": {
       "groupTitle": "Buchen",
       "bookRooms": "über Räume buchen",
       "bookCalendar": "über Kalendar buchen"
     },
-    "bookings": "Buchungen verwalten",
+    "bookings": "Alle Buchungen",
     "personGroup": {
       "groupTitle": "Personen verwalten",
       "internalPersons": "Interne Personen verwalten",
@@ -225,6 +230,13 @@
         "unfeasible": "Abgelehnt",
         "canceled": "Storniert",
         "reserved": "Vorgemerkt"
+      },
+      "typeShort": "Typ",
+      "typeLong": "Buchungstyp",
+      "types": {
+        "default": "Standard",
+        "free": "Frei",
+        "service": "Service"
       }
     },
     "scheduleTemplate": {

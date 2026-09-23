@@ -2,13 +2,19 @@
   <v-autocomplete
     v-model="modelValue"
     :label="
-      isInternalSelected
-        ? t('components.externalPersonSelect.coveredByInternal')
-        : t('components.externalPersonSelect.searchExternal')
+      hasOppositeTypeSelected
+        ? type === InternalPersonRequestDtoTypeEnum.INTERNAL
+          ? t('components.personSelect.coveredByExternal')
+          : t('components.personSelect.coveredByInternal')
+        : type === InternalPersonRequestDtoTypeEnum.INTERNAL
+          ? t('components.personSelect.searchInternal')
+          : t('components.personSelect.searchExternal')
     "
     :hint="
-      isInternalSelected
-        ? t('components.externalPersonSelect.internalAlreadySelectedHint')
+      hasOppositeTypeSelected
+        ? type === InternalPersonRequestDtoTypeEnum.INTERNAL
+          ? t('components.personSelect.externalAlreadySelectedHint')
+          : t('components.personSelect.internalAlreadySelectedHint')
         : ''
     "
     persistent-hint
@@ -22,7 +28,7 @@
     item-value="id"
     return-object
     hide-no-data
-    :disabled="isInternalSelected"
+    :disabled="hasOppositeTypeSelected"
     @update:search="onSearch"
   >
     <template #selection="{ item }">
@@ -30,6 +36,7 @@
     </template>
   </v-autocomplete>
 </template>
+
 <script setup lang="ts">
 import type { FindById200Response } from "@/api/raumreservierung-backend";
 
@@ -38,14 +45,19 @@ import { useDebounceFn } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { InternalPersonRequestDtoTypeEnum } from "@/api/raumreservierung-backend";
 import { useGetPersonPage } from "@/composables/api/usePersonApi.ts";
+
+const { type } = defineProps<{
+  type: InternalPersonRequestDtoTypeEnum;
+}>();
 
 const { t } = useI18n();
 const modelValue = defineModel<FindById200Response>();
 
-const isInternalSelected = computed(() => {
-  return modelValue.value && modelValue.value.type === "INTERNAL";
-});
+const hasOppositeTypeSelected = computed(
+  () => modelValue.value && modelValue.value.type !== type
+);
 
 const {
   call: getPersonPage,
@@ -69,9 +81,7 @@ const onSearch = useDebounceFn((searchQuery: string) => {
     searchName: searchQuery,
     page: 0,
     size: 10,
-    personType: "EXTERNAL",
+    personType: type,
   });
 }, 500);
 </script>
-
-<style scoped></style>
