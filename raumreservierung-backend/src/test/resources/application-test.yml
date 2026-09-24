@@ -1,4 +1,7 @@
 spring:
+  mail:
+    host: localhost
+    port: 1025
   jpa:
     hibernate:
       ddl-auto: create-drop
@@ -14,6 +17,9 @@ logging:
       console: # set to empty to disable structured logging for testing
 
 raumreservierung:
+  mail:
+    environment: "LOCAL"
+    appdomain: localhost:8083
   security:
     # possible values: none, all, changing (With changing, only changing requests such as POST, PUT, DELETE are logged)
     # Currently only dummy values, will later be changed for testing security.
@@ -21,3 +27,8 @@ raumreservierung:
     logging-mode: all
     client-id: "test-client"
     permissions-uri: "http://not-needed"
+refarch:
+  mail:
+    fromAddress: "test@test.muenchen.de"
+    default-reply-to-address: "test@test.muenchen.de"
+    test-connection: true

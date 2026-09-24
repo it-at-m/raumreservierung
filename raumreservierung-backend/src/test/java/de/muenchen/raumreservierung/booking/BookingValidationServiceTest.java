@@ -20,6 +20,7 @@ import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
 import de.muenchen.raumreservierung.equipment.Equipment;
+import de.muenchen.raumreservierung.notification.StatusNotificationMailService;
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.room.Room;
@@ -65,6 +66,8 @@ public class BookingValidationServiceTest {
     private BookingValidationService bookingValidationService;
     @Autowired
     private SecurityContextService securityContextService;
+    @MockitoBean
+    private StatusNotificationMailService statusNotificationMailService;
     @MockitoBean
     private BookingRepository bookingRepository;
     @MockitoBean

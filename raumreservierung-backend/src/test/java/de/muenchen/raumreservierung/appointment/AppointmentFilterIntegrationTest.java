@@ -16,15 +16,20 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
+import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -46,6 +51,10 @@ public class AppointmentFilterIntegrationTest {
     @SuppressWarnings("unused")
     private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>(
             DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
+    @Container
+    @SuppressWarnings("unused")
+    private static GenericContainer<?> mailpit = new GenericContainer<>(TestConstants.TESTCONTAINERS_MAILPIT_IMAGE)
+            .withExposedPorts(1025);
 
     private static final String APPOINTMENTS_URL = "/appointments";
 
@@ -57,6 +66,14 @@ public class AppointmentFilterIntegrationTest {
 
     @MockitoBean
     private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private JavaMailSender javaMailSender;
+
+    @BeforeEach
+    public void setup() {
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+    }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })

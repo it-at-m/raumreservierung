@@ -88,6 +88,9 @@
         <p2.password /> <!-- must be empty, override via Maven settings.xml if needed -->
         <p2.mirror>download.eclipse.org</p2.mirror>
 
+        <!--RefArch Mail dependency-->
+        <refarch-email-integration-starter.version>3.0.1</refarch-email-integration-starter.version>
+
         <!-- Calendar dependency -->
         <iCal4j.version>4.2.5</iCal4j.version>
 
@@ -196,6 +199,12 @@
         </dependency>
 
         <!-- Other -->
+
+        <dependency>
+            <groupId>de.muenchen.oss.refarch</groupId>
+            <artifactId>refarch-email-integration-starter</artifactId>
+            <version>${refarch-email-integration-starter.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.httpcomponents.client5</groupId>
             <artifactId>httpclient5</artifactId>
