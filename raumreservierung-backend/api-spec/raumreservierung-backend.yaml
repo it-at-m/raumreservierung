@@ -745,6 +745,25 @@ paths:
               schema:
                 type: string
                 format: byte
+  /export/bookings/csv:
+    get:
+      tags:
+      - export-controller
+      operationId: exportBookingsCsv
+      parameters:
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            text/csv:
+              schema:
+                $ref: "#/components/schemas/StreamingResponseBody"
   /appointments:
     get:
       tags:
@@ -1627,6 +1646,8 @@ components:
             - $ref: "#/components/schemas/InternalPersonResponseDto"
         page:
           $ref: "#/components/schemas/PageMetadata"
+    StreamingResponseBody:
+      type: object
     BookingListResponseDTO:
       required:
       - bookedBy
