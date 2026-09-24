@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import ch.martinelli.oss.testcontainers.mailpit.MailpitContainer;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
@@ -22,18 +21,20 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.junit.jupiter.Container;
 
 @SpringBootTest(
         classes = {
@@ -45,10 +46,6 @@ import org.testcontainers.junit.jupiter.Container;
         }
 )
 public class BookingServiceTest {
-    @Container
-    @ServiceConnection
-    private static final MailpitContainer MAILPIT_CONTAINER = new MailpitContainer().withExposedPorts(1025);
-
     @Autowired
     private BookingService bookingService;
     @MockitoBean
@@ -67,6 +64,14 @@ public class BookingServiceTest {
     private PersonService personService;
     @MockitoBean
     private RoomService roomService;
+
+    @MockitoBean
+    private JavaMailSender javaMailSender;
+
+    @BeforeEach
+    public void setup() {
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+    }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })

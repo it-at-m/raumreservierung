@@ -36,10 +36,13 @@ import org.junit.jupiter.api.TestInstance;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -98,6 +101,9 @@ public class BookingServiceIntegrationTest {
     private Equipment equipment;
     private Appointment appointmentUpdate;
     private Appointment appointment;
+
+    @MockitoBean
+    private JavaMailSender javaMailSender;
 
     @BeforeEach
     void setUp() {
@@ -215,6 +221,9 @@ public class BookingServiceIntegrationTest {
         appointmentUpdate = new Appointment();
         appointmentUpdate.setBooking(existingBooking);
         appointmentUpdate.setSchedule(scheduleUpdated);
+
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+
     }
 
     @Test

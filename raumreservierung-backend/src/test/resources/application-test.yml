@@ -17,6 +17,9 @@ logging:
       console: # set to empty to disable structured logging for testing
 
 raumreservierung:
+  mail:
+    environment: "LOCAL"
+    appdomain: localhost:8083
   security:
     # possible values: none, all, changing (With changing, only changing requests such as POST, PUT, DELETE are logged)
     # Currently only dummy values, will later be changed for testing security.
@@ -29,5 +32,3 @@ refarch:
     fromAddress: "test@test.muenchen.de"
     default-reply-to-address: "test@test.muenchen.de"
     test-connection: true
-    environment: LOCAL
-    appdomain: localhost:8083

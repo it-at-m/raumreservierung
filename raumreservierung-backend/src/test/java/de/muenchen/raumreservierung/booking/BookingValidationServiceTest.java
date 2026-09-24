@@ -16,7 +16,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import ch.martinelli.oss.testcontainers.mailpit.MailpitContainer;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
@@ -48,11 +47,9 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.junit.jupiter.Container;
 
 @SpringBootTest(
         classes = {
@@ -65,10 +62,6 @@ import org.testcontainers.junit.jupiter.Container;
 )
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class BookingValidationServiceTest {
-    @Container
-    @ServiceConnection
-    private static final MailpitContainer MAILPIT_CONTAINER = new MailpitContainer().withExposedPorts(1025, 8025);
-
     @Autowired
     private BookingValidationService bookingValidationService;
     @Autowired

@@ -12,11 +12,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import ch.martinelli.oss.testcontainers.mailpit.MailpitContainer;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
-import de.muenchen.oss.refarch.integration.email.application.port.out.MailOutPort;
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentDetailsResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
@@ -46,11 +44,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -71,9 +72,6 @@ public class BookingControllerIntegrationTest {
     @SuppressWarnings("unused")
     private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>(
             DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
-    @Container
-    @ServiceConnection
-    private static final MailpitContainer MAILPIT_CONTAINER = new MailpitContainer().withExposedPorts(1025, 8025);
 
     private static final String BOOKINGS_URL = "/bookings";
     private static final String APPOINTMENTS_URL = "/appointments";
@@ -88,7 +86,7 @@ public class BookingControllerIntegrationTest {
     private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
 
     @MockitoBean
-    private MailOutPort mailOutPort;
+    private JavaMailSender javaMailSender;
 
     @Autowired
     private BookingRepository bookingRepository;
@@ -174,6 +172,8 @@ public class BookingControllerIntegrationTest {
         mockBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         mockBooking.setBookingType(BookingType.DEFAULT);
         mockBooking = bookingRepository.save(mockBooking);
+
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
     }
 
     @ParameterizedTest(name = "[{index}] {0}")

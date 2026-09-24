@@ -5,10 +5,10 @@ import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import ch.martinelli.oss.testcontainers.mailpit.MailpitContainer;
 import de.muenchen.raumreservierung.MicroServiceApplication;
 import de.muenchen.raumreservierung.TestConstants;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -17,6 +17,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -38,9 +40,6 @@ class CacheControlFilterTest {
     @SuppressWarnings("unused")
     private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>(
             DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
-    @Container
-    @ServiceConnection
-    private static final MailpitContainer MAILPIT_CONTAINER = new MailpitContainer().withExposedPorts(1025, 8025);
 
     private static final String EQUIPMENT_ENDPOINT_URL = "/equipment";
 
@@ -52,8 +51,13 @@ class CacheControlFilterTest {
     @MockitoBean
     private RoleHierarchy roleHierarchy;
 
+    @MockitoBean
+    private JavaMailSender javaMailSender;
+
     @Test
     void testForCacheControlHeadersForEquipmentEndpoint() {
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+
         final ResponseEntity<String> response = testRestTemplate.exchange(EQUIPMENT_ENDPOINT_URL, HttpMethod.GET, null, String.class);
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getHeaders().containsKey(HttpHeaders.CACHE_CONTROL));

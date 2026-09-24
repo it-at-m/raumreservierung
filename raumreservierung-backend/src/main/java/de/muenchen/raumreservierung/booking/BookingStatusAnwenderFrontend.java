@@ -1,11 +1,9 @@
 package de.muenchen.raumreservierung.booking;
 
-import de.muenchen.raumreservierung.security.Roles;
 import lombok.Getter;
 
-import java.util.List;
-
 @Getter
+@SuppressWarnings("PMD.AvoidDuplicateLiterals")
 public enum BookingStatusAnwenderFrontend {
     REQUESTED("requested"),
     IN_PROGRESS("requested"),

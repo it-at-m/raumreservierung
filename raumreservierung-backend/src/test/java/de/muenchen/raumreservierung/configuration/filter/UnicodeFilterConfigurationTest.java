@@ -13,14 +13,16 @@ import de.muenchen.raumreservierung.equipment.dto.EquipmentRequestDto;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
 import java.net.URI;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.testcontainers.containers.GenericContainer;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -39,10 +41,6 @@ class UnicodeFilterConfigurationTest {
     @SuppressWarnings("unused")
     private static final PostgreSQLContainer<?> POSTGRE_SQL_CONTAINER = new PostgreSQLContainer<>(
             DockerImageName.parse(TestConstants.TESTCONTAINERS_POSTGRES_IMAGE));
-    @Container
-    @SuppressWarnings("unused")
-    private static GenericContainer<?> mailpit = new GenericContainer<>(TestConstants.TESTCONTAINERS_MAILPIT_IMAGE)
-            .withExposedPorts(1025);
 
     private static final String ENTITY_ENDPOINT_URL = "/equipment";
 
@@ -67,8 +65,13 @@ class UnicodeFilterConfigurationTest {
     @MockitoBean
     private RoleHierarchy roleHierarchy;
 
+    @MockitoBean
+    private JavaMailSender javaMailSender;
+
     @Test
     void testForNfcNormalization() {
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+
         // Given
         // Persist entity with decomposed string.
         final EquipmentRequestDto equipmentRequestDto = new EquipmentRequestDto(TEXT_ATTRIBUTE_DECOMPOSED, TEXT_ATTRIBUTE_DECOMPOSED, true);

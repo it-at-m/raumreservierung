@@ -10,7 +10,7 @@ import static org.mockito.Mockito.when;
 import de.muenchen.oss.refarch.integration.email.application.port.out.MailOutPort;
 import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.BookingStatus;
-import de.muenchen.raumreservierung.configuration.MailInfoConfiguration;
+import de.muenchen.raumreservierung.configuration.MailInfoProperties;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import freemarker.template.Configuration;
@@ -35,7 +35,7 @@ public class StatusNotificationMailServiceTest {
     private Template template;
 
     @Mock
-    private MailInfoConfiguration mailInfoConfiguration;
+    private MailInfoProperties mailInfoProperties;
 
     @InjectMocks
     private StatusNotificationMailService service;
@@ -44,8 +44,8 @@ public class StatusNotificationMailServiceTest {
     void setUp() throws IOException {
         MockitoAnnotations.openMocks(this);
         when(freemarkerConfig.getTemplate(anyString())).thenReturn(template);
-        when(mailInfoConfiguration.getDomain()).thenReturn("testdomain.de");
-        when(mailInfoConfiguration.getEnvironment()).thenReturn("unit-test");
+        when(mailInfoProperties.getAppdomain()).thenReturn("testdomain.de");
+        when(mailInfoProperties.getEnvironment()).thenReturn("unit-test");
     }
 
     @Test
