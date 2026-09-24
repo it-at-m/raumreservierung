@@ -231,6 +231,10 @@
             <artifactId>ical4j</artifactId>
             <version>${iCal4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.dataformat</groupId>
+            <artifactId>jackson-dataformat-csv</artifactId>
+        </dependency>
 
         <!-- Testing -->
         <dependency>
