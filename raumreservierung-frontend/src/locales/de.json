@@ -45,6 +45,10 @@
     }
   },
   "components": {
+    "exportBookingsCard": {
+      "confirm": "Buchungen exportieren",
+      "chooseYear": "Wählen Sie den Jahrgang für den Export"
+    },
     "roomResourceManagementCard": {
       "subtitle": "Neue {domain} zu bestehender Liste hinzufügen."
     },

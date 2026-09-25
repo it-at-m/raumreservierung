@@ -1,6 +1,6 @@
 <template>
   <confirm-card
-    title="Welches Jahr an Buchungen wollen Sie exportieren?"
+    :title="t('components.exportBookingsCard.chooseYear')"
     @confirm="emit('close')"
     @cancel="emit('close')"
   >
@@ -15,7 +15,7 @@
     <template #confirm="{ props }">
       <base-button
         :append-icon="mdiExport"
-        text="Exportieren"
+        text="t('components.exportBookingsCard.confirm')"
         @click="
           redirectToDownload();
           props.onClick();
@@ -28,6 +28,7 @@
 <script setup lang="ts">
 import { mdiExport } from "@mdi/js";
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
 import { ExportControllerApi } from "@/api/raumreservierung-backend";
@@ -39,6 +40,7 @@ import { ApiFactory } from "@/util/apiFactory.ts";
 
 const PREVIOUS_YEARS = 5;
 const router = useRouter();
+const { t } = useI18n();
 
 const currentYear = computed(() => new Date().getFullYear());
 const selectedYear = ref(new Date().getFullYear());
