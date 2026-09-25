@@ -14,7 +14,7 @@
           <base-button
             v-bind="props"
             :append-icon="mdiExport"
-            text="Buchungen exportieren"
+            :text="t('components.exportBookingsCard.confirm')"
           />
         </template>
         <template #default="{ isActive }">
