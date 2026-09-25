@@ -3,13 +3,15 @@ package de.muenchen.raumreservierung.export;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
-@JsonPropertyOrder({
-        "Titel", "Datum_Buchungsbeginn", "Datum_Buchungsende", "Uhrzeit_Buchungsbeginn", "Uhrzeit_Buchungsende",
-        "Teilnehmeranzahl", "Buchungstyp", "Status", "Raumname", "Ausstattung", "Bestuhlung", "Catering",
-        "Gebucht von", "Gebucht von_Orgakürzel", "Firma_Extern", "Gebucht für", "Gebucht für_Orgakürzel",
-        "Terminserie", "Veranstaltungszeitpunkt_Abweichend", "Datum_Veranstaltungsbeginn", "Datum_Veranstaltungsende",
-        "Uhrzeit_Veranstaltungsbeginn", "Uhrzeit_Veranstaltungsende", "Notizen", "Interne Notizen"
-})
+@JsonPropertyOrder(
+    {
+            "Titel", "Datum_Buchungsbeginn", "Datum_Buchungsende", "Uhrzeit_Buchungsbeginn", "Uhrzeit_Buchungsende",
+            "Teilnehmeranzahl", "Buchungstyp", "Status", "Raumname", "Ausstattung", "Bestuhlung", "Catering",
+            "Gebucht von", "Gebucht von_Orgakürzel", "Firma_Extern", "Gebucht für", "Gebucht für_Orgakürzel",
+            "Terminserie", "Veranstaltungszeitpunkt_Abweichend", "Datum_Veranstaltungsbeginn", "Datum_Veranstaltungsende",
+            "Uhrzeit_Veranstaltungsbeginn", "Uhrzeit_Veranstaltungsende", "Notizen", "Interne Notizen"
+    }
+)
 public record BookingExportDto(
         @JsonProperty("Titel") String title,
         @JsonProperty("Datum_Buchungsbeginn") String bookingStartDate,
@@ -35,6 +37,5 @@ public record BookingExportDto(
         @JsonProperty("Uhrzeit_Veranstaltungsbeginn") String appointmentStartTime,
         @JsonProperty("Uhrzeit_Veranstaltungsende") String appointmentEndTime,
         @JsonProperty("Notizen") String additionalNotes,
-        @JsonProperty("Interne Notizen") String internalNotes
-) {
+        @JsonProperty("Interne Notizen") String internalNotes) {
 }

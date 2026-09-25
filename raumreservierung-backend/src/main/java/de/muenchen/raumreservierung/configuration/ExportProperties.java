@@ -10,6 +10,5 @@ import org.springframework.validation.annotation.Validated;
 @Validated
 public class ExportProperties {
 
-    @NotNull
-    private char csvColumnSeparator;
+    @NotNull private char csvColumnSeparator;
 }
