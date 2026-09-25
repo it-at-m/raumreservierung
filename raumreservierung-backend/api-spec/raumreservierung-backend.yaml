@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: raumreservierung-backend
   description: This is the backend-project of the renewal of the raumreservierung
-  version: 0.4.1-SNAPSHOT
+  version: 0.9.3-SNAPSHOT
 servers:
 - url: http://localhost:8086
   description: Generated server url
@@ -684,6 +684,17 @@ paths:
             - ORGANIZER_APPROVED
             - UNFEASIBLE
             - CANCELED
+      - name: bookedForId
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: title
+        in: query
+        required: false
+        schema:
+          type: string
       - name: self
         in: query
         required: false
@@ -734,6 +745,25 @@ paths:
               schema:
                 type: string
                 format: byte
+  /export/bookings/csv:
+    get:
+      tags:
+      - export-controller
+      operationId: exportBookingsCsv
+      parameters:
+      - name: year
+        in: query
+        required: true
+        schema:
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: OK
+          content:
+            text/csv:
+              schema:
+                $ref: "#/components/schemas/StreamingResponseBody"
   /appointments:
     get:
       tags:
@@ -1375,8 +1405,6 @@ components:
           minLength: 2
           type: string
         participantCount:
-          maximum: 9223372036854775807
-          minimum: 0
           type: integer
           format: int32
         equipmentIds:
@@ -1618,6 +1646,8 @@ components:
             - $ref: "#/components/schemas/InternalPersonResponseDto"
         page:
           $ref: "#/components/schemas/PageMetadata"
+    StreamingResponseBody:
+      type: object
     BookingListResponseDTO:
       required:
       - bookedBy

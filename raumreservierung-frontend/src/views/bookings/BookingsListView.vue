@@ -4,76 +4,40 @@
       t('generics.manage', { domain: t('domain.booking.header', { count: 2 }) })
     "
   >
-    <template #default>
-      <v-sheet
-        class="mb-6"
-        rounded
+    <template #headerActions>
+      <v-dialog
+        v-if="showInactiveRooms"
+        :close-delay="1000"
+        max-width="700px"
       >
-        <v-row>
-          <v-col
-            cols="12"
-            md="4"
-          >
-            <room-select
-              v-model="roomId"
-              :label="t('generics.filter', { domain: t('domain.room.header') })"
-              :show-inactive="canEditBookings"
-              density="compact"
-              clearable
-              @update:model-value="applyFilters"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="4"
-          >
-            <general-status-select
-              v-model="statusFilter"
-              density="compact"
-              clearable
-              :label="t('domain.booking.status.filter')"
-              multiple
-              :group-by="getStatusGroupKey"
-              @update:model-value="applyFilters"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-            md="2"
-          >
-            <v-date-input
-              v-model="start"
-              :label="t('views.bookingListView.periodFrom')"
-              density="compact"
-              variant="outlined"
-              prepend-icon=""
-              :prepend-inner-icon="mdiCalendarStartOutline"
-              clearable
-              hide-details
-              @update:model-value="applyFilters"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-            md="2"
-          >
-            <v-date-input
-              v-model="end"
-              prepend-icon=""
-              :prepend-inner-icon="mdiCalendarEndOutline"
-              :label="t('views.bookingListView.periodTo')"
-              density="compact"
-              variant="outlined"
-              clearable
-              hide-details
-              @update:model-value="applyFilters"
-            />
-          </v-col>
-        </v-row>
-      </v-sheet>
-      <v-card :title="t('views.bookingListView.tableTitle')">
+        <template #activator="{ props }">
+          <base-button
+            v-bind="props"
+            :append-icon="mdiExport"
+            :text="t('components.exportBookingsCard.confirm')"
+          />
+        </template>
+        <template #default="{ isActive }">
+          <export-bookings-card @close="isActive.value = false" />
+        </template>
+      </v-dialog>
+    </template>
+    <template #default>
+      <booking-filter-panel
+        v-model:room-id="roomId"
+        v-model:status-filter="statusFilter"
+        v-model:start="start"
+        v-model:end="end"
+        v-model:booked-for-id="bookedForId"
+        v-model:title="title"
+        :show-inactive-rooms="showInactiveRooms"
+        :get-status-group-key="getStatusGroupKey"
+        @updated:filters="applyFilters"
+      />
+      <v-card
+        :title="t('views.bookingListView.tableTitle')"
+        class="mt-6"
+      >
         <template #text>
           <v-data-table-server
             v-model:sort-by="sortBy"
@@ -163,7 +127,7 @@
                   <action-button
                     :disabled="
                       isCanceledOrUnfeasible(item) ||
-                      !(canEditBookings || isMyBooking)
+                      !(showInactiveRooms || isMyBooking)
                     "
                     class="mr-1"
                     type="edit"
@@ -198,13 +162,7 @@ import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import {
-  mdiCalendarEditOutline,
-  mdiCalendarEndOutline,
-  mdiCalendarStartOutline,
-  mdiCheck,
-  mdiMinus,
-} from "@mdi/js";
+import { mdiCalendarEditOutline, mdiCheck, mdiExport, mdiMinus } from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
@@ -212,11 +170,12 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
-import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
+import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
+import ExportBookingsCard from "@/components/booking/ExportBookingsCard.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import RoomSelect from "@/components/rooms/RoomSelect.vue";
+import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
@@ -243,9 +202,11 @@ const isCanceledOrUnfeasible = (
     booking.status.currentStatus ===
       BookingStatusDTOCurrentStatusEnum.UNFEASIBLE);
 
-const canEditBookings = useIsPrivileged("bookings:manage");
+const showInactiveRooms = useIsPrivileged("bookings:manage");
 
 // ####### Page Filter and Options #########
+const bookedForId = useRouteQuery("bookedForId", undefined);
+const title = useRouteQuery<string | undefined>("title", undefined);
 const roomId = useRouteQuery("roomId", undefined);
 
 const page = useRouteQuery("page", 1, { transform: Number });
@@ -358,6 +319,8 @@ const fetchPage = async () => {
     end: toApiDate(end.value),
     self: isMyBooking.value,
     status: requestStatus.value,
+    bookedForId: bookedForId.value,
+    title: title.value,
   });
 };
 
@@ -377,7 +340,7 @@ const headers = computed(
       { title: "Gebucht für", value: "bookedBy", sortable: true },
       { title: "Ausstattung", value: "hasEquipment", align: "center" },
       { title: "Bemerkung", value: "hasNote", align: "center" },
-      ...(canEditBookings
+      ...(showInactiveRooms
         ? [
             {
               title: t("common.action", { count: 2 }),

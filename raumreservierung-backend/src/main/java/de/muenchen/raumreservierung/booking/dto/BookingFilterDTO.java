@@ -19,5 +19,7 @@ public record BookingFilterDTO(
         @Parameter(
                 style = ParameterStyle.FORM, explode = Explode.FALSE,
                 array = @ArraySchema(schema = @Schema(implementation = BookingStatus.class))
-        ) List<BookingStatus> status) {
+        ) List<BookingStatus> status,
+        UUID bookedForId,
+        String title) {
 }
