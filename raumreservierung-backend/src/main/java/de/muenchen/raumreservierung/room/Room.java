@@ -76,6 +76,7 @@ public class Room extends BaseEntity {
         this.area = roomChanges.getArea();
         this.locationDescription = roomChanges.getLocationDescription();
         this.contactPerson = roomChanges.getContactPerson();
+        this.weekScheduleCategory = roomChanges.getWeekScheduleCategory();
 
         this.equipment.clear();
         if (roomChanges.getEquipment() != null) {

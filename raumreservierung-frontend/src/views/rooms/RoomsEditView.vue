@@ -120,7 +120,10 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col>
+          <v-col
+            cols="12"
+            md="3"
+          >
             <v-text-field
               v-model="roomData.number"
               color="accent"
@@ -140,6 +143,20 @@
                   })
                 ),
               ]"
+            />
+          </v-col>
+          <v-col
+            cols="12"
+            md="3"
+          >
+            <v-select
+              v-model="roomData.weekScheduleCategory"
+              :items="weekScheduleCategoryOptions"
+              item-title="label"
+              item-value="value"
+              variant="outlined"
+              :label="t('domain.weekScheduleCategory.title')"
+              hide-details="auto"
             />
           </v-col>
           <v-col>
@@ -447,6 +464,17 @@ const handleDelete = async () => {
     }
   }
 };
+
+const weekScheduleCategoryOptions = computed(() => [
+  {
+    value: "ALTES_RATHAUS",
+    label: t("domain.weekScheduleCategory.altesRathaus"),
+  },
+  {
+    value: "NEUES_RATHAUS",
+    label: t("domain.weekScheduleCategory.neuesRathaus"),
+  },
+]);
 </script>
 
 <style scoped></style>

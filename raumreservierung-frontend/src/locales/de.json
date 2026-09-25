@@ -313,6 +313,11 @@
       "header": "Interne Person | Interne Personen",
       "organisationUnit": "Organisationseinheit",
       "roleFunction": "Rollenfunktion"
+    },
+    "weekScheduleCategory": {
+      "title": "Dienstplankategorie",
+      "altesRathaus": "Altes Rathaus",
+      "neuesRathaus": "Neues Rathaus"
     }
   }
 }
