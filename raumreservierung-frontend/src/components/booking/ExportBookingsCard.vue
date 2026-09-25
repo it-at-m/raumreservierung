@@ -15,7 +15,7 @@
     <template #confirm="{ props }">
       <base-button
         :append-icon="mdiExport"
-        text="t('components.exportBookingsCard.confirm')"
+        :text="t('components.exportBookingsCard.confirm')"
         @click="
           redirectToDownload();
           props.onClick();

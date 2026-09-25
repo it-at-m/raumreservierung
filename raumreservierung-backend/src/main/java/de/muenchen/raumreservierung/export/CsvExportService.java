@@ -9,6 +9,11 @@ import de.muenchen.raumreservierung.appointment.AppointmentSpecificationBuilder;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.configuration.ExportProperties;
 import de.muenchen.raumreservierung.security.Authorities;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.time.OffsetDateTime;
+import java.time.ZoneOffset;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
@@ -16,12 +21,6 @@ import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.io.IOException;
-import java.io.OutputStream;
-import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -46,7 +45,7 @@ public class CsvExportService {
     /**
      * Fills the output stream with a csv filled with bookings from appointments.
      *
-     * @param year         to create the report
+     * @param year to create the report
      * @param outputStream to fill the csv into.
      */
     @Transactional(readOnly = true)
@@ -54,20 +53,20 @@ public class CsvExportService {
     public void exportBookingsAsCsv(int year, OutputStream outputStream) {
         log.debug("Creating export for calendar year {}", year);
 
-        OffsetDateTime startDate = OffsetDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
-        OffsetDateTime endDate = OffsetDateTime.of(year, 12, 31, 23, 59, 59, 999999999, ZoneOffset.UTC);
+        final OffsetDateTime startDate = OffsetDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
+        final OffsetDateTime endDate = OffsetDateTime.of(year, 12, 31, 23, 59, 59, 999_999_999, ZoneOffset.UTC);
 
-        AppointmentFilterDTO appFilter = new AppointmentFilterDTO(startDate, endDate, null, null);
+        final AppointmentFilterDTO appFilter = new AppointmentFilterDTO(startDate, endDate, null, null);
 
-        CsvMapper mapper = new CsvMapper();
-        CsvSchema schema = mapper.schemaFor(BookingExportDto.class)
+        final CsvMapper mapper = new CsvMapper();
+        final CsvSchema schema = mapper.schemaFor(BookingExportDto.class)
                 .withHeader()
                 .withColumnSeparator(exportProperties.getCsvColumnSeparator());
 
         try (Stream<Appointment> appointmentStream = streamAppointmentsByFilter(appFilter);
-             SequenceWriter seqWriter = mapper.writer(schema).writeValues(outputStream)) {
+                final SequenceWriter seqWriter = mapper.writer(schema).writeValues(outputStream)) {
 
-            for (Appointment appointment : (Iterable<Appointment>) appointmentStream::iterator) {
+            for (final Appointment appointment : (Iterable<Appointment>) appointmentStream::iterator) {
                 seqWriter.write(exportMapper.toExportDto(appointment));
             }
 
