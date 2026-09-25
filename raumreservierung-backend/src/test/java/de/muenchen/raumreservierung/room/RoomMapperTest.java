@@ -65,7 +65,7 @@ public class RoomMapperTest {
         final UUID personId = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
         final RoomRequestDTO requestDTO = new RoomRequestDTO("Mittlerer Saal", "102", "Pfad 3, 10101 Dazwischen, Deutschland", "Hinterm Stein links.", 500,
                 true, 100,
-                new ArrayList<>(capacityRequestDTOs), new ArrayList<>(equipmentIds), personId, null);
+                new ArrayList<>(capacityRequestDTOs), new ArrayList<>(equipmentIds), personId, null, null);
 
         // When
         SeatingType seatingTypeOnlyId1 = new SeatingType();

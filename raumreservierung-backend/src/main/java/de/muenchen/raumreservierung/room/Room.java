@@ -4,9 +4,12 @@ import de.muenchen.raumreservierung.common.BaseEntity;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.file.FileAttachment;
 import de.muenchen.raumreservierung.person.domain.Person;
+import de.muenchen.raumreservierung.weekschedule.WeekScheduleCategory;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
@@ -50,6 +53,10 @@ public class Room extends BaseEntity {
 
     @Column
     private int area;
+
+    @Enumerated(EnumType.STRING)
+    @Column
+    private WeekScheduleCategory weekScheduleCategory;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "room")
     private Set<RoomSeatingCapacity> roomSeatingCapacities = new HashSet<>();
