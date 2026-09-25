@@ -2,6 +2,7 @@ import type { HTTPHeaders } from "@/api/raumreservierung-backend";
 
 import { getHeaders } from "@/api/fetch-utils.ts";
 import { BaseAPI, Configuration } from "@/api/raumreservierung-backend";
+import { BASE_PATH } from "@/constants.ts";
 
 type ApiCtor<T extends BaseAPI> = new (config: Configuration) => T;
 
@@ -9,7 +10,7 @@ const instances = new Map<ApiCtor<BaseAPI>, BaseAPI>();
 
 function createConfig(): Configuration {
   return new Configuration({
-    basePath: "/api/backend-service",
+    basePath: BASE_PATH,
     credentials: "same-origin",
     headers: convertHeaders(getHeaders()),
   });
