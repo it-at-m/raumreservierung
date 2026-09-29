@@ -63,16 +63,14 @@ public class StatusNotificationMailService {
     }
 
     private String renderSubject(final BookingStatusAnwenderFrontend newStatus, final Map<String, Object> content) {
-        String subject;
         try {
             final Template t = freemarkerConfig.getTemplate(String.format(GENERIC_SUBJECT_TEMPLATE_NAME, newStatus.getMailTemplateName()));
             final StringWriter writer = new StringWriter();
             t.process(content, writer);
-            subject = writer.toString();
+            return writer.toString();
         } catch (Exception e) {
             log.error("Failed to render subject template for {}", newStatus.name(), e);
-            subject = DEFAULT_SUBJECT;
+            return DEFAULT_SUBJECT;
         }
-        return subject;
     }
 }
