@@ -44,11 +44,14 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.junit.jupiter.params.provider.ValueSource;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -81,6 +84,9 @@ public class BookingControllerIntegrationTest {
 
     @MockitoBean
     private org.springframework.security.oauth2.jwt.JwtDecoder jwtDecoder;
+
+    @MockitoBean
+    private JavaMailSender javaMailSender;
 
     @Autowired
     private BookingRepository bookingRepository;
@@ -166,6 +172,8 @@ public class BookingControllerIntegrationTest {
         mockBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         mockBooking.setBookingType(BookingType.DEFAULT);
         mockBooking = bookingRepository.save(mockBooking);
+
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
     }
 
     @ParameterizedTest(name = "[{index}] {0}")

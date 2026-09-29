@@ -13,4 +13,6 @@ public final class TestConstants {
 
     public static final String TESTCONTAINERS_POSTGRES_IMAGE = "postgres:17.4-alpine3.21";
 
+    public static final String TESTCONTAINERS_MAILPIT_IMAGE = "axllent/mailpit:v1.29.7";
+
 }
