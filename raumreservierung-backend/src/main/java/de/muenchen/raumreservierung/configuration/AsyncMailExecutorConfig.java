@@ -12,8 +12,8 @@ public class AsyncMailExecutorConfig {
     public Executor mailExecutor() {
         final ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(1);
-        executor.setMaxPoolSize(5);
-        executor.setQueueCapacity(10);
+        executor.setMaxPoolSize(2);
+        executor.setQueueCapacity(200);
         executor.setWaitForTasksToCompleteOnShutdown(true);
         executor.setThreadNamePrefix("MailThread-");
         executor.initialize();
