@@ -18,13 +18,12 @@
     @update:search="onSearch"
   >
     <template #selection="{ item }">
-      <!-- intialPerson is fallback if only id is present -->
       {{ formatName(item.firstName || item.lastName ? item : initialPerson) }}
       <span
-        v-if="showEmail && selectionEmail(item)"
+        v-if="showEmail && getEmail(item)"
         class="text-grey ml-1"
       >
-        {{ t("common.format.braces", { content: selectionEmail(item) }) }}
+        {{ t("common.format.braces", { content: getEmail(item) }) }}
       </span>
     </template>
     <template #item="{ item, props }">
@@ -67,13 +66,12 @@ const {
 const { t } = useI18n();
 const modelValue = defineModel<FindById200Response | string>();
 
-const isPersonObject = (
-  value: FindById200Response | string | undefined
-): value is FindById200Response => typeof value === "object" && value !== null;
-
 const hasOppositeTypeSelected = computed(
   () =>
-    !!type && isPersonObject(modelValue.value) && modelValue.value.type !== type
+    !!type &&
+    typeof modelValue.value === "object" &&
+    modelValue.value !== null &&
+    modelValue.value.type !== type
 );
 
 const isInternal = computed(
@@ -85,8 +83,6 @@ const typeLabel = (isInternal: boolean) =>
     ? t("components.personSelect.types.internalType")
     : t("components.personSelect.types.externalType");
 
-const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1);
-
 const computedLabel = computed(
   () =>
     label ||
@@ -95,7 +91,7 @@ const computedLabel = computed(
           type: typeLabel(!isInternal.value),
         })
       : t("components.personSelect.search", {
-          type: capitalize(typeLabel(isInternal.value)),
+          type: typeLabel(isInternal.value),
         }))
 );
 
@@ -104,7 +100,7 @@ const computedHint = computed(() =>
     ? t("components.personSelect.alreadySelectedHint", {
         type: typeLabel(!isInternal.value),
       })
-    : ""
+    : undefined
 );
 
 const {
@@ -127,7 +123,7 @@ const formatName = (person: FindById200Response | undefined) =>
       })
     : t("components.personSelect.personNotFound");
 
-const selectionEmail = (item: FindById200Response) => {
+const getEmail = (item: FindById200Response) => {
   return item?.email ?? initialPerson.value?.email;
 };
 
