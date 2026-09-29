@@ -37,8 +37,8 @@ public class CsvExportService {
      * @param filter object.
      * @return a stream of all found appointments.
      */
-    private Stream<Appointment> streamAppointmentsByFilter(AppointmentFilterDTO filter) {
-        Specification<Appointment> appointmentSpecification = AppointmentSpecificationBuilder.fromFilter(filter);
+    private Stream<Appointment> streamAppointmentsByFilter(final AppointmentFilterDTO filter) {
+        final Specification<Appointment> appointmentSpecification = AppointmentSpecificationBuilder.fromFilter(filter);
         return appointmentRepository.findBy(appointmentSpecification, FluentQuery.FetchableFluentQuery::stream);
     }
 
@@ -50,7 +50,7 @@ public class CsvExportService {
      */
     @Transactional(readOnly = true)
     @PreAuthorize(Authorities.BOOKING_READ)
-    public void exportBookingsAsCsv(int year, OutputStream outputStream) {
+    public void exportBookingsAsCsv(final int year, final OutputStream outputStream) {
         log.debug("Creating export for calendar year {}", year);
 
         final OffsetDateTime startDate = OffsetDateTime.of(year, 1, 1, 0, 0, 0, 0, ZoneOffset.UTC);
@@ -64,7 +64,7 @@ public class CsvExportService {
                 .withColumnSeparator(exportProperties.getCsvColumnSeparator());
 
         try (Stream<Appointment> appointmentStream = streamAppointmentsByFilter(appFilter);
-                final SequenceWriter seqWriter = mapper.writer(schema).writeValues(outputStream)) {
+                SequenceWriter seqWriter = mapper.writer(schema).writeValues(outputStream)) {
 
             for (final Appointment appointment : (Iterable<Appointment>) appointmentStream::iterator) {
                 seqWriter.write(exportMapper.toExportDto(appointment));

@@ -20,7 +20,7 @@ public class ExportController {
 
     @GetMapping(value = "/bookings/csv", produces = "text/csv")
     @ResponseStatus(HttpStatus.OK)
-    public StreamingResponseBody exportBookingsCsv(@RequestParam int year, HttpServletResponse response) {
+    public StreamingResponseBody exportBookingsCsv(@RequestParam final int year, final HttpServletResponse response) {
         response.setHeader(HttpHeaders.CONTENT_DISPOSITION, String.format("attachment; filename=bookings_export_%s.csv", year));
 
         return outputStream -> {
