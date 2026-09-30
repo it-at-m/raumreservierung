@@ -23,6 +23,7 @@ import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -31,6 +32,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
@@ -73,10 +76,14 @@ class RoomControllerIntegrationTest {
     @MockitoBean
     private RoleHierarchy roleHierarchy;
 
+    @MockitoBean
+    private JavaMailSender javaMailSender;
+
     @BeforeEach
     void setUp() {
         roomRepository.deleteAll();
         personRepository.deleteAll();
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
     }
 
     @Test
