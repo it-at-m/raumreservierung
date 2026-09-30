@@ -18,6 +18,7 @@ import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -40,6 +41,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings("PMD.CommentDefaultAccessModifier")
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final EntityManager entityManager;
@@ -339,4 +341,14 @@ public class BookingService {
         }
     }
 
+    boolean existsFutureBookingForRoom(final UUID roomId) {
+        final Specification<Booking> spec = BookingSpecificationBuilder.forFutureRoomUsage(roomId);
+        return bookingRepository.exists(spec) || appointmentService.existsFutureAppointmentForRoom(roomId);
+    }
+
+    void removeRoomFromBookings(final UUID roomId) {
+        final List<Booking> affectedBookings = bookingRepository.findByRoomId(roomId);
+        affectedBookings.forEach(booking -> booking.setRoom(null));
+        bookingRepository.saveAll(affectedBookings);
+    }
 }

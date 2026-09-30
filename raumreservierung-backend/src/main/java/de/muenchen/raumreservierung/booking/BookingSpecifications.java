@@ -86,4 +86,13 @@ public final class BookingSpecifications {
             return null;
         };
     }
+
+    static <T extends Booking> Specification<T> forOccupancyEndAfter(final OffsetDateTime now) {
+        return (root, query, cb) -> cb.greaterThan(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyEnd), now);
+    }
+
+    static <T extends Booking> Specification<T> excludingStatus(final BookingStatus... status) {
+        return (root, query, cb) -> cb.not(root.get(Booking_.status).in(List.of(status)));
+    }
+
 }

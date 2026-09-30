@@ -6,6 +6,7 @@ import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import org.springframework.data.jpa.domain.Specification;
 
 public final class BookingSpecificationBuilder {
@@ -37,6 +38,13 @@ public final class BookingSpecificationBuilder {
         specificationList.add(BookingSpecifications.forTitle(bookingFilterDTO.title()));
 
         return Specification.allOf(specificationList);
+    }
+
+    public static <T extends Booking> Specification<T> forFutureRoomUsage(final UUID roomId) {
+        return Specification.allOf(
+                BookingSpecifications.forRoomId(roomId),
+                BookingSpecifications.forOccupancyEndAfter(OffsetDateTime.now()),
+                BookingSpecifications.excludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
     }
 
     private static OffsetDateTime normalizeStart(final OffsetDateTime start) {

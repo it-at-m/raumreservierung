@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.booking;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import lombok.NonNull;
@@ -23,4 +24,6 @@ public interface BookingRepository extends JpaRepository<Booking, UUID>, JpaSpec
     @Override
     @NonNull @EntityGraph(attributePaths = { "appointments", "equipment", "bookedBy", "bookedFor", "room", "seatingType" })
     <S extends Booking> S saveAndFlush(@NonNull S entity);
+
+    List<Booking> findByRoomId(UUID roomId);
 }

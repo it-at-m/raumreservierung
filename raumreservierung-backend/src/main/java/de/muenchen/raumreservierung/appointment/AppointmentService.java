@@ -111,6 +111,11 @@ public class AppointmentService {
         }).collect(Collectors.toSet());
     }
 
+    public boolean existsFutureAppointmentForRoom(final UUID roomId) {
+        final Specification<Appointment> spec = AppointmentSpecificationBuilder.filterForFutureRoomUsage(roomId);
+        return appointmentRepository.exists(spec);
+    }
+
     private Appointment getEntityOrThrowException(final UUID appointmentId) {
         return appointmentRepository.findById(appointmentId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, appointmentId)));
     }

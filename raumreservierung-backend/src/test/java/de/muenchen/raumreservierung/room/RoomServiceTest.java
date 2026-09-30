@@ -1,22 +1,34 @@
 package de.muenchen.raumreservierung.room;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import de.muenchen.raumreservierung.booking.events.FutureBookingCheckEvent;
+import de.muenchen.raumreservierung.booking.events.RemoveRoomFromBookingsEvent;
+import de.muenchen.raumreservierung.common.ConflictException;
+import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import jakarta.persistence.EntityManager;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 public class RoomServiceTest {
@@ -26,6 +38,9 @@ public class RoomServiceTest {
 
     @Mock
     private EntityManager entityManager;
+
+    @Mock
+    private ApplicationEventPublisher eventPublisher;
 
     @InjectMocks
     private RoomService roomService;
@@ -46,7 +61,7 @@ public class RoomServiceTest {
         roomFull.setId(generatedId);
 
         when(roomRepository.saveAndFlush(any(Room.class))).thenReturn(roomFull);
-        when(roomRepository.findWithDetailsById(generatedId)).thenReturn(java.util.Optional.of(roomFull));
+        when(roomRepository.findWithDetailsById(generatedId)).thenReturn(Optional.of(roomFull));
 
         final Room result = roomService.createRoom(roomRequest);
 
@@ -71,12 +86,123 @@ public class RoomServiceTest {
         roomFull.setId(generatedId);
 
         when(roomRepository.saveAndFlush(any(Room.class))).thenReturn(roomFull);
-        when(roomRepository.findWithDetailsById(generatedId)).thenReturn(java.util.Optional.of(roomFull));
+        when(roomRepository.findWithDetailsById(generatedId)).thenReturn(Optional.of(roomFull));
 
         final Room result = roomService.createRoom(roomRequest);
 
         // Then
         assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(roomFull);
+    }
+
+    @Test
+    public void givenInactiveRoomWithoutFutureBooking_whenDeleteRoom_thenPublishesEventAndDeletes() {
+        // Given
+        final UUID roomId = UUID.randomUUID();
+        final Room roomToDelete = getExampleRoom();
+        roomToDelete.setId(roomId);
+        roomToDelete.setActive(false);
+
+        when(roomRepository.findWithDetailsById(roomId)).thenReturn(Optional.of(roomToDelete));
+
+        // When
+        roomService.deleteRoom(roomId);
+
+        // Then
+        verify(roomRepository).deleteById(roomId);
+        final ArgumentCaptor<Object> eventCaptor = ArgumentCaptor.forClass(Object.class);
+        verify(eventPublisher, times(2)).publishEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getAllValues())
+                .anyMatch(event -> event instanceof FutureBookingCheckEvent)
+                .anyMatch(event -> event instanceof RemoveRoomFromBookingsEvent);
+    }
+
+    @Test
+    public void givenActiveRoom_whenDeleteRoom_thenThrowsConflictExceptionAndDoesNotDelete() {
+        // Given
+        final UUID roomId = UUID.randomUUID();
+        final Room activeRoom = getExampleRoom();
+        activeRoom.setId(roomId);
+        activeRoom.setActive(true);
+
+        when(roomRepository.findWithDetailsById(roomId)).thenReturn(Optional.of(activeRoom));
+
+        // When / Then
+        assertThatThrownBy(() -> roomService.deleteRoom(roomId))
+                .isInstanceOf(ConflictException.class);
+
+        verify(roomRepository, never()).deleteById(any());
+        verify(eventPublisher, never()).publishEvent(any(RemoveRoomFromBookingsEvent.class));
+    }
+
+    @Test
+    public void givenInactiveRoomWithFutureBooking_whenDeleteRoom_thenThrowsConflictExceptionAndDoesNotDelete() {
+        // Given
+        final UUID roomId = UUID.randomUUID();
+        final Room roomToDelete = getExampleRoom();
+        roomToDelete.setId(roomId);
+        roomToDelete.setActive(false);
+
+        when(roomRepository.findWithDetailsById(roomId)).thenReturn(Optional.of(roomToDelete));
+
+        doAnswer(invocation -> {
+            final FutureBookingCheckEvent event = invocation.getArgument(0);
+            event.setFutureBookingExists(true);
+            return null;
+        }).when(eventPublisher).publishEvent(any(FutureBookingCheckEvent.class));
+
+        // When / Then
+        assertThatThrownBy(() -> roomService.deleteRoom(roomId))
+                .isInstanceOf(ConflictException.class);
+
+        verify(roomRepository, never()).deleteById(any());
+        verify(eventPublisher, never()).publishEvent(any(RemoveRoomFromBookingsEvent.class));
+    }
+
+    @Test
+    public void givenUnknownRoomId_whenDeleteRoom_thenThrowsNotFoundExceptionAndDoesNothingElse() {
+        // Given
+        final UUID roomId = UUID.randomUUID();
+        when(roomRepository.findWithDetailsById(roomId)).thenReturn(Optional.empty());
+
+        // When / Then
+        assertThatThrownBy(() -> roomService.deleteRoom(roomId))
+                .isInstanceOf(NotFoundException.class);
+
+        verify(roomRepository, never()).deleteById(any());
+        verify(eventPublisher, never()).publishEvent(any());
+    }
+
+    @Test
+    public void givenNoListenerMarksFutureBooking_whenExistsFutureBookingForRoom_thenReturnsFalse() {
+        // Given
+        final UUID roomId = UUID.randomUUID();
+
+        // When
+        final boolean result = roomService.existsFutureBookingForRoom(roomId);
+
+        // Then
+        assertThat(result).isFalse();
+        final ArgumentCaptor<FutureBookingCheckEvent> eventCaptor = ArgumentCaptor.forClass(FutureBookingCheckEvent.class);
+        verify(eventPublisher).publishEvent(eventCaptor.capture());
+        assertThat(eventCaptor.getValue().getRoomId()).isEqualTo(roomId);
+    }
+
+    @Test
+    public void givenListenerMarksFutureBooking_whenExistsFutureBookingForRoom_thenReturnsTrue() {
+        // Given
+        final UUID roomId = UUID.randomUUID();
+        doAnswer(invocation -> {
+            final FutureBookingCheckEvent event = invocation.getArgument(0);
+            event.setFutureBookingExists(true);
+            return null;
+        }).when(eventPublisher).publishEvent(any(FutureBookingCheckEvent.class));
+
+        // When
+        final boolean result = roomService.existsFutureBookingForRoom(roomId);
+
+        // Then
+        assertThat(result).isTrue();
+        verify(eventPublisher).publishEvent(any(FutureBookingCheckEvent.class));
     }
 
     private Room buildExampleRoomWithEquipmentAndSeating(Room room, Set<RoomSeatingCapacity> seatingCapacities, Set<Equipment> equipments) {
