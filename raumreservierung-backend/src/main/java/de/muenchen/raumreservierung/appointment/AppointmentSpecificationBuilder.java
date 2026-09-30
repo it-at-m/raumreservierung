@@ -4,13 +4,12 @@ import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.booking.Booking_;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate_;
 import de.muenchen.raumreservierung.room.Room_;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.jpa.domain.Specification;
-
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.jpa.domain.Specification;
 
 @Slf4j
 public final class AppointmentSpecificationBuilder {

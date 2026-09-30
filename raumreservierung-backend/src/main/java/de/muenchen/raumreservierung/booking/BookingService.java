@@ -18,6 +18,7 @@ import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -36,8 +37,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
-
-import java.util.HashSet;
 
 @Service
 @Slf4j
@@ -242,7 +241,8 @@ public class BookingService {
      * @param bookingUpdates the updated booking data
      */
     public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
-        if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule()) && Objects.equals(existingBooking.getSchedule(), bookingUpdates.getSchedule())) {
+        if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())
+                && Objects.equals(existingBooking.getSchedule(), bookingUpdates.getSchedule())) {
             bookingUpdates.setAppointments(new HashSet<>(existingBooking.getAppointments()));
             return;
         }

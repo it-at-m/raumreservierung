@@ -3,7 +3,6 @@ package de.muenchen.raumreservierung.booking.dto;
 import de.muenchen.raumreservierung.booking.BookingStatus;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
 import jakarta.validation.constraints.NotNull;
-
 import java.util.UUID;
 
 public record BookingMinimalResponseDTO(
