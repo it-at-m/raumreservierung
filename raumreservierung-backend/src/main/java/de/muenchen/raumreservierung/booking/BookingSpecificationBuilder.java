@@ -26,13 +26,13 @@ public final class BookingSpecificationBuilder {
             final boolean statusNew) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
-        specificationList.add(BookingSpecifications.filterForRoomId(bookingFilterDTO.roomId()));
-        specificationList.add(BookingSpecifications.filterForStart(normalizeStart(bookingFilterDTO.start())));
-        specificationList.add(BookingSpecifications.filterForEnd(normalizeEnd(bookingFilterDTO.end())));
-        specificationList.add(BookingSpecifications.filterForStatus(bookingFilterDTO.status()));
-        specificationList.add(BookingSpecifications.filterForPerson(person));
+        specificationList.add(BookingSpecifications.forRoomId(bookingFilterDTO.roomId()));
+        specificationList.add(BookingSpecifications.forStart(normalizeStart(bookingFilterDTO.start())));
+        specificationList.add(BookingSpecifications.forEnd(normalizeEnd(bookingFilterDTO.end())));
+        specificationList.add(BookingSpecifications.forStatus(bookingFilterDTO.status()));
+        specificationList.add(BookingSpecifications.forPerson(person));
         if (!statusNew) {
-            specificationList.add(BookingSpecifications.filterForStatusNotNew());
+            specificationList.add(BookingSpecifications.forStatusNotNew());
         }
         specificationList.add(BookingSpecifications.forPersonBookedFor(bookingFilterDTO.bookedForId()));
         specificationList.add(BookingSpecifications.forTitle(bookingFilterDTO.title()));
@@ -42,9 +42,9 @@ public final class BookingSpecificationBuilder {
 
     public static <T extends Booking> Specification<T> forFutureRoomUsage(final UUID roomId) {
         return Specification.allOf(
-                BookingSpecifications.filterForRoomId(roomId),
-                BookingSpecifications.filterForOccupancyEndAfter(OffsetDateTime.now()),
-                BookingSpecifications.filterExcludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
+                BookingSpecifications.forRoomId(roomId),
+                BookingSpecifications.forOccupancyEndAfter(OffsetDateTime.now()),
+                BookingSpecifications.excludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
     }
 
     private static OffsetDateTime normalizeStart(final OffsetDateTime start) {
