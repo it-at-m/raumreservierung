@@ -12,7 +12,7 @@
         v-model:end="end"
         v-model:booked-for-id="bookedForId"
         v-model:title="title"
-        :show-inactive-rooms="showInactiveRooms"
+        :show-inactive-rooms="canEditBookings"
         :get-status-group-key="getStatusGroupKey"
         @updated:filters="applyFilters"
       />
@@ -147,18 +147,19 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
-import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
-import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
+import {
+  useBookingStatusConfig,
+  useIsBookingEditable,
+} from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
-import { dateEquals, toApiDate } from "@/util/timeUtil.ts";
+import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
 
 const route = useRoute();
 const router = useRouter();
