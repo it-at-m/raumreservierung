@@ -143,8 +143,17 @@ services:
       - LDAP_READONLY_USER_USERNAME=readonly
       - LDAP_READONLY_USER_PASSWORD=readonly
     ports:
-      - 8389:389
-      - 8636:636
+      - "8389:389"
+      - "8636:636"
+
+  mailpit:
+    image: axllent/mailpit:v1.29.7@sha256:757f22b56c1da03570afdb3d259effe5091018008a81bbedc8158cee7e16fdbc
+    environment:
+      - MP_DISABLE_VERSION_CHECK=True
+    ports:
+      - "1025:1025" # SMTP Server
+      - "8025:8025" # UI
+    security_opt: *security_settings
 
 networks:
   keycloak:
