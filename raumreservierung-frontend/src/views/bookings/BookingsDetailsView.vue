@@ -257,7 +257,7 @@ import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetAppointmentsOld } from "@/composables/api/useAppointmentApi.ts";
-import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
+import { useGetBookingOld } from "@/composables/api/useBookingsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -282,7 +282,7 @@ const {
   data: getBookingData,
   error: getBookingError,
   loading: getBookingLoading,
-} = useGetBooking();
+} = useGetBookingOld();
 
 const { call: getAppointmentPage, data: appointmentPage } =
   useGetAppointmentsOld();

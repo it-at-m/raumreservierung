@@ -340,7 +340,7 @@ import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import {
   useCreateBooking,
-  useGetBooking,
+  useGetBookingOld,
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
@@ -426,7 +426,7 @@ const {
   data: getBookingData,
   error: getBookingError,
   loading: getBookingLoading,
-} = useGetBooking();
+} = useGetBookingOld();
 
 const {
   call: createBooking,

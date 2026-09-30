@@ -73,7 +73,7 @@ import RrBookingCalendar from "@/components/booking/calendar/rrBookingCalendar.v
 import BaseView from "@/components/common/BaseView.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import {
-  useGetBookingTS,
+  useGetBooking,
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
 import { useIsBookingEditable } from "@/composables/useBookingStatus.ts";
@@ -106,7 +106,7 @@ const bookingCalendarRef =
 
 const manualRoomIds = ref<string[] | null>(null);
 
-const { data: getBookingData, isLoading: getBookingLoading } = useGetBookingTS(
+const { data: getBookingData, isLoading: getBookingLoading } = useGetBooking(
   bookingId.value
 );
 

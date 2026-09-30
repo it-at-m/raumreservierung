@@ -1,6 +1,7 @@
 import type {
   BookingDetailResponseDTO,
   BookingListResponseDTO,
+  BookingMinimalResponseDTO,
   BookingRequestDTO,
   GetBookingsByPageableAndFilterStatusEnum,
 } from "@/api/raumreservierung-backend";
@@ -23,6 +24,7 @@ export function useIsBookingEditable(): (
     | BookingRequestDTO
     | BookingDetailResponseDTO
     | BookingListResponseDTO
+    | BookingMinimalResponseDTO
     | undefined
 ) => boolean;
 
@@ -31,6 +33,7 @@ export function useIsBookingEditable(
     | BookingRequestDTO
     | BookingDetailResponseDTO
     | BookingListResponseDTO
+    | BookingMinimalResponseDTO
     | undefined
   >
 ): ComputedRef<boolean>;
@@ -40,6 +43,7 @@ export function useIsBookingEditable(
     | BookingRequestDTO
     | BookingListResponseDTO
     | BookingDetailResponseDTO
+    | BookingMinimalResponseDTO
     | undefined
   >
 ) {
@@ -48,6 +52,7 @@ export function useIsBookingEditable(
       | BookingRequestDTO
       | BookingDetailResponseDTO
       | BookingListResponseDTO
+      | BookingMinimalResponseDTO
       | undefined
   ) => {
     if (!booking) {

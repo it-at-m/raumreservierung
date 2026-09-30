@@ -8,7 +8,7 @@ import type {
 } from "@/api/raumreservierung-backend";
 import type { MaybeRefOrGetter } from "vue";
 
-import { useQuery } from "@tanstack/vue-query";
+import { useQuery, useQueryClient } from "@tanstack/vue-query";
 import { computed, toValue } from "vue";
 
 import { BookingControllerApi } from "@/api/raumreservierung-backend";
@@ -17,7 +17,7 @@ import { ApiFactory } from "@/util/apiFactory.ts";
 
 const BOOKING_KEY = "booking";
 
-export const useGetBooking = () => {
+export const useGetBookingOld = () => {
   const api = ApiFactory.getInstance(BookingControllerApi);
 
   return useApi<GetBookingRequest, BookingDetailResponseDTO>((params) =>
@@ -25,9 +25,7 @@ export const useGetBooking = () => {
   );
 };
 
-export const useGetBookingTS = (
-  params: MaybeRefOrGetter<string | undefined>
-) => {
+export const useGetBooking = (params: MaybeRefOrGetter<string | undefined>) => {
   const api = ApiFactory.getInstance(BookingControllerApi);
   const paramsRef = computed(() => toValue(params));
 
@@ -63,8 +61,14 @@ export const useCreateBooking = () => {
 
 export const useUpdateBooking = () => {
   const api = ApiFactory.getInstance(BookingControllerApi);
+  const queryClient = useQueryClient();
 
   return useApi<UpdateBookingRequest, BookingDetailResponseDTO>((params) =>
-    api.updateBooking(params)
+    api.updateBooking(params).then((response) => {
+      queryClient.invalidateQueries({
+        queryKey: [BOOKING_KEY, params.bookingId],
+      });
+      return response;
+    })
   );
 };

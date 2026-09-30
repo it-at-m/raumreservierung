@@ -7,7 +7,6 @@
     <div
       class="text-caption px-1 text-white text-truncate position-relative z-1 text-offset"
     >
-      {{ event.raw.bookingMinimal.status }}
       {{ event.raw.bookingMinimal.title }}
     </div>
     <div

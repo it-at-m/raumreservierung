@@ -71,6 +71,7 @@
             domain: t('domain.booking.header'),
           }),
         }"
+        :disabled="!isFeasibleBooking"
         :icon="mdiCalendarEditOutline"
         variant="tonal"
         @click="
@@ -87,6 +88,7 @@
           text: t('generics.edit', { domain: t('domain.booking.header') }),
         }"
         :icon="mdiPencil"
+        :disabled="!isFeasibleBooking"
         variant="tonal"
         @click="
           router.push({
@@ -116,7 +118,10 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
 import IconInformation from "@/components/common/IconInformation.vue";
-import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
+import {
+  useBookingStatusConfig,
+  useIsBookingEditable,
+} from "@/composables/useBookingStatus.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { toDateString, toTimeString } from "@/util/formatter.ts";
 
@@ -127,6 +132,10 @@ const { t } = useI18n();
 const { appointment } = defineProps<{
   appointment: AppointmentDetailsResponseDTO;
 }>();
+
+const isFeasibleBooking = useIsBookingEditable(
+  () => appointment.bookingMinimal
+);
 
 const { config } = useBookingStatusConfig(
   () => appointment.bookingMinimal.status
