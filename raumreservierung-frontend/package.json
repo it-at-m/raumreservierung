@@ -19,8 +19,8 @@
   "dependencies": {
     "@fontsource/roboto": "5.2.10",
     "@muenchen/appswitcher-vue": "3.0.0",
-    "@vueuse/core": "14.3.0",
-    "@vueuse/router": "14.3.0",
+    "@vueuse/core": "14.4.0",
+    "@vueuse/router": "14.4.0",
     "pinia": "3.0.4",
     "rrule": "2.8.1",
     "@tanstack/vue-query": "5.101.4",
