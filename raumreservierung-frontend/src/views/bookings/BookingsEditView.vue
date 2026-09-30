@@ -130,7 +130,7 @@
               :loading="
                 getRoomLoading || createBookingLoading || updateBookingLoading
               "
-              @update:model-value="updateRoom"
+              @update:model-value="(newRoomId) => (selectedRoomId = newRoomId)"
             />
           </v-col>
         </v-row>
@@ -493,7 +493,7 @@ onMounted(async () => {
     statusFull.value = getBookingData.value.status;
 
     if (getBookingData.value.room?.id) {
-      await updateRoom(getBookingData.value.room?.id);
+      selectedRoomId.value = getBookingData.value.room?.id;
     }
   } else {
     // reset to clear maybe filled out data away
@@ -502,14 +502,10 @@ onMounted(async () => {
     const queryRoomId = route.query.roomId as string | undefined;
     if (queryRoomId) {
       bookingData.value.roomId = queryRoomId;
-      await updateRoom(queryRoomId);
+      selectedRoomId.value = queryRoomId;
     }
   }
 });
-
-const updateRoom = (roomId: string | undefined) => {
-  selectedRoomId.value = roomId;
-};
 
 const saveBooking = async () => {
   if (bookingId.value) {
