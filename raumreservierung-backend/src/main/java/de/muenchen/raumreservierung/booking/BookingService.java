@@ -41,7 +41,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings({"PMD.CommentDefaultAccessModifier", "PMD.CouplingBetweenObjects"})
+@SuppressWarnings({ "PMD.CommentDefaultAccessModifier", "PMD.CouplingBetweenObjects" })
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final EntityManager entityManager;
