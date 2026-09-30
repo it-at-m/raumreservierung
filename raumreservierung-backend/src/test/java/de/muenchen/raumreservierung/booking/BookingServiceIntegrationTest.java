@@ -517,7 +517,6 @@ public class BookingServiceIntegrationTest {
         pastBooking.updateFrom(existingBooking);
         pastBooking.setSchedule(pastSchedule);
         pastBooking.setRoom(room2);
-        pastBooking.setSchedule(null);
         bookingRepository.save(pastBooking);
 
         appointment = new Appointment();
