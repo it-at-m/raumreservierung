@@ -26,6 +26,7 @@
     <v-sheet height="730px">
       <v-calendar
         color="accent"
+        class="overflow-auto"
         :type="isDayView ? 'category' : 'custom-daily'"
         :start="startDate"
         :end="isDayView ? undefined : endDate"
