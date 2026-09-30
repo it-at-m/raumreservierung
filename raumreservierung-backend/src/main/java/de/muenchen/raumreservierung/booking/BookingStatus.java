@@ -6,19 +6,21 @@ import lombok.Getter;
 
 @Getter
 public enum BookingStatus {
-    NEW(10),
-    ROOM_CHANGED(20),
-    ORGANIZER_CHANGED(30),
-    ROOM_APPROVED(40),
-    COORDINATION_NEEDED(50),
-    ORGANIZER_APPROVED(60),
-    UNFEASIBLE(70),
-    CANCELED(80);
+    NEW(10, BookingStatusAnwenderFrontend.REQUESTED),
+    ROOM_CHANGED(20, BookingStatusAnwenderFrontend.REQUESTED),
+    ORGANIZER_CHANGED(30, BookingStatusAnwenderFrontend.IN_PROGRESS),
+    ROOM_APPROVED(40, BookingStatusAnwenderFrontend.IN_PROGRESS),
+    COORDINATION_NEEDED(50, BookingStatusAnwenderFrontend.IN_PROGRESS),
+    ORGANIZER_APPROVED(60, BookingStatusAnwenderFrontend.APPROVED),
+    UNFEASIBLE(70, BookingStatusAnwenderFrontend.UNFEASIBLE),
+    CANCELED(80, BookingStatusAnwenderFrontend.CANCELED);
 
     private final int sortOrder;
+    private final BookingStatusAnwenderFrontend frontendAnwenderStatus;
 
-    BookingStatus(final int sortOrder) {
+    BookingStatus(final int sortOrder, final BookingStatusAnwenderFrontend frontendAnwenderStatus) {
         this.sortOrder = sortOrder;
+        this.frontendAnwenderStatus = frontendAnwenderStatus;
     }
 
     public List<StateTransition> getTransitions() {

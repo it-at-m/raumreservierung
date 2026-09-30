@@ -34,6 +34,8 @@ public final class BookingSpecificationBuilder {
         if (!statusNew) {
             specificationList.add(BookingSpecifications.filterForStatusNotNew());
         }
+        specificationList.add(BookingSpecifications.forPersonBookedFor(bookingFilterDTO.bookedForId()));
+        specificationList.add(BookingSpecifications.forTitle(bookingFilterDTO.title()));
 
         return Specification.allOf(specificationList);
     }
