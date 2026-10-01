@@ -147,6 +147,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
+import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
@@ -160,7 +161,6 @@ import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
-import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
 
 const route = useRoute();
 const router = useRouter();
