@@ -4,6 +4,9 @@
     "no": "Nein",
     "cancel": "Abbrechen",
     "rescind": "Stornieren",
+    "reserve": "Vormerken",
+    "refuse": "Ablehnen",
+    "book": "Buchen",
     "delete": "Löschen",
     "save": "Speichern",
     "edit": "Bearbeiten",
@@ -48,6 +51,10 @@
       "subtitle": "Neue {domain} zu bestehender Liste hinzufügen."
     },
     "dateDisplay": "{day}, {date}",
+    "bookingDetailsSummary": {
+      "annotation": "Anmerkung",
+      "selectedEquipment": "Gewählte Ausstattung"
+    },
     "scheduleTimelineCard": {
       "header": "Zeitlicher Ablauf",
       "end": "Ende",
@@ -106,6 +113,9 @@
     },
     "filterPanel": {
       "bookedFor": "Gebucht für"
+    },
+    "rrBookingCalendar": {
+      "toBooking": "Zum Termin"
     }
   },
   "views": {
@@ -135,9 +145,16 @@
         "link": "Anfrage ohne Raumauswahl"
       }
     },
+    "roomDetailsView": {
+      "titlePrefix": {
+        "mr": "@:domain.person.titles.mr",
+        "ms": "@:domain.person.titles.ms",
+        "diverse": "",
+        "none": ""
+      }
+    },
     "bookingDetailsView": {
       "header": "Buchungsdetails",
-      "participants": "Teilnehmende {count}",
       "chosenSeatingType": "Gewählte Bestuhlung",
       "bookedBy": "Gebucht von @:common.format.fullName",
       "bookedFor": "@:components.filterPanel.bookedFor @:common.format.fullName",
@@ -166,7 +183,9 @@
     "manage": "{domain} verwalten",
     "filter": "{domain} filtern",
     "delete": "{domain} löschen",
+    "view": "{domain} im Detail betrachten",
     "edit": "{domain} bearbeiten",
+    "calendarEdit": "{domain} im Kalender bearbeiten",
     "add": "{domain} hinzufügen",
     "create": "{domain} erstellen",
     "active": "{domain} aktiv",
@@ -211,6 +230,7 @@
     "booking": {
       "header": "Buchung | Buchungen",
       "participants": "Teilnehmende | Teilnehmenden",
+      "participantCount": "{count} Teilnehmende",
       "bookingTitle": "Veranstaltungstitel",
       "statusTitle": "Status",
       "date": "Datum",
@@ -219,6 +239,10 @@
       "internalNotes": "Interne Notizen",
       "appointment": "Veranstaltungszeit",
       "occupancy": "Belegungszeit",
+      "appointmentType": {
+        "single": "Einzeltermin",
+        "series": "Serientermin"
+      },
       "statusChange": {
         "noReasonForStatusChange": "Kein Grund angegeben",
         "enterReason": "Begründung eingeben",
@@ -257,7 +281,7 @@
       "appointmentEnd": "Veranstaltungsende"
     },
     "room": {
-      "header": "Raum",
+      "header": "Raum | Räume",
       "details": "Raumdetails",
       "contactPerson": "Kontaktperson",
       "capacity": {

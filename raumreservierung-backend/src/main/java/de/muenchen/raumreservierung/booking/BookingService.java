@@ -18,6 +18,7 @@ import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -240,11 +241,18 @@ public class BookingService {
      * @param bookingUpdates the updated booking data
      */
     public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
-        if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())) {
+        if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())
+                && Objects.equals(existingBooking.getSchedule(), bookingUpdates.getSchedule())) {
+            bookingUpdates.setAppointments(new HashSet<>(existingBooking.getAppointments()));
             return;
         }
 
         final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
+        if (bookingUpdates.getRecurringRule() == null || bookingUpdates.getRecurringRule().isBlank()) {
+            bookingUpdates.setAppointments(newAppointments);
+            return;
+        }
+
         final OffsetDateTime now = OffsetDateTime.now();
 
         final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
