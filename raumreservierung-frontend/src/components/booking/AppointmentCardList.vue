@@ -99,7 +99,7 @@ import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import DateDisplay from "@/components/common/date/DateDisplay.vue";
 import {
-  useGetAppointments,
+  useGetAppointmentsOld,
   useUpdateAppointment,
 } from "@/composables/api/useAppointmentApi.ts";
 
@@ -121,7 +121,7 @@ const {
   data: appointmentPage,
   loading: appointmentsLoading,
   error: appointmentsError,
-} = useGetAppointments();
+} = useGetAppointmentsOld();
 
 const fetchPage = async () => {
   if (!bookingId) {

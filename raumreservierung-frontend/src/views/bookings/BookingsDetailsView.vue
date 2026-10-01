@@ -99,7 +99,7 @@
             :title="t('domain.seatingType.header')"
             :icon="mdiSofaSingleOutline"
             :subtitle="
-              t('views.bookingDetailsView.participants', {
+              t('domain.booking.participantCount', {
                 count: getBookingData?.participantCount,
               })
             "
@@ -256,8 +256,8 @@ import ScheduleTimelineCard from "@/components/booking/ScheduleTimelineCard.vue"
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
-import { useGetAppointments } from "@/composables/api/useAppointmentApi.ts";
-import { useGetBooking } from "@/composables/api/useBookingsApi.ts";
+import { useGetAppointmentsOld } from "@/composables/api/useAppointmentApi.ts";
+import { useGetBookingOld } from "@/composables/api/useBookingsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -282,10 +282,10 @@ const {
   data: getBookingData,
   error: getBookingError,
   loading: getBookingLoading,
-} = useGetBooking();
+} = useGetBookingOld();
 
 const { call: getAppointmentPage, data: appointmentPage } =
-  useGetAppointments();
+  useGetAppointmentsOld();
 
 const canEditBooking = useIsPrivileged("bookings:manage");
 
