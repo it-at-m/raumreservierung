@@ -130,7 +130,7 @@
               :loading="
                 getRoomLoading || createBookingLoading || updateBookingLoading
               "
-              @update:model-value="updateRoom"
+              @update:model-value="(newRoomId) => (selectedRoomId = newRoomId)"
             />
           </v-col>
         </v-row>
@@ -306,6 +306,7 @@
 import type {
   BookingRequestDTO,
   FindById200Response,
+  RoomDetailsResponseDTO,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
@@ -369,6 +370,7 @@ const isValid = ref<boolean>();
 const isUnfeasibleDialogOpen = ref(false);
 
 const currentRoom = ref<RoomRequestDTO>();
+const selectedRoomId = ref<string>();
 const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
 const bookedFor = ref<FindById200Response>();
 const statusFull = ref<BookingStatusFull>(EMPTY_BOOKING_STATUS_DATA);
@@ -443,7 +445,23 @@ useUpdateBooking();
 
 const snackbarStore = useSnackbarStore();
 
-const roomIdToFetch = computed(() => getBookingData.value?.room?.id);
+const roomIdToFetch = computed(() => selectedRoomId.value);
+
+const applyRoomChange = (room: RoomDetailsResponseDTO) => {
+  currentRoom.value = mapResponseToRequest(room);
+
+  bookingData.value = {
+    ...bookingData.value,
+    equipmentIds: bookingData.value.equipmentIds?.filter((chosenEq) =>
+      currentRoom.value?.equipmentIds?.includes(chosenEq)
+    ),
+    seatingTypeId:
+      bookingData?.value?.seatingTypeId &&
+      currentRoomSeatingTypeIds.value?.includes(bookingData.value.seatingTypeId)
+        ? bookingData.value.seatingTypeId
+        : undefined,
+  };
+};
 
 const { isLoading: getRoomLoading, data: roomReqData } =
   useGetRoom(roomIdToFetch);
@@ -454,7 +472,7 @@ watch(
   () => roomReqData.value?.id,
   () => {
     if (roomReqData.value) {
-      currentRoom.value = mapResponseToRequest(roomReqData.value);
+      applyRoomChange(roomReqData.value);
     }
   }
 );
@@ -478,7 +496,7 @@ onMounted(async () => {
     statusFull.value = getBookingData.value.status;
 
     if (getBookingData.value.room?.id) {
-      await updateRoom(getBookingData.value.room?.id);
+      selectedRoomId.value = getBookingData.value.room?.id;
     }
   } else {
     // reset to clear maybe filled out data away
@@ -487,32 +505,10 @@ onMounted(async () => {
     const queryRoomId = route.query.roomId as string | undefined;
     if (queryRoomId) {
       bookingData.value.roomId = queryRoomId;
-      await updateRoom(queryRoomId);
+      selectedRoomId.value = queryRoomId;
     }
   }
 });
-
-const updateRoom = async (roomId: string | undefined) => {
-  if (roomId) {
-    if (bookingData?.value.equipmentIds) {
-      const filteredEquipmentIds = bookingData.value.equipmentIds.filter(
-        (chosenEq) => currentRoom.value?.equipmentIds?.includes(chosenEq)
-      );
-
-      bookingData.value = {
-        ...bookingData.value,
-        equipmentIds: filteredEquipmentIds,
-        seatingTypeId:
-          bookingData?.value?.seatingTypeId &&
-          currentRoomSeatingTypeIds.value?.includes(
-            bookingData.value.seatingTypeId
-          )
-            ? bookingData.value.seatingTypeId
-            : undefined,
-      };
-    }
-  }
-};
 
 const saveBooking = async () => {
   if (bookingId.value) {
