@@ -86,13 +86,10 @@ import {
   useCreateEquipment,
   useGetAllEquipments,
 } from "@/composables/api/useEquipmentApi.ts";
-import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 
 const { t } = useI18n();
 
 const modelValue = defineModel<string[]>();
-
-const canViewDisabled = useIsPrivileged("equipment:write");
 
 const {
   filterIds = [],
@@ -111,9 +108,7 @@ const computedEquipment = computed<EquipmentResponseDto[]>(() =>
   (allEquipment.value ?? []).filter(
     (equip) =>
       (filterIds.length === 0 || (equip.id && filterIds.includes(equip.id))) &&
-      (canViewDisabled.value ||
-        equip.isActive ||
-        (equip.id && modelValue.value?.includes(equip.id)))
+      (equip.isActive || (equip.id && modelValue.value?.includes(equip.id)))
   )
 );
 
