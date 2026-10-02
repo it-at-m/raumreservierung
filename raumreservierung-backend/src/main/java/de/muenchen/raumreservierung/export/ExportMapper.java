@@ -1,18 +1,20 @@
 package de.muenchen.raumreservierung.export;
 
 import de.muenchen.raumreservierung.appointment.Appointment;
+import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
+import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
+import org.mapstruct.Named;
+
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
-import org.mapstruct.Named;
 
 @Mapper
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
@@ -25,7 +27,7 @@ public interface ExportMapper {
 
     @Mapping(target = "equipment", source = "booking.equipment", qualifiedByName = "mapEquipment")
     @Mapping(target = "seatingType", source = "booking.seatingType.name")
-    @Mapping(target = "cateringNeeded", source = "booking.cateringNeeded", qualifiedByName = "booleanToReadableString")
+    @Mapping(target = "cateringNeeded", source = "booking", qualifiedByName = "mapCateringNeeded")
 
     @Mapping(target = "bookedBy", source = "booking.bookedBy", qualifiedByName = "mapPersonName")
     @Mapping(target = "bookedByOrga", source = "booking.organisationUnit")
@@ -69,6 +71,11 @@ public interface ExportMapper {
                 .collect(Collectors.joining(", "));
     }
 
+    @Named("mapCateringNeeded")
+    default String mapCateringNeeded(final Booking booking) {
+        return booleanToReadableString(booking != null && booking.isCateringNeeded());
+    }
+
     @Named("mapPersonName")
     default String mapPersonName(final Person person) {
         return (person == null) ? null : String.format("%s %s", person.getFirstName(), person.getLastName());
@@ -98,6 +105,6 @@ public interface ExportMapper {
     default String checkDeviation(final ScheduleTemplate schedule) {
         return booleanToReadableString(schedule != null && schedule.appointmentStart() != null && schedule.appointmentEnd() != null
                 && (!schedule.occupancyStart().equals(schedule.appointmentStart()) ||
-                        !schedule.occupancyEnd().equals(schedule.appointmentEnd())));
+                !schedule.occupancyEnd().equals(schedule.appointmentEnd())));
     }
 }
