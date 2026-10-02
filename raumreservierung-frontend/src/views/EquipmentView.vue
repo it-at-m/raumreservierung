@@ -29,12 +29,7 @@
           items-per-page="-1"
         >
           <template #[`item.isActive`]="{ item }">
-            <v-checkbox-btn
-              readonly
-              hide-details
-              :model-value="item.isActive"
-              class="pointer-events-none"
-            />
+            <v-icon :icon="item.isActive ? mdiCheck : mdiMinus" />
           </template>
           <template #[`item.actions`]="{ item }">
             <rr-button-group>
@@ -60,6 +55,7 @@
 import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
+import { mdiCheck, mdiClose, mdiMinus } from "@mdi/js";
 import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
@@ -112,7 +108,12 @@ const {
 const headers: TableHeader<EquipmentResponseDto>[] = [
   { title: t("domain.equipment.name"), value: "name", sortable: true },
   { title: t("domain.equipment.description"), value: "description" },
-  { title: t("domain.equipment.isActive"), value: "isActive", sortable: true },
+  {
+    title: t("domain.equipment.isActive"),
+    value: "isActive",
+    sortable: true,
+    align: "center",
+  },
   {
     title: t("common.action", { count: 2 }),
     value: "actions",
