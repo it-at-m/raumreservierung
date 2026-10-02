@@ -170,6 +170,7 @@ import ExportBookingsCard from "@/components/booking/ExportBookingsCard.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import {
