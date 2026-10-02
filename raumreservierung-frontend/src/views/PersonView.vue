@@ -69,29 +69,18 @@
                 #[`item.actions`]="{ item }"
               >
                 <slot name="item.actions">
-                  <v-row align-content="center">
-                    <v-col
-                      class="pa-0"
-                      cols="12"
-                      sm="6"
-                    >
-                      <action-button
-                        class="mr-1"
-                        type="edit"
-                        @click="openEdit(item)"
-                      />
-                    </v-col>
-                    <v-col
-                      class="pa-0"
-                      cols="12"
-                      sm="6"
-                    >
-                      <action-button
-                        type="delete"
-                        @click="openDelete(item)"
-                      />
-                    </v-col>
-                  </v-row>
+                  <rr-button-group>
+                    <action-button
+                      class="mr-1"
+                      type="edit"
+                      @click="openEdit(item)"
+                    />
+
+                    <action-button
+                      type="delete"
+                      @click="openDelete(item)"
+                    />
+                  </rr-button-group>
                 </slot>
               </template>
             </v-data-table-server>
@@ -122,6 +111,7 @@ import { ExternalPersonResponseDtoTypeEnum } from "@/api/raumreservierung-backen
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import ExternalPersonForm from "@/components/ExternalPersonForm.vue";
 import {
@@ -337,6 +327,8 @@ const headers = computed<
         {
           title: t("common.action", { count: 2 }),
           value: "actions",
+          width: "1%",
+          align: "center",
         },
       ]
     : [
