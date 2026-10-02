@@ -1,94 +1,92 @@
 <template>
-  <div>
-    <base-view
-      :header-text="
-        t('generics.manage', {
-          domain: isInternalPath
+  <base-view
+    :header-text="
+      t('generics.manage', {
+        domain: isInternalPath
+          ? t('domain.internalPerson.header', { count: 2 })
+          : t('domain.externalPerson.header', { count: 2 }),
+      })
+    "
+  >
+    <template #default>
+      <v-text-field
+        :label="t('common.search')"
+        clearable
+        variant="outlined"
+        @click:clear="fetchPage"
+        @update:model-value="updateSearchNameAndLoadPage"
+      />
+      <crud-card
+        ref="crudRef"
+        :domain="
+          isInternalPath
             ? t('domain.internalPerson.header', { count: 2 })
-            : t('domain.externalPerson.header', { count: 2 }),
-        })
-      "
-    >
-      <template #default>
-        <v-text-field
-          :label="t('common.search')"
-          clearable
-          variant="outlined"
-          @click:clear="fetchPage"
-          @update:model-value="updateSearchNameAndLoadPage"
-        />
-        <crud-card
-          ref="crudRef"
-          :domain="
-            isInternalPath
-              ? t('domain.internalPerson.header', { count: 2 })
-              : t('domain.externalPerson.header', { count: 2 })
-          "
-          :empty-item-template="EMPTY_ITEM_TEMPLATE"
-          :loading="personPageLoading || deletePersonLoading"
-          @create="handleCreate"
-          @delete="handleDelete"
-          @update="handleUpdate"
-          @update:options="updateOptionsAndLoadPage"
-        >
-          <template #form="{ item, updateItem, updateValidity, readOnly }">
-            <external-person-form
-              :disabled="updatePersonLoading || createPersonLoading"
-              :model-value="item"
-              :readonly="readOnly"
-              @update:model-value="updateItem"
-              @is-valid="updateValidity"
-            />
-          </template>
-          <template #tableActions="{ openCreate }">
-            <base-button
-              :append-icon="mdiPlus"
-              :disabled="isInternalPath"
-              :text="t('common.add')"
-              @click="openCreate"
-            />
-          </template>
-          <template #table="{ openEdit, openDelete }">
-            <v-data-table-server
-              :disable-sort="personPageLoading"
-              :headers="headers"
-              :items="personPageData?.content || []"
-              :items-length="personPageData?.page?.totalElements || 0"
-              :loading="personPageLoading"
-              :sort-by="currentPageOptions.sortBy"
-              hover
-              must-sort
-              @update:options="updateOptionsAndLoadPage"
-              @click:row="handleRowClick"
+            : t('domain.externalPerson.header', { count: 2 })
+        "
+        :empty-item-template="EMPTY_ITEM_TEMPLATE"
+        :loading="personPageLoading || deletePersonLoading"
+        @create="handleCreate"
+        @delete="handleDelete"
+        @update="handleUpdate"
+        @update:options="updateOptionsAndLoadPage"
+      >
+        <template #form="{ item, updateItem, updateValidity, readOnly }">
+          <external-person-form
+            :disabled="updatePersonLoading || createPersonLoading"
+            :model-value="item"
+            :readonly="readOnly"
+            @update:model-value="updateItem"
+            @is-valid="updateValidity"
+          />
+        </template>
+        <template #tableActions="{ openCreate }">
+          <base-button
+            :append-icon="mdiPlus"
+            :disabled="isInternalPath"
+            :text="t('common.add')"
+            @click="openCreate"
+          />
+        </template>
+        <template #table="{ openEdit, openDelete }">
+          <v-data-table-server
+            :disable-sort="personPageLoading"
+            :headers="headers"
+            :items="personPageData?.content || []"
+            :items-length="personPageData?.page?.totalElements || 0"
+            :loading="personPageLoading"
+            :sort-by="currentPageOptions.sortBy"
+            hover
+            must-sort
+            @update:options="updateOptionsAndLoadPage"
+            @click:row="handleRowClick"
+          >
+            <template #[`item.fullName`]="{ item }">
+              {{ item.firstName }} {{ item.lastName }}
+            </template>
+            <template
+              v-if="!isInternalPath"
+              #[`item.actions`]="{ item }"
             >
-              <template #[`item.fullName`]="{ item }">
-                {{ item.firstName }} {{ item.lastName }}
-              </template>
-              <template
-                v-if="!isInternalPath"
-                #[`item.actions`]="{ item }"
-              >
-                <slot name="item.actions">
-                  <rr-button-group>
-                    <action-button
-                      class="mr-1"
-                      type="edit"
-                      @click="openEdit(item)"
-                    />
+              <slot name="item.actions">
+                <rr-button-group>
+                  <action-button
+                    class="mr-1"
+                    type="edit"
+                    @click="openEdit(item)"
+                  />
 
-                    <action-button
-                      type="delete"
-                      @click="openDelete(item)"
-                    />
-                  </rr-button-group>
-                </slot>
-              </template>
-            </v-data-table-server>
-          </template>
-        </crud-card>
-      </template>
-    </base-view>
-  </div>
+                  <action-button
+                    type="delete"
+                    @click="openDelete(item)"
+                  />
+                </rr-button-group>
+              </slot>
+            </template>
+          </v-data-table-server>
+        </template>
+      </crud-card>
+    </template>
+  </base-view>
 </template>
 
 <script setup lang="ts">
