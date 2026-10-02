@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.export;
 
 import de.muenchen.raumreservierung.appointment.Appointment;
+import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
@@ -25,7 +26,7 @@ public interface ExportMapper {
 
     @Mapping(target = "equipment", source = "booking.equipment", qualifiedByName = "mapEquipment")
     @Mapping(target = "seatingType", source = "booking.seatingType.name")
-    @Mapping(target = "cateringNeeded", source = "booking.cateringNeeded", qualifiedByName = "booleanToReadableString")
+    @Mapping(target = "cateringNeeded", source = "booking.cateringNeeded", qualifiedByName = "mapCateringNeeded")
 
     @Mapping(target = "bookedBy", source = "booking.bookedBy", qualifiedByName = "mapPersonName")
     @Mapping(target = "bookedByOrga", source = "booking.organisationUnit")
@@ -67,6 +68,12 @@ public interface ExportMapper {
         return equipmentSet.stream()
                 .map(Equipment::getName)
                 .collect(Collectors.joining(", "));
+    }
+
+    @Named("mapCateringNeeded")
+    default String mapCateringNeeded(final Booking booking) {
+        // Null-Safe und typsicher
+        return booleanToReadableString(booking != null && booking.isCateringNeeded());
     }
 
     @Named("mapPersonName")
