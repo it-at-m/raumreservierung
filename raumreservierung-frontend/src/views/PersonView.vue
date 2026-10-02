@@ -326,7 +326,7 @@ const headers = computed<
           title: t("common.action", { count: 2 }),
           value: "actions",
           width: "1%",
-          align: "center",
+          align: "center" as const,
         },
       ]
     : [
