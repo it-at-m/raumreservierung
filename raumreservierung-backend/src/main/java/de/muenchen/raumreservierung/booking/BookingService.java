@@ -18,8 +18,8 @@ import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -38,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings("PMD.CommentDefaultAccessModifier")
+@SuppressWarnings({ "PMD.CommentDefaultAccessModifier", "PMD.CouplingBetweenObjects" })
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final EntityManager entityManager;
