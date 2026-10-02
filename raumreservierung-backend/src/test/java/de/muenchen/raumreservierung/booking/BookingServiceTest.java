@@ -13,6 +13,7 @@ import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
+import de.muenchen.raumreservierung.notification.StatusNotificationMailService;
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.room.RoomService;
@@ -23,14 +24,18 @@ import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -46,6 +51,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 public class BookingServiceTest {
     @Autowired
     private BookingService bookingService;
+    @MockitoBean
+    private StatusNotificationMailService statusNotificationMailService;
     @Autowired
     private SecurityContextService securityContextService;
     @MockitoBean
@@ -60,6 +67,14 @@ public class BookingServiceTest {
     private PersonService personService;
     @MockitoBean
     private RoomService roomService;
+
+    @MockitoBean
+    private JavaMailSender javaMailSender;
+
+    @BeforeEach
+    public void setup() {
+        Mockito.doNothing().when(javaMailSender).send(Mockito.any(MimeMessagePreparator.class));
+    }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
@@ -131,7 +146,7 @@ public class BookingServiceTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
     void findAllWithSanitizedNotes_ShouldKeepNotes_WhenUserIsOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED), null, null);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");
@@ -150,7 +165,7 @@ public class BookingServiceTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void findAllWithSanitizedNotes_ShouldNullNotes_WhenUserIsNotOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED), null, null);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");
@@ -169,7 +184,7 @@ public class BookingServiceTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.TERMIN_ORGANISATOR })
     void findOwnWithSanitizedNotes_ShouldKeepNotes_WhenUserIsOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED), null, null);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");
@@ -188,7 +203,7 @@ public class BookingServiceTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void findOwnWithSanitizedNotes_ShouldNullNotes_WhenUserIsNotOrganisator() {
         Pageable pageable = Pageable.unpaged();
-        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED));
+        BookingFilterDTO bookingFilterDTO = new BookingFilterDTO(null, null, null, List.of(BookingStatus.ORGANIZER_APPROVED), null, null);
 
         Booking booking = new Booking();
         booking.setInternalNotes("Geheime Notiz");

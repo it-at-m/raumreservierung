@@ -5,75 +5,21 @@
     "
   >
     <template #default>
-      <v-sheet
-        class="mb-6"
-        rounded
+      <booking-filter-panel
+        v-model:room-id="roomId"
+        v-model:status-filter="statusFilter"
+        v-model:start="start"
+        v-model:end="end"
+        v-model:booked-for-id="bookedForId"
+        v-model:title="title"
+        :show-inactive-rooms="canEditBookings"
+        :get-status-group-key="getStatusGroupKey"
+        @updated:filters="applyFilters"
+      />
+      <v-card
+        :title="t('views.bookingListView.tableTitle')"
+        class="mt-6"
       >
-        <v-row>
-          <v-col
-            cols="12"
-            md="4"
-          >
-            <room-select
-              v-model="roomId"
-              :label="t('generics.filter', { domain: t('domain.room.header') })"
-              :show-inactive="canEditBookings"
-              density="compact"
-              clearable
-              @update:model-value="applyFilters"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            md="4"
-          >
-            <general-status-select
-              v-model="statusFilter"
-              density="compact"
-              clearable
-              :label="t('domain.booking.status.filter')"
-              multiple
-              :group-by="getStatusGroupKey"
-              @update:model-value="applyFilters"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-            md="2"
-          >
-            <v-date-input
-              v-model="start"
-              :label="t('views.bookingListView.periodFrom')"
-              density="compact"
-              variant="outlined"
-              prepend-icon=""
-              :prepend-inner-icon="mdiCalendarStartOutline"
-              clearable
-              hide-details
-              @update:model-value="applyFilters"
-            />
-          </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-            md="2"
-          >
-            <v-date-input
-              v-model="end"
-              prepend-icon=""
-              :prepend-inner-icon="mdiCalendarEndOutline"
-              :label="t('views.bookingListView.periodTo')"
-              density="compact"
-              variant="outlined"
-              clearable
-              hide-details
-              @update:model-value="applyFilters"
-            />
-          </v-col>
-        </v-row>
-      </v-sheet>
-      <v-card :title="t('views.bookingListView.tableTitle')">
         <template #text>
           <v-data-table-server
             v-model:sort-by="sortBy"
@@ -154,37 +100,30 @@
               <v-icon :icon="item.hasNote ? mdiCheck : mdiMinus" />
             </template>
             <template #[`item.actions`]="{ item }">
-              <v-row align-content="center">
-                <v-col
-                  class="pa-0"
-                  cols="12"
-                  sm="6"
-                >
-                  <action-button
-                    :disabled="
-                      isCanceledOrUnfeasible(item) ||
-                      !(canEditBookings || isMyBooking)
-                    "
-                    class="mr-1"
-                    type="edit"
-                    @click="
-                      router.push({
-                        name: isMyBooking
-                          ? ROUTES.MY_BOOKINGS_EDIT
-                          : ROUTES.BOOKINGS_EDIT,
-                        params: { id: item.id },
-                      })
-                    "
-                  />
-                </v-col>
-                <v-col
-                  class="pa-0"
-                  cols="12"
-                  sm="6"
-                >
-                  <action-button :icon="mdiCalendarEditOutline" />
-                </v-col>
-              </v-row>
+              <rr-button-group>
+                <action-button
+                  :disabled="!isBookingEditable(item)"
+                  type="edit"
+                  @click="
+                    router.push({
+                      name: isMyBooking
+                        ? ROUTES.MY_BOOKINGS_EDIT
+                        : ROUTES.BOOKINGS_EDIT,
+                      params: { id: item.id },
+                    })
+                  "
+                />
+                <action-button
+                  :disabled="!isBookingEditable(item)"
+                  :icon="mdiCalendarEditOutline"
+                  @click="
+                    router.push({
+                      name: ROUTES.BOOKINGS_CALENDAR,
+                      params: { id: item.id },
+                    })
+                  "
+                />
+              </rr-button-group>
             </template>
           </v-data-table-server>
         </template>
@@ -194,58 +133,51 @@
 </template>
 
 <script setup lang="ts">
-import type { BookingListResponseDTO } from "@/api/raumreservierung-backend";
+import type {
+  BookingListResponseDTO,
+  BookingStatusDTOCurrentStatusEnum,
+} from "@/api/raumreservierung-backend";
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import {
-  mdiCalendarEditOutline,
-  mdiCalendarEndOutline,
-  mdiCalendarStartOutline,
-  mdiCheck,
-  mdiMinus,
-} from "@mdi/js";
+import { mdiCalendarEditOutline, mdiCheck, mdiMinus } from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
-import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
+import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import RoomSelect from "@/components/rooms/RoomSelect.vue";
+import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
-import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
+import {
+  useBookingStatusConfig,
+  useIsBookingEditable,
+} from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
-import { dateEquals, toApiDate } from "@/util/timeUtil.ts";
+import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
 
 const route = useRoute();
 const router = useRouter();
 
 const { getStatusGroupKey, expandStatus, statusGroups } =
   useBookingStatusConfig();
+const isBookingEditable = useIsBookingEditable();
 
 const { t } = useI18n();
 
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
 
-const isCanceledOrUnfeasible = (
-  booking: BookingListResponseDTO | undefined
-): boolean =>
-  !!booking?.status &&
-  (booking.status.currentStatus ===
-    BookingStatusDTOCurrentStatusEnum.CANCELED ||
-    booking.status.currentStatus ===
-      BookingStatusDTOCurrentStatusEnum.UNFEASIBLE);
-
 const canEditBookings = useIsPrivileged("bookings:manage");
 
 // ####### Page Filter and Options #########
+const bookedForId = useRouteQuery("bookedForId", undefined);
+const title = useRouteQuery<string | undefined>("title", undefined);
 const roomId = useRouteQuery("roomId", undefined);
 
 const page = useRouteQuery("page", 1, { transform: Number });
@@ -354,10 +286,12 @@ const fetchPage = async () => {
     size: itemsPerPage.value,
     sort,
     roomId: roomId.value,
-    start: toApiDate(start.value),
-    end: toApiDate(end.value),
+    start: start.value ? new Date(toStartOfDay(start.value)) : undefined,
+    end: end.value ? new Date(toEndofDay(end.value)) : undefined,
     self: isMyBooking.value,
     status: requestStatus.value,
+    bookedForId: bookedForId.value,
+    title: title.value,
   });
 };
 

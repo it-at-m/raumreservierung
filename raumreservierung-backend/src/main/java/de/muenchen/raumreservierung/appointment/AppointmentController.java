@@ -5,6 +5,12 @@ import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentMapper;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentRequestDTO;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentResponseDTO;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.enums.Explode;
+import io.swagger.v3.oas.annotations.enums.ParameterIn;
+import io.swagger.v3.oas.annotations.enums.ParameterStyle;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +39,14 @@ public class AppointmentController {
 
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
+    // This is temporal and not permanent!
+    @Parameter(
+            name = "roomIds",
+            in = ParameterIn.QUERY,
+            style = ParameterStyle.FORM,
+            explode = Explode.FALSE,
+            array = @ArraySchema(schema = @Schema(implementation = UUID.class))
+    )
     public Page<AppointmentDetailsResponseDTO> getAppointmentsByPageableAndFilter(@ParameterObject final Pageable pageable,
             @Valid @ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
         final Page<Appointment> appointmentPage = appointmentService.getAppointmentsByPageableAndFilter(pageable, appointmentFilterDTO);

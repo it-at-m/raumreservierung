@@ -13,8 +13,19 @@
     hide-details
     :prepend-inner-icon="multiple ? mdiLabelMultipleOutline : undefined"
   >
-    <template #selection="{ item }">
-      <status-chip :status="item" />
+    <template #selection="{ item, index }">
+      <status-chip
+        v-if="index < 3"
+        :status="item"
+      />
+      <v-chip
+        v-if="index === 3"
+        size="small"
+        variant="outlined"
+        color="grey"
+      >
+        {{ (model?.length ?? 0) - 3 }}
+      </v-chip>
     </template>
 
     <template #item="{ item, props }">
@@ -79,17 +90,23 @@ const {
 }>();
 
 const statusOptions = computed(() => {
-  let baseList = [...possibleStatus];
+  const selected = Array.isArray(model.value)
+    ? model.value
+    : model.value
+      ? [model.value]
+      : [];
+
   // Exclude CANCELED unless currently selected (uses dedicated cancel button).
-  if (excludedStatus) {
-    baseList = baseList.filter(
-      (status: string) => status !== excludedStatus || status === model.value
-    );
-  }
-  return baseList.filter(
-    (status, index, arr) =>
-      arr.findIndex((other) => groupBy(other) === groupBy(status)) === index
+  const valid = possibleStatus.filter(
+    (s) => s !== excludedStatus || selected.includes(s)
   );
+
+  return valid.filter((status, _, arr) => {
+    const group = arr.filter((x) => groupBy(x) === groupBy(status));
+    const representative = group.find((x) => selected.includes(x)) || group[0];
+
+    return status === representative;
+  });
 });
 </script>
 

@@ -8,6 +8,7 @@ import pinia from "@/plugins/pinia";
 import { useUserStore } from "@/stores/user.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { hasPrivileges } from "@/util/privilegeUtility.ts";
+import BookingsCalendarView from "@/views/bookings/BookingsCalendarView.vue";
 import BookingsDetailsView from "@/views/bookings/BookingsDetailsView.vue";
 import BookingsEditView from "@/views/bookings/BookingsEditView.vue";
 import BookingsListView from "@/views/bookings/BookingsListView.vue";
@@ -178,6 +179,14 @@ const routes: RouteRecordRaw[] = [
     path: "/bookings/:id/edit",
     name: ROUTES.BOOKINGS_EDIT,
     component: BookingsEditView,
+    meta: {
+      requiredPrivileges: ["bookings:manage"],
+    },
+  },
+  {
+    path: "/bookings/:id/calendar",
+    name: ROUTES.BOOKINGS_CALENDAR,
+    component: BookingsCalendarView,
     meta: {
       requiredPrivileges: ["bookings:manage"],
     },

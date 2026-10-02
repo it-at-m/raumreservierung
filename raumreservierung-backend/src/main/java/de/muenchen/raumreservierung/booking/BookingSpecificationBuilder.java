@@ -25,7 +25,6 @@ public final class BookingSpecificationBuilder {
     public static <T extends Booking> Specification<T> fromFilterWithPersonOrStatusNew(final BookingFilterDTO bookingFilterDTO, final Person person,
             final boolean statusNew) {
         final List<Specification<T>> specificationList = new ArrayList<>();
-
         specificationList.add(BookingSpecifications.filterForRoomId(bookingFilterDTO.roomId()));
         specificationList.add(BookingSpecifications.filterForStart(normalizeStart(bookingFilterDTO.start())));
         specificationList.add(BookingSpecifications.filterForEnd(normalizeEnd(bookingFilterDTO.end())));
@@ -34,8 +33,14 @@ public final class BookingSpecificationBuilder {
         if (!statusNew) {
             specificationList.add(BookingSpecifications.filterForStatusNotNew());
         }
+        specificationList.add(BookingSpecifications.forPersonBookedFor(bookingFilterDTO.bookedForId()));
+        specificationList.add(BookingSpecifications.forTitle(bookingFilterDTO.title()));
 
         return Specification.allOf(specificationList);
+    }
+
+    private static OffsetDateTime normalizeStart(final OffsetDateTime start) {
+        return start == null ? null : start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime();
     }
 
     public static <T extends Booking> Specification<T> forFutureSeatingTypeUsage(final UUID seatingTypeId) {
@@ -43,10 +48,6 @@ public final class BookingSpecificationBuilder {
                 BookingSpecifications.filterForSeatingTypeId(seatingTypeId),
                 BookingSpecifications.filterForOccupancyEndAfter(OffsetDateTime.now()),
                 BookingSpecifications.filterExcludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
-    }
-
-    private static OffsetDateTime normalizeStart(final OffsetDateTime start) {
-        return start == null ? null : start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime();
     }
 
     private static OffsetDateTime normalizeEnd(final OffsetDateTime end) {
