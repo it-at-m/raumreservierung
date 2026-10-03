@@ -25,5 +25,7 @@ public interface BookingRepository extends JpaRepository<Booking, UUID>, JpaSpec
     @NonNull @EntityGraph(attributePaths = { "appointments", "equipment", "bookedBy", "bookedFor", "room", "seatingType" })
     <S extends Booking> S saveAndFlush(@NonNull S entity);
 
+    List<Booking> findBySeatingTypeId(UUID seatingTypeId);
+
     List<Booking> findAllByBookedForId(UUID personId);
 }

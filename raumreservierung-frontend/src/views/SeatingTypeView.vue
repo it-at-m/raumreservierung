@@ -10,9 +10,12 @@
         :empty-item-template="EMPTY_ITEM_TEMPLATE"
         :loading="getAllSeatingTypeLoading || deleteSeatingTypeLoading"
         :domain="t('domain.seatingType.header')"
+        :can-delete-item="canDeleteItem"
+        :delete-check-loading="deleteCheckLoading"
         @create="handleCreate"
         @update="handleUpdate"
         @delete="handleDelete"
+        @delete-prompt="handleDeletePrompt"
       >
         <template #form="{ item, updateItem, updateValidity }">
           <seating-type-form
@@ -74,7 +77,7 @@
 import type { SeatingTypeResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import { useTemplateRef } from "vue";
+import { ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
@@ -83,6 +86,7 @@ import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import SeatingTypeForm from "@/components/SeatingTypeForm.vue";
 import {
+  useCheckSeatingTypeDeletable,
   useCreateSeatingType,
   useDeleteSeatingType,
   useGetAllSeatingTypes,
@@ -99,23 +103,19 @@ const crudRef = useTemplateRef("crudRef");
 const { data: allSeatingTypesData, isPending: getAllSeatingTypeLoading } =
   useGetAllSeatingTypes();
 
-const {
-  mutateAsync: deleteSeatingTypeCall,
-  isPending: deleteSeatingTypeLoading,
-  error: deleteSeatingTypeError,
-} = useDeleteSeatingType();
+const { mutate: deleteSeatingTypeCall, isPending: deleteSeatingTypeLoading } =
+  useDeleteSeatingType();
 
-const {
-  mutateAsync: createSeatingTypeCall,
-  isPending: createSeatingTypeLoading,
-  error: createSeatingTypeError,
-} = useCreateSeatingType();
+const { mutate: createSeatingTypeCall, isPending: createSeatingTypeLoading } =
+  useCreateSeatingType();
 
-const {
-  mutateAsync: updateSeatingTypeCall,
-  isPending: updateSeatingTypeLoading,
-  error: updateSeatingTypeError,
-} = useUpdateSeatingType();
+const { mutate: updateSeatingTypeCall, isPending: updateSeatingTypeLoading } =
+  useUpdateSeatingType();
+
+const deleteSeatingTypeId = ref<string>();
+
+const { data: canDeleteItem, isFetching: deleteCheckLoading } =
+  useCheckSeatingTypeDeletable(deleteSeatingTypeId);
 
 const headers: TableHeader<SeatingTypeResponseDto>[] = [
   { title: t("domain.seatingType.name"), value: "name", sortable: true },
@@ -134,35 +134,51 @@ const EMPTY_ITEM_TEMPLATE = {
 } as SeatingTypeResponseDto;
 
 const handleCreate = async (newItem: SeatingTypeResponseDto) => {
-  await createSeatingTypeCall({ seatingTypeRequestDto: newItem });
-  if (!createSeatingTypeError.value) {
-    await onSuccess(
-      t("generics.created", { domain: t("domain.seatingType.header") })
-    );
-  }
+  createSeatingTypeCall(
+    { seatingTypeRequestDto: newItem },
+    {
+      onSuccess: () => {
+        onSuccess(
+          t("generics.created", { domain: t("domain.seatingType.header") })
+        );
+      },
+    }
+  );
 };
 
 const handleUpdate = async (updatedItem: SeatingTypeResponseDto) => {
   if (updatedItem.id) {
-    await updateSeatingTypeCall({
-      seatingTypeRequestDto: updatedItem,
-      seatingTypeId: updatedItem.id,
-    });
-    if (!updateSeatingTypeError.value) {
-      await onSuccess(
-        t("generics.updated", { domain: t("domain.seatingType.header") })
-      );
-    }
+    updateSeatingTypeCall(
+      {
+        seatingTypeRequestDto: updatedItem,
+        seatingTypeId: updatedItem.id,
+      },
+      {
+        onSuccess: () => {
+          onSuccess(
+            t("generics.updated", { domain: t("domain.seatingType.header") })
+          );
+        },
+      }
+    );
   }
 };
 
 const handleDelete = async (id: string) => {
-  await deleteSeatingTypeCall({ seatingTypeId: id });
-  if (!deleteSeatingTypeError.value) {
-    await onSuccess(
-      t("generics.deleted", { domain: t("domain.seatingType.header") })
-    );
-  }
+  deleteSeatingTypeCall(
+    { seatingTypeId: id },
+    {
+      onSuccess: () => {
+        onSuccess(
+          t("generics.deleted", { domain: t("domain.seatingType.header") })
+        );
+      },
+    }
+  );
+};
+
+const handleDeletePrompt = (id: string) => {
+  deleteSeatingTypeId.value = id;
 };
 
 const onSuccess = async (msg: string) => {

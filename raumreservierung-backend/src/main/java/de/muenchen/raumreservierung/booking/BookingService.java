@@ -19,6 +19,7 @@ import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
@@ -37,7 +38,7 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings("PMD.CommentDefaultAccessModifier")
+@SuppressWarnings({ "PMD.CommentDefaultAccessModifier", "PMD.CouplingBetweenObjects" })
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final EntityManager entityManager;
@@ -325,4 +326,14 @@ public class BookingService {
         }
     }
 
+    boolean existsFutureBookingForSeatingType(final UUID seatingTypeId) {
+        final Specification<Booking> spec = BookingSpecificationBuilder.forFutureSeatingTypeUsage(seatingTypeId);
+        return bookingRepository.exists(spec);
+    }
+
+    void removeSeatingTypeFromBookings(final UUID seatingTypeId) {
+        final List<Booking> affectedBookings = bookingRepository.findBySeatingTypeId(seatingTypeId);
+        affectedBookings.forEach(booking -> booking.setSeatingType(null));
+        bookingRepository.saveAll(affectedBookings);
+    }
 }

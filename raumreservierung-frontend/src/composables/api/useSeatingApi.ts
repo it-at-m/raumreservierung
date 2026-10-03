@@ -3,10 +3,13 @@ import type {
   DeleteSeatingTypeRequest,
   UpdateSeatingTypeRequest,
 } from "@/api/raumreservierung-backend";
+import type { Ref } from "vue";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
+import { computed } from "vue";
 
 import { SeatingControllerApi } from "@/api/raumreservierung-backend";
+import { ROOM_KEY } from "@/composables/api/useRoomsApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
 
 const SEATING_TYPE_KEY = "allSeatingTypes";
@@ -40,6 +43,7 @@ export const useUpdateSeatingType = () => {
       api.updateSeatingType(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [SEATING_TYPE_KEY] });
+      queryClient.invalidateQueries({ queryKey: [ROOM_KEY] });
     },
   });
 };
@@ -52,6 +56,25 @@ export const useDeleteSeatingType = () => {
       api.deleteSeatingType(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [SEATING_TYPE_KEY] });
+      queryClient.invalidateQueries({ queryKey: [ROOM_KEY] });
     },
+  });
+};
+
+export const useCheckSeatingTypeDeletable = (
+  seatingTypeId: Ref<string | undefined>
+) => {
+  const api = ApiFactory.getInstance(SeatingControllerApi);
+  return useQuery({
+    queryKey: ["seatingType", "deletable", seatingTypeId],
+    queryFn: () => {
+      if (!seatingTypeId.value) {
+        throw new Error("Seating type ID is required");
+      }
+      return api.isSeatingTypeDeletable({
+        seatingTypeId: seatingTypeId.value,
+      });
+    },
+    enabled: computed(() => !!seatingTypeId.value),
   });
 };
