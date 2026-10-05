@@ -30,38 +30,21 @@
             items-per-page="-1"
           >
             <template #[`item.isActive`]="{ item }">
-              <v-checkbox-btn
-                readonly
-                hide-details
-                :model-value="item.isActive"
-                class="pointer-events-none"
-              />
+              <v-icon :icon="item.isActive ? mdiCheck : mdiMinus" />
             </template>
             <template #[`item.actions`]="{ item }">
-              <v-row align-content="center">
-                <v-col
-                  class="pa-0"
-                  cols="12"
-                  sm="6"
-                >
-                  <action-button
-                    type="edit"
-                    class="mr-1"
-                    @click="openEdit(item)"
-                  />
-                </v-col>
-                <v-col
-                  class="pa-0"
-                  cols="12"
-                  sm="6"
-                >
-                  <action-button
-                    :disabled="item.isActive"
-                    type="delete"
-                    @click="openDelete(item)"
-                  />
-                </v-col>
-              </v-row>
+              <rr-button-group>
+                <action-button
+                  type="edit"
+                  class="mr-1"
+                  @click="openEdit(item)"
+                />
+                <action-button
+                  :disabled="item.isActive"
+                  type="delete"
+                  @click="openDelete(item)"
+                />
+              </rr-button-group>
             </template>
           </v-data-table>
         </template>
@@ -74,12 +57,14 @@
 import type { SeatingTypeResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
+import { mdiCheck, mdiMinus } from "@mdi/js";
 import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import SeatingTypeForm from "@/components/SeatingTypeForm.vue";
 import {
@@ -123,9 +108,15 @@ const headers: TableHeader<SeatingTypeResponseDto>[] = [
   {
     title: t("domain.seatingType.isActive"),
     value: "isActive",
+    align: "center",
     sortable: true,
   },
-  { title: t("common.action", { count: 2 }), value: "actions" },
+  {
+    title: t("common.action", { count: 2 }),
+    value: "actions",
+    width: "1%",
+    align: "center",
+  },
 ];
 
 const EMPTY_ITEM_TEMPLATE = {
