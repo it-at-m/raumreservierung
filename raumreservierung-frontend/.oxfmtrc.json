@@ -17,5 +17,20 @@
   "endOfLine": "lf",
   "embeddedLanguageFormatting": "auto",
   "singleAttributePerLine": true,
-  "sortImports": true
+  "importOrder": [
+    "<BUILTIN_MODULES>",
+    "",
+    "<TYPES>",
+    "",
+    "<THIRD_PARTY_MODULES>",
+    "",
+    "<TYPES>^[.]",
+    "",
+    "^@(/.*)$",
+    "^[.]"
+  ],
+  "importOrderTypeScriptVersion": "5.2.2",
+  "importOrderParserPlugins": ["typescript"],
+  "sortPackageJson": false,
+  "ignorePatterns": ["dist", "node_modules", "src/api/*/"]
 }
