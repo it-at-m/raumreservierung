@@ -77,7 +77,7 @@
 import type { SeatingTypeResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import { ref, useTemplateRef } from "vue";
+import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
@@ -86,7 +86,7 @@ import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import SeatingTypeForm from "@/components/SeatingTypeForm.vue";
 import {
-  useCheckSeatingTypeDeletable,
+  useCheckSeatingTypeDeletableMutation,
   useCreateSeatingType,
   useDeleteSeatingType,
   useGetAllSeatingTypes,
@@ -112,10 +112,11 @@ const { mutate: createSeatingTypeCall, isPending: createSeatingTypeLoading } =
 const { mutate: updateSeatingTypeCall, isPending: updateSeatingTypeLoading } =
   useUpdateSeatingType();
 
-const deleteSeatingTypeId = ref<string>();
-
-const { data: canDeleteItem, isFetching: deleteCheckLoading } =
-  useCheckSeatingTypeDeletable(deleteSeatingTypeId);
+const {
+  mutate: checkDeletable,
+  data: canDeleteItem,
+  isPending: deleteCheckLoading,
+} = useCheckSeatingTypeDeletableMutation();
 
 const headers: TableHeader<SeatingTypeResponseDto>[] = [
   { title: t("domain.seatingType.name"), value: "name", sortable: true },
@@ -178,7 +179,7 @@ const handleDelete = async (id: string) => {
 };
 
 const handleDeletePrompt = (id: string) => {
-  deleteSeatingTypeId.value = id;
+  checkDeletable(id);
 };
 
 const onSuccess = async (msg: string) => {

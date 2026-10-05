@@ -3,10 +3,8 @@ import type {
   DeleteSeatingTypeRequest,
   UpdateSeatingTypeRequest,
 } from "@/api/raumreservierung-backend";
-import type { Ref } from "vue";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
-import { computed } from "vue";
 
 import { SeatingControllerApi } from "@/api/raumreservierung-backend";
 import { ROOM_KEY } from "@/composables/api/useRoomsApi.ts";
@@ -61,20 +59,10 @@ export const useDeleteSeatingType = () => {
   });
 };
 
-export const useCheckSeatingTypeDeletable = (
-  seatingTypeId: Ref<string | undefined>
-) => {
+export const useCheckSeatingTypeDeletableMutation = () => {
   const api = ApiFactory.getInstance(SeatingControllerApi);
-  return useQuery({
-    queryKey: ["seatingType", "deletable", seatingTypeId],
-    queryFn: () => {
-      if (!seatingTypeId.value) {
-        throw new Error("Seating type ID is required");
-      }
-      return api.isSeatingTypeDeletable({
-        seatingTypeId: seatingTypeId.value,
-      });
-    },
-    enabled: computed(() => !!seatingTypeId.value),
+  return useMutation({
+    mutationFn: (seatingTypeId: string) =>
+      api.isSeatingTypeDeletable({ seatingTypeId }),
   });
 };

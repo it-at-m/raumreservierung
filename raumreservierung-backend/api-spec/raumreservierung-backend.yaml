@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: raumreservierung-backend
   description: This is the backend-project of the renewal of the raumreservierung
-  version: 0.9.3-SNAPSHOT
+  version: 0.10.2-SNAPSHOT
 servers:
 - url: http://localhost:8086
   description: Generated server url

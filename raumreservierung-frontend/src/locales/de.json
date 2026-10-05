@@ -91,6 +91,9 @@
     "seatingTypeParticipantsSelector": {
       "suffix": "Maximale Kapazität {count}"
     },
+    "seatingCapacityEditor": {
+      "futureUsage": "Bestuhlung kann nicht gelöscht werden: Verwendung in zukünftiger Buchung."
+    },
     "personSelect": {
       "personNotFound": "Person nicht gefunden",
       "coveredBy": "Wird durch {type} Person abgedeckt",
