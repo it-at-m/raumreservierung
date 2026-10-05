@@ -111,7 +111,7 @@ import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
-import ExternalPersonForm from "@/components/ExternalPersonForm.vue";
+import ExternalPersonForm from "@/components/forms/ExternalPersonForm.vue";
 import {
   useCreatePerson,
   useDeletePerson,

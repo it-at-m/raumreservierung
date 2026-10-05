@@ -124,7 +124,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <room-select
+            <room-selector
               v-model="bookingData.roomId"
               :label="t('views.bookingEditView.roomSelect')"
               :loading="
@@ -338,7 +338,7 @@ import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
-import RoomSelect from "@/components/rooms/RoomSelect.vue";
+import RoomSelector from "@/components/rooms/RoomSelector.vue";
 import {
   useCreateBooking,
   useGetBookingOld,

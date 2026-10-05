@@ -10,7 +10,7 @@
       />
     </template>
     <template #default>
-      <room-select
+      <room-selector
         ref="roomSelect"
         v-model="selectedRoomIds"
         show-inactive
@@ -71,7 +71,7 @@ import { useRoute, useRouter } from "vue-router";
 import BookingDetailsSummary from "@/components/booking/BookingDetailsSummary.vue";
 import RrBookingCalendar from "@/components/booking/calendar/rrBookingCalendar.vue";
 import BaseView from "@/components/common/BaseView.vue";
-import RoomSelect from "@/components/rooms/RoomSelect.vue";
+import RoomSelector from "@/components/rooms/RoomSelector.vue";
 import {
   useGetBooking,
   useUpdateBooking,

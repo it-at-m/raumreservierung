@@ -84,7 +84,7 @@
             cols="12"
             md="6"
           >
-            <room-select
+            <room-selector
               v-model="roomId"
               :label="t('generics.filter', { domain: t('domain.room.header') })"
               :show-inactive="showInactiveRooms"
@@ -145,7 +145,7 @@ import { useI18n } from "vue-i18n";
 
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";
 import PersonSelect from "@/components/booking/PersonSelect.vue";
-import RoomSelect from "@/components/rooms/RoomSelect.vue";
+import RoomSelector from "@/components/rooms/RoomSelector.vue";
 
 const { t } = useI18n();
 

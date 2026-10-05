@@ -66,7 +66,7 @@ import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
-import SeatingTypeForm from "@/components/SeatingTypeForm.vue";
+import SeatingTypeForm from "@/components/forms/SeatingTypeForm.vue";
 import {
   useCreateSeatingType,
   useDeleteSeatingType,

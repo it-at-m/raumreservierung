@@ -84,7 +84,7 @@ import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import YearSlider from "@/components/common/YearSlider.vue";
-import HolidayForm from "@/components/HolidayForm.vue";
+import HolidayForm from "@/components/forms/HolidayForm.vue";
 import {
   useCreateHoliday,
   useDeleteHoliday,
