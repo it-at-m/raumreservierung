@@ -8,6 +8,7 @@ import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -92,12 +93,18 @@ public interface ExportMapper {
 
     @Named("mapDate")
     default String mapDate(final OffsetDateTime dateTime) {
-        return (dateTime == null) ? null : dateTime.format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
+        return (dateTime == null) ? null
+                : dateTime
+                        .atZoneSameInstant(ZoneId.systemDefault())
+                        .format(DateTimeFormatter.ofPattern("dd.MM.yyyy"));
     }
 
     @Named("mapTime")
     default String mapTime(final OffsetDateTime dateTime) {
-        return (dateTime == null) ? null : dateTime.format(DateTimeFormatter.ofPattern("HH:mm"));
+        return (dateTime == null) ? null
+                : dateTime
+                        .atZoneSameInstant(ZoneId.systemDefault())
+                        .format(DateTimeFormatter.ofPattern("HH:mm"));
     }
 
     @Named("checkDeviation")
