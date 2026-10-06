@@ -11,6 +11,7 @@ import de.muenchen.raumreservierung.configuration.ExportProperties;
 import de.muenchen.raumreservierung.security.Authorities;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.UncheckedIOException;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.stream.Stream;
@@ -63,6 +64,14 @@ public class CsvExportService {
                 .withHeader()
                 .withColumnSeparator(exportProperties.getCsvColumnSeparator());
 
+        try {
+            // Excel does Microsoft things and does not recognize the file-header provided via the download.
+            // Therefore, we write utf-8 into the BOM
+            outputStream.write(new byte[] { (byte) 0xEF, (byte) 0xBB, (byte) 0xBF });
+        } catch (IOException e) {
+            throw new UncheckedIOException("Error while writing the UTF-8 BOM", e);
+        }
+
         try (Stream<Appointment> appointmentStream = streamAppointmentsByFilter(appFilter);
                 SequenceWriter seqWriter = mapper.writer(schema).writeValues(outputStream)) {
 
@@ -71,7 +80,7 @@ public class CsvExportService {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException(String.format("Fehler beim Erstellen des CSV-Exports für das Jahr %s", year), e);
+            throw new RuntimeException(String.format("Eror on creation of the csv export for the year %s", year), e);
         }
     }
 }
