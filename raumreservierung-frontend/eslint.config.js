@@ -1,6 +1,5 @@
 import jsEslintConfig from "@eslint/js";
 import vueI18nEslintConfig from "@intlify/eslint-plugin-vue-i18n";
-import vuePrettierEslintConfigSkipFormatting from "@vue/eslint-config-prettier/skip-formatting";
 import {
   defineConfigWithVueTs,
   vueTsConfigs,
@@ -8,15 +7,15 @@ import {
 import { ESLint } from "eslint";
 import vueEslintConfig from "eslint-plugin-vue";
 import { globalIgnores } from "eslint/config";
+import eslintConfigPrettier from "eslint-config-prettier";
 
 export default defineConfigWithVueTs(
   ESLint.defaultConfig,
   jsEslintConfig.configs.recommended,
   vueEslintConfig.configs["flat/recommended-error"],
   vueTsConfigs.strict,
-  vueTsConfigs.stylistic,
   vueI18nEslintConfig.configs.recommended,
-  vuePrettierEslintConfigSkipFormatting,
+  eslintConfigPrettier,
   {
     linterOptions: {
       reportUnusedDisableDirectives: "error",
