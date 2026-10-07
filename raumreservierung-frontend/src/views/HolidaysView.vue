@@ -78,7 +78,6 @@ import { computed, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
-import { Levels } from "@/api/error.ts";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
@@ -91,7 +90,7 @@ import {
   useGetHolidays,
   useUpdateHoliday,
 } from "@/composables/api/useHolidayApi.ts";
-import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
+import { DATE_FORMAT_DDMMYY, STATUS_INDICATORS } from "@/constants.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { dateEquals, toApiDate } from "@/util/timeUtil.ts";
@@ -216,7 +215,7 @@ const onSuccess = async (msg: string, yearOverride?: number) => {
     selectedYear.value = yearOverride || selectedYear.value;
     tableRef.value.closeDialog();
   }
-  snackbar.add({ level: Levels.SUCCESS, message: msg });
+  snackbar.push({ color: STATUS_INDICATORS.SUCCESS, text: msg });
 };
 
 const headers = computed((): TableHeader<HolidayResponseDTO>[] => {

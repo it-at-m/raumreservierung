@@ -61,7 +61,6 @@ import { mdiCheck, mdiMinus } from "@mdi/js";
 import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { Levels } from "@/api/error.ts";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
 import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
@@ -74,6 +73,7 @@ import {
   useUpdateSeatingType,
 } from "@/composables/api/useSeatingApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 const { t } = useI18n();
 
@@ -160,7 +160,7 @@ const onSuccess = async (msg: string) => {
   if (crudRef.value) {
     crudRef.value.closeDialog();
   }
-  snackbarStore.add({ message: msg, level: Levels.SUCCESS });
+  snackbarStore.push({ text: msg, color: STATUS_INDICATORS.SUCCESS });
 };
 </script>
 
