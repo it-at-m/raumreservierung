@@ -646,6 +646,17 @@ paths:
             - ORGANIZER_APPROVED
             - UNFEASIBLE
             - CANCELED
+      - name: bookedForId
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: title
+        in: query
+        required: false
+        schema:
+          type: string
       - name: self
         in: query
         required: false
@@ -747,7 +758,8 @@ paths:
           format: uuid
       - name: roomIds
         in: query
-        required: false
+        style: form
+        explode: false
         schema:
           type: array
           items:
@@ -1659,6 +1671,7 @@ components:
       - bookedBy
       - bookedFor
       - id
+      - status
       - title
       type: object
       properties:
@@ -1667,6 +1680,17 @@ components:
           format: uuid
         title:
           type: string
+        status:
+          type: string
+          enum:
+          - NEW
+          - ROOM_CHANGED
+          - ORGANIZER_CHANGED
+          - ROOM_APPROVED
+          - COORDINATION_NEEDED
+          - ORGANIZER_APPROVED
+          - UNFEASIBLE
+          - CANCELED
         bookedBy:
           oneOf:
           - $ref: "#/components/schemas/ExternalPersonResponseDto"
