@@ -104,7 +104,6 @@ import { computed, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
-import { Levels } from "@/api/error.ts";
 import { ExternalPersonResponseDtoTypeEnum } from "@/api/raumreservierung-backend";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
@@ -121,6 +120,7 @@ import {
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { mapPersonResponseToRequest } from "@/util/personTypeUtil.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 const { t } = useI18n();
 
@@ -246,7 +246,7 @@ const onSuccess = async (msg: string) => {
   if (crudRef.value) {
     crudRef.value.closeDialog();
   }
-  snackbarStore.add({ message: msg, level: Levels.SUCCESS });
+  snackbarStore.push({ text: msg, color: STATUS_INDICATORS.SUCCESS });
 };
 
 const updateOptionsAndLoadPage = async (options: LoadEntriesOptions) => {

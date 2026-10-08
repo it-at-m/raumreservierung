@@ -319,7 +319,6 @@ import { computed, onMounted, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import { Levels } from "@/api/error.ts";
 import {
   BookingRequestDTOBookingTypeEnum,
   BookingRequestDTOStatusEnum,
@@ -357,6 +356,7 @@ import {
   mapBookingResponseToRequest,
 } from "@/util/bookingTypeUtil.ts";
 import { mapResponseToRequest } from "@/util/roomTypeUtil.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 const DEFAULT_RRULE = "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO;COUNT=10";
 
@@ -547,7 +547,7 @@ const saveBooking = async () => {
 };
 
 const onSuccess = (msg: string) => {
-  snackbarStore.add({ message: msg, level: Levels.SUCCESS });
+  snackbarStore.push({ text: msg, color: STATUS_INDICATORS.SUCCESS });
 
   router.replace({
     name: isMyBooking.value ? ROUTES.MY_BOOKINGS_LIST : ROUTES.BOOKINGS_LIST,

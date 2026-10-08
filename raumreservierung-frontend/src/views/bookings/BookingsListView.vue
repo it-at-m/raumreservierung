@@ -4,6 +4,24 @@
       t('generics.manage', { domain: t('domain.booking.header', { count: 2 }) })
     "
   >
+    <template #headerActions>
+      <v-dialog
+        v-if="canEditBookings"
+        :close-delay="1000"
+        max-width="700px"
+      >
+        <template #activator="{ props }">
+          <base-button
+            v-bind="props"
+            :append-icon="mdiExport"
+            :text="t('components.exportBookingsCard.confirm')"
+          />
+        </template>
+        <template #default="{ isActive }">
+          <export-bookings-card @close="isActive.value = false" />
+        </template>
+      </v-dialog>
+    </template>
     <template #default>
       <booking-filter-panel
         v-model:room-id="roomId"
@@ -140,7 +158,7 @@ import type {
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import { mdiCalendarEditOutline, mdiCheck, mdiMinus } from "@mdi/js";
+import { mdiCalendarEditOutline, mdiCheck, mdiExport, mdiMinus } from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
@@ -148,9 +166,11 @@ import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
 import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
+import ExportBookingsCard from "@/components/booking/ExportBookingsCard.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import {

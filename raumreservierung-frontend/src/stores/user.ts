@@ -1,11 +1,11 @@
 import { defineStore } from "pinia";
 import { computed } from "vue";
 
-import { Levels } from "@/api/error.ts";
 import { useUserInfo } from "@/composables/api/useUserApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import User from "@/types/User";
 import { mapSimpleRoleToPrivileges } from "@/util/privilegeUtility.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 export interface UserState {
   user: User | null;
@@ -27,9 +27,9 @@ export const useUserStore = defineStore("user", () => {
 
     await call();
     if (error.value) {
-      snackbarStore.add({
-        level: Levels.WARNING,
-        message: "Nutzer konnte nicht geladen werden.",
+      snackbarStore.push({
+        color: STATUS_INDICATORS.WARNING,
+        text: "Nutzer konnte nicht geladen werden.",
       });
     }
   };

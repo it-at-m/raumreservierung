@@ -297,7 +297,6 @@ import { computed, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import { Levels } from "@/api/error.ts";
 import {
   InternalPersonRequestDtoTypeEnum,
   RoomDetailsResponseDTOPropertyValidationAttributesMap,
@@ -321,6 +320,7 @@ import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { mapResponseToFileMock } from "@/util/fileTypeUtility.ts";
 import { EMPTY_ROOM_DATA, mapResponseToRequest } from "@/util/roomTypeUtil.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
@@ -452,9 +452,9 @@ const onSuccess = (
   newRoomData: DeepReadonly<RoomDetailsResponseDTO>,
   msg: string
 ) => {
-  snackbar.add({
-    level: Levels.SUCCESS,
-    message: msg,
+  snackbar.push({
+    color: STATUS_INDICATORS.SUCCESS,
+    text: msg,
   });
 
   router.replace({
@@ -468,9 +468,9 @@ const handleDelete = async () => {
     await deleteRoom({ roomId: roomId.value });
 
     if (!deleteRoomError.value) {
-      snackbar.add({
-        level: Levels.SUCCESS,
-        message: t("generics.deleted", { domain: t("domain.room.header") }),
+      snackbar.push({
+        color: STATUS_INDICATORS.SUCCESS,
+        text: t("generics.deleted", { domain: t("domain.room.header") }),
       });
 
       await router.push({ name: ROUTES.ROOMS_LIST });
