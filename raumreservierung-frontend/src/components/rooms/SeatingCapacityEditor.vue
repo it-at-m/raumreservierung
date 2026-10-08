@@ -35,6 +35,7 @@
       <base-button
         :disabled="!modelValue?.id"
         :prepend-icon="mdiTrashCanOutline"
+        :loading="deleteCheckLoading"
         class="w-100"
         secondary
         text="Entfernen"
@@ -52,7 +53,10 @@ import { mdiTrashCanOutline } from "@mdi/js";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
+import { Levels } from "@/api/error.ts";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import { useCheckSeatingTypeDeletableMutation } from "@/composables/api/useSeatingApi.ts";
+import { useSnackbarStore } from "@/stores/snackbar.ts";
 
 const modelValue = defineModel<SeatingTypeWithCapacity>();
 
@@ -67,6 +71,9 @@ const emit = defineEmits<{
   delete: [value: SeatingTypeWithCapacity];
 }>();
 
+const { mutateAsync: checkDeletable, isPending: deleteCheckLoading } =
+  useCheckSeatingTypeDeletableMutation();
+
 // Attaches current element if exist and not yet present inside the list to selectableSeatingTypes
 const availableOptions = computed(() =>
   modelValue.value?.id &&
@@ -74,10 +81,21 @@ const availableOptions = computed(() =>
     ? [...selectableSeatingTypes, modelValue.value]
     : selectableSeatingTypes
 );
+const snackbarStore = useSnackbarStore();
 
-const handleDelete = () => {
-  if (modelValue.value) {
+const handleDelete = async () => {
+  const id = modelValue.value?.id;
+  if (!id || !modelValue.value) return;
+
+  const deletable = await checkDeletable(id);
+
+  if (deletable) {
     emit("delete", modelValue.value);
+  } else {
+    snackbarStore.add({
+      message: t("components.seatingCapacityEditor.futureUsage"),
+      level: Levels.WARNING,
+    });
   }
 };
 
