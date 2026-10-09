@@ -17,6 +17,10 @@ paths:
     put:
       tags:
       - seating-controller
+      summary: Update an existing Seating entity.
+      description: |-
+        Update an existing Seating entity.
+         Updates an existing Seating resource using the provided details.
       operationId: updateSeatingType
       parameters:
       - name: seatingTypeId
@@ -26,6 +30,7 @@ paths:
           type: string
           format: uuid
       requestBody:
+        description: the updated Seating details
         content:
           application/json:
             schema:
@@ -33,7 +38,7 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: the updated Seating as response DTO
           content:
             '*/*':
               schema:
@@ -41,10 +46,15 @@ paths:
     delete:
       tags:
       - seating-controller
+      summary: Delete an Seating entity.
+      description: |-
+        Delete an Seating entity.
+         Deletes the Seating resource identified by the given UUID.
       operationId: deleteSeatingType
       parameters:
       - name: seatingTypeId
         in: path
+        description: the UUID of the Seating to delete
         required: true
         schema:
           type: string
@@ -215,6 +225,10 @@ paths:
     put:
       tags:
       - equipment-controller
+      summary: Update an existing equipment entity.
+      description: |-
+        Update an existing equipment entity.
+         Updates an existing equipment resource using the provided details.
       operationId: updateEquipment
       parameters:
       - name: equipmentId
@@ -224,6 +238,7 @@ paths:
           type: string
           format: uuid
       requestBody:
+        description: the updated equipment details
         content:
           application/json:
             schema:
@@ -231,7 +246,7 @@ paths:
         required: true
       responses:
         "200":
-          description: OK
+          description: the updated equipment as response DTO
           content:
             '*/*':
               schema:
@@ -239,10 +254,15 @@ paths:
     delete:
       tags:
       - equipment-controller
+      summary: Delete an equipment entity.
+      description: |-
+        Delete an equipment entity.
+         Deletes the equipment resource identified by the given UUID.
       operationId: deleteEquipment
       parameters:
       - name: equipmentId
         in: path
+        description: the UUID of the equipment to delete
         required: true
         schema:
           type: string
@@ -350,10 +370,14 @@ paths:
     get:
       tags:
       - seating-controller
+      summary: Retrieve all Seating entities.
+      description: |-
+        Retrieve all Seating entities.
+         Returns a list of all existing Seating resources.
       operationId: getAllSeatingTypes
       responses:
         "200":
-          description: OK
+          description: list of Seating as response DTOs
           content:
             '*/*':
               schema:
@@ -363,8 +387,13 @@ paths:
     post:
       tags:
       - seating-controller
+      summary: Create a new Seating entity.
+      description: |-
+        Create a new Seating entity.
+         Creates a new Seating resource using the provided details.
       operationId: createSeatingType
       requestBody:
+        description: the details of the Seating to create
         content:
           application/json:
             schema:
@@ -372,7 +401,7 @@ paths:
         required: true
       responses:
         "201":
-          description: Created
+          description: the created Seating as response DTO
           content:
             '*/*':
               schema:
@@ -552,10 +581,14 @@ paths:
     get:
       tags:
       - equipment-controller
+      summary: Retrieve all equipment entities.
+      description: |-
+        Retrieve all equipment entities.
+         Returns a list of all existing equipment resources.
       operationId: getAllEquipments
       responses:
         "200":
-          description: OK
+          description: list of equipment as response DTOs
           content:
             '*/*':
               schema:
@@ -565,8 +598,13 @@ paths:
     post:
       tags:
       - equipment-controller
+      summary: Create a new equipment entity.
+      description: |-
+        Create a new equipment entity.
+         Creates a new equipment resource using the provided details.
       operationId: createEquipment
       requestBody:
+        description: the details of the equipment to create
         content:
           application/json:
             schema:
@@ -574,7 +612,7 @@ paths:
         required: true
       responses:
         "201":
-          description: Created
+          description: the created equipment as response DTO
           content:
             '*/*':
               schema:
@@ -707,6 +745,33 @@ paths:
               schema:
                 type: string
                 format: byte
+  /export/bookings/pdf:
+    get:
+      tags:
+      - export-controller
+      operationId: weekScheduleAsPDF
+      parameters:
+      - name: week
+        in: query
+        required: false
+        schema:
+          type: integer
+          format: int32
+      - name: category
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - ALTES_RATHAUS
+          - NEUES_RATHAUS
+      responses:
+        "200":
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                $ref: "#/components/schemas/StreamingResponseBody"
   /export/bookings/csv:
     get:
       tags:

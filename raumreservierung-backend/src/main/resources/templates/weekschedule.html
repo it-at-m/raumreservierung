@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8"/>
+    <style>
+        @page { size: 420mm 297mm; margin: 15mm; }
+        body { font-family: sans-serif; font-size: 11pt; }
+        h1 { font-size: 17pt; font-weight: bold; margin: 0 0 10pt 0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            -fs-table-paginate: paginate;
+        }
+        tr  {
+            page-break-inside: avoid;
+            -fs-page-break-min-height: 20pt;
+        }
+        th, td {
+            border: 0.6pt solid #8c8c8c;
+            padding: 2pt 4pt;
+            vertical-align: top;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #ebebeb;
+            font-weight: bold; }
+
+        .room-col { width: 90pt; text-align: center; vertical-align: middle; }
+        .appointment { text-align: center; margin: 2pt 0 2pt }
+        .appointment + .appointment { margin-top: 8pt; }
+        .appointment .title-row {
+            display: table;
+            width: 100%;
+            margin: 2pt 0 0;
+            border-top: 0.4pt solid #b0b0b0;
+            border-bottom: 1pt solid #333333;
+        }
+        .appointment .title {
+            display: table-cell;
+            vertical-align: middle;
+            height: 30pt;
+            line-height: 13pt;
+        }
+        .appointment .title-text {
+            max-height: 26pt;
+            overflow: hidden;
+        }
+        .page-break {
+            page-break-before: always;
+        }
+        .placeholder {
+            visibility: hidden;
+        }
+        .placeholder .title-row { border-color: transparent; }
+    </style>
+</head>
+<body>
+<div th:each="page, stat : ${pages}" th:classappend="${!stat.first} ? 'page-break'">
+<table>
+    <thead>
+    <tr>
+        <th class="room-col" th:text="'KW ' + ${week}"></th>
+        <th th:each="day : ${days}">
+            <div th:text="${day.dayName}"></div>
+            <div th:text="${day.dateLabel}"></div>
+        </th>
+    </tr>
+    </thead>
+    <tbody th:each="room : ${page}">
+    <tr>
+        <td class="room-col">
+            <div th:text="${room.name}"></div>
+            <div class="room-number" th:text="${room.number}"></div>
+        </td>
+        <td th:each="cell : ${room.cells}">
+            <div class="appointment" th:each="appt : ${cell}">
+                <div th:text="${appt.occupancyTime}"></div>
+                <div th:text="${appt.appointmentTime}"></div>
+                <div class="title-row">
+                    <div class="title">
+                        <div class="title-text" th:text="${appt.title}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="appointment placeholder" th:if="${cell.isEmpty()}">
+                <div class="time">&#160;</div>
+                <div class="time">&#160;</div>
+                <div class="title-row">
+                    <div class="title">&#160;</div>
+                </div>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</div>
+</body>
+</html>
