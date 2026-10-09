@@ -51,7 +51,11 @@
                   <v-card-title>
                     {{ roomData?.name }}
                     <span v-if="roomData?.weekScheduleCategory">
-                      {{'(' + weekScheduleCategoryMap[roomData.weekScheduleCategory] + ')' }}
+                      {{
+                        "(" +
+                        weekScheduleCategoryMap[roomData.weekScheduleCategory] +
+                        ")"
+                      }}
                     </span>
                   </v-card-title>
 
@@ -297,8 +301,8 @@ watch([error, () => roomData.value?.id], async () => {
 const pictureUrl = useObjectUrl(picture);
 
 const weekScheduleCategoryMap = {
-  "ALTES_RATHAUS": t("domain.weekScheduleCategory.altesRathaus"),
-  "NEUES_RATHAUS": t("domain.weekScheduleCategory.neuesRathaus"),
+  ALTES_RATHAUS: t("domain.weekScheduleCategory.altesRathaus"),
+  NEUES_RATHAUS: t("domain.weekScheduleCategory.neuesRathaus"),
 };
 </script>
 

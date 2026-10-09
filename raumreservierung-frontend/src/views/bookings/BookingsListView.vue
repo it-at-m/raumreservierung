@@ -13,12 +13,29 @@
         <template #activator="{ props }">
           <base-button
             v-bind="props"
+            class="mr-2"
             :append-icon="mdiExport"
             :text="t('components.exportBookingsCard.confirm')"
           />
         </template>
         <template #default="{ isActive }">
           <export-bookings-card @close="isActive.value = false" />
+        </template>
+      </v-dialog>
+      <v-dialog
+        v-if="canEditBookings"
+        :close-delay="1000"
+        max-width="700px"
+      >
+        <template #activator="{ props }">
+          <base-button
+            v-bind="props"
+            :append-icon="mdiCalendarExportOutline"
+            text="Dienstplan erstellen"
+          />
+        </template>
+        <template #default="{ isActive }">
+          <export-week-schedule-card @close="isActive.value = false" />
         </template>
       </v-dialog>
     </template>
@@ -158,7 +175,13 @@ import type {
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import { mdiCalendarEditOutline, mdiCheck, mdiExport, mdiMinus } from "@mdi/js";
+import {
+  mdiCalendarEditOutline,
+  mdiCalendarExportOutline,
+  mdiCheck,
+  mdiExport,
+  mdiMinus,
+} from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
@@ -181,6 +204,7 @@ import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
+import ExportWeekScheduleCard from "@/components/booking/ExportWeekScheduleCard.vue";
 
 const route = useRoute();
 const router = useRouter();
