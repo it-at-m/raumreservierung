@@ -29,38 +29,21 @@
           items-per-page="-1"
         >
           <template #[`item.isActive`]="{ item }">
-            <v-checkbox-btn
-              readonly
-              hide-details
-              :model-value="item.isActive"
-              class="pointer-events-none"
-            />
+            <v-icon :icon="item.isActive ? mdiCheck : mdiMinus" />
           </template>
           <template #[`item.actions`]="{ item }">
-            <v-row align-content="center">
-              <v-col
-                class="pa-0"
-                cols="12"
-                sm="6"
-              >
-                <action-button
-                  type="edit"
-                  class="mr-1"
-                  @click="openEdit(item)"
-                />
-              </v-col>
-              <v-col
-                class="pa-0"
-                cols="12"
-                sm="6"
-              >
-                <action-button
-                  :disabled="item.isActive"
-                  type="delete"
-                  @click="openDelete(item)"
-                />
-              </v-col>
-            </v-row>
+            <rr-button-group>
+              <action-button
+                type="edit"
+                class="mr-1"
+                @click="openEdit(item)"
+              />
+              <action-button
+                :disabled="item.isActive"
+                type="delete"
+                @click="openDelete(item)"
+              />
+            </rr-button-group>
           </template>
         </v-data-table>
       </template>
@@ -72,12 +55,13 @@
 import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
+import { mdiCheck, mdiMinus } from "@mdi/js";
 import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { Levels } from "@/api/error.ts";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import EquipmentForm from "@/components/EquipmentForm.vue";
 import {
@@ -87,6 +71,7 @@ import {
   useUpdateEquipment,
 } from "@/composables/api/useEquipmentApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 const { t } = useI18n();
 
@@ -123,8 +108,18 @@ const {
 const headers: TableHeader<EquipmentResponseDto>[] = [
   { title: t("domain.equipment.name"), value: "name", sortable: true },
   { title: t("domain.equipment.description"), value: "description" },
-  { title: t("domain.equipment.isActive"), value: "isActive", sortable: true },
-  { title: t("common.action", { count: 2 }), value: "actions" },
+  {
+    title: t("domain.equipment.isActive"),
+    value: "isActive",
+    sortable: true,
+    align: "center",
+  },
+  {
+    title: t("common.action", { count: 2 }),
+    value: "actions",
+    width: "1%",
+    align: "center",
+  },
 ];
 
 const handleCreate = async (newItem: EquipmentResponseDto) => {
@@ -163,7 +158,7 @@ const onSuccess = async (msg: string) => {
   if (crudRef.value) {
     crudRef.value.closeDialog();
   }
-  snackbarStore.add({ message: msg, level: Levels.SUCCESS });
+  snackbarStore.push({ text: msg, color: STATUS_INDICATORS.SUCCESS });
 };
 </script>
 

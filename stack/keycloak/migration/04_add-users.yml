@@ -6,6 +6,7 @@ changes:
       name: anwender
       lastName: anwender
       firstName: anwender
+      preferred_username: anwender.anwender
       enabled: true
       emailVerified: true
       email: anwender@anwender.de
@@ -20,6 +21,7 @@ changes:
       name: leseberechtigt
       lastName: leseberechtigt
       firstName: leseberechtigt
+      preferred_username: leseberechtigt.leseberechtigt
       enabled: true
       emailVerified: true
       email: leseberechtigt@leseberechtigt.de
@@ -34,6 +36,7 @@ changes:
       name: terminorganisator
       lastName: terminorganisator
       firstName: terminorganisator
+      preferred_username: terminorganisator.terminorganisator
       enabled: true
       emailVerified: true
       email: terminorganisator@terminorganisator.de
@@ -48,6 +51,7 @@ changes:
       name: raumbuchung
       lastName: raumbuchung
       firstName: raumbuchung
+      preferred_username: raumbuchung.raumbuchung
       enabled: true
       emailVerified: true
       email: raumbuchung@raumbuchung.de
@@ -62,6 +66,7 @@ changes:
       name: raumadmin
       lastName: raumadmin
       firstName: raumadmin
+      preferred_username: raumadmin.raumadmin
       enabled: true
       emailVerified: true
       email: raumadmin@raumadmin.de

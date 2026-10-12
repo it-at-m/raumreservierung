@@ -45,7 +45,7 @@ onMounted(() => {
   checkHealth()
     .then((content: HealthState) => (status.value = content.status))
     .catch((error) => {
-      snackbarStore.add(error);
+      snackbarStore.push(error);
     });
 });
 </script>

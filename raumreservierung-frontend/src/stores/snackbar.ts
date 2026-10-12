@@ -7,53 +7,54 @@ import {
 import { defineStore } from "pinia";
 import { ref } from "vue";
 
-import { Levels } from "@/api/error.ts";
+import { STATUS_INDICATORS } from "@/constants";
 
-export interface SnackbarMessage {
-  message: string | undefined;
+interface SnackbarMessage {
+  text: string;
   timeout?: number;
-  level?: Levels;
+  color?: STATUS_INDICATORS;
   icon?: string;
 }
 
-interface SnackbarInput {
-  text: string | undefined;
-  timeout: number;
-  color: Levels;
-  icon: string;
-}
-
-const DEFAULTS: Record<Levels, Pick<SnackbarInput, "timeout" | "icon">> = {
-  [Levels.INFO]: { timeout: 2500, icon: mdiInformationOutline },
-  [Levels.SUCCESS]: { timeout: 2500, icon: mdiCheckCircleOutline },
-  [Levels.WARNING]: { timeout: 3500, icon: mdiAlertOutline },
-  [Levels.ERROR]: { timeout: 4000, icon: mdiAlertCircleOutline },
+const DEFAULTS: Record<
+  STATUS_INDICATORS,
+  Pick<SnackbarMessage, "timeout" | "icon">
+> = {
+  [STATUS_INDICATORS.INFO]: { icon: mdiInformationOutline },
+  [STATUS_INDICATORS.SUCCESS]: { icon: mdiCheckCircleOutline },
+  [STATUS_INDICATORS.WARNING]: { icon: mdiAlertOutline },
+  [STATUS_INDICATORS.ERROR]: { timeout: -1, icon: mdiAlertCircleOutline },
 } as const;
 
-const normalizeSnackbar = (input: SnackbarMessage): SnackbarInput => {
-  const color = input.level ?? Levels.INFO;
+/**
+ * Applying defaults for SnackbarMessage by using the DEFAULTS-records.
+ * Color is extracted from the enum STATUS_INDICATORS itself.
+ * @param input the incoming message with possible missing values.
+ */
+function applyDefaults(input: SnackbarMessage): SnackbarMessage {
+  const color = input.color ?? STATUS_INDICATORS.INFO;
   const defaults = DEFAULTS[color];
 
   return {
-    text: input.message,
+    text: input.text,
     color,
     icon: input.icon ?? defaults.icon,
     timeout: input.timeout ?? defaults.timeout,
   };
-};
+}
 
 /**
  * Store for messages which should be displayed by the snackbar
  */
 export const useSnackbarStore = defineStore("snackbar", () => {
-  const queue = ref<SnackbarInput[]>([]);
+  const queue = ref<SnackbarMessage[]>([]);
 
   /**
    * Adds default values if necessary
    */
-  function add(message: SnackbarMessage) {
-    queue.value.push(normalizeSnackbar(message));
+  function push(message: SnackbarMessage) {
+    queue.value.push(applyDefaults(message));
   }
 
-  return { queue, add };
+  return { queue, push };
 });

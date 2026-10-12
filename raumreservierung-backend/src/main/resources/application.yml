@@ -93,6 +93,8 @@ info:
     spring-cloud.version: "@spring-cloud-dependencies.version@"
 
 raumreservierung:
+  export:
+    csv-column-separator: ";"
   scheduling:
     ext-person-cleanup: 0 0 4 1 * *
     file-attachment-cleanup: 0 0 * * * *
