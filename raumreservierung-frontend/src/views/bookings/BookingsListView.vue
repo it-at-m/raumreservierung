@@ -31,7 +31,7 @@
           <base-button
             v-bind="props"
             :append-icon="mdiCalendarExportOutline"
-            text="Dienstplan erstellen"
+            :text="t('components.exportWeekScheduleCard.confirm')"
           />
         </template>
         <template #default="{ isActive }">

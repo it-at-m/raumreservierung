@@ -11,16 +11,16 @@
         type="number"
         variant="outlined"
         hide-details="auto"
-        label="Kalenderwoche wählen"
+        :label="t('components.exportWeekScheduleCard.chooseWeek')"
         :min="MIN_WEEK"
         :max="MAX_WEEK"
-        :rules="isWeekValid ? [] : ['KW ungültig']"
+        :rules="weekRules"
       />
       <v-select
         v-model="selectedBuilding"
         variant="outlined"
         hide-details
-        label="Kategorie auswählen"
+        :label="t('components.exportWeekScheduleCard.chooseCategory')"
         :items="buildingItems"
         item-title="title"
         item-value="value"
@@ -29,8 +29,8 @@
     <template #confirm="{ props }">
       <base-button
         :append-icon="mdiCalendarExportOutline"
-        :disabled="!selectedWeek"
-        text="Dienstplan exportieren"
+        :disabled="!canExport"
+        :text="t('components.exportWeekScheduleCard.confirm')"
         @click="
           redirectToDownload();
           props.onClick();
@@ -54,18 +54,18 @@ import { BASE_PATH } from "@/constants.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
 import { mdiCalendarExportOutline } from "@mdi/js";
 import { useDate } from "vuetify/framework";
+import { useI18n } from "vue-i18n";
 
 const router = useRouter();
-
-const MIN_WEEK = 1;
-const MAX_WEEK = 52;
+const { t } = useI18n();
+const adapter = useDate();
 
 const emit = defineEmits<{
   close: [];
 }>();
 
-const adapter = useDate();
-
+const MIN_WEEK = 1;
+const MAX_WEEK = 53;
 const MONDAY = 1;
 const ISO_FIRST_WEEK_DAY = 4;
 
@@ -80,21 +80,25 @@ const selectedBuilding = ref<WeekScheduleAsPDFCategoryEnum>(
 const buildingItems = computed(() => [
   {
     value: WeekScheduleAsPDFCategoryEnum.ALTES_RATHAUS,
-    title: "Altes Rathaus",
+    title: t("domain.weekScheduleCategory.altesRathaus"),
   },
   {
     value: WeekScheduleAsPDFCategoryEnum.NEUES_RATHAUS,
-    title: "Neues Rathaus",
+    title: t("domain.weekScheduleCategory.altesRathaus"),
   },
 ]);
 
-const isWeekValid = computed(
-  () =>
-    selectedWeek.value &&
-    Number.isInteger(selectedWeek.value) &&
-    selectedWeek.value >= MIN_WEEK &&
-    selectedWeek.value <= MAX_WEEK
-);
+const canExport = computed(() => isWeekValid(selectedWeek.value));
+
+const isWeekValid = (value: number | null): boolean =>
+  value !== null &&
+  Number.isInteger(value) &&
+  value >= MIN_WEEK &&
+  value <= MAX_WEEK;
+
+const weekRules = [
+  (value: number | null) => isWeekValid(value) || t("common.rules.invalidKW"),
+];
 
 const redirectToDownload = async () => {
   const exportApi = ApiFactory.getInstance(ExportControllerApi);

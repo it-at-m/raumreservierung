@@ -4,10 +4,14 @@
     <meta charset="UTF-8"/>
     <title th:text="'Dienstplan KW ' + ${week} + ' (' + ${year} + ') ' + ${category}"></title>
     <style>
-        @page { size: 420mm 297mm; margin: 15mm; }
-        body { font-family: sans-serif; font-size: 11pt; }
-        h1 { font-size: 17pt; font-weight: bold; margin: 0 0 10pt 0; }
-
+        @page {
+            size: 420mm 297mm;
+            margin: 15mm;
+        }
+        body {
+            font-family: sans-serif;
+            font-size: 11pt;
+        }
         table {
             width: 100%;
             border-collapse: collapse;
@@ -29,9 +33,13 @@
             background-color: #ebebeb;
             font-weight: bold; }
 
-        .room-col { width: 90pt; text-align: center; vertical-align: middle; }
-        .appointment { text-align: center; margin: 2pt 0 2pt }
-        .appointment + .appointment { margin-top: 8pt; }
+        .appointment {
+            text-align: center;
+            margin: 2pt 0 2pt
+        }
+        .appointment + .appointment {
+            margin-top: 8pt;
+        }
         .appointment .title-row {
             display: table;
             width: 100%;
@@ -52,7 +60,18 @@
         .placeholder {
             visibility: hidden;
         }
-        .placeholder .title-row { border-color: transparent; }
+        .placeholder .title-row {
+            border-color: transparent;
+        }
+        .room-col {
+            width: 90pt;
+            text-align: center;
+            vertical-align: middle; }
+        .room-divider {
+            width: 4pt;
+            margin: 2.8pt auto 5.2pt;
+            border-top: 0.6pt solid #333333;
+        }
         .year {
             font-weight: normal;
         }
@@ -76,7 +95,8 @@
     <tr>
         <td class="room-col">
             <div th:text="${room.name}"></div>
-            <div class="room-number" th:text="${room.number}"></div>
+            <div class="room-divider"></div>
+            <div th:text="${room.number}"></div>
         </td>
         <td th:each="cell : ${room.cells}">
             <div class="appointment" th:each="appt : ${cell}">
