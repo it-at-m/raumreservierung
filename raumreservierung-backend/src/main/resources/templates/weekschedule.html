@@ -1,7 +1,8 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
 <head>
     <meta charset="UTF-8"/>
+    <title th:text="'Dienstplan KW ' + ${week} + ' (' + ${year} + ') ' + ${category}"></title>
     <style>
         @page { size: 420mm 297mm; margin: 15mm; }
         body { font-family: sans-serif; font-size: 11pt; }
@@ -48,28 +49,30 @@
             max-height: 26pt;
             overflow: hidden;
         }
-        .page-break {
-            page-break-before: always;
-        }
         .placeholder {
             visibility: hidden;
         }
         .placeholder .title-row { border-color: transparent; }
+        .year {
+            font-weight: normal;
+        }
     </style>
 </head>
 <body>
-<div th:each="page, stat : ${pages}" th:classappend="${!stat.first} ? 'page-break'">
 <table>
     <thead>
     <tr>
-        <th class="room-col" th:text="'KW ' + ${week}"></th>
+        <th class="room-col">
+            <div>KW [[${week}]]<span class="year"> - [[${year}]]</span></div>
+            <div class="year" th:text="${category}"></div>
+        </th>
         <th th:each="day : ${days}">
             <div th:text="${day.dayName}"></div>
             <div th:text="${day.dateLabel}"></div>
         </th>
     </tr>
     </thead>
-    <tbody th:each="room : ${page}">
+    <tbody th:each="room : ${roomRows}">
     <tr>
         <td class="room-col">
             <div th:text="${room.name}"></div>
@@ -96,6 +99,5 @@
     </tr>
     </tbody>
 </table>
-</div>
 </body>
 </html>

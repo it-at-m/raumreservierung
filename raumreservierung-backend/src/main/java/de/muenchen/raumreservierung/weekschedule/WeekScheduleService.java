@@ -15,7 +15,6 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.temporal.IsoFields;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
@@ -36,8 +35,6 @@ public class WeekScheduleService {
     private final WeekScheduleMapper weekScheduleMapper;
     private final SpringTemplateEngine templateEngine;
 
-    private static final int MAX_BOOKINGS_PER_PAGE = 10;
-
     @Transactional(readOnly = true)
     public void generateWeekSchedule(final int week, final WeekScheduleCategory category, final OutputStream outputStream) {
         final List<Room> rooms = roomService.findAllActiveByWeekScheduleCategory(category);
@@ -48,12 +45,13 @@ public class WeekScheduleService {
 
         final Context context = new Context();
         context.setVariable("week", week);
+        context.setVariable("year", LocalDate.now(ZoneId.systemDefault()).getYear());
+        context.setVariable("category", category.getLabel());
         context.setVariable("days", weekScheduleMapper.toDayHeaders(week));
-        context.setVariable("pages", paginate(roomRows));
+        context.setVariable("roomRows", roomRows);
 
         final String html = templateEngine.process("weekschedule", context);
 
-        log.debug("row heights: {}", roomRows.stream().map(r -> r.name() + "=" + r.height()).toList());
         try {
             final PdfRendererBuilder builder = new PdfRendererBuilder();
             builder.withHtmlContent(html, null);
@@ -86,35 +84,6 @@ public class WeekScheduleService {
 
     private OffsetDateTime startOfDay(final LocalDate date) {
         return date.atStartOfDay(ZoneId.systemDefault()).toOffsetDateTime();
-    }
-
-    private List<List<RoomRowExportDto>> paginate(final List<RoomRowExportDto> rows) {
-        final List<List<RoomRowExportDto>> pages = new ArrayList<>();
-        pages.add(new ArrayList<>());
-        int used = 0;
-
-        for (final RoomRowExportDto row : rows) {
-            RoomRowExportDto rest = row;
-
-            if (rest.height() > MAX_BOOKINGS_PER_PAGE - used && rest.height() <= MAX_BOOKINGS_PER_PAGE) {
-                pages.add(new ArrayList<>());
-                used = 0;
-            }
-
-            while (rest.height() > MAX_BOOKINGS_PER_PAGE - used) {
-                final int free = MAX_BOOKINGS_PER_PAGE - used;
-                if (free > 0) {
-                    pages.getLast().add(rest.slice(0, free));
-                    rest = rest.slice(free, Integer.MAX_VALUE);
-                }
-                pages.add(new ArrayList<>());
-                used = 0;
-            }
-
-            pages.getLast().add(rest);
-            used += rest.height();
-        }
-        return pages;
     }
 
 }
