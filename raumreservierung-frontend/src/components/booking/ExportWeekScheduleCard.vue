@@ -10,7 +10,15 @@
         class="mb-4"
         type="number"
         variant="outlined"
-        hide-details="auto"
+        persistent-hint
+        :hint="
+          weekRange
+            ? t('common.format.dateRange', {
+                start: formatDateShort(weekRange.start),
+                end: formatDateShort(weekRange.end),
+              })
+            : ''
+        "
         :label="t('components.exportWeekScheduleCard.chooseWeek')"
         :min="MIN_WEEK"
         :max="MAX_WEEK"
@@ -55,6 +63,7 @@ import { ApiFactory } from "@/util/apiFactory.ts";
 import { mdiCalendarExportOutline } from "@mdi/js";
 import { useDate } from "vuetify/framework";
 import { useI18n } from "vue-i18n";
+import { formatDateShort } from "@/util/timeUtil.ts";
 
 const router = useRouter();
 const { t } = useI18n();
@@ -84,7 +93,7 @@ const buildingItems = computed(() => [
   },
   {
     value: WeekScheduleAsPDFCategoryEnum.NEUES_RATHAUS,
-    title: t("domain.weekScheduleCategory.altesRathaus"),
+    title: t("domain.weekScheduleCategory.neuesRathaus"),
   },
 ]);
 
@@ -99,6 +108,26 @@ const isWeekValid = (value: number | null): boolean =>
 const weekRules = [
   (value: number | null) => isWeekValid(value) || t("common.rules.invalidKW"),
 ];
+
+const currentYear = new Date().getFullYear();
+const weekRange = computed(() => {
+  if (selectedWeek.value === null) {
+    return null;
+  }
+
+  const inWeek = adapter.addWeeks(
+    new Date(currentYear, 0, 4),
+    selectedWeek.value - 1
+  );
+
+  const start = adapter.startOfWeek(inWeek, MONDAY);
+  const end = adapter.endOfDay(adapter.addDays(start, 6));
+
+  return {
+    start: adapter.toJsDate(start),
+    end: adapter.toJsDate(end),
+  };
+});
 
 const redirectToDownload = async () => {
   const exportApi = ApiFactory.getInstance(ExportControllerApi);
