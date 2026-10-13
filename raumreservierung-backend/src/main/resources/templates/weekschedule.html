@@ -32,7 +32,9 @@
         th {
             background-color: #ebebeb;
             font-weight: bold; }
-
+        tbody.alt td {
+            background-color: #f2f2f2;
+        }
         .appointment {
             text-align: center;
             margin: 2pt 0 2pt
@@ -91,7 +93,7 @@
         </th>
     </tr>
     </thead>
-    <tbody th:each="room : ${roomRows}">
+    <tbody th:each="room, stat : ${roomRows}" th:classappend="${stat.index % 2 == 1} ? 'alt'">
     <tr>
         <td class="room-col">
             <div th:text="${room.name}"></div>
