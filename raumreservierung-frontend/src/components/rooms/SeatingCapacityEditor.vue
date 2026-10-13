@@ -53,10 +53,10 @@ import { mdiTrashCanOutline } from "@mdi/js";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { Levels } from "@/api/error.ts";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import { useCheckSeatingTypeDeletableMutation } from "@/composables/api/useSeatingApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 const modelValue = defineModel<SeatingTypeWithCapacity>();
 
@@ -92,9 +92,9 @@ const handleDelete = async () => {
   if (deletable) {
     emit("delete", modelValue.value);
   } else {
-    snackbarStore.add({
-      message: t("components.seatingCapacityEditor.futureUsage"),
-      level: Levels.WARNING,
+    snackbarStore.push({
+      text: t("components.seatingCapacityEditor.futureUsage"),
+      color: STATUS_INDICATORS.WARNING,
     });
   }
 };
