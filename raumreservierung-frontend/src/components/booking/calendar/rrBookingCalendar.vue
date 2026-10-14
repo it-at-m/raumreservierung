@@ -82,9 +82,7 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  RoomListResponseDTO,
-} from "@/api/raumreservierung-backend";
+import type { RoomListResponseDTO } from "@/api/raumreservierung-backend";
 import type { CalendarAppointmentEvent } from "@/components/booking/calendar/rrCalendarAppointmentEvent.vue";
 
 import { mdiChevronLeft, mdiChevronRight } from "@mdi/js";
@@ -99,8 +97,8 @@ import { useCalendarNavigation } from "@/composables/calendar/useCalendarNavigat
 import { useCalendarPopup } from "@/composables/calendar/useCalendarPopup.ts";
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { FALLBACK_CATEGORY_ROOM } from "@/constants.ts";
-import {dateEquals, toEndofDay, toStartOfDay} from "@/util/timeUtil.ts";
-import {useGetHolidays} from "@/composables/api/useHolidayApi.ts";
+import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
+import { useGetHolidays } from "@/composables/api/useHolidayApi.ts";
 
 interface CalendarCategories {
   name: string;
@@ -171,13 +169,11 @@ const { data: appointments, refetch: resetAppointments } = useGetAppointments(
   }
 );
 
-const { data: holidays } = useGetHolidays(
-    () => {
-      return {
-        year: startDate.value.getFullYear()
-      };
-    }
-)
+const { data: holidays } = useGetHolidays(() => {
+  return {
+    year: startDate.value.getFullYear(),
+  };
+});
 
 const { data: bookingAppointments } = useGetAppointments(() => {
   return roomId
@@ -191,16 +187,20 @@ const { data: bookingAppointments } = useGetAppointments(() => {
 
 const getDayClasses = (dateStr: string): string[] => {
   const date = new Date(dateStr);
-  date.setHours(0,0,0,0);
-  const publicHolidays = holidays.value?.filter((h) => dateEquals(h.startDate, h.endDate))
-  const schoolHolidays = holidays.value?.filter((h) => !dateEquals(h.startDate, h.endDate));
-
-  console.debug(date);
+  date.setHours(0, 0, 0, 0);
+  const publicHolidays = holidays.value?.filter((h) =>
+    dateEquals(h.startDate, h.endDate)
+  );
+  const schoolHolidays = holidays.value?.filter(
+    (h) => !dateEquals(h.startDate, h.endDate)
+  );
 
   const isWeekend = [0, 6].includes(date.getDay());
-  const isPublicHoliday = publicHolidays?.filter((h) => date >= h.startDate && date <= h.endDate)
+  const isPublicHoliday =
+    publicHolidays?.filter((h) => date >= h.startDate && date <= h.endDate)
       .length == 1;
-  const isSchoolHoliday = schoolHolidays?.filter((h) => date >= h.startDate && date <= h.endDate)
+  const isSchoolHoliday =
+    schoolHolidays?.filter((h) => date >= h.startDate && date <= h.endDate)
       .length == 1;
   const classes = [];
 
@@ -300,7 +300,8 @@ defineExpose({
   resetAppointments: resetAppointmentsAndEdits,
 });
 </script>
-<style>
+
+<style scoped>
 .weekend {
   background-color: rgba(var(--v-theme-weekendColor));
 }
