@@ -1,13 +1,23 @@
+
+
+
 import "vuetify/styles";
 
+
+
 import type { VueI18nAdapterParams } from "vuetify/locale/adapters/vue-i18n";
+
+
 
 import { useI18n } from "vue-i18n";
 import { createVuetify } from "vuetify";
 import { aliases, mdi } from "vuetify/iconsets/mdi-svg";
 import { createVueI18nAdapter } from "vuetify/locale/adapters/vue-i18n";
 
+
+
 import i18n from "@/plugins/i18n";
+
 
 export default createVuetify({
   defaults: {
@@ -46,6 +56,10 @@ export default createVuetify({
           statusApproved: "#809C00",
           statusCoordination: "#af64d4",
           statusCanceled: "#D54234",
+          //Calendar
+          weekendColor: "#73737377",
+          publicHolidayColor: "#ff980077",
+          schoolHolidayColor: "#00640077",
         },
       },
       dark: {
@@ -56,6 +70,10 @@ export default createVuetify({
           statusApproved: "#809C00",
           statusCoordination: "#af64d4",
           statusCanceled: "#D54234",
+          //Calendar
+          weekendColor: "#73737377",
+          publicHolidayColor: "#ff980077",
+          schoolHolidayColor: "#00640077",
         },
       },
     },
