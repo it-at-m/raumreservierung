@@ -13,7 +13,6 @@
       <room-select
         ref="roomSelect"
         v-model="selectedRoomIds"
-        show-inactive
         class="mb-4"
         :label="
           t('generics.select', {
@@ -62,9 +61,9 @@ import type {
 } from "@/api/raumreservierung-backend";
 import type { CalendarAppointmentEvent } from "@/components/booking/calendar/rrCalendarAppointmentEvent.vue";
 import type { ComponentPublicInstance } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
 
 import { mdiArrowLeft } from "@mdi/js";
-import { computed, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 

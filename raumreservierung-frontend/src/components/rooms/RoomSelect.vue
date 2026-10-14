@@ -58,7 +58,7 @@ const filteredRooms = computed(() => {
       return true;
     }
 
-    if (multiple && Array.isArray(modelValue.value)) {
+    if (isMultipleProp.value && Array.isArray(modelValue.value)) {
       return room.id ? modelValue.value.includes(room.id) : false;
     }
 
