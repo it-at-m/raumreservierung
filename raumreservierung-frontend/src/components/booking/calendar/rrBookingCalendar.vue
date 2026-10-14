@@ -54,7 +54,7 @@
         <template #interval="{ date }">
           <div
             :class="getDayClasses(date)"
-            style="width: 100%; height: 100%"
+            class="w-100 h-100"
           ></div>
         </template>
         <template #event="{ event }">
@@ -302,6 +302,13 @@ defineExpose({
 </script>
 
 <style scoped>
+/*Backup in case the vuetify injection fails. In this case the background would be black transparent*/
+:root {
+  --v-theme-schoolHolidayColor: #00000000;
+  --v-theme-weekendColor: #00000000;
+  --v-theme-publicHolidayColor: #00000000
+}
+
 .weekend {
   background-color: rgba(var(--v-theme-weekendColor));
 }
