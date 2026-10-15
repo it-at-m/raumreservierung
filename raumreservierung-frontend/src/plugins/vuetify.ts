@@ -47,7 +47,7 @@ export default createVuetify({
           statusCoordination: "#af64d4",
           statusCanceled: "#D54234",
           //Calendar
-          weekendColor: "#73737344",
+          weekendColor: "#c8c8c844",
           publicHolidayColor: "#F6D69666",
           schoolHolidayColor: "#A8DCD966",
         },
