@@ -7,6 +7,12 @@
       <v-row density="compact">
         <template v-if="computedEquipment && !(allEquipmentLoading || loading)">
           <v-col
+            v-if="restrictToFilterIds && computedEquipment.length === 0"
+            cols="12"
+          >
+            {{ t("domain.equipment.noneAvailable") }}
+          </v-col>
+          <v-col
             v-for="equip in computedEquipment"
             :key="equip.id"
             cols="12"
@@ -73,19 +79,16 @@
 </template>
 
 <script setup lang="ts">
-import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
+import type {EquipmentResponseDto} from "@/api/raumreservierung-backend";
 
-import { mdiPlus } from "@mdi/js";
-import { computed } from "vue";
-import { useI18n } from "vue-i18n";
+import {mdiPlus} from "@mdi/js";
+import {computed} from "vue";
+import {useI18n} from "vue-i18n";
 
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import RoomResourceManagementCard from "@/components/rooms/RoomResourceManagementCard.vue";
-import {
-  useCreateEquipment,
-  useGetAllEquipments,
-} from "@/composables/api/useEquipmentApi.ts";
+import {useCreateEquipment, useGetAllEquipments,} from "@/composables/api/useEquipmentApi.ts";
 
 const { t } = useI18n();
 
@@ -93,10 +96,12 @@ const modelValue = defineModel<string[]>();
 
 const {
   filterIds = [],
+  restrictToFilterIds = false,
   disableAddition = false,
   loading = false,
 } = defineProps<{
   filterIds?: string[];
+  restrictToFilterIds?: boolean;
   disableAddition?: boolean;
   loading?: boolean;
 }>();
@@ -107,7 +112,7 @@ const { data: allEquipment, isPending: allEquipmentLoading } =
 const computedEquipment = computed<EquipmentResponseDto[]>(() =>
   (allEquipment.value ?? []).filter(
     (equip) =>
-      (filterIds.length === 0 || (equip.id && filterIds.includes(equip.id))) &&
+      (!restrictToFilterIds || (equip.id && filterIds.includes(equip.id))) &&
       (equip.isActive || (equip.id && modelValue.value?.includes(equip.id)))
   )
 );

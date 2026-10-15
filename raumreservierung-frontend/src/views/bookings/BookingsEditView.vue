@@ -172,6 +172,7 @@
             <equipment-selector
               v-model="bookingData.equipmentIds"
               :filter-ids="currentRoom?.equipmentIds"
+              :restrict-to-filter-ids="!!currentRoom"
               disable-addition
               :loading="
                 getRoomLoading ||
@@ -309,6 +310,12 @@ import type {
   RoomDetailsResponseDTO,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
+import {
+  BookingRequestDTOBookingTypeEnum,
+  BookingRequestDTOStatusEnum,
+  BookingStatusDTOCurrentStatusEnum,
+  InternalPersonRequestDtoTypeEnum,
+} from "@/api/raumreservierung-backend";
 
 import {
   mdiCalendarRemoveOutline,
@@ -318,13 +325,6 @@ import {
 import { computed, onMounted, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
-
-import {
-  BookingRequestDTOBookingTypeEnum,
-  BookingRequestDTOStatusEnum,
-  BookingStatusDTOCurrentStatusEnum,
-  InternalPersonRequestDtoTypeEnum,
-} from "@/api/raumreservierung-backend";
 import { type BookingStatusDTO as BookingStatusFull } from "@/api/raumreservierung-backend/models/BookingStatusDTO";
 import AppointmentCardList from "@/components/booking/AppointmentCardList.vue";
 import GeneralStatusSelect from "@/components/booking/GeneralStatusSelect.vue";

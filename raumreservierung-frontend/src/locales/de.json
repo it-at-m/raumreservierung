@@ -311,7 +311,8 @@
       "header": "Ausstattung",
       "name": "Name",
       "isActive": "Status",
-      "description": "Beschreibung"
+      "description": "Beschreibung",
+      "noneAvailable": "Keine Ausstattung verfügbar."
     },
     "holidays": {
       "public": {
