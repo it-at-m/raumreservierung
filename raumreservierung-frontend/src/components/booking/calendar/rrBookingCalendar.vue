@@ -324,31 +324,31 @@ defineExpose({
 .weekend {
   &.public-holiday {
     background-image: repeating-linear-gradient(
-      300deg,
+      35deg,
       rgba(var(--v-theme-weekendColor)),
-      rgba(var(--v-theme-weekendColor)) 15px,
-      rgba(var(--v-theme-publicHolidayColor)) 15px,
-      rgba(var(--v-theme-publicHolidayColor)) 30px
+      rgba(var(--v-theme-weekendColor)) 25px,
+      rgba(var(--v-theme-publicHolidayColor)) 25px,
+      rgba(var(--v-theme-publicHolidayColor)) 50px
     );
   }
   &.school-holiday {
     background-image: repeating-linear-gradient(
-      300deg,
+      35deg,
       rgba(var(--v-theme-weekendColor)),
-      rgba(var(--v-theme-weekendColor)) 15px,
-      rgba(var(--v-theme-schoolHolidayColor)) 15px,
-      rgba(var(--v-theme-schoolHolidayColor)) 30px
+      rgba(var(--v-theme-weekendColor)) 25px,
+      rgba(var(--v-theme-schoolHolidayColor)) 25px,
+      rgba(var(--v-theme-schoolHolidayColor)) 50px
     );
   }
   &.public-holiday.school-holiday {
     background-image: repeating-linear-gradient(
-      300deg,
+      35deg,
       rgba(var(--v-theme-weekendColor)),
-      rgba(var(--v-theme-weekendColor)) 10px,
-      rgba(var(--v-theme-publicHolidayColor)) 10px,
-      rgba(var(--v-theme-publicHolidayColor)) 20px,
-      rgba(var(--v-theme-schoolHolidayColor)) 20px,
-      rgba(var(--v-theme-schoolHolidayColor)) 30px
+      rgba(var(--v-theme-weekendColor)) 16.6px,
+      rgba(var(--v-theme-publicHolidayColor)) 16.6px,
+      rgba(var(--v-theme-publicHolidayColor)) 33.3px,
+      rgba(var(--v-theme-schoolHolidayColor)) 33.3px,
+      rgba(var(--v-theme-schoolHolidayColor)) 50px
     );
   }
 }
@@ -356,11 +356,11 @@ defineExpose({
 .public-holiday {
   &.school-holiday {
     background-image: repeating-linear-gradient(
-      300deg,
+      35deg,
       rgba(var(--v-theme-publicHolidayColor)),
-      rgba(var(--v-theme-publicHolidayColor)) 15px,
-      rgba(var(--v-theme-schoolHolidayColor)) 15px,
-      rgba(var(--v-theme-schoolHolidayColor)) 30px
+      rgba(var(--v-theme-publicHolidayColor)) 25px,
+      rgba(var(--v-theme-schoolHolidayColor)) 25px,
+      rgba(var(--v-theme-schoolHolidayColor)) 50px
     );
   }
 }

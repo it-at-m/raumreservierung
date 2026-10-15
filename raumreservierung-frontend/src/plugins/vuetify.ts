@@ -48,8 +48,8 @@ export default createVuetify({
           statusCanceled: "#D54234",
           //Calendar
           weekendColor: "#73737344",
-          publicHolidayColor: "#ff980044",
-          schoolHolidayColor: "#00640044",
+          publicHolidayColor: "#F6D69666",
+          schoolHolidayColor: "#A8DCD966",
         },
       },
       dark: {
@@ -62,8 +62,8 @@ export default createVuetify({
           statusCanceled: "#D54234",
           //Calendar
           weekendColor: "#73737333",
-          publicHolidayColor: "#ff980033",
-          schoolHolidayColor: "#00640033",
+          publicHolidayColor: "#6E562633",
+          schoolHolidayColor: "#2B5B5833",
         },
       },
     },
