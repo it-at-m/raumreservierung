@@ -97,7 +97,7 @@
         <!-- Added to fix CVE-2026-54291 -->
         <postgresql.version>42.7.12</postgresql.version>
         <!-- Added to fix CVE-2026-64607 -->
-        <httpclient5.version>5.6.4</httpclient5.version>
+        <httpclient5.version>5.6.5</httpclient5.version>
         <httpcore5.version>5.4.3</httpcore5.version>
     </properties>
 
@@ -127,7 +127,7 @@
             <dependency> <!-- Added to fix CVE-2026-34483, CVE-2026-34486, CVE-2026-34487 -->
                 <groupId>org.apache.tomcat.embed</groupId>
                 <artifactId>tomcat-embed-core</artifactId>
-                <version>10.1.59</version>
+                <version>10.1.60</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
