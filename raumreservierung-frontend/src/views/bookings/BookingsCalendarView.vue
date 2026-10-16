@@ -46,14 +46,35 @@
         :loading="getBookingLoading || updateBookingLoading"
         @status-action="updateBookingStatus"
         @cancel="resetBooking"
-        @confirm="updateBookingSchedule"
+        @confirm="saveHintOpen = true"
       />
+      <v-dialog
+        v-model="saveHintOpen"
+        max-width="480"
+      >
+        <confirm-card
+          :title="t('components.bookingsCalendarView.saveHint.title')"
+          :text="saveHintText"
+          :loading="updateBookingLoading || updateAppointmentLoading"
+          @cancel="saveHintOpen = false"
+          @confirm="confirmSave"
+        >
+          <template #confirm="{ props, disabled }">
+            <base-button
+              v-bind="props"
+              :disabled="disabled"
+              :text="t('common.save')"
+            />
+          </template>
+        </confirm-card>
+      </v-dialog>
     </template>
   </base-view>
 </template>
 
 <script setup lang="ts">
 import type {
+  AppointmentRequestDTO,
   BookingDetailResponseDTO,
   BookingRequestDTO,
   BookingStatusDTOCurrentStatusEnum,
@@ -62,9 +83,9 @@ import type {
 } from "@/api/raumreservierung-backend";
 import type { CalendarAppointmentEvent } from "@/components/booking/calendar/rrCalendarAppointmentEvent.vue";
 import type { ComponentPublicInstance } from "vue";
+import { computed, ref, useTemplateRef, watch } from "vue";
 
 import { mdiArrowLeft } from "@mdi/js";
-import { computed, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
@@ -72,10 +93,13 @@ import BookingDetailsSummary from "@/components/booking/BookingDetailsSummary.vu
 import RrBookingCalendar from "@/components/booking/calendar/rrBookingCalendar.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
+import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import {
   useGetBooking,
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
+import { useUpdateAppointment } from "@/composables/api/useAppointmentApi.ts";
 import { useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { FALLBACK_CATEGORY_ROOM } from "@/constants.ts";
@@ -98,6 +122,9 @@ const rules = useRules();
 const isBookingEditable = useIsBookingEditable();
 
 const booking = ref<BookingRequestDTO>();
+const appointment = ref<AppointmentRequestDTO>();
+const appointmentId = ref<string>();
+const saveHintOpen = ref(false);
 
 const bookingId = computed(() => (route.params.id as string) || undefined);
 const selectedRoomDataRef = useTemplateRef<RoomSelectExposed>("roomSelect");
@@ -109,6 +136,9 @@ const manualRoomIds = ref<string[] | null>(null);
 const { data: getBookingData, isLoading: getBookingLoading } = useGetBooking(
   bookingId.value
 );
+
+const { call: updateAppointment, loading: updateAppointmentLoading } =
+  useUpdateAppointment();
 
 const { call: updateBooking, loading: updateBookingLoading } =
   useUpdateBooking();
@@ -140,12 +170,13 @@ const computedBooking = computed(() => {
 
 const eventChanged = computed(
   () =>
-    getBookingData.value &&
-    booking.value &&
-    (getBookingData.value.schedule.occupancyStart.getTime() !==
-      booking.value.schedule.occupancyStart.getTime() ||
-      (getBookingData.value.room &&
-        getBookingData.value.room.id !== booking.value.roomId))
+    !!appointment.value ||
+    (getBookingData.value &&
+      booking.value &&
+      (getBookingData.value.schedule.occupancyStart.getTime() !==
+        booking.value.schedule.occupancyStart.getTime() ||
+        (getBookingData.value.room &&
+          getBookingData.value.room.id !== booking.value.roomId)))
 );
 
 const selectedRoomIds = computed({
@@ -161,6 +192,34 @@ const selectedRoomIds = computed({
   },
 });
 
+const saveHintText = computed(() =>
+  appointment.value
+    ? t("components.bookingsCalendarView.saveHint.appointment")
+    : t("components.bookingsCalendarView.saveHint.booking")
+);
+
+const confirmSave = async () => {
+  saveHintOpen.value = false;
+  await updateBookingSchedule();
+};
+
+const shiftSchedule = (
+  base: ScheduleTemplate,
+  start: Date,
+  end: Date
+): ScheduleTemplate => {
+  const diffMs = start.getTime() - new Date(base.occupancyStart).getTime();
+  const shift = (date?: Date | string) =>
+    date ? new Date(new Date(date).getTime() + diffMs) : undefined;
+
+  return {
+    occupancyStart: start,
+    occupancyEnd: end,
+    appointmentStart: shift(base.appointmentStart),
+    appointmentEnd: shift(base.appointmentEnd),
+  };
+};
+
 /**
  * Updates {@link booking} by calculating the diff from new start and end Date and applying it to the schedule and updating the roomId.
  */
@@ -168,27 +227,25 @@ const updateSchedule = (event: CalendarAppointmentEvent) => {
   if (!booking.value) {
     return;
   }
-  const diffMs =
-    event.start.getTime() - booking.value.schedule.occupancyStart.getTime();
 
-  const newSchedule: ScheduleTemplate = {
-    occupancyStart: event.start,
-    occupancyEnd: event.end,
-    appointmentStart: booking.value.schedule.appointmentStart
-      ? new Date(booking.value.schedule.appointmentStart.getTime() + diffMs)
-      : undefined,
-    appointmentEnd: booking.value.schedule.appointmentEnd
-      ? new Date(booking.value.schedule.appointmentEnd.getTime() + diffMs)
-      : undefined,
-  };
+  const newRoomId =
+    event.category === FALLBACK_CATEGORY_ROOM.categoryName
+      ? undefined
+      : event.category;
 
-  booking.value = {
-    ...booking.value,
-    schedule: newSchedule,
-    roomId:
-      event.category === FALLBACK_CATEGORY_ROOM.categoryName
-        ? undefined
-        : event.category,
+  if (newRoomId !== booking.value.roomId) {
+    booking.value = {
+      ...booking.value,
+      schedule: shiftSchedule(booking.value.schedule, event.start, event.end),
+      roomId: newRoomId,
+    };
+    appointmentId.value = undefined;
+    appointment.value = undefined;
+    return;
+  }
+  appointmentId.value = event.raw.id;
+  appointment.value = {
+    schedule: shiftSchedule(event.raw.schedule, event.start, event.end),
   };
 };
 
@@ -217,6 +274,13 @@ const updateBookingStatus = async (
  * Updates the changed schedule or room
  */
 const updateBookingSchedule = async () => {
+  if (appointmentId.value && appointment.value) {
+    await updateAppointment({
+      appointmentId: appointmentId.value,
+      appointmentRequestDTO: appointment.value,
+    });
+    return;
+  }
   if (booking.value && getBookingData.value) {
     await updateBooking({
       bookingId: getBookingData.value.id,
