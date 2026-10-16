@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.room.dto;
 
+import de.muenchen.raumreservierung.weekschedule.WeekScheduleCategory;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -17,5 +18,6 @@ public record RoomRequestDTO(@NotNull @Size(min = 2, max = 100) String name,
         List<SeatingCapacityRequestDTO> roomSeatingCapacities,
         List<UUID> equipmentIds,
         UUID contactPersonId,
-        UUID pictureId) {
+        UUID pictureId,
+        WeekScheduleCategory weekScheduleCategory) {
 }

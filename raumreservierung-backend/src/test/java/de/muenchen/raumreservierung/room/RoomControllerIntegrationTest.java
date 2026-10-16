@@ -379,6 +379,7 @@ class RoomControllerIntegrationTest {
                 seatingReqs,
                 equipmentUUIDs,
                 contactPersonId,
+                null,
                 null);
     }
 
@@ -394,6 +395,7 @@ class RoomControllerIntegrationTest {
                 List.of(),
                 List.of(),
                 null,
+                null,
                 null);
     }
 
@@ -408,6 +410,7 @@ class RoomControllerIntegrationTest {
                 50,
                 List.of(),
                 List.of(),
+                null,
                 null,
                 null);
     }

@@ -48,7 +48,16 @@
             <v-responsive>
               <v-card flat>
                 <v-card-item>
-                  <v-card-title>{{ roomData?.name }}</v-card-title>
+                  <v-card-title>
+                    {{ roomData?.name }}
+                    <span v-if="roomData?.weekScheduleCategory">
+                      {{
+                        "(" +
+                        weekScheduleCategoryMap[roomData.weekScheduleCategory] +
+                        ")"
+                      }}
+                    </span>
+                  </v-card-title>
 
                   <v-card-subtitle class="opacity-100">
                     <span class="text-medium-emphasis">
@@ -290,6 +299,11 @@ watch([error, () => roomData.value?.id], async () => {
 });
 
 const pictureUrl = useObjectUrl(picture);
+
+const weekScheduleCategoryMap = {
+  ALTES_RATHAUS: t("domain.weekScheduleCategory.altesRathaus"),
+  NEUES_RATHAUS: t("domain.weekScheduleCategory.neuesRathaus"),
+};
 </script>
 
 <style scoped>

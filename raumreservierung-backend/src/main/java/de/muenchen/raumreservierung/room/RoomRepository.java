@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.room;
 
 import de.muenchen.raumreservierung.file.FileAttachment;
+import de.muenchen.raumreservierung.weekschedule.WeekScheduleCategory;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -18,6 +19,8 @@ public interface RoomRepository extends JpaRepository<Room, UUID> {
     Optional<Room> findFirstByOrderByCapacityDesc();
 
     List<Room> findByIsActiveTrue();
+
+    List<Room> findByIsActiveTrueAndWeekScheduleCategoryOrderByNameAsc(WeekScheduleCategory weekScheduleCategory);
 
     List<Room> findByPicture(FileAttachment picture);
 
