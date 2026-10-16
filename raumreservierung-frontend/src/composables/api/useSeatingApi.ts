@@ -7,6 +7,7 @@ import type {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 
 import { SeatingControllerApi } from "@/api/raumreservierung-backend";
+import { ROOM_KEY } from "@/composables/api/useRoomsApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
 
 const SEATING_TYPE_KEY = "allSeatingTypes";
@@ -40,6 +41,7 @@ export const useUpdateSeatingType = () => {
       api.updateSeatingType(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [SEATING_TYPE_KEY] });
+      queryClient.invalidateQueries({ queryKey: [ROOM_KEY] });
     },
   });
 };
@@ -52,6 +54,15 @@ export const useDeleteSeatingType = () => {
       api.deleteSeatingType(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [SEATING_TYPE_KEY] });
+      queryClient.invalidateQueries({ queryKey: [ROOM_KEY] });
     },
+  });
+};
+
+export const useCheckSeatingTypeDeletableMutation = () => {
+  const api = ApiFactory.getInstance(SeatingControllerApi);
+  return useMutation({
+    mutationFn: (seatingTypeId: string) =>
+      api.isSeatingTypeDeletable({ seatingTypeId }),
   });
 };

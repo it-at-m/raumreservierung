@@ -3,6 +3,7 @@ package de.muenchen.raumreservierung.booking;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.person.domain.Person_;
 import de.muenchen.raumreservierung.room.Room_;
+import de.muenchen.raumreservierung.seating.SeatingType_;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -56,6 +57,18 @@ public final class BookingSpecifications {
         return (root, query, cb) -> cb.or(
                 cb.equal(root.get(Booking_.bookedBy), person),
                 cb.equal(root.get(Booking_.bookedFor), person));
+    }
+
+    static <T extends Booking> Specification<T> forSeatingTypeId(final UUID seatingTypeId) {
+        return (root, query, cb) -> cb.equal(root.get(Booking_.seatingType).get(SeatingType_.id), seatingTypeId);
+    }
+
+    static <T extends Booking> Specification<T> forOccupancyEndAfter(final OffsetDateTime now) {
+        return (root, query, cb) -> cb.greaterThan(root.get(Booking_.schedule).get(ScheduleTemplate_.occupancyEnd), now);
+    }
+
+    static <T extends Booking> Specification<T> excludingStatus(final BookingStatus... status) {
+        return (root, query, cb) -> cb.not(root.get(Booking_.status).in(List.of(status)));
     }
 
     static <T extends Booking> Specification<T> forPersonBookedFor(final UUID personId) {
