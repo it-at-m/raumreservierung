@@ -87,7 +87,6 @@
               hide-details="auto"
             />
           </v-col>
-
           <v-col
             v-if="isPrivileged"
             :cols="showStatus ? 6 : 12"
@@ -109,6 +108,7 @@
           >
             <general-status-select
               v-model="bookingData.status"
+              density="comfortable"
               :label="t('domain.booking.statusTitle')"
               :loading="
                 getBookingLoading ||
