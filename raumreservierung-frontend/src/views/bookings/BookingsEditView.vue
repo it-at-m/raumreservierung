@@ -503,9 +503,17 @@ onMounted(async () => {
     bookingData.value = { ...EMPTY_BOOKING_REQUEST_DATA };
 
     const queryRoomId = route.query.roomId as string | undefined;
+    const queryOccupancyStart = route.query.start as string | undefined;
+    const queryOccupancyEnd = route.query.end as string | undefined;
     if (queryRoomId) {
       bookingData.value.roomId = queryRoomId;
       selectedRoomId.value = queryRoomId;
+    }
+    if (queryOccupancyStart && queryOccupancyEnd) {
+      bookingData.value.schedule = {
+        occupancyStart: new Date(queryOccupancyStart),
+        occupancyEnd: new Date(queryOccupancyEnd),
+      };
     }
   }
 });
