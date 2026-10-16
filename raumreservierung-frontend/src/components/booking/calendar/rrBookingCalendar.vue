@@ -306,7 +306,7 @@ defineExpose({
 :root {
   --v-theme-schoolHolidayColor: #00000000;
   --v-theme-weekendColor: #00000000;
-  --v-theme-publicHolidayColor: #00000000
+  --v-theme-publicHolidayColor: #00000000;
 }
 
 .weekend {
