@@ -1,20 +1,11 @@
 package de.muenchen.raumreservierung.appointment;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.validation.Valid;
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.Recur;
@@ -26,12 +17,27 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
+
 @Service
 @Slf4j
 @RequiredArgsConstructor
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final ApplicationEventPublisher publisher;
+
+    private static final ZoneId ZONE = ZoneId.of("Europe/Berlin");
 
     @PreAuthorize(Authorities.APPOINTMENT_SELF)
     public Page<Appointment> getAppointmentsByPageableAndFilter(final Pageable pageable, @Valid final AppointmentFilterDTO appointmentFilterDTO) {
@@ -88,16 +94,17 @@ public class AppointmentService {
         final Duration offsetAppointmentEnd = Duration.between(base.appointmentStart(), base.appointmentEnd());
 
         final String rrule = parse(booking.getRecurringRule());
-        final Recur<OffsetDateTime> recur = new Recur<>(rrule);
+        final Recur<ZonedDateTime> recur = new Recur<>(rrule);
 
-        final OffsetDateTime seed = base.appointmentStart();
-        final OffsetDateTime limit = recur.getUntil() != null
+        final ZonedDateTime seed = base.appointmentStart().atZoneSameInstant(ZONE);
+        final ZonedDateTime limit = recur.getUntil() != null
                 ? recur.getUntil()
                 : seed.plusYears(1);
 
-        final List<OffsetDateTime> dates = recur.getDates(seed, seed, limit);
+        final List<ZonedDateTime> dates = recur.getDates(seed, seed, limit);
 
-        return dates.stream().map(date -> {
+        return dates.stream().map(zonedDate -> {
+            final OffsetDateTime date = zonedDate.toOffsetDateTime().withOffsetSameInstant(ZoneOffset.UTC);
             final ScheduleTemplate newSchedule = new ScheduleTemplate(
                     date.plus(offsetOccupancyStart),
                     date.plus(offsetOccupancyEnd),
