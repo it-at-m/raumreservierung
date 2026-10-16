@@ -25,21 +25,22 @@
       />
       <rr-booking-calendar
         v-if="
-          getBookingData &&
           selectedRoomDataRef?.selectedRoomData &&
           selectedRoomDataRef.selectedRoomData.length > 0
         "
         ref="bookingCalendar"
-        :booking-id="getBookingData.id"
+        :booking-id="getBookingData?.id"
         :room-id="booking?.roomId"
         :focus-date="
           booking?.schedule.occupancyStart ??
-          getBookingData.schedule.occupancyStart
+          getBookingData?.schedule.occupancyStart ??
+          new Date()
         "
         :displayed-rooms="selectedRoomDataRef.selectedRoomData"
         @updated-schedule="updateSchedule"
       />
       <booking-details-summary
+        v-if="bookingId"
         class="mt-4"
         :booking="computedBooking"
         :booking-changed="eventChanged"
@@ -48,6 +49,73 @@
         @cancel="resetBooking"
         @confirm="updateBookingSchedule"
       />
+      <v-card
+        v-else
+        class="mt-4"
+      >
+        <template #actions>
+          <i18n-t
+            v-if="
+              booking &&
+              dateEquals(
+                booking.schedule.occupancyStart,
+                booking.schedule.occupancyEnd
+              )
+            "
+            class="ml-1"
+            keypath="views.bookingsCalendarView.createInDateRangeSameDay"
+            scope="global"
+            tag="span"
+          >
+            <template #date>
+              {{ d(booking?.schedule.occupancyStart, "short") }}
+            </template>
+            <template #start>
+              {{ d(booking?.schedule.occupancyStart, "time") }}
+            </template>
+            <template #end>
+              {{ d(booking?.schedule.occupancyEnd, "time") }}
+            </template>
+          </i18n-t>
+          <i18n-t
+            v-else-if="booking"
+            class="ml-1"
+            keypath="views.bookingsCalendarView.createInDateRangeMultiDay"
+            scope="global"
+            tag="span"
+          >
+            <template #start>
+              {{ d(booking?.schedule.occupancyStart, "long") }}
+            </template>
+            <template #end>
+              {{ d(booking?.schedule.occupancyEnd, "long") }}
+            </template>
+          </i18n-t>
+          <i18n-t
+            v-else
+            class="ml-1"
+            keypath="views.bookingsCalendarView.drawNewDateRange"
+            scope="global"
+            tag="span"
+          />
+          <v-spacer />
+          <base-button
+            text="Erstellen"
+            :disabled="!booking"
+            :append-icon="mdiCalendarQuestion"
+            @click="
+              router.push({
+                name: ROUTES.MY_BOOKINGS_CREATE,
+                query: {
+                  roomId: booking?.roomId,
+                  start: booking?.schedule.occupancyStart.toISOString(),
+                  end: booking?.schedule.occupancyEnd.toISOString(),
+                },
+              })
+            "
+          />
+        </template>
+      </v-card>
     </template>
   </base-view>
 </template>
@@ -56,14 +124,15 @@
 import type {
   BookingDetailResponseDTO,
   BookingRequestDTO,
-  BookingStatusDTOCurrentStatusEnum,
   RoomListResponseDTO,
   ScheduleTemplate,
 } from "@/api/raumreservierung-backend";
+
+import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 import type { CalendarAppointmentEvent } from "@/components/booking/calendar/rrCalendarAppointmentEvent.vue";
 import type { ComponentPublicInstance } from "vue";
 
-import { mdiArrowLeft } from "@mdi/js";
+import { mdiArrowLeft, mdiCalendarQuestion } from "@mdi/js";
 import { computed, ref, useTemplateRef, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -78,9 +147,10 @@ import {
 } from "@/composables/api/useBookingsApi.ts";
 import { useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { useRules } from "@/composables/useRules.ts";
-import { FALLBACK_CATEGORY_ROOM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { mapBookingResponseToRequest } from "@/util/bookingTypeUtil.ts";
+import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import { dateEquals } from "@/util/timeUtil.ts";
 
 interface RoomSelectExposed extends ComponentPublicInstance {
   selectedRoomData: RoomListResponseDTO[];
@@ -90,7 +160,7 @@ interface RrBookingCalendarExposed extends ComponentPublicInstance {
   resetAppointments: () => unknown;
 }
 
-const { t } = useI18n();
+const { t, d } = useI18n();
 const route = useRoute();
 const router = useRouter();
 
@@ -165,30 +235,30 @@ const selectedRoomIds = computed({
  * Updates {@link booking} by calculating the diff from new start and end Date and applying it to the schedule and updating the roomId.
  */
 const updateSchedule = (event: CalendarAppointmentEvent) => {
-  if (!booking.value) {
-    return;
-  }
-  const diffMs =
-    event.start.getTime() - booking.value.schedule.occupancyStart.getTime();
+  const diffMs = booking.value
+    ? event.start.getTime() - booking.value.schedule.occupancyStart.getTime()
+    : 0;
 
   const newSchedule: ScheduleTemplate = {
     occupancyStart: event.start,
     occupancyEnd: event.end,
-    appointmentStart: booking.value.schedule.appointmentStart
+    appointmentStart: booking.value?.schedule.appointmentStart
       ? new Date(booking.value.schedule.appointmentStart.getTime() + diffMs)
       : undefined,
-    appointmentEnd: booking.value.schedule.appointmentEnd
+    appointmentEnd: booking.value?.schedule.appointmentEnd
       ? new Date(booking.value.schedule.appointmentEnd.getTime() + diffMs)
       : undefined,
   };
-
   booking.value = {
     ...booking.value,
+    title: booking.value?.title ?? "",
+    status: booking.value?.status ?? BookingStatusDTOCurrentStatusEnum.NEW,
     schedule: newSchedule,
-    roomId:
-      event.category === FALLBACK_CATEGORY_ROOM.categoryName
-        ? undefined
-        : event.category,
+    roomId: event.category
+      ? event.category
+      : manualRoomIds.value
+        ? manualRoomIds.value[0]
+        : "",
   };
 };
 

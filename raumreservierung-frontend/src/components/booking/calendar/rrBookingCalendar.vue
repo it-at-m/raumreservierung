@@ -40,7 +40,9 @@
         :events="localEvents"
         :event-color="getEventColor"
         @click:event="showEvent"
-        @mousedown:event="startDrag"
+        @mousedown:event.stop="startDrag"
+        @mousedown:time="startTime"
+        @mousedown:time-category="startTime"
         @mouseleave="cancelDrag"
         @mousemove:time="mouseMove"
         @mousemove:time-category="mouseMove"
@@ -67,7 +69,7 @@
         location="end"
       >
         <rr-calendar-appointment-popup
-          v-if="selectedEvent"
+          v-if="selectedEvent && selectedEvent.raw.id"
           :appointment="selectedEvent.raw"
         />
       </v-menu>
@@ -92,6 +94,7 @@ import { useCalendarPopup } from "@/composables/calendar/useCalendarPopup.ts";
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { FALLBACK_CATEGORY_ROOM } from "@/constants.ts";
 import { toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
+import { FALLBACK_CONFIG } from "@/constants/BookingStatus.ts";
 
 interface CalendarCategories {
   name: string;
@@ -107,12 +110,13 @@ const editedAppointments = ref<Map<string, CalendarAppointmentEvent>>(
 const { displayedRooms, bookingId, roomId, focusDate } = defineProps<{
   focusDate: Date;
   roomId?: string;
-  bookingId: string;
+  bookingId?: string;
   displayedRooms: RoomListResponseDTO[];
 }>();
 
 const emit = defineEmits<{
   updatedSchedule: [event: CalendarAppointmentEvent];
+  createdSchedule: [event: CalendarAppointmentEvent];
 }>();
 
 const { resolveColor } = useBookingStatusConfig();
@@ -126,7 +130,7 @@ const calendarCategories = computed(() => {
       }) as CalendarCategories
   );
 
-  if (!roomId) {
+  if (!roomId && bookingId) {
     categories.push(FALLBACK_CATEGORY_ROOM);
   }
 
@@ -219,27 +223,40 @@ const buildLocalEvents = () => {
   localEvents.value = events;
 };
 
-const { dragWasPerformed, startDrag, endDrag, cancelDrag, mouseMove } =
-  useCalendarDragAndDrop(
-    toRef(() => bookingId),
-    localEvents,
-    (dragEvent) => {
-      editedAppointments.value.set(dragEvent.raw.id, {
-        ...dragEvent,
-        start: new Date(dragEvent.start),
-        end: new Date(dragEvent.end),
-      });
-      emit("updatedSchedule", dragEvent);
-      buildLocalEvents();
-    }
-  );
+const {
+  dragWasPerformed,
+  startDrag,
+  endDrag,
+  cancelDrag,
+  mouseMove,
+  startTime,
+} = useCalendarDragAndDrop(
+  toRef(() => bookingId),
+  localEvents,
+  (dragEvent) => {
+    editedAppointments.value.set(dragEvent.raw.id, {
+      ...dragEvent,
+      start: new Date(dragEvent.start),
+      end: new Date(dragEvent.end),
+    });
+    emit("updatedSchedule", dragEvent);
+    buildLocalEvents();
+  },
+  (newEvent) => {
+    editedAppointments.value.set(newEvent.raw.id, newEvent);
+    emit("updatedSchedule", newEvent);
+    buildLocalEvents();
+  }
+);
 
 const { selectedOpen, selectedEvent, selectedElement, showEvent } =
   useCalendarPopup(dragWasPerformed);
 
 const getEventColor = (event: unknown): string => {
   const eventPayload = event as CalendarAppointmentEvent;
-  return resolveColor(eventPayload.raw.bookingMinimal.status);
+  return eventPayload.raw.id
+    ? resolveColor(eventPayload.raw.bookingMinimal.status)
+    : FALLBACK_CONFIG.color;
 };
 
 const resetAppointmentsAndEdits = () => {

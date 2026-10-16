@@ -3,11 +3,13 @@ import type { CalendarTimestamp } from "@/types/CalendarTimestamp.ts";
 import type { Ref } from "vue";
 
 import { ref } from "vue";
+import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 
 export function useCalendarDragAndDrop(
-  bookingId: Ref<string>,
+  bookingId: Ref<string | undefined>,
   localEvents: Ref<CalendarAppointmentEvent[]>,
-  onDragEnd: (event: CalendarAppointmentEvent) => void
+  onDragEnd: (event: CalendarAppointmentEvent) => void,
+  onCreateEnd?: (event: CalendarAppointmentEvent) => void
 ) {
   const dragEvent = ref<CalendarAppointmentEvent | undefined>(undefined);
   const dragTime = ref<number | undefined>(undefined);
@@ -20,6 +22,9 @@ export function useCalendarDragAndDrop(
       }
     | undefined
   >(undefined);
+
+  const createEvent = ref<CalendarAppointmentEvent | undefined>(undefined);
+  const createStart = ref<number | undefined>(undefined);
 
   const startDrag = (
     nativeEvent: Event,
@@ -51,18 +56,65 @@ export function useCalendarDragAndDrop(
     }
   };
 
-  const endDrag = () => {
-    if (!dragEvent.value || !dragOriginalData.value) {
+  const startTime = (nativeEvent: Event, payload: CalendarTimestamp) => {
+    if (bookingId.value !== undefined) {
       return;
     }
 
-    if (dragWasPerformed.value) {
+    if (createEvent.value !== undefined) {
+      return;
+    }
+
+    const mouse = toTime(payload);
+    createStart.value = roundTime(mouse);
+
+    const targetCategory =
+      typeof payload.category === "string"
+        ? payload.category
+        : payload.category?.categoryName || "";
+
+    createEvent.value = {
+      start: new Date(createStart.value),
+      end: new Date(createStart.value + 15 * 60 * 1000),
+      category: targetCategory,
+      timed: true,
+      raw: {
+        id: undefined,
+        bookingMinimal: {
+          id: undefined,
+          status: BookingStatusDTOCurrentStatusEnum.NEW,
+          roomId: targetCategory,
+        },
+        schedule: { occupancyStart: "", occupancyEnd: "" },
+      },
+    } as unknown as CalendarAppointmentEvent;
+
+    localEvents.value.push(createEvent.value);
+  };
+
+  const endDrag = () => {
+    if (dragEvent.value && dragOriginalData.value && dragWasPerformed.value) {
       onDragEnd(dragEvent.value);
+    }
+
+    if (createEvent.value && onCreateEnd) {
+      if (
+        createEvent.value.start.getTime() !== createEvent.value.end.getTime()
+      ) {
+        onCreateEnd(createEvent.value);
+      } else {
+        localEvents.value = localEvents.value.filter(
+          (e) => e.raw.id !== undefined
+        );
+      }
     }
 
     dragEvent.value = undefined;
     dragTime.value = undefined;
     dragOriginalData.value = undefined;
+
+    createEvent.value = undefined;
+    createStart.value = undefined;
   };
 
   const cancelDrag = () => {
@@ -72,10 +124,19 @@ export function useCalendarDragAndDrop(
       dragEvent.value.category = dragOriginalData.value.category;
     }
 
+    if (createEvent.value) {
+      localEvents.value = localEvents.value.filter(
+        (e) => e.raw.id !== undefined
+      );
+    }
+
     dragEvent.value = undefined;
     dragTime.value = undefined;
     dragOriginalData.value = undefined;
     dragWasPerformed.value = false;
+
+    createEvent.value = undefined;
+    createStart.value = undefined;
   };
 
   const toTime = (tms: CalendarTimestamp): number => {
@@ -96,32 +157,38 @@ export function useCalendarDragAndDrop(
   };
 
   const mouseMove = (_: Event, payload: CalendarTimestamp) => {
-    if (!dragEvent.value || !dragOriginalData.value) {
-      return;
-    }
-
     const mouse = toTime(payload);
 
-    if (dragTime.value === undefined) {
-      dragTime.value = mouse - dragEvent.value.start.getTime();
-    } else {
-      dragWasPerformed.value = true;
-    }
+    if (dragEvent.value && dragOriginalData.value) {
+      if (dragTime.value === undefined) {
+        dragTime.value = mouse - dragEvent.value.start.getTime();
+      } else {
+        dragWasPerformed.value = true;
+      }
 
-    const duration = dragOriginalData.value.end - dragOriginalData.value.start;
-    const newStartTime = mouse - dragTime.value;
-    const newStart = roundTime(newStartTime);
+      const duration =
+        dragOriginalData.value.end - dragOriginalData.value.start;
+      const newStartTime = mouse - dragTime.value;
+      const newStart = roundTime(newStartTime);
 
-    dragEvent.value.start = new Date(newStart);
-    dragEvent.value.end = new Date(newStart + duration);
+      dragEvent.value.start = new Date(newStart);
+      dragEvent.value.end = new Date(newStart + duration);
 
-    const targetCategory =
-      typeof payload.category === "string"
-        ? payload.category
-        : payload.category?.categoryName;
+      const targetCategory =
+        typeof payload.category === "string"
+          ? payload.category
+          : payload.category?.categoryName;
 
-    if (targetCategory) {
-      dragEvent.value.category = targetCategory;
+      if (targetCategory) {
+        dragEvent.value.category = targetCategory;
+      }
+    } else if (createEvent.value && createStart.value !== undefined) {
+      const mouseRounded = roundTime(mouse, false);
+      const min = Math.min(mouseRounded, createStart.value);
+      const max = Math.max(mouseRounded, createStart.value);
+
+      createEvent.value.start = new Date(min);
+      createEvent.value.end = new Date(max);
     }
   };
 
@@ -131,6 +198,7 @@ export function useCalendarDragAndDrop(
     dragWasPerformed,
     dragOriginalData,
     startDrag,
+    startTime,
     endDrag,
     cancelDrag,
     mouseMove,
