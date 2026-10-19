@@ -21,7 +21,7 @@ import org.mapstruct.Named;
 @Mapper
 public interface WeekScheduleMapper {
     DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
-    DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM.");
+    DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM");
     int MAX_TITLE_LENGTH = 50;
 
     @Mapping(target = "occupancyTime", source = "schedule", qualifiedByName = "occupancyTime")
