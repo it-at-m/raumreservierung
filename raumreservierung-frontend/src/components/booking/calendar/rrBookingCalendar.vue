@@ -55,7 +55,7 @@
           <div
             :class="getDayClasses(date)"
             class="w-100 h-100"
-          ></div>
+          />
         </template>
         <template #event="{ event }">
           <rr-calendar-appointment-event
@@ -185,28 +185,36 @@ const { data: bookingAppointments } = useGetAppointments(() => {
       };
 });
 
+const publicHolidays = computed(() => {
+  return holidays.value?.filter((h) => dateEquals(h.startDate, h.endDate)) || [];
+});
+
+const schoolHolidays = computed(() => {
+  return holidays.value?.filter((h) => !dateEquals(h.startDate, h.endDate)) || [];
+});
+
 const getDayClasses = (dateStr: string): string[] => {
   const date = new Date(dateStr);
-  date.setHours(0, 0, 0, 0);
-  const publicHolidays = holidays.value?.filter((h) =>
-    dateEquals(h.startDate, h.endDate)
-  );
-  const schoolHolidays = holidays.value?.filter(
-    (h) => !dateEquals(h.startDate, h.endDate)
-  );
+  const startDate = new Date(toStartOfDay(date));
 
-  const isWeekend = [0, 6].includes(date.getDay());
+  const isWeekend = startDate.getDay() == 0 || startDate.getDay() == 6;
   const isPublicHoliday =
-    publicHolidays?.filter((h) => date >= h.startDate && date <= h.endDate)
+    publicHolidays.value?.filter((h) => startDate >= h.startDate && startDate <= h.endDate)
       .length == 1;
   const isSchoolHoliday =
-    schoolHolidays?.filter((h) => date >= h.startDate && date <= h.endDate)
+    schoolHolidays.value?.filter((h) => startDate >= h.startDate && startDate <= h.endDate)
       .length == 1;
   const classes = [];
 
-  if (isWeekend) classes.push("weekend");
-  if (isPublicHoliday) classes.push("public-holiday");
-  if (isSchoolHoliday) classes.push("school-holiday");
+  if (isWeekend) {
+    classes.push("weekend");
+  }
+  if (isPublicHoliday) {
+    classes.push("public-holiday");
+  }
+  if (isSchoolHoliday) {
+    classes.push("school-holiday");
+  }
 
   return classes;
 };
@@ -302,66 +310,57 @@ defineExpose({
 </script>
 
 <style scoped>
-/*Backup in case the vuetify injection fails. In this case the background would be black transparent*/
-:root {
-  --v-theme-schoolHolidayColor: #00000000;
-  --v-theme-weekendColor: #00000000;
-  --v-theme-publicHolidayColor: #00000000;
-}
-
 .weekend {
-  background-color: rgba(var(--v-theme-weekendColor));
+  background-color: rgba(var(--v-theme-weekendColor,0,0,0));
 }
 
 .public-holiday {
-  background-color: rgba(var(--v-theme-publicHolidayColor));
+  background-color: rgba(var(--v-theme-publicHolidayColor,0,0,0));
 }
 
 .school-holiday {
-  background-color: rgba(var(--v-theme-schoolHolidayColor));
+  background-color: rgba(var(--v-theme-schoolHolidayColor,0,0,0));
 }
 
-.weekend {
-  &.public-holiday {
+.weekend.public-holiday {
     background-image: repeating-linear-gradient(
       35deg,
-      rgba(var(--v-theme-weekendColor)),
-      rgba(var(--v-theme-weekendColor)) 25px,
-      rgba(var(--v-theme-publicHolidayColor)) 25px,
-      rgba(var(--v-theme-publicHolidayColor)) 50px
+      rgba(var(--v-theme-weekendColor,0,0,0)),
+      rgba(var(--v-theme-weekendColor,0,0,0)) 25px,
+      rgba(var(--v-theme-publicHolidayColor,0,0,0)) 25px,
+      rgba(var(--v-theme-publicHolidayColor,0,0,0)) 50px
     );
-  }
-  &.school-holiday {
-    background-image: repeating-linear-gradient(
-      35deg,
-      rgba(var(--v-theme-weekendColor)),
-      rgba(var(--v-theme-weekendColor)) 25px,
-      rgba(var(--v-theme-schoolHolidayColor)) 25px,
-      rgba(var(--v-theme-schoolHolidayColor)) 50px
-    );
-  }
-  &.public-holiday.school-holiday {
-    background-image: repeating-linear-gradient(
-      35deg,
-      rgba(var(--v-theme-weekendColor)),
-      rgba(var(--v-theme-weekendColor)) 16.6px,
-      rgba(var(--v-theme-publicHolidayColor)) 16.6px,
-      rgba(var(--v-theme-publicHolidayColor)) 33.3px,
-      rgba(var(--v-theme-schoolHolidayColor)) 33.3px,
-      rgba(var(--v-theme-schoolHolidayColor)) 50px
-    );
-  }
 }
 
-.public-holiday {
-  &.school-holiday {
+.weekend.school-holiday {
     background-image: repeating-linear-gradient(
       35deg,
-      rgba(var(--v-theme-publicHolidayColor)),
-      rgba(var(--v-theme-publicHolidayColor)) 25px,
-      rgba(var(--v-theme-schoolHolidayColor)) 25px,
-      rgba(var(--v-theme-schoolHolidayColor)) 50px
+      rgba(var(--v-theme-weekendColor,0,0,0)),
+      rgba(var(--v-theme-weekendColor,0,0,0)) 25px,
+      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 25px,
+      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 50px
     );
-  }
+}
+
+.weekend.public-holiday.school-holiday {
+    background-image: repeating-linear-gradient(
+      35deg,
+      rgba(var(--v-theme-weekendColor,0,0,0)),
+      rgba(var(--v-theme-weekendColor,0,0,0)) 16.6px,
+      rgba(var(--v-theme-publicHolidayColor,0,0,0)) 16.6px,
+      rgba(var(--v-theme-publicHolidayColor,0,0,0)) 33.3px,
+      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 33.3px,
+      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 50px
+    );
+}
+
+.public-holiday.school-holiday {
+    background-image: repeating-linear-gradient(
+      35deg,
+      rgba(var(--v-theme-publicHolidayColor,0,0,0)),
+      rgba(var(--v-theme-publicHolidayColor,0,0,0)) 25px,
+      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 25px,
+      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 50px
+    );
 }
 </style>
