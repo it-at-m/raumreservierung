@@ -185,22 +185,24 @@ const { data: bookingAppointments } = useGetAppointments(() => {
       };
 });
 
-const publicHolidays = computed(() => holidays.value?.filter((h) => dateEquals(h.startDate, h.endDate)) || []);
-const schoolHolidays = computed(() => holidays.value?.filter((h) => !dateEquals(h.startDate, h.endDate)) || []);
+const publicHolidays = computed(
+  () => holidays.value?.filter((h) => dateEquals(h.startDate, h.endDate)) || []
+);
+const schoolHolidays = computed(
+  () => holidays.value?.filter((h) => !dateEquals(h.startDate, h.endDate)) || []
+);
 
 const getDayClasses = (dateStr: string): string[] => {
   const date = new Date(dateStr);
   const startDate = new Date(toStartOfDay(date));
 
   const isWeekend = startDate.getDay() === 0 || startDate.getDay() === 6;
-  const isPublicHoliday =
-    publicHolidays.value?.some(
-      (h) => startDate >= h.startDate && startDate <= h.endDate
-    );
-  const isSchoolHoliday =
-    schoolHolidays.value?.some(
-      (h) => startDate >= h.startDate && startDate <= h.endDate
-    );
+  const isPublicHoliday = publicHolidays.value?.some(
+    (h) => startDate >= h.startDate && startDate <= h.endDate
+  );
+  const isSchoolHoliday = schoolHolidays.value?.some(
+    (h) => startDate >= h.startDate && startDate <= h.endDate
+  );
   const classes = [];
 
   if (isWeekend) {
