@@ -186,11 +186,15 @@ const { data: bookingAppointments } = useGetAppointments(() => {
 });
 
 const publicHolidays = computed(() => {
-  return holidays.value?.filter((h) => dateEquals(h.startDate, h.endDate)) || [];
+  return (
+    holidays.value?.filter((h) => dateEquals(h.startDate, h.endDate)) || []
+  );
 });
 
 const schoolHolidays = computed(() => {
-  return holidays.value?.filter((h) => !dateEquals(h.startDate, h.endDate)) || [];
+  return (
+    holidays.value?.filter((h) => !dateEquals(h.startDate, h.endDate)) || []
+  );
 });
 
 const getDayClasses = (dateStr: string): string[] => {
@@ -199,11 +203,13 @@ const getDayClasses = (dateStr: string): string[] => {
 
   const isWeekend = startDate.getDay() == 0 || startDate.getDay() == 6;
   const isPublicHoliday =
-    publicHolidays.value?.filter((h) => startDate >= h.startDate && startDate <= h.endDate)
-      .length == 1;
+    publicHolidays.value?.filter(
+      (h) => startDate >= h.startDate && startDate <= h.endDate
+    ).length == 1;
   const isSchoolHoliday =
-    schoolHolidays.value?.filter((h) => startDate >= h.startDate && startDate <= h.endDate)
-      .length == 1;
+    schoolHolidays.value?.filter(
+      (h) => startDate >= h.startDate && startDate <= h.endDate
+    ).length == 1;
   const classes = [];
 
   if (isWeekend) {
@@ -311,56 +317,56 @@ defineExpose({
 
 <style scoped>
 .weekend {
-  background-color: rgba(var(--v-theme-weekendColor,0,0,0));
+  background-color: rgba(var(--v-theme-weekendColor, 0, 0, 0));
 }
 
 .public-holiday {
-  background-color: rgba(var(--v-theme-publicHolidayColor,0,0,0));
+  background-color: rgba(var(--v-theme-publicHolidayColor, 0, 0, 0));
 }
 
 .school-holiday {
-  background-color: rgba(var(--v-theme-schoolHolidayColor,0,0,0));
+  background-color: rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0));
 }
 
 .weekend.public-holiday {
-    background-image: repeating-linear-gradient(
-      35deg,
-      rgba(var(--v-theme-weekendColor,0,0,0)),
-      rgba(var(--v-theme-weekendColor,0,0,0)) 25px,
-      rgba(var(--v-theme-publicHolidayColor,0,0,0)) 25px,
-      rgba(var(--v-theme-publicHolidayColor,0,0,0)) 50px
-    );
+  background-image: repeating-linear-gradient(
+    35deg,
+    rgba(var(--v-theme-weekendColor, 0, 0, 0)),
+    rgba(var(--v-theme-weekendColor, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)) 50px
+  );
 }
 
 .weekend.school-holiday {
-    background-image: repeating-linear-gradient(
-      35deg,
-      rgba(var(--v-theme-weekendColor,0,0,0)),
-      rgba(var(--v-theme-weekendColor,0,0,0)) 25px,
-      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 25px,
-      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 50px
-    );
+  background-image: repeating-linear-gradient(
+    35deg,
+    rgba(var(--v-theme-weekendColor, 0, 0, 0)),
+    rgba(var(--v-theme-weekendColor, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 50px
+  );
 }
 
 .weekend.public-holiday.school-holiday {
-    background-image: repeating-linear-gradient(
-      35deg,
-      rgba(var(--v-theme-weekendColor,0,0,0)),
-      rgba(var(--v-theme-weekendColor,0,0,0)) 16.6px,
-      rgba(var(--v-theme-publicHolidayColor,0,0,0)) 16.6px,
-      rgba(var(--v-theme-publicHolidayColor,0,0,0)) 33.3px,
-      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 33.3px,
-      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 50px
-    );
+  background-image: repeating-linear-gradient(
+    35deg,
+    rgba(var(--v-theme-weekendColor, 0, 0, 0)),
+    rgba(var(--v-theme-weekendColor, 0, 0, 0)) 16.6px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)) 16.6px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)) 33.3px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 33.3px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 50px
+  );
 }
 
 .public-holiday.school-holiday {
-    background-image: repeating-linear-gradient(
-      35deg,
-      rgba(var(--v-theme-publicHolidayColor,0,0,0)),
-      rgba(var(--v-theme-publicHolidayColor,0,0,0)) 25px,
-      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 25px,
-      rgba(var(--v-theme-schoolHolidayColor,0,0,0)) 50px
-    );
+  background-image: repeating-linear-gradient(
+    35deg,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)),
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 50px
+  );
 }
 </style>
