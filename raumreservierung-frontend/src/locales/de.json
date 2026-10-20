@@ -177,6 +177,11 @@
       "bookedForOthersCard": "Buchung für andere Person",
       "dateTimeCard": "Datum und Uhrzeit"
     },
+    "bookingsCalendarView": {
+      "createInDateRangeSameDay": "Möchten Sie einen Termin am {date} von {start} bis {end} Uhr erstellen?",
+      "createInDateRangeMultiDay": "Möchten Sie einen Termin vom {start} bis {end} erstellen?",
+      "drawNewDateRange": "Markieren Sie einen Zeitraum für einen neuen Termin."
+    },
     "bookingListView": {
       "periodFrom": "Zeitraum von",
       "periodTo": "Zeitraum bis",
