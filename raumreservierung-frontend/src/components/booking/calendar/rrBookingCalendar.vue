@@ -185,17 +185,8 @@ const { data: bookingAppointments } = useGetAppointments(() => {
       };
 });
 
-const publicHolidays = computed(() => {
-  return (
-    holidays.value?.filter((h) => dateEquals(h.startDate, h.endDate)) || []
-  );
-});
-
-const schoolHolidays = computed(() => {
-  return (
-    holidays.value?.filter((h) => !dateEquals(h.startDate, h.endDate)) || []
-  );
-});
+const publicHolidays = computed(() => holidays.value?.filter((h) => dateEquals(h.startDate, h.endDate)) || []);
+const schoolHolidays = computed(() => holidays.value?.filter((h) => !dateEquals(h.startDate, h.endDate)) || []);
 
 const getDayClasses = (dateStr: string): string[] => {
   const date = new Date(dateStr);
