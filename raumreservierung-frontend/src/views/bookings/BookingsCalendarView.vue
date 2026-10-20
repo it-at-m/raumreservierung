@@ -13,7 +13,6 @@
       <room-select
         ref="roomSelect"
         v-model="selectedRoomIds"
-        show-inactive
         class="mb-4"
         :label="
           t('generics.select', {
