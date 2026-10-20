@@ -317,56 +317,56 @@ defineExpose({
 
 <style scoped>
 .weekend {
-  background-color: rgba(var(--v-theme-weekendColor, 0, 0, 0));
+  background-color: rgba(var(--v-theme-weekendColor, 0, 0, 0, 0));
 }
 
 .public-holiday {
-  background-color: rgba(var(--v-theme-publicHolidayColor, 0, 0, 0));
+  background-color: rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0));
 }
 
 .school-holiday {
-  background-color: rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0));
+  background-color: rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0));
 }
 
 .weekend.public-holiday {
   background-image: repeating-linear-gradient(
     35deg,
-    rgba(var(--v-theme-weekendColor, 0, 0, 0)),
-    rgba(var(--v-theme-weekendColor, 0, 0, 0)) 25px,
-    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)) 25px,
-    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)) 50px
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)),
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)) 50px
   );
 }
 
 .weekend.school-holiday {
   background-image: repeating-linear-gradient(
     35deg,
-    rgba(var(--v-theme-weekendColor, 0, 0, 0)),
-    rgba(var(--v-theme-weekendColor, 0, 0, 0)) 25px,
-    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 25px,
-    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 50px
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)),
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 50px
   );
 }
 
 .weekend.public-holiday.school-holiday {
   background-image: repeating-linear-gradient(
     35deg,
-    rgba(var(--v-theme-weekendColor, 0, 0, 0)),
-    rgba(var(--v-theme-weekendColor, 0, 0, 0)) 16.6px,
-    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)) 16.6px,
-    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)) 33.3px,
-    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 33.3px,
-    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 50px
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)),
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)) 16.6px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)) 16.6px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)) 33.3px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 33.3px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 50px
   );
 }
 
 .public-holiday.school-holiday {
   background-image: repeating-linear-gradient(
     35deg,
-    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)),
-    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0)) 25px,
-    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 25px,
-    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0)) 50px
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)),
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 50px
   );
 }
 </style>
