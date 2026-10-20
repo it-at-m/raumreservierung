@@ -201,15 +201,15 @@ const getDayClasses = (dateStr: string): string[] => {
   const date = new Date(dateStr);
   const startDate = new Date(toStartOfDay(date));
 
-  const isWeekend = startDate.getDay() == 0 || startDate.getDay() == 6;
+  const isWeekend = startDate.getDay() === 0 || startDate.getDay() === 6;
   const isPublicHoliday =
     publicHolidays.value?.filter(
       (h) => startDate >= h.startDate && startDate <= h.endDate
-    ).length == 1;
+    ).length === 1;
   const isSchoolHoliday =
     schoolHolidays.value?.filter(
       (h) => startDate >= h.startDate && startDate <= h.endDate
-    ).length == 1;
+    ).length === 1;
   const classes = [];
 
   if (isWeekend) {
