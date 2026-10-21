@@ -2,7 +2,7 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="de">
 <head>
     <meta charset="UTF-8"/>
-    <title th:text="'Dienstplan KW ' + ${week} + ' (' + ${year} + ') ' + ${category}"></title>
+    <title th:text="|Dienstplan KW ${model.week} (${model.year}) ${model.category}|"></title>
     <style>
         @page {
             size: 420mm 297mm;
@@ -52,12 +52,14 @@
         .appointment .title {
             display: table-cell;
             vertical-align: middle;
+            text-align: center;
             height: 30pt;
             line-height: 13pt;
         }
         .appointment .title-text {
             max-height: 26pt;
             overflow: hidden;
+            word-wrap: break-word;
         }
         .placeholder {
             visibility: hidden;
@@ -84,16 +86,16 @@
     <thead>
     <tr>
         <th class="room-col">
-            <div>KW [[${week}]]<span class="year"> - [[${year}]]</span></div>
-            <div class="year" th:text="${category}"></div>
+            <div>KW [[${model.week}]]<span class="year"> - [[${model.year}]]</span></div>
+            <div class="year" th:text="${model.category}"></div>
         </th>
-        <th th:each="day : ${days}">
+        <th th:each="day : ${model.days}">
             <div th:text="${day.dayName}"></div>
             <div th:text="${day.dateLabel}"></div>
         </th>
     </tr>
     </thead>
-    <tbody th:each="room, stat : ${roomRows}" th:classappend="${stat.index % 2 == 1} ? 'alt'">
+    <tbody th:each="room, stat : ${model.roomRows}" th:classappend="${stat.index % 2 == 1} ? 'alt'">
     <tr>
         <td class="room-col">
             <div th:text="${room.name}"></div>

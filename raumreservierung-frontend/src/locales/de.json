@@ -27,8 +27,7 @@
       "apptStartBeforeOccupancy": "Veranstaltungsbeginn vor Terminbeginn",
       "apptEndAfterOccupancy": "Veranstaltungsende nach Terminende",
       "invalidEmail": "Die E-Mail Adresse ist nicht valide",
-      "invalidTelefonNumber": "Diese Telefonnummer ist nicht valide",
-      "invalidKW": "KW ungültig"
+      "invalidTelefonNumber": "Diese Telefonnummer ist nicht valide"
     },
     "format": {
       "idFormat": "#{id}",
@@ -49,7 +48,7 @@
   },
   "components": {
     "exportWeekScheduleCard": {
-      "chooseWeek": "Kalenderwoche wählen",
+      "chooseWeek": "Woche wählen",
       "chooseCategory": "Kategorie wählen",
       "confirm": "Dienstplan erstellen"
     },

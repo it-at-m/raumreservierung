@@ -751,12 +751,12 @@ paths:
       - export-controller
       operationId: weekScheduleAsPDF
       parameters:
-      - name: week
+      - name: date
         in: query
-        required: false
+        required: true
         schema:
-          type: integer
-          format: int32
+          type: string
+          format: date
       - name: category
         in: query
         required: true

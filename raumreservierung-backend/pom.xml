@@ -96,6 +96,7 @@
 
         <!-- PDF dependency -->
         <pdfbox.version>3.0.8</pdfbox.version>
+        <openhtmltopdf.version>1.1.97</openhtmltopdf.version>
 
         <!-- Added to fix CVE-2026-54291 -->
         <postgresql.version>42.7.12</postgresql.version>
@@ -158,6 +159,10 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-ldap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-thymeleaf</artifactId>
         </dependency>
 
         <!-- Caching -->
@@ -254,13 +259,9 @@
             <version>${pdfbox.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-thymeleaf</artifactId>
-        </dependency>
-        <dependency>
             <groupId>io.github.openhtmltopdf</groupId>
             <artifactId>openhtmltopdf-pdfbox</artifactId>
-            <version>1.1.65</version>
+            <version>${openhtmltopdf.version}</version>
         </dependency>
 
         <!-- Testing -->

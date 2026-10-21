@@ -1,29 +1,32 @@
 <template>
   <confirm-card
-    title="Wähle Woche"
+    :title="t('components.exportWeekScheduleCard.confirm')"
     @confirm="emit('close')"
     @cancel="emit('close')"
   >
     <template #text>
-      <v-text-field
-        v-model.number="selectedWeek"
-        class="mb-4"
-        type="number"
+      <v-field
         variant="outlined"
-        persistent-hint
-        :hint="
-          weekRange
-            ? t('common.format.dateRange', {
-                start: formatDateShort(weekRange.start),
-                end: formatDateShort(weekRange.end),
-              })
-            : ''
-        "
+        active
+        class="mb-4"
         :label="t('components.exportWeekScheduleCard.chooseWeek')"
-        :min="MIN_WEEK"
-        :max="MAX_WEEK"
-        :rules="weekRules"
-      />
+        :focused="focused"
+        @focusin="focused = true"
+        @focusout="focused = false"
+      >
+        <v-date-picker
+          :model-value="weekDays"
+          multiple
+          color="primary"
+          width="100%"
+          hide-header
+          show-adjacent-months
+          show-week
+          weekday-format="short"
+          :first-day-of-week="MONDAY"
+          @update:model-value="onSelect"
+        />
+      </v-field>
       <v-select
         v-model="selectedBuilding"
         variant="outlined"
@@ -37,8 +40,8 @@
     <template #confirm="{ props }">
       <base-button
         :append-icon="mdiCalendarExportOutline"
-        :disabled="!canExport"
         :text="t('components.exportWeekScheduleCard.confirm')"
+        :disabled="!canExport"
         @click="
           redirectToDownload();
           props.onClick();
@@ -63,7 +66,6 @@ import { ApiFactory } from "@/util/apiFactory.ts";
 import { mdiCalendarExportOutline } from "@mdi/js";
 import { useDate } from "vuetify/framework";
 import { useI18n } from "vue-i18n";
-import { formatDateShort } from "@/util/timeUtil.ts";
 
 const router = useRouter();
 const { t } = useI18n();
@@ -73,18 +75,12 @@ const emit = defineEmits<{
   close: [];
 }>();
 
-const MIN_WEEK = 1;
-const MAX_WEEK = 53;
 const MONDAY = 1;
-const ISO_FIRST_WEEK_DAY = 4;
+const DAYS_IN_WEEK = 7;
 
-const selectedWeek = ref<number | null>(
-  adapter.getWeek(new Date(), MONDAY, ISO_FIRST_WEEK_DAY)
-);
-
-const selectedBuilding = ref<WeekScheduleAsPDFCategoryEnum>(
-  WeekScheduleAsPDFCategoryEnum.ALTES_RATHAUS
-);
+const selectedDate = ref<Date>(new Date());
+const selectedBuilding = ref<WeekScheduleAsPDFCategoryEnum | null>(null);
+const focused = ref(false);
 
 const buildingItems = computed(() => [
   {
@@ -97,53 +93,49 @@ const buildingItems = computed(() => [
   },
 ]);
 
-const canExport = computed(() => isWeekValid(selectedWeek.value));
-
-const isWeekValid = (value: number | null): boolean =>
-  value !== null &&
-  Number.isInteger(value) &&
-  value >= MIN_WEEK &&
-  value <= MAX_WEEK;
-
-const weekRules = [
-  (value: number | null) => isWeekValid(value) || t("common.rules.invalidKW"),
-];
-
-const currentYear = new Date().getFullYear();
-const weekRange = computed(() => {
-  if (selectedWeek.value === null) {
-    return null;
-  }
-
-  const inWeek = adapter.addWeeks(
-    new Date(currentYear, 0, 4),
-    selectedWeek.value - 1
-  );
-
-  const start = adapter.startOfWeek(inWeek, MONDAY);
-  const end = adapter.endOfDay(adapter.addDays(start, 6));
-
-  return {
-    start: adapter.toJsDate(start),
-    end: adapter.toJsDate(end),
-  };
-});
+const canExport = computed(() => selectedBuilding.value !== null);
 
 const redirectToDownload = async () => {
+  const category = selectedBuilding.value;
+  if (!category) {
+    return;
+  }
   const exportApi = ApiFactory.getInstance(ExportControllerApi);
   const params = {
-    week: selectedWeek.value ?? undefined,
-    category: selectedBuilding.value,
+    date: selectedDate.value,
+    category,
   };
 
   const requestOpts = await exportApi.weekScheduleAsPDFRequestOpts(params);
 
   const routeData = router.resolve({
     path: `${BASE_PATH}${requestOpts.path}`,
-    query: params,
+    query: {
+      date: adapter.toISO(selectedDate.value),
+      category,
+    },
   });
 
   window.open(routeData.href, "_blank");
+};
+
+const weekDays = computed<Date[]>(() => {
+  const selected = selectedDate.value;
+  const monday = adapter.startOfWeek(selected, MONDAY);
+  return Array.from({ length: DAYS_IN_WEEK }, (_, i) =>
+    adapter.toJsDate(adapter.addDays(monday, DAYS_IN_WEEK - 1 - i))
+  );
+});
+
+const isIn = (days: Date[], day: Date) =>
+  days.some((d) => adapter.isSameDay(d, day));
+
+const onSelect = (value: Date[]) => {
+  const clicked = value.find((day) => !isIn(weekDays.value, day));
+
+  if (clicked) {
+    selectedDate.value = clicked;
+  }
 };
 </script>
 

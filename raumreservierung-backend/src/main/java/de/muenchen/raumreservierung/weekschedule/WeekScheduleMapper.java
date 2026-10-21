@@ -22,7 +22,6 @@ import org.mapstruct.Named;
 public interface WeekScheduleMapper {
     DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
     DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM");
-    int MAX_TITLE_LENGTH = 50;
 
     @Mapping(target = "occupancyTime", source = "schedule", qualifiedByName = "occupancyTime")
     @Mapping(target = "appointmentTime", source = "schedule", qualifiedByName = "appointmentTime")
@@ -48,28 +47,26 @@ public interface WeekScheduleMapper {
         final String title = booking.getTitle() == null ? "" : booking.getTitle();
         final BookingType type = booking.getBookingType();
 
-        final String prefix = type == null ? "" : switch (type) {
-        case FREE -> "Frei: ";
-        case SERVICE -> "Service: ";
-        default -> "";
-        };
-
-        return truncateTitle(prefix + title);
+        return type == null || type.getLabel().isEmpty()
+                ? title
+                : String.join(": ", type.getLabel(), title);
     }
 
-    default String truncateTitle(final String title) {
-        if (title == null || title.length() <= MAX_TITLE_LENGTH) {
-            return title;
-        }
-        return title.substring(0, MAX_TITLE_LENGTH - 1) + "...";
+    default WeekScheduleView toView(final LocalDate monday,
+            final WeekScheduleCategory category,
+            final List<RoomRowExportDto> roomRows) {
+        final int week = monday.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
+        return new WeekScheduleView(
+                week,
+                monday.getYear(),
+                category.getLabel(),
+                toDayHeaders(monday),
+                roomRows);
     }
 
-    default List<DayHeaderExportDto> toDayHeaders(final int week) {
-        final LocalDate dateInWeek = LocalDate.now()
-                .with(IsoFields.WEEK_OF_WEEK_BASED_YEAR, week);
-
+    default List<DayHeaderExportDto> toDayHeaders(final LocalDate monday) {
         return Arrays.stream(DayOfWeek.values())
-                .map(dateInWeek::with)
+                .map(monday::with)
                 .map(day -> new DayHeaderExportDto(
                         day.getDayOfWeek().getDisplayName(TextStyle.SHORT, Locale.GERMAN),
                         day.format(DATE_FORMAT)))
