@@ -5,39 +5,20 @@
     "
   >
     <template #headerActions>
-      <v-dialog
-        v-if="canEditBookings"
-        :close-delay="1000"
-        max-width="700px"
-      >
-        <template #activator="{ props }">
-          <base-button
-            v-bind="props"
-            class="mr-2"
-            :append-icon="mdiExport"
-            :text="t('components.exportBookingsCard.confirm')"
-          />
-        </template>
-        <template #default="{ isActive }">
-          <export-bookings-card @close="isActive.value = false" />
-        </template>
-      </v-dialog>
-      <v-dialog
-        v-if="canEditBookings"
-        :close-delay="1000"
-        max-width="700px"
-      >
-        <template #activator="{ props }">
-          <base-button
-            v-bind="props"
-            :append-icon="mdiCalendarExportOutline"
-            :text="t('components.exportWeekScheduleCard.confirm')"
-          />
-        </template>
-        <template #default="{ isActive }">
-          <export-week-schedule-card @close="isActive.value = false" />
-        </template>
-      </v-dialog>
+      <div class="d-flex ga-2">
+        <export-dialog-button
+          :icon="mdiExport"
+          :text="t('components.exportBookingsCard.confirm')"
+          :content="ExportBookingsCard"
+          :visible="canEditBookings"
+        />
+        <export-dialog-button
+          :icon="mdiCalendarExportOutline"
+          :text="t('components.exportWeekScheduleCard.confirm')"
+          :content="ExportWeekScheduleCard"
+          :visible="canEditBookings"
+        />
+      </div>
     </template>
     <template #default>
       <booking-filter-panel
@@ -193,7 +174,6 @@ import ExportBookingsCard from "@/components/booking/ExportBookingsCard.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import {
@@ -205,6 +185,7 @@ import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
 import ExportWeekScheduleCard from "@/components/booking/ExportWeekScheduleCard.vue";
+import ExportDialogButton from "@/components/common/buttons/ExportDialogButton.vue";
 
 const route = useRoute();
 const router = useRouter();

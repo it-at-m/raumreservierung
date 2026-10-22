@@ -52,9 +52,12 @@
                     {{ roomData?.name }}
                     <span v-if="roomData?.weekScheduleCategory">
                       {{
-                        "(" +
-                        weekScheduleCategoryMap[roomData.weekScheduleCategory] +
-                        ")"
+                        t("common.format.braces", {
+                          content:
+                            weekScheduleCategoryMap[
+                              roomData.weekScheduleCategory
+                            ],
+                        })
                       }}
                     </span>
                   </v-card-title>
@@ -272,6 +275,7 @@ import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
+import { useWeekScheduleCategory } from "@/composables/useWeekScheduleCategory.ts";
 
 const router = useRouter();
 const route = useRoute();
@@ -290,6 +294,8 @@ const { data: picture, isLoading: pictureLoading } = useGetFile(
   () => roomData.value?.picture?.id
 );
 
+const { weekScheduleCategoryMap } = useWeekScheduleCategory();
+
 watch([error, () => roomData.value?.id], async () => {
   if (error.value) {
     await router.replace({
@@ -299,11 +305,6 @@ watch([error, () => roomData.value?.id], async () => {
 });
 
 const pictureUrl = useObjectUrl(picture);
-
-const weekScheduleCategoryMap = {
-  ALTES_RATHAUS: t("domain.weekScheduleCategory.altesRathaus"),
-  NEUES_RATHAUS: t("domain.weekScheduleCategory.neuesRathaus"),
-};
 </script>
 
 <style scoped>

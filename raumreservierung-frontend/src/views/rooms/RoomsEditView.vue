@@ -14,10 +14,7 @@
         :prepend-icon="mdiWindowClose"
         @click="router.back()"
       />
-      <v-dialog
-        max-width="800px"
-        width="90%"
-      >
+      <v-dialog width="90%">
         <template #activator="{ props }">
           <base-button
             :disabled="!isDeletable"
@@ -321,6 +318,7 @@ import { ROUTES } from "@/types/Routes.ts";
 import { mapResponseToFileMock } from "@/util/fileTypeUtility.ts";
 import { EMPTY_ROOM_DATA, mapResponseToRequest } from "@/util/roomTypeUtil.ts";
 import { STATUS_INDICATORS } from "@/constants.ts";
+import { useWeekScheduleCategory } from "@/composables/useWeekScheduleCategory.ts";
 
 const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
@@ -374,6 +372,8 @@ const {
   data: uploadFileData,
   error: uploadFileError,
 } = useUploadFile();
+
+const { weekScheduleCategoryMap } = useWeekScheduleCategory();
 
 watch(
   [() => roomReqData.value?.id, getRoomError],
@@ -478,16 +478,12 @@ const handleDelete = async () => {
   }
 };
 
-const weekScheduleCategoryOptions = computed(() => [
-  {
-    value: "ALTES_RATHAUS",
-    label: t("domain.weekScheduleCategory.altesRathaus"),
-  },
-  {
-    value: "NEUES_RATHAUS",
-    label: t("domain.weekScheduleCategory.neuesRathaus"),
-  },
-]);
+const weekScheduleCategoryOptions = computed(() =>
+  Object.entries(weekScheduleCategoryMap.value).map(([value, label]) => ({
+    value,
+    label,
+  }))
+);
 </script>
 
 <style scoped></style>
