@@ -11,14 +11,13 @@ import { computed } from "vue";
 
 import { RoomControllerApi } from "@/api/raumreservierung-backend";
 import { ApiFactory } from "@/util/apiFactory.ts";
-
-const ROOM_KEY = "room";
+import { CACHE_KEYS } from "@/types/CACHE_KEYS.ts";
 
 export const useGetAllRooms = (params: GetAllRoomsRequest) => {
   const api = ApiFactory.getInstance(RoomControllerApi);
 
   return useQuery({
-    queryKey: [ROOM_KEY, "list"],
+    queryKey: [CACHE_KEYS.ROOM, "list"],
     queryFn: () => api.getAllRooms(params),
   });
 };
@@ -27,7 +26,7 @@ export const useGetRoom = (roomId: Ref<string | undefined>) => {
   const api = ApiFactory.getInstance(RoomControllerApi);
 
   return useQuery({
-    queryKey: [ROOM_KEY, roomId],
+    queryKey: [CACHE_KEYS.ROOM, roomId],
     queryFn: () => {
       if (!roomId.value) {
         throw new Error("Room ID is required");
@@ -46,9 +45,11 @@ export const useDeleteRoom = () => {
   return useMutation({
     mutationFn: (params: DeleteRoomRequest) => api.deleteRoom(params),
     onSuccess: (_data, variables) => {
-      queryClient.removeQueries({ queryKey: [ROOM_KEY, variables.roomId] });
+      queryClient.removeQueries({
+        queryKey: [CACHE_KEYS.ROOM, variables.roomId],
+      });
       queryClient.invalidateQueries({
-        queryKey: [ROOM_KEY, "list"],
+        queryKey: [CACHE_KEYS.ROOM, CACHE_KEYS.LIST],
         exact: true,
       });
     },
@@ -62,9 +63,9 @@ export const useUpdateRoom = () => {
   return useMutation({
     mutationFn: (params: UpdateRoomRequest) => api.updateRoom(params),
     onSuccess: (data, variables) => {
-      queryClient.setQueryData([ROOM_KEY, variables.roomId], data);
+      queryClient.setQueryData([CACHE_KEYS.ROOM, variables.roomId], data);
       queryClient.invalidateQueries({
-        queryKey: [ROOM_KEY, "list"],
+        queryKey: [CACHE_KEYS.ROOM, CACHE_KEYS.LIST],
         exact: true,
       });
     },
@@ -78,9 +79,9 @@ export const useCreateRoom = () => {
   return useMutation({
     mutationFn: (params: CreateRoomRequest) => api.createRoom(params),
     onSuccess: (data) => {
-      queryClient.setQueryData([ROOM_KEY, data.id], data);
+      queryClient.setQueryData([CACHE_KEYS.ROOM, data.id], data);
       queryClient.invalidateQueries({
-        queryKey: [ROOM_KEY, "list"],
+        queryKey: [CACHE_KEYS.ROOM, CACHE_KEYS.LIST],
         exact: true,
       });
     },
