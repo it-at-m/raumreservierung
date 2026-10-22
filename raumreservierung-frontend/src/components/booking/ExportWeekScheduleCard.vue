@@ -33,8 +33,6 @@
         hide-details
         :label="t('components.exportWeekScheduleCard.chooseCategory')"
         :items="buildingItems"
-        item-title="title"
-        item-value="value"
       />
     </template>
     <template #confirm="{ props }">
@@ -66,10 +64,12 @@ import { ApiFactory } from "@/util/apiFactory.ts";
 import { mdiCalendarExportOutline } from "@mdi/js";
 import { useDate } from "vuetify/framework";
 import { useI18n } from "vue-i18n";
+import { useWeekScheduleCategory } from "@/composables/useWeekScheduleCategory.ts";
 
 const router = useRouter();
 const { t } = useI18n();
 const adapter = useDate();
+const { weekScheduleCategoryMap } = useWeekScheduleCategory();
 
 const emit = defineEmits<{
   close: [];
@@ -82,16 +82,12 @@ const selectedDate = ref<Date>(new Date());
 const selectedBuilding = ref<WeekScheduleAsPDFCategoryEnum | null>(null);
 const focused = ref(false);
 
-const buildingItems = computed(() => [
-  {
-    value: WeekScheduleAsPDFCategoryEnum.ALTES_RATHAUS,
-    title: t("domain.weekScheduleCategory.altesRathaus"),
-  },
-  {
-    value: WeekScheduleAsPDFCategoryEnum.NEUES_RATHAUS,
-    title: t("domain.weekScheduleCategory.neuesRathaus"),
-  },
-]);
+const buildingItems = computed(() =>
+  Object.entries(weekScheduleCategoryMap.value).map(([value, title]) => ({
+    value,
+    title,
+  }))
+);
 
 const canExport = computed(() => selectedBuilding.value !== null);
 

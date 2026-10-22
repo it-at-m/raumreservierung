@@ -14,6 +14,8 @@ import java.time.temporal.IsoFields;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.stream.Collectors;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
@@ -74,12 +76,14 @@ public interface WeekScheduleMapper {
     }
 
     default RoomRowExportDto toRoomRow(final Room room, final List<Appointment> appointments) {
+        final Map<DayOfWeek, List<BookingMinimalExportDto>> byDay = appointments.stream()
+                .filter(a -> a.getBooking().getRoom().getId().equals(room.getId()))
+                .collect(Collectors.groupingBy(
+                        this::dayOf,
+                        Collectors.mapping(this::toBookingMinimalDto, Collectors.toList())));
+
         final List<List<BookingMinimalExportDto>> cells = Arrays.stream(DayOfWeek.values())
-                .map(day -> appointments.stream()
-                        .filter(a -> a.getBooking().getRoom().getId().equals(room.getId()))
-                        .filter(a -> dayOf(a) == day)
-                        .map(this::toBookingMinimalDto)
-                        .toList())
+                .map(day -> byDay.getOrDefault(day, List.of()))
                 .toList();
 
         return new RoomRowExportDto(room.getName(), room.getNumber(), cells);

@@ -24,7 +24,6 @@
       </base-button>
       <v-dialog
         v-model="isUnfeasibleDialogOpen"
-        max-width="800px"
         width="90%"
       >
         <template #activator>
