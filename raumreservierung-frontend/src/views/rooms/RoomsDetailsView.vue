@@ -48,7 +48,19 @@
             <v-responsive>
               <v-card flat>
                 <v-card-item>
-                  <v-card-title>{{ roomData?.name }}</v-card-title>
+                  <v-card-title>
+                    {{ roomData?.name }}
+                    <span v-if="roomData?.weekScheduleCategory">
+                      {{
+                        t("common.format.braces", {
+                          content:
+                            weekScheduleCategoryMap[
+                              roomData.weekScheduleCategory
+                            ],
+                        })
+                      }}
+                    </span>
+                  </v-card-title>
 
                   <v-card-subtitle class="opacity-100">
                     <span class="text-medium-emphasis">
@@ -263,6 +275,7 @@ import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
+import { useWeekScheduleCategory } from "@/composables/useWeekScheduleCategory.ts";
 
 const router = useRouter();
 const route = useRoute();
@@ -280,6 +293,8 @@ const { data: roomData, isPending: getRoomLoading, error } = useGetRoom(id);
 const { data: picture, isLoading: pictureLoading } = useGetFile(
   () => roomData.value?.picture?.id
 );
+
+const { weekScheduleCategoryMap } = useWeekScheduleCategory();
 
 watch([error, () => roomData.value?.id], async () => {
   if (error.value) {

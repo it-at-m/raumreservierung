@@ -47,6 +47,11 @@
     }
   },
   "components": {
+    "exportWeekScheduleCard": {
+      "chooseWeek": "Woche wählen",
+      "chooseCategory": "Kategorie wählen",
+      "confirm": "Dienstplan erstellen"
+    },
     "exportBookingsCard": {
       "confirm": "Buchungen exportieren",
       "chooseYear": "Wählen Sie den Jahrgang für den Export"
@@ -350,6 +355,11 @@
       "header": "Interne Person | Interne Personen",
       "organisationUnit": "Organisationseinheit",
       "roleFunction": "Rollenfunktion"
+    },
+    "weekScheduleCategory": {
+      "title": "Dienstplankategorie",
+      "altesRathaus": "Altes Rathaus",
+      "neuesRathaus": "Neues Rathaus"
     }
   }
 }
