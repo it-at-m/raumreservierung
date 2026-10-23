@@ -346,44 +346,44 @@ public class BookingControllerIntegrationTest {
 
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
-                Arguments.of("", 1, List.of(utc(2026,3,2))),
+                Arguments.of("", 1, List.of(utc(2026, 3, 2))),
                 Arguments.of("RRULE:FREQ=DAILY;COUNT=3", 3, List.of(
-                        utc(2026,3,2),
-                        utc(2026,3,3),
-                        utc(2026,3,4))),
+                        utc(2026, 3, 2),
+                        utc(2026, 3, 3),
+                        utc(2026, 3, 4))),
                 Arguments.of("RRULE:FREQ=MONTHLY;COUNT=2", 2, List.of(
-                        utc(2026,3,2),
-                        utc(2026,4,2))),
+                        utc(2026, 3, 2),
+                        utc(2026, 4, 2))),
                 Arguments.of("RRULE:FREQ=WEEKLY;COUNT=5", 5, List.of(
-                        utc(2026,3,2),
-                        utc(2026,3,9),
-                        utc(2026,3,16),
-                        utc(2026,3,23),
-                        utc(2026,3,30))),
+                        utc(2026, 3, 2),
+                        utc(2026, 3, 9),
+                        utc(2026, 3, 16),
+                        utc(2026, 3, 23),
+                        utc(2026, 3, 30))),
                 Arguments.of("RRULE:FREQ=WEEKLY;BYDAY=TU,WE;INTERVAL=2;COUNT=4", 4, List.of(
-                        utc(2026,3,3),
-                        utc(2026,3,4),
-                        utc(2026,3,17),
-                        utc(2026,3,18))),
+                        utc(2026, 3, 3),
+                        utc(2026, 3, 4),
+                        utc(2026, 3, 17),
+                        utc(2026, 3, 18))),
                 Arguments.of("RRULE:FREQ=MONTHLY;BYDAY=2WE;COUNT=3", 3, List.of(
-                        utc(2026,3,11),
-                        utc(2026,4,8),
-                        utc(2026,5,13))),
+                        utc(2026, 3, 11),
+                        utc(2026, 4, 8),
+                        utc(2026, 5, 13))),
                 Arguments.of("RRULE:FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=15;COUNT=4", 4, List.of(
-                        utc(2026,3,15),
-                        utc(2026,5,15),
-                        utc(2026,7,15),
-                        utc(2026,9,15))),
+                        utc(2026, 3, 15),
+                        utc(2026, 5, 15),
+                        utc(2026, 7, 15),
+                        utc(2026, 9, 15))),
                 Arguments.of("RRULE:FREQ=WEEKLY;INTERVAL=6", 9, List.of(
-                        utc(2026,3,2),
-                        utc(2026,4,13),
-                        utc(2026,5,25),
-                        utc(2026,7,6),
-                        utc(2026,8,17),
-                        utc(2026,9,28),
-                        utc(2026,11,9),
-                        utc(2026,12,21),
-                        utc(2027,2,1))));
+                        utc(2026, 3, 2),
+                        utc(2026, 4, 13),
+                        utc(2026, 5, 25),
+                        utc(2026, 7, 6),
+                        utc(2026, 8, 17),
+                        utc(2026, 9, 28),
+                        utc(2026, 11, 9),
+                        utc(2026, 12, 21),
+                        utc(2027, 2, 1))));
     }
 
     private enum BookedForScenario {
