@@ -180,6 +180,9 @@ const buildLocalEvents = () => {
   const events: CalendarAppointmentEvent[] = [];
   const newAppointments = appointments.value?.content;
   const newBookingAppointments = bookingAppointments.value?.content;
+  const existingAppointmentIds = new Set<string>(
+    newAppointments?.map((appointment) => appointment.id) ?? []
+  );
 
   if (newAppointments) {
     events.push(
@@ -198,16 +201,18 @@ const buildLocalEvents = () => {
 
   if (newBookingAppointments) {
     events.push(
-      ...newBookingAppointments.map(
-        (appointment) =>
-          ({
-            start: new Date(appointment.schedule.occupancyStart),
-            end: new Date(appointment.schedule.occupancyEnd),
-            category: FALLBACK_CATEGORY_ROOM.categoryName,
-            timed: true,
-            raw: appointment,
-          }) as CalendarAppointmentEvent
-      )
+      ...newBookingAppointments
+        .filter((appointment) => !existingAppointmentIds.has(appointment.id))
+        .map(
+          (appointment) =>
+            ({
+              start: new Date(appointment.schedule.occupancyStart),
+              end: new Date(appointment.schedule.occupancyEnd),
+              category: FALLBACK_CATEGORY_ROOM.categoryName,
+              timed: true,
+              raw: appointment,
+            }) as CalendarAppointmentEvent
+        )
     );
   }
 
