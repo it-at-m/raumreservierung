@@ -50,7 +50,6 @@
     "bookingsCalendarView": {
       "saveHint": {
         "title": "Achtung",
-        "appointment": "Die Änderung bezieht sich nur auf den Einzeltermin.",
         "booking": "Die Änderung bezieht sich auf alle Serientermine in der Zukunft."
       }
     },

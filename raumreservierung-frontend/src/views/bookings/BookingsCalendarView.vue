@@ -46,16 +46,17 @@
         :loading="getBookingLoading || updateBookingLoading"
         @status-action="updateBookingStatus"
         @cancel="resetBooking"
-        @confirm="saveHintOpen = true"
+        @confirm="handleConfirm"
       />
       <v-dialog
+        v-if="isSeriesBooking"
         v-model="saveHintOpen"
         max-width="480"
       >
         <confirm-card
           :title="t('components.bookingsCalendarView.saveHint.title')"
-          :text="saveHintText"
-          :loading="updateBookingLoading || updateAppointmentLoading"
+          :text="t('components.bookingsCalendarView.saveHint.booking')"
+          :loading="updateBookingLoading"
           @cancel="saveHintOpen = false"
           @confirm="confirmSave"
         >
@@ -74,7 +75,6 @@
 
 <script setup lang="ts">
 import type {
-  AppointmentRequestDTO,
   BookingDetailResponseDTO,
   BookingRequestDTO,
   BookingStatusDTOCurrentStatusEnum,
@@ -99,12 +99,12 @@ import {
   useGetBooking,
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
-import { useUpdateAppointment } from "@/composables/api/useAppointmentApi.ts";
 import { useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { useRules } from "@/composables/useRules.ts";
-import { FALLBACK_CATEGORY_ROOM } from "@/constants.ts";
+import { FALLBACK_CATEGORY_ROOM, STATUS_INDICATORS } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { mapBookingResponseToRequest } from "@/util/bookingTypeUtil.ts";
+import { useSnackbarStore } from "@/stores/snackbar.ts";
 
 interface RoomSelectExposed extends ComponentPublicInstance {
   selectedRoomData: RoomListResponseDTO[];
@@ -122,8 +122,6 @@ const rules = useRules();
 const isBookingEditable = useIsBookingEditable();
 
 const booking = ref<BookingRequestDTO>();
-const appointment = ref<AppointmentRequestDTO>();
-const appointmentId = ref<string>();
 const saveHintOpen = ref(false);
 
 const bookingId = computed(() => (route.params.id as string) || undefined);
@@ -137,11 +135,10 @@ const { data: getBookingData, isLoading: getBookingLoading } = useGetBooking(
   bookingId.value
 );
 
-const { call: updateAppointment, loading: updateAppointmentLoading } =
-  useUpdateAppointment();
-
 const { call: updateBooking, loading: updateBookingLoading } =
   useUpdateBooking();
+
+const snackbarStore = useSnackbarStore();
 
 watch(
   getBookingData,
@@ -158,6 +155,8 @@ watch(
   { immediate: true }
 );
 
+const isSeriesBooking = computed(() => !!getBookingData.value?.recurringRule);
+
 const computedBooking = computed(() => {
   if (!booking.value && !getBookingData.value) {
     return undefined;
@@ -170,13 +169,12 @@ const computedBooking = computed(() => {
 
 const eventChanged = computed(
   () =>
-    !!appointment.value ||
-    (getBookingData.value &&
-      booking.value &&
-      (getBookingData.value.schedule.occupancyStart.getTime() !==
-        booking.value.schedule.occupancyStart.getTime() ||
-        (getBookingData.value.room &&
-          getBookingData.value.room.id !== booking.value.roomId)))
+    getBookingData.value &&
+    booking.value &&
+    (getBookingData.value.schedule.occupancyStart.getTime() !==
+      booking.value.schedule.occupancyStart.getTime() ||
+      (getBookingData.value.room &&
+        getBookingData.value.room.id !== booking.value.roomId))
 );
 
 const selectedRoomIds = computed({
@@ -192,32 +190,25 @@ const selectedRoomIds = computed({
   },
 });
 
-const saveHintText = computed(() =>
-  appointment.value
-    ? t("components.bookingsCalendarView.saveHint.appointment")
-    : t("components.bookingsCalendarView.saveHint.booking")
-);
+const handleConfirm = async () => {
+  if (isSeriesBooking.value) {
+    saveHintOpen.value = true;
+    return;
+  }
+  await onSuccess();
+};
 
 const confirmSave = async () => {
   saveHintOpen.value = false;
-  await updateBookingSchedule();
+  await onSuccess();
 };
 
-const shiftSchedule = (
-  base: ScheduleTemplate,
-  start: Date,
-  end: Date
-): ScheduleTemplate => {
-  const diffMs = start.getTime() - new Date(base.occupancyStart).getTime();
-  const shift = (date?: Date | string) =>
-    date ? new Date(new Date(date).getTime() + diffMs) : undefined;
-
-  return {
-    occupancyStart: start,
-    occupancyEnd: end,
-    appointmentStart: shift(base.appointmentStart),
-    appointmentEnd: shift(base.appointmentEnd),
-  };
+const onSuccess = async () => {
+  await updateBookingSchedule();
+  snackbarStore.push({
+    text: t("generics.updated", { domain: t("domain.booking.header") }),
+    color: STATUS_INDICATORS.SUCCESS,
+  });
 };
 
 /**
@@ -227,25 +218,27 @@ const updateSchedule = (event: CalendarAppointmentEvent) => {
   if (!booking.value) {
     return;
   }
+  const diffMs =
+    event.start.getTime() - booking.value.schedule.occupancyStart.getTime();
 
-  const newRoomId =
-    event.category === FALLBACK_CATEGORY_ROOM.categoryName
-      ? undefined
-      : event.category;
+  const newSchedule: ScheduleTemplate = {
+    occupancyStart: event.start,
+    occupancyEnd: event.end,
+    appointmentStart: booking.value.schedule.appointmentStart
+      ? new Date(booking.value.schedule.appointmentStart.getTime() + diffMs)
+      : undefined,
+    appointmentEnd: booking.value.schedule.appointmentEnd
+      ? new Date(booking.value.schedule.appointmentEnd.getTime() + diffMs)
+      : undefined,
+  };
 
-  if (newRoomId !== booking.value.roomId) {
-    booking.value = {
-      ...booking.value,
-      schedule: shiftSchedule(booking.value.schedule, event.start, event.end),
-      roomId: newRoomId,
-    };
-    appointmentId.value = undefined;
-    appointment.value = undefined;
-    return;
-  }
-  appointmentId.value = event.raw.id;
-  appointment.value = {
-    schedule: shiftSchedule(event.raw.schedule, event.start, event.end),
+  booking.value = {
+    ...booking.value,
+    schedule: newSchedule,
+    roomId:
+      event.category === FALLBACK_CATEGORY_ROOM.categoryName
+        ? undefined
+        : event.category,
   };
 };
 
@@ -274,13 +267,6 @@ const updateBookingStatus = async (
  * Updates the changed schedule or room
  */
 const updateBookingSchedule = async () => {
-  if (appointmentId.value && appointment.value) {
-    await updateAppointment({
-      appointmentId: appointmentId.value,
-      appointmentRequestDTO: appointment.value,
-    });
-    return;
-  }
   if (booking.value && getBookingData.value) {
     await updateBooking({
       bookingId: getBookingData.value.id,
