@@ -11,7 +11,7 @@
 
     <groupId>de.muenchen.raumreservierung</groupId>
     <artifactId>raumreservierung-backend</artifactId>
-    <version>0.10.2-SNAPSHOT</version>
+    <version>0.11.1-SNAPSHOT</version>
 
     <name>raumreservierung-backend</name>
     <description>This is the backend-project of the renewal of the raumreservierung</description>
@@ -83,11 +83,6 @@
         <flyway.password>admin</flyway.password>
         <flyway.locations>classpath:db/migration/schema,classpath:db/migration/testdata</flyway.locations>
 
-        <!-- Spotless P2 Mirror configuration (e.g. required when using company internal registry -->
-        <p2.username /> <!-- must be empty, override via Maven settings.xml if needed -->
-        <p2.password /> <!-- must be empty, override via Maven settings.xml if needed -->
-        <p2.mirror>download.eclipse.org</p2.mirror>
-
         <!--RefArch Mail dependency-->
         <refarch-email-integration-starter.version>3.0.1</refarch-email-integration-starter.version>
 
@@ -97,7 +92,7 @@
         <!-- Added to fix CVE-2026-54291 -->
         <postgresql.version>42.7.12</postgresql.version>
         <!-- Added to fix CVE-2026-64607 -->
-        <httpclient5.version>5.6.4</httpclient5.version>
+        <httpclient5.version>5.6.5</httpclient5.version>
         <httpcore5.version>5.4.3</httpcore5.version>
     </properties>
 
@@ -455,15 +450,6 @@
                             <include>src/main/java/**/*.java</include> <!-- Check application code -->
                             <include>src/test/java/**/*.java</include> <!-- Check application tests code -->
                         </includes>
-                        <eclipse>
-                            <file>itm-java-codeformat/java_codestyle_formatter.xml</file>
-                            <p2Mirrors>
-                                <p2Mirror>
-                                    <prefix>https://download.eclipse.org</prefix>
-                                    <url>https://${p2.username}:${p2.password}@${p2.mirror}</url>
-                                </p2Mirror>
-                            </p2Mirrors>
-                        </eclipse>
                         <trimTrailingWhitespace />
                         <endWithNewline />
                         <importOrder />
