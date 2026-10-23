@@ -135,8 +135,11 @@ const { data: getBookingData, isLoading: getBookingLoading } = useGetBooking(
   bookingId.value
 );
 
-const { call: updateBooking, loading: updateBookingLoading } =
-  useUpdateBooking();
+const {
+  call: updateBooking,
+  loading: updateBookingLoading,
+  error: updateBookingError,
+} = useUpdateBooking();
 
 const snackbarStore = useSnackbarStore();
 
@@ -195,20 +198,22 @@ const handleConfirm = async () => {
     saveHintOpen.value = true;
     return;
   }
-  await onSuccess();
+  await saveBooking();
 };
 
 const confirmSave = async () => {
   saveHintOpen.value = false;
-  await onSuccess();
+  await saveBooking();
 };
 
-const onSuccess = async () => {
+const saveBooking = async () => {
   await updateBookingSchedule();
-  snackbarStore.push({
-    text: t("generics.updated", { domain: t("domain.booking.header") }),
-    color: STATUS_INDICATORS.SUCCESS,
-  });
+  if (!updateBookingError) {
+    snackbarStore.push({
+      text: t("generics.updated", { domain: t("domain.booking.header") }),
+      color: STATUS_INDICATORS.SUCCESS,
+    });
+  }
 };
 
 /**
