@@ -4,7 +4,7 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_IN_FUTURE_BOOKING;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
-import de.muenchen.raumreservierung.booking.events.FutureBookingCheckEvent;
+import de.muenchen.raumreservierung.appointment.events.FutureAppointmentCheckEvent;
 import de.muenchen.raumreservierung.booking.events.RemoveSeatingTypeFromBookingsEvent;
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
@@ -55,7 +55,7 @@ public class SeatingService {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, seatingTypeId));
         }
 
-        if (existsFutureBookingForSeatingType(seatingTypeId)) {
+        if (existsFutureAppointmentForSeatingType(seatingTypeId)) {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_IN_FUTURE_BOOKING, seatingTypeId));
         }
 
@@ -72,9 +72,9 @@ public class SeatingService {
                 .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, seatingTypeId)));
     }
 
-    public boolean existsFutureBookingForSeatingType(final UUID seatingTypeId) {
-        final FutureBookingCheckEvent event = new FutureBookingCheckEvent(seatingTypeId);
+    public boolean existsFutureAppointmentForSeatingType(final UUID seatingTypeId) {
+        final FutureAppointmentCheckEvent event = new FutureAppointmentCheckEvent(seatingTypeId);
         eventPublisher.publishEvent(event);
-        return event.isFutureBookingExists();
+        return event.isFutureAppointmentExists();
     }
 }

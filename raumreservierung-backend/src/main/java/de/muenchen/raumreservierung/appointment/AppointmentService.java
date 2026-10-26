@@ -29,6 +29,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @Slf4j
 @RequiredArgsConstructor
+@SuppressWarnings({ "PMD.CommentDefaultAccessModifier" })
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
     private final ApplicationEventPublisher publisher;
@@ -119,5 +120,10 @@ public class AppointmentService {
         return fullLine.regionMatches(true, 0, "RRULE:", 0, 6)
                 ? fullLine.substring(6).trim()
                 : fullLine;
+    }
+
+    boolean existsFutureAppointmentForSeatingType(final UUID seatingTypeId) {
+        final Specification<Appointment> spec = AppointmentSpecificationBuilder.forFutureSeatingTypeUsage(seatingTypeId);
+        return appointmentRepository.exists(spec);
     }
 }

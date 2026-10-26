@@ -1,4 +1,4 @@
-package de.muenchen.raumreservierung.booking.events;
+package de.muenchen.raumreservierung.appointment.events;
 
 import java.util.UUID;
 import lombok.Getter;
@@ -7,8 +7,8 @@ import lombok.Setter;
 
 @Getter
 @RequiredArgsConstructor
-public class FutureBookingCheckEvent {
+public class FutureAppointmentCheckEvent {
     private final UUID seatingTypeId;
     @Setter
-    private boolean futureBookingExists;
+    private boolean futureAppointmentExists;
 }

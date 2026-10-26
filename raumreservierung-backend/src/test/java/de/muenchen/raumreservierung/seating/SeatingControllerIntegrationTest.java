@@ -1,6 +1,8 @@
 package de.muenchen.raumreservierung.seating;
 
 import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
+import de.muenchen.raumreservierung.appointment.Appointment;
+import de.muenchen.raumreservierung.appointment.AppointmentRepository;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -80,6 +82,8 @@ public class SeatingControllerIntegrationTest {
     private InternalPerson mockPerson;
     private Room mockRoom;
     private SeatingType mockSeatingType;
+    @Autowired
+    private AppointmentRepository appointmentRepository;
 
     @BeforeEach
     void setUp() {
@@ -171,6 +175,12 @@ public class SeatingControllerIntegrationTest {
     }
 
     private void saveBookingWithSeatingType(SeatingType seatingType, BookingStatus status, OffsetDateTime occupancyEnd) {
+        ScheduleTemplate scheduleTemplate = new ScheduleTemplate(
+                occupancyEnd.minusHours(2),
+                occupancyEnd,
+                occupancyEnd.minusHours(1).minusMinutes(45),
+                occupancyEnd.minusMinutes(30));
+
         Booking booking = new Booking();
         booking.setTitle("TEST_BOOKING_TITLE");
         booking.setBookedBy(mockPerson);
@@ -179,12 +189,13 @@ public class SeatingControllerIntegrationTest {
         booking.setRoom(mockRoom);
         booking.setSeatingType(seatingType);
         booking.setStatus(status);
-        booking.setSchedule(new ScheduleTemplate(
-                occupancyEnd.minusHours(2),
-                occupancyEnd,
-                occupancyEnd.minusHours(1).minusMinutes(45),
-                occupancyEnd.minusMinutes(30)));
+        booking.setSchedule(scheduleTemplate);
         booking.setBookingType(BookingType.DEFAULT);
-        bookingRepository.save(booking);
+        Booking savedBooking = bookingRepository.save(booking);
+
+        Appointment appointment = new Appointment();
+        appointment.setSchedule(scheduleTemplate);
+        appointment.setBooking(savedBooking);
+        appointmentRepository.save(appointment);
     }
 }

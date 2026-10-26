@@ -326,11 +326,6 @@ public class BookingService {
         }
     }
 
-    boolean existsFutureBookingForSeatingType(final UUID seatingTypeId) {
-        final Specification<Booking> spec = BookingSpecificationBuilder.forFutureSeatingTypeUsage(seatingTypeId);
-        return bookingRepository.exists(spec);
-    }
-
     void removeSeatingTypeFromBookings(final UUID seatingTypeId) {
         final List<Booking> affectedBookings = bookingRepository.findBySeatingTypeId(seatingTypeId);
         affectedBookings.forEach(booking -> booking.setSeatingType(null));

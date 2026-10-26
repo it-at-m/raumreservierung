@@ -90,6 +90,6 @@ public class SeatingController {
     @GetMapping("/{seatingTypeId}/deletable")
     @ResponseStatus(HttpStatus.OK)
     public boolean isSeatingTypeDeletable(@PathVariable final UUID seatingTypeId) {
-        return !seatingService.existsFutureBookingForSeatingType(seatingTypeId);
+        return !seatingService.existsFutureAppointmentForSeatingType(seatingTypeId);
     }
 }

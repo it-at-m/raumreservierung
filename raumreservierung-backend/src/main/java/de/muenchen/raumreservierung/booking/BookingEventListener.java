@@ -1,6 +1,5 @@
 package de.muenchen.raumreservierung.booking;
 
-import de.muenchen.raumreservierung.booking.events.FutureBookingCheckEvent;
 import de.muenchen.raumreservierung.booking.events.RemoveSeatingTypeFromBookingsEvent;
 import de.muenchen.raumreservierung.person.PersonDeleteEvent;
 import java.util.List;
@@ -40,6 +39,12 @@ public class BookingEventListener {
         }
     }
 
+    @Transactional
+    @EventListener
+    public void onRemoveRoomFromBookings(final RemoveSeatingTypeFromBookingsEvent event) {
+        bookingService.removeSeatingTypeFromBookings(event.getSeatingTypeId());
+    }
+
     /**
      * Changes the field {@link Booking#getBookedFor()} of all bookings,
      * where a person is assigned as {@link Booking#getBookedFor()}, to the person that is assigned
@@ -47,17 +52,6 @@ public class BookingEventListener {
      *
      * @param event contains the person id.
      */
-    @EventListener
-    public void onFutureBookingCheck(final FutureBookingCheckEvent event) {
-        event.setFutureBookingExists(bookingService.existsFutureBookingForSeatingType(event.getSeatingTypeId()));
-    }
-
-    @Transactional
-    @EventListener
-    public void onRemoveRoomFromBookings(final RemoveSeatingTypeFromBookingsEvent event) {
-        bookingService.removeSeatingTypeFromBookings(event.getSeatingTypeId());
-    }
-
     @EventListener
     @Transactional(propagation = Propagation.MANDATORY)
     public void onPersonDeleted(final PersonDeleteEvent event) {
