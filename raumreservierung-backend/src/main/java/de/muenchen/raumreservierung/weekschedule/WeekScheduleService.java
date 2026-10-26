@@ -15,7 +15,9 @@ import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -39,8 +41,13 @@ public class WeekScheduleService {
         final LocalDate monday = date.with(DayOfWeek.MONDAY);
         final List<Room> rooms = roomService.findAllActiveByWeekScheduleCategory(category);
         final List<Appointment> appointments = loadAppointments(monday, rooms);
+        final Map<UUID, List<Appointment>> appointmentsByRoom = appointments.stream()
+                .collect(Collectors.groupingBy(appointment -> appointment.getBooking().getRoom().getId()));
+
         final List<RoomRowExportDto> roomRows = rooms.stream()
-                .map(room -> weekScheduleMapper.toRoomRow(room, appointments))
+                .map(room -> weekScheduleMapper.toRoomRow(
+                        room,
+                        appointmentsByRoom.getOrDefault(room.getId(), List.of())))
                 .toList();
 
         final Context context = new Context();

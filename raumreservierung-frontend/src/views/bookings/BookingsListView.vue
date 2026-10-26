@@ -6,13 +6,13 @@
   >
     <template #headerActions>
       <div class="d-flex ga-2">
-        <export-dialog-button
+        <rr-dialog-button
           :icon="mdiExport"
           :text="t('components.exportBookingsCard.confirm')"
           :content="ExportBookingsCard"
           :visible="canEditBookings"
         />
-        <export-dialog-button
+        <rr-dialog-button
           :icon="mdiCalendarExportOutline"
           :text="t('components.exportWeekScheduleCard.confirm')"
           :content="ExportWeekScheduleCard"
@@ -185,7 +185,7 @@ import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
 import ExportWeekScheduleCard from "@/components/booking/ExportWeekScheduleCard.vue";
-import ExportDialogButton from "@/components/common/buttons/ExportDialogButton.vue";
+import RrDialogButton from "@/components/common/buttons/rrDialogButton.vue";
 
 const route = useRoute();
 const router = useRouter();

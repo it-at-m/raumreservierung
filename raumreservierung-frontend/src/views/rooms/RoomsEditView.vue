@@ -149,8 +149,6 @@
             <v-select
               v-model="roomData.weekScheduleCategory"
               :items="weekScheduleCategoryOptions"
-              item-title="label"
-              item-value="value"
               variant="outlined"
               :label="t('domain.weekScheduleCategory.title')"
               hide-details="auto"
@@ -479,9 +477,9 @@ const handleDelete = async () => {
 };
 
 const weekScheduleCategoryOptions = computed(() =>
-  Object.entries(weekScheduleCategoryMap.value).map(([value, label]) => ({
+  Object.entries(weekScheduleCategoryMap.value).map(([value, title]) => ({
     value,
-    label,
+    title,
   }))
 );
 </script>

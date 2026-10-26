@@ -57,9 +57,8 @@ public interface WeekScheduleMapper {
     default WeekScheduleView toView(final LocalDate monday,
             final WeekScheduleCategory category,
             final List<RoomRowExportDto> roomRows) {
-        final int week = monday.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR);
         return new WeekScheduleView(
-                week,
+                monday.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR),
                 monday.getYear(),
                 category.getLabel(),
                 toDayHeaders(monday),
@@ -77,7 +76,6 @@ public interface WeekScheduleMapper {
 
     default RoomRowExportDto toRoomRow(final Room room, final List<Appointment> appointments) {
         final Map<DayOfWeek, List<BookingMinimalExportDto>> byDay = appointments.stream()
-                .filter(a -> a.getBooking().getRoom().getId().equals(room.getId()))
                 .collect(Collectors.groupingBy(
                         this::dayOf,
                         Collectors.mapping(this::toBookingMinimalDto, Collectors.toList())));

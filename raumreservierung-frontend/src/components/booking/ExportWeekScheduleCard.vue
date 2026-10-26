@@ -10,9 +10,6 @@
         active
         class="mb-4"
         :label="t('components.exportWeekScheduleCard.chooseWeek')"
-        :focused="focused"
-        @focusin="focused = true"
-        @focusout="focused = false"
       >
         <v-date-picker
           :model-value="weekDays"
@@ -28,11 +25,11 @@
         />
       </v-field>
       <v-select
-        v-model="selectedBuilding"
+        v-model="selectedCategory"
         variant="outlined"
         hide-details
         :label="t('components.exportWeekScheduleCard.chooseCategory')"
-        :items="buildingItems"
+        :items="categoryItems"
       />
     </template>
     <template #confirm="{ props }">
@@ -79,27 +76,25 @@ const MONDAY = 1;
 const DAYS_IN_WEEK = 7;
 
 const selectedDate = ref<Date>(new Date());
-const selectedBuilding = ref<WeekScheduleAsPDFCategoryEnum | null>(null);
-const focused = ref(false);
+const selectedCategory = ref<WeekScheduleAsPDFCategoryEnum | null>(null);
 
-const buildingItems = computed(() =>
+const categoryItems = computed(() =>
   Object.entries(weekScheduleCategoryMap.value).map(([value, title]) => ({
     value,
     title,
   }))
 );
 
-const canExport = computed(() => selectedBuilding.value !== null);
+const canExport = computed(() => selectedCategory.value !== null);
 
 const redirectToDownload = async () => {
-  const category = selectedBuilding.value;
-  if (!category) {
+  if (!selectedCategory.value) {
     return;
   }
   const exportApi = ApiFactory.getInstance(ExportControllerApi);
   const params = {
     date: selectedDate.value,
-    category,
+    category: selectedCategory.value,
   };
 
   const requestOpts = await exportApi.weekScheduleAsPDFRequestOpts(params);
@@ -108,7 +103,7 @@ const redirectToDownload = async () => {
     path: `${BASE_PATH}${requestOpts.path}`,
     query: {
       date: adapter.toISO(selectedDate.value),
-      category,
+      category: selectedCategory.value,
     },
   });
 
@@ -116,18 +111,17 @@ const redirectToDownload = async () => {
 };
 
 const weekDays = computed<Date[]>(() => {
-  const selected = selectedDate.value;
-  const monday = adapter.startOfWeek(selected, MONDAY);
+  const monday = adapter.startOfWeek(selectedDate.value, MONDAY);
   return Array.from({ length: DAYS_IN_WEEK }, (_, i) =>
     adapter.toJsDate(adapter.addDays(monday, DAYS_IN_WEEK - 1 - i))
   );
 });
 
-const isIn = (days: Date[], day: Date) =>
-  days.some((d) => adapter.isSameDay(d, day));
-
 const onSelect = (value: Date[]) => {
-  const clicked = value.find((day) => !isIn(weekDays.value, day));
+  const clicked = value.find(
+    (day) =>
+      !weekDays.value.some((selectedDay) => adapter.isSameDay(selectedDay, day))
+  );
 
   if (clicked) {
     selectedDate.value = clicked;
