@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -47,6 +48,7 @@ public class SeatingService {
         return seatingRepository.save(foundSeatingType);
     }
 
+    @Transactional
     @PreAuthorize(Authorities.SEATING_MANAGE)
     public void deleteSeating(final UUID seatingTypeId) {
         final SeatingType toDelete = getEntityOrThrowException(seatingTypeId);
