@@ -1,8 +1,6 @@
 package de.muenchen.raumreservierung.seating;
 
 import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
-import de.muenchen.raumreservierung.appointment.Appointment;
-import de.muenchen.raumreservierung.appointment.AppointmentRepository;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -10,6 +8,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import de.muenchen.raumreservierung.TestConstants;
+import de.muenchen.raumreservierung.appointment.Appointment;
+import de.muenchen.raumreservierung.appointment.AppointmentRepository;
 import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.BookingRepository;
 import de.muenchen.raumreservierung.booking.BookingStatus;
