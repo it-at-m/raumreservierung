@@ -53,6 +53,12 @@
             {{ (category as unknown as CalendarCategories).name }}
           </div>
         </template>
+        <template #interval="{ date }">
+          <div
+            :class="getDayClasses(date)"
+            class="w-100 h-100"
+          />
+        </template>
         <template #event="{ event }">
           <rr-calendar-appointment-event
             :id="event.raw.id"
@@ -93,7 +99,8 @@ import { useCalendarNavigation } from "@/composables/calendar/useCalendarNavigat
 import { useCalendarPopup } from "@/composables/calendar/useCalendarPopup.ts";
 import { useBookingStatusConfig } from "@/composables/useBookingStatus.ts";
 import { FALLBACK_CATEGORY_ROOM } from "@/constants.ts";
-import { toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
+import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
+import { useGetHolidays } from "@/composables/api/useHolidayApi.ts";
 import { FALLBACK_CONFIG } from "@/constants/BookingStatus.ts";
 
 interface CalendarCategories {
@@ -166,6 +173,12 @@ const { data: appointments, refetch: resetAppointments } = useGetAppointments(
   }
 );
 
+const { data: holidays } = useGetHolidays(() => {
+  return {
+    year: startDate.value.getFullYear(),
+  };
+});
+
 const { data: bookingAppointments } = useGetAppointments(() => {
   return roomId
     ? undefined
@@ -175,6 +188,39 @@ const { data: bookingAppointments } = useGetAppointments(() => {
         endDate: new Date(toEndofDay(endDate.value)),
       };
 });
+
+const publicHolidays = computed(
+  () => holidays.value?.filter((h) => dateEquals(h.startDate, h.endDate)) || []
+);
+const schoolHolidays = computed(
+  () => holidays.value?.filter((h) => !dateEquals(h.startDate, h.endDate)) || []
+);
+
+const getDayClasses = (dateStr: string): string[] => {
+  const date = new Date(dateStr);
+  const startDate = new Date(toStartOfDay(date));
+
+  const isWeekend = startDate.getDay() === 0 || startDate.getDay() === 6;
+  const isPublicHoliday = publicHolidays.value?.some(
+    (h) => startDate >= h.startDate && startDate <= h.endDate
+  );
+  const isSchoolHoliday = schoolHolidays.value?.some(
+    (h) => startDate >= h.startDate && startDate <= h.endDate
+  );
+  const classes = [];
+
+  if (isWeekend) {
+    classes.push("weekend");
+  }
+  if (isPublicHoliday) {
+    classes.push("public-holiday");
+  }
+  if (isSchoolHoliday) {
+    classes.push("school-holiday");
+  }
+
+  return classes;
+};
 
 const buildLocalEvents = () => {
   const events: CalendarAppointmentEvent[] = [];
@@ -283,3 +329,59 @@ defineExpose({
   resetAppointments: resetAppointmentsAndEdits,
 });
 </script>
+
+<style scoped>
+.weekend {
+  background-color: rgba(var(--v-theme-weekendColor, 0, 0, 0, 0));
+}
+
+.public-holiday {
+  background-color: rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0));
+}
+
+.school-holiday {
+  background-color: rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0));
+}
+
+.weekend.public-holiday {
+  background-image: repeating-linear-gradient(
+    35deg,
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)),
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)) 50px
+  );
+}
+
+.weekend.school-holiday {
+  background-image: repeating-linear-gradient(
+    35deg,
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)),
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 50px
+  );
+}
+
+.weekend.public-holiday.school-holiday {
+  background-image: repeating-linear-gradient(
+    35deg,
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)),
+    rgba(var(--v-theme-weekendColor, 0, 0, 0, 0)) 16.6px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)) 16.6px,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)) 33.3px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 33.3px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 50px
+  );
+}
+
+.public-holiday.school-holiday {
+  background-image: repeating-linear-gradient(
+    35deg,
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)),
+    rgba(var(--v-theme-publicHolidayColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 25px,
+    rgba(var(--v-theme-schoolHolidayColor, 0, 0, 0, 0)) 50px
+  );
+}
+</style>

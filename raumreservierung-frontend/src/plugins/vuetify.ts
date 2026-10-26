@@ -47,6 +47,10 @@ export default createVuetify({
           statusCoordination: "#af64d4",
           statusCanceled: "#D54234",
           statusDefault: "#1A3DA5",
+          //Calendar
+          weekendColor: "#c8c8c844",
+          publicHolidayColor: "#F6D69666",
+          schoolHolidayColor: "#A8DCD966",
         },
       },
       dark: {
@@ -57,6 +61,10 @@ export default createVuetify({
           statusApproved: "#809C00",
           statusCoordination: "#af64d4",
           statusCanceled: "#D54234",
+          //Calendar
+          weekendColor: "#73737333",
+          publicHolidayColor: "#6E562633",
+          schoolHolidayColor: "#2B5B5833",
         },
       },
     },
