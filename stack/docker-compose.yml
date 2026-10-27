@@ -184,7 +184,7 @@ services:
     healthcheck:
       <<: *healthcheck
       test: ["CMD-SHELL", "wget -q --spider http://localhost:8025/ || exit 1"]
-  <<: *security_settings
+    <<: *security_settings
 
 networks:
   keycloak:
