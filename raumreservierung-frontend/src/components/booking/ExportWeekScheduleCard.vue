@@ -5,16 +5,22 @@
     @cancel="emit('close')"
   >
     <template #text>
+      <v-select
+        v-model="selectedCategory"
+        class="mb-4"
+        variant="outlined"
+        hide-details
+        :label="t('components.exportWeekScheduleCard.chooseCategory')"
+        :items="categoryItems"
+      />
       <v-field
         variant="outlined"
         active
-        class="mb-4"
         :label="t('components.exportWeekScheduleCard.chooseWeek')"
       >
         <v-date-picker
-          :model-value="weekDays"
-          multiple
-          color="primary"
+          :model-value="weekRange"
+          multiple="range"
           width="100%"
           hide-header
           show-adjacent-months
@@ -24,13 +30,6 @@
           @update:model-value="onSelect"
         />
       </v-field>
-      <v-select
-        v-model="selectedCategory"
-        variant="outlined"
-        hide-details
-        :label="t('components.exportWeekScheduleCard.chooseCategory')"
-        :items="categoryItems"
-      />
     </template>
     <template #confirm="{ props }">
       <base-button
@@ -73,7 +72,6 @@ const emit = defineEmits<{
 }>();
 
 const MONDAY = 1;
-const DAYS_IN_WEEK = 7;
 
 const selectedDate = ref<Date>(new Date());
 const selectedCategory = ref<WeekScheduleAsPDFCategoryEnum | null>(null);
@@ -110,23 +108,25 @@ const redirectToDownload = async () => {
   window.open(routeData.href, "_blank");
 };
 
-const weekDays = computed<Date[]>(() => {
+const weekRange = computed<Date[]>(() => {
   const monday = adapter.startOfWeek(selectedDate.value, MONDAY);
-  return Array.from({ length: DAYS_IN_WEEK }, (_, i) =>
-    adapter.toJsDate(adapter.addDays(monday, DAYS_IN_WEEK - 1 - i))
-  );
+  const sunday = adapter.addDays(monday, 6);
+  return [adapter.toJsDate(monday), adapter.toJsDate(sunday)];
 });
 
-const onSelect = (value: Date[]) => {
-  const clicked = value.find(
-    (day) =>
-      !weekDays.value.some((selectedDay) => adapter.isSameDay(selectedDay, day))
-  );
+const onSelect = (value: unknown) => {
+  const dates = Array.isArray(value) ? value : [value];
+  const clicked = dates[dates.length - 1];
 
-  if (clicked) {
+  if (clicked instanceof Date) {
     selectedDate.value = clicked;
   }
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+:deep(.v-date-picker-month__day-btn.bg-primary) {
+  background-color: transparent !important;
+  color: rgb(var(--v-theme-on-surface)) !important;
+}
+</style>

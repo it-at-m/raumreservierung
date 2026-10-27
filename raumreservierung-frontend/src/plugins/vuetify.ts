@@ -17,6 +17,9 @@ export default createVuetify({
     VTextField: {
       variant: "outlined",
     },
+    VDatePicker: {
+      color: "accent",
+    },
   },
   icons: {
     defaultSet: "mdi",
