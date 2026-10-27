@@ -4,6 +4,7 @@ import type { Ref } from "vue";
 
 import { ref } from "vue";
 import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
+import { SCHEDULE_DEFAULT_DURATION } from "@/constants.ts";
 
 export function useCalendarDragAndDrop(
   bookingId: Ref<string | undefined>,
@@ -75,7 +76,7 @@ export function useCalendarDragAndDrop(
 
     createEvent.value = {
       start: new Date(createStart.value),
-      end: new Date(createStart.value + 15 * 60 * 1000),
+      end: new Date(createStart.value + SCHEDULE_DEFAULT_DURATION),
       category: targetCategory,
       timed: true,
       raw: {
@@ -150,10 +151,9 @@ export function useCalendarDragAndDrop(
   };
 
   const roundTime = (time: number, down = true) => {
-    const roundDownTime = 15 * 60 * 1000;
     return down
-      ? time - (time % roundDownTime)
-      : time + (roundDownTime - (time % roundDownTime));
+      ? time - (time % SCHEDULE_DEFAULT_DURATION)
+      : time + (SCHEDULE_DEFAULT_DURATION - (time % SCHEDULE_DEFAULT_DURATION));
   };
 
   const mouseMove = (_: Event, payload: CalendarTimestamp) => {
