@@ -253,11 +253,7 @@ const updateSchedule = (event: CalendarAppointmentEvent) => {
     title: booking.value?.title ?? "",
     status: booking.value?.status ?? BookingStatusDTOCurrentStatusEnum.NEW,
     schedule: newSchedule,
-    roomId: event.category
-      ? event.category
-      : manualRoomIds.value
-        ? manualRoomIds.value[0]
-        : "",
+    roomId: event.category || manualRoomIds.value?.[0] || "",
   };
 };
 
