@@ -4,10 +4,9 @@ import de.muenchen.raumreservierung.person.ExternalPersonRepository;
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.person.domain.PersonType;
+import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
-
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor

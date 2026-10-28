@@ -1,9 +1,8 @@
 package de.muenchen.raumreservierung.adapter.ldap;
 
+import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
 import java.util.List;
 import java.util.Optional;
-
-import de.muenchen.raumreservierung.person.dto.PersonFilterDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
