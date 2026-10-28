@@ -1,5 +1,5 @@
 <template>
-  <rb-base-view :header-text="t('views.bookingEditView.header')">
+  <base-view :header-text="t('views.bookingEditView.header')">
     <template #headerActions>
       <rb-button
         class="ml-4"
@@ -241,7 +241,7 @@
         </v-row>
       </v-form>
     </template>
-  </rb-base-view>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -271,8 +271,8 @@ import PersonSelect from "@/components/booking/PersonSelect.vue";
 import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
 import SeatingTypeSelector from "@/components/booking/SeatingTypeParticipantsSelector.vue";
-import RbBaseView from "@/components/common/RbBaseView.vue";
-import RbButton from "@/components/common/buttons/RbButton.vue";
+import BaseView from "@/components/common/BaseView.vue";
+import RbButton from "@/components/common/RbButton.vue";
 import RbCard from "@/components/common/RbCard.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";

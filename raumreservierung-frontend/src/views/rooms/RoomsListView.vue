@@ -1,5 +1,5 @@
 <template>
-  <rb-base-view header-text="Räume und Details">
+  <base-view header-text="Räume und Details">
     <template #headerActions>
       <rb-button
         v-if="canAddNewRoom"
@@ -46,7 +46,7 @@
         </template>
       </v-row>
     </template>
-  </rb-base-view>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -55,8 +55,8 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
-import RbBaseView from "@/components/common/RbBaseView.vue";
-import RbButton from "@/components/common/buttons/RbButton.vue";
+import BaseView from "@/components/common/BaseView.vue";
+import RbButton from "@/components/common/RbButton.vue";
 import RoomThumbnail from "@/components/rooms/RoomThumbnail.vue";
 import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";

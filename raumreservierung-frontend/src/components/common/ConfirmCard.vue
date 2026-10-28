@@ -1,24 +1,13 @@
 <template>
-  <v-card
-    :title="title"
-    :subtitle="subtitle"
-    :loading="loading"
-  >
+  <v-card :title="title" :subtitle="subtitle" :loading="loading">
     <template #text>
-      <slot
-        name="text"
-        :disabled="loading"
-      >
+      <slot name="text" :disabled="loading">
         {{ text }}
       </slot>
     </template>
     <template #actions>
       <div class="mb-4 mr-4">
-        <slot
-          name="cancel"
-          :props="{ onClick: cancel }"
-          :disabled="loading"
-        >
+        <slot name="cancel" :props="{ onClick: cancel }" :disabled="loading">
           <rb-button
             secondary
             class="mr-4"
@@ -28,11 +17,7 @@
             @click="cancel"
           />
         </slot>
-        <slot
-          name="confirm"
-          :props="{ onClick: confirm }"
-          :disabled="loading"
-        />
+        <slot name="confirm" :props="{ onClick: confirm }" :disabled="loading" />
       </div>
     </template>
   </v-card>
@@ -42,7 +27,7 @@
 import { mdiClose } from "@mdi/js";
 import { useI18n } from "vue-i18n";
 
-import RbButton from "@/components/common/buttons/RbButton.vue";
+import RbButton from "@/components/common/RbButton.vue";
 
 const { t } = useI18n();
 

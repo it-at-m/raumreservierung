@@ -6,7 +6,7 @@
       <v-icon :icon="config.icon" size="small" class="ml-2" />
     </v-sheet>
     <v-card-text class="pt-4">
-      <rb-text-icon-display
+      <text-icon-display
         :icon="mdiAccountOutline"
         :text="
           t('common.format.fullName', {
@@ -15,13 +15,13 @@
           })
         "
       />
-      <rb-text-icon-display
+      <text-icon-display
         v-if="appointment.schedule.occupancyStart"
         class="my-2"
         :icon="mdiCalendarStartOutline"
         :text="toDateString(appointment.schedule.occupancyStart)"
       />
-      <rb-text-icon-display
+      <text-icon-display
         v-if="appointment.schedule.occupancyStart && appointment.schedule.occupancyEnd"
         class="my-2"
         :icon="mdiCalendarRangeOutline"
@@ -103,7 +103,7 @@ import {
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
-import RbTextIconDisplay from "@/components/common/RbTextIconDisplay.vue";
+import TextIconDisplay from "@/components/common/TextIconDisplay.vue";
 import { useBookingStatusConfig, useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { toDateString, toTimeString } from "@/util/formatter.ts";

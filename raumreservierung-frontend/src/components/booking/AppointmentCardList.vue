@@ -90,7 +90,7 @@ import { ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
-import RbButton from "@/components/common/buttons/RbButton.vue";
+import RbButton from "@/components/common/RbButton.vue";
 import RbCard from "@/components/common/RbCard.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import DateDisplay from "@/components/common/date/DateDisplay.vue";

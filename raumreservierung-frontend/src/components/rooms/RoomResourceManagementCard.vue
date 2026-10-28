@@ -8,16 +8,8 @@
       <p v-if="!itemList">
         {{ t("generics.emptyList", { domain }) }}
       </p>
-      <v-chip-group
-        v-else
-        column
-        variant="outlined"
-      >
-        <v-chip
-          v-for="item in itemList"
-          :key="item.id"
-          :text="item.name"
-        />
+      <v-chip-group v-else column variant="outlined">
+        <v-chip v-for="item in itemList" :key="item.id" :text="item.name" />
       </v-chip-group>
       <v-divider class="my-4" />
       <v-text-field
@@ -28,11 +20,7 @@
         @keyup.enter="handleCreate"
       >
         <template #append-inner>
-          <rb-icon-button
-            type="add"
-            color="accent"
-            @click="handleCreate"
-          />
+          <rb-icon-button type="add" color="accent" @click="handleCreate" />
         </template>
       </v-text-field>
     </template>
@@ -53,8 +41,8 @@ import { mdiArrowLeft } from "@mdi/js";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
-import RbButton from "@/components/common/buttons/RbButton.vue";
+import RbIconButton from "@/components/common/RbIconButton.vue";
+import RbButton from "@/components/common/RbButton.vue";
 
 const { t } = useI18n();
 

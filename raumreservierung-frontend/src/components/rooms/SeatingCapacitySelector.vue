@@ -65,7 +65,7 @@ import { mdiPlus } from "@mdi/js";
 import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import RbButton from "@/components/common/buttons/RbButton.vue";
+import RbButton from "@/components/common/RbButton.vue";
 import RbCard from "@/components/common/RbCard.vue";
 import RoomResourceManagementCard from "@/components/rooms/RoomResourceManagementCard.vue";
 import SeatingCapacityEditor from "@/components/rooms/SeatingCapacityEditor.vue";

@@ -28,10 +28,7 @@
         @update:model-value="handleUpdateCapacity"
       />
     </v-col>
-    <v-col
-      cols="2"
-      align-self="center"
-    >
+    <v-col cols="2" align-self="center">
       <rb-button
         :disabled="!modelValue?.id"
         :prepend-icon="mdiTrashCanOutline"
@@ -52,7 +49,7 @@ import { mdiTrashCanOutline } from "@mdi/js";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import RbButton from "@/components/common/buttons/RbButton.vue";
+import RbButton from "@/components/common/RbButton.vue";
 
 const modelValue = defineModel<SeatingTypeWithCapacity>();
 
@@ -69,10 +66,9 @@ const emit = defineEmits<{
 
 // Attaches current element if exist and not yet present inside the list to selectableSeatingTypes
 const availableOptions = computed(() =>
-  modelValue.value?.id &&
-  !selectableSeatingTypes.some((o) => o.id === modelValue.value?.id)
+  modelValue.value?.id && !selectableSeatingTypes.some((o) => o.id === modelValue.value?.id)
     ? [...selectableSeatingTypes, modelValue.value]
-    : selectableSeatingTypes
+    : selectableSeatingTypes,
 );
 
 const handleDelete = () => {
@@ -89,9 +85,7 @@ const handleUpdateCapacity = (value: number) => {
 };
 
 const handleUpdateSeatingType = (selectedSeatTypeId: string) => {
-  const seatType = selectableSeatingTypes.find(
-    (seatType) => seatType.id === selectedSeatTypeId
-  );
+  const seatType = selectableSeatingTypes.find((seatType) => seatType.id === selectedSeatTypeId);
 
   if (seatType) {
     modelValue.value = {

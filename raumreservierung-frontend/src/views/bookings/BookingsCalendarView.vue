@@ -1,5 +1,5 @@
 <template>
-  <rb-base-view :header-text="t('generics.manage', { domain: t('domain.booking.header') })">
+  <base-view :header-text="t('generics.manage', { domain: t('domain.booking.header') })">
     <template #headerPrepend>
       <v-icon size="30" :icon="mdiArrowLeft" @click="router.back()" />
     </template>
@@ -40,7 +40,7 @@
         @confirm="updateBookingSchedule"
       />
     </template>
-  </rb-base-view>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -61,7 +61,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import BookingDetailsSummary from "@/components/booking/BookingDetailsSummary.vue";
 import RrBookingCalendar from "@/components/booking/calendar/rrBookingCalendar.vue";
-import RbBaseView from "@/components/common/RbBaseView.vue";
+import BaseView from "@/components/common/BaseView.vue";
 import RoomSelector from "@/components/rooms/RoomSelector.vue";
 import { useGetBooking, useUpdateBooking } from "@/composables/api/useBookingsApi.ts";
 import { useIsBookingEditable } from "@/composables/useBookingStatus.ts";

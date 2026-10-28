@@ -1,5 +1,5 @@
 <template>
-  <rb-base-view :header-text="t('generics.manage', { domain: t('domain.equipment.header') })">
+  <base-view :header-text="t('generics.manage', { domain: t('domain.equipment.header') })">
     <crud-card
       ref="crudRef"
       :empty-item-template="EMPTY_ITEM_TEMPLATE"
@@ -36,7 +36,7 @@
         </v-data-table>
       </template>
     </crud-card>
-  </rb-base-view>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -48,9 +48,9 @@ import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
-import RbBaseView from "@/components/common/RbBaseView.vue";
-import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
-import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
+import BaseView from "@/components/common/BaseView.vue";
+import RbIconButton from "@/components/common/RbIconButton.vue";
+import RbButtonGroup from "@/components/common/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import EquipmentForm from "@/components/forms/EquipmentForm.vue";
 import {

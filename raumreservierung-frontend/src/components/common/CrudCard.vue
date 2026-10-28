@@ -58,11 +58,7 @@
         @confirm="executeDelete"
       >
         <template #confirm="{ props }">
-          <rb-button
-            :text="t('common.delete')"
-            :append-icon="mdiTrashCanOutline"
-            v-bind="props"
-          />
+          <rb-button :text="t('common.delete')" :append-icon="mdiTrashCanOutline" v-bind="props" />
         </template>
       </confirm-card>
     </v-dialog>
@@ -71,15 +67,8 @@
       <template #title>
         <v-row align-content="center">
           <v-col class="d-flex align-center justify-end">
-            <slot
-              name="tableActions"
-              :open-create="openCreate"
-            >
-              <rb-button
-                :append-icon="mdiPlus"
-                :text="t('common.add')"
-                @click="openCreate"
-              />
+            <slot name="tableActions" :open-create="openCreate">
+              <rb-button :append-icon="mdiPlus" :text="t('common.add')" @click="openCreate" />
             </slot>
           </v-col>
         </v-row>
@@ -102,16 +91,11 @@
 </template>
 
 <script setup lang="ts" generic="T extends { id?: string }">
-import {
-  mdiClose,
-  mdiContentSaveOutline,
-  mdiPlus,
-  mdiTrashCanOutline,
-} from "@mdi/js";
+import { mdiClose, mdiContentSaveOutline, mdiPlus, mdiTrashCanOutline } from "@mdi/js";
 import { computed, ref, toRaw } from "vue";
 import { useI18n } from "vue-i18n";
 
-import RbButton from "@/components/common/buttons/RbButton.vue";
+import RbButton from "@/components/common/RbButton.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 
 const { t } = useI18n();

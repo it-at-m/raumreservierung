@@ -1,5 +1,5 @@
 <template>
-  <rb-base-view :header-text="t('generics.manage', { domain: t('domain.seatingType.header') })">
+  <base-view :header-text="t('generics.manage', { domain: t('domain.seatingType.header') })">
     <template #default>
       <crud-card
         ref="crudRef"
@@ -38,7 +38,7 @@
         </template>
       </crud-card>
     </template>
-  </rb-base-view>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -50,9 +50,9 @@ import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
-import RbBaseView from "@/components/common/RbBaseView.vue";
-import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
-import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
+import BaseView from "@/components/common/BaseView.vue";
+import RbIconButton from "@/components/common/RbIconButton.vue";
+import RbButtonGroup from "@/components/common/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import SeatingTypeForm from "@/components/forms/SeatingTypeForm.vue";
 import {

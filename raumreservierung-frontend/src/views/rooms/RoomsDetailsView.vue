@@ -1,5 +1,5 @@
 <template>
-  <rb-base-view :header-text="t('domain.room.details')">
+  <base-view :header-text="t('domain.room.details')">
     <template #headerPrepend>
       <v-icon size="30" :icon="mdiArrowLeft" @click="router.back()" />
     </template>
@@ -85,7 +85,7 @@
 
       <div class="w-100 masonry-container" :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'">
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rb-information-card
+          <information-card
             :title="t('domain.room.contactPerson')"
             :icon="mdiAccountOutline"
             :loading="getRoomLoading"
@@ -113,10 +113,10 @@
                 :title="roomData?.contactPerson?.email"
               />
             </v-list>
-          </rb-information-card>
+          </information-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rb-information-card
+          <information-card
             :title="t('domain.room.usableArea')"
             :icon="mdiTextureBox"
             :loading="getRoomLoading"
@@ -128,10 +128,10 @@
                 </v-list-item-title>
               </v-list-item>
             </v-list>
-          </rb-information-card>
+          </information-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rb-information-card
+          <information-card
             :title="t('domain.room.capacity.header')"
             :subtitle="t('domain.room.capacity.msg', { num: roomData?.capacity })"
             :icon="mdiHumanCapacityIncrease"
@@ -156,10 +156,10 @@
                 />
               </v-list>
             </template>
-          </rb-information-card>
+          </information-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <rb-information-card
+          <information-card
             title="Mögliche Ausstattung"
             :icon="mdiSofaSingleOutline"
             :loading="getRoomLoading"
@@ -180,11 +180,11 @@
                 "
               />
             </v-list>
-          </rb-information-card>
+          </information-card>
         </div>
       </div>
     </template>
-  </rb-base-view>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -207,9 +207,9 @@ import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify/framework";
 
 import { ExternalPersonResponseDtoTitleEnum } from "@/api/raumreservierung-backend";
-import RbBaseView from "@/components/common/RbBaseView.vue";
-import RbButton from "@/components/common/buttons/RbButton.vue";
-import RbInformationCard from "@/components/common/RbInformationCard.vue";
+import BaseView from "@/components/common/BaseView.vue";
+import RbButton from "@/components/common/RbButton.vue";
+import InformationCard from "@/components/common/InformationCard.vue";
 import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";

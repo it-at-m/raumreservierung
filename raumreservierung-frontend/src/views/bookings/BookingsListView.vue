@@ -1,5 +1,5 @@
 <template>
-  <rb-base-view
+  <base-view
     :header-text="t('generics.manage', { domain: t('domain.booking.header', { count: 2 }) })"
   >
     <template #default>
@@ -95,7 +95,7 @@
         </template>
       </v-card>
     </template>
-  </rb-base-view>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -115,9 +115,9 @@ import { useRoute, useRouter } from "vue-router";
 
 import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
-import RbBaseView from "@/components/common/RbBaseView.vue";
-import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
-import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
+import BaseView from "@/components/common/BaseView.vue";
+import RbIconButton from "@/components/common/RbIconButton.vue";
+import RbButtonGroup from "@/components/common/RbButtonGroup.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import { useBookingStatusConfig, useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";

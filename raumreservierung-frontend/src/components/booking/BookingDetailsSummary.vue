@@ -8,7 +8,7 @@
     <v-card-text>
       <v-row class="mt-2">
         <v-col cols="12" sm="6" md="4" lg="3">
-          <rb-text-icon-display
+          <text-icon-display
             class="mb-2"
             :icon="mdiAccountOutline"
             :text="
@@ -18,13 +18,13 @@
               })
             "
           />
-          <rb-text-icon-display
+          <text-icon-display
             v-if="booking?.schedule.occupancyStart"
             class="my-2"
             :icon="mdiCalendarStartOutline"
             :text="toDateString(booking?.schedule.occupancyStart)"
           />
-          <rb-text-icon-display
+          <text-icon-display
             v-if="booking?.schedule.occupancyStart && booking?.schedule.occupancyEnd"
             class="my-2"
             :icon="mdiCalendarRangeOutline"
@@ -35,7 +35,7 @@
               })
             "
           />
-          <rb-text-icon-display
+          <text-icon-display
             class="my-2"
             :icon="mdiAccountOutline"
             :text="
@@ -44,7 +44,7 @@
               })
             "
           />
-          <rb-text-icon-display
+          <text-icon-display
             class="my-2"
             :icon="booking?.recurringRule ? mdiCalendarRefreshOutline : mdiCalendarBlankOutline"
             :text="
@@ -53,7 +53,7 @@
                 : t('domain.booking.appointmentType.single')
             "
           />
-          <rb-text-icon-display
+          <text-icon-display
             v-if="booking?.seatingType"
             class="my-2"
             :icon="mdiSofaSingleOutline"
@@ -62,7 +62,7 @@
         </v-col>
         <v-col cols="12" sm="6" md="4" lg="3">
           <div class="text-title-small text-medium-emphasis mb-2 ml-n1">
-            <rb-text-icon-display
+            <text-icon-display
               :text="t('components.bookingDetailsSummary.annotation')"
               :icon="mdiCommentTextOutline"
             />
@@ -73,7 +73,7 @@
         </v-col>
         <v-col v-if="booking?.equipments?.length" cols="12" sm="12" md="12" lg="6">
           <div class="text-title-small text-medium-emphasis mb-2 ml-n1">
-            <rb-text-icon-display
+            <text-icon-display
               :text="t('components.bookingDetailsSummary.selectedEquipment')"
               :icon="mdiStoreCheckOutline"
             />
@@ -196,8 +196,8 @@ import {
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
-import RbButton from "@/components/common/buttons/RbButton.vue";
-import RbTextIconDisplay from "@/components/common/RbTextIconDisplay.vue";
+import RbButton from "@/components/common/RbButton.vue";
+import TextIconDisplay from "@/components/common/TextIconDisplay.vue";
 import { useBookingStatusConfig, useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { useHasRole } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";

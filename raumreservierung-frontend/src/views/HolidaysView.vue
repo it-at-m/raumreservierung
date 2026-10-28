@@ -1,5 +1,5 @@
 <template>
-  <rb-base-view :header-text="t('generics.manage', { domain: computedTitle })">
+  <base-view :header-text="t('generics.manage', { domain: computedTitle })">
     <template #default>
       <year-slider
         v-model="selectedYear"
@@ -56,7 +56,7 @@
         </template>
       </crud-card>
     </template>
-  </rb-base-view>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -69,9 +69,9 @@ import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
-import RbBaseView from "@/components/common/RbBaseView.vue";
-import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
-import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
+import BaseView from "@/components/common/BaseView.vue";
+import RbIconButton from "@/components/common/RbIconButton.vue";
+import RbButtonGroup from "@/components/common/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import YearSlider from "@/components/common/YearSlider.vue";
 import HolidayForm from "@/components/forms/HolidayForm.vue";

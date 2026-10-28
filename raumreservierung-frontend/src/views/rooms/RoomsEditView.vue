@@ -1,5 +1,5 @@
 <template>
-  <rb-base-view
+  <base-view
     :header-text="
       roomId
         ? t('generics.edit', { domain: t('domain.room.header') })
@@ -239,7 +239,7 @@
         </v-row>
       </v-form>
     </template>
-  </rb-base-view>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -266,8 +266,8 @@ import {
   RoomDetailsResponseDTOPropertyValidationAttributesMap,
 } from "@/api/raumreservierung-backend";
 import PersonSelect from "@/components/booking/PersonSelect.vue";
-import RbBaseView from "@/components/common/RbBaseView.vue";
-import RbButton from "@/components/common/buttons/RbButton.vue";
+import BaseView from "@/components/common/BaseView.vue";
+import RbButton from "@/components/common/RbButton.vue";
 import RbCard from "@/components/common/RbCard.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";

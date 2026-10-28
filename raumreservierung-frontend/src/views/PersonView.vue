@@ -1,5 +1,5 @@
 <template>
-  <rb-base-view
+  <base-view
     :header-text="
       t('generics.manage', {
         domain: isInternalPath
@@ -76,7 +76,7 @@
         </template>
       </crud-card>
     </template>
-  </rb-base-view>
+  </base-view>
 </template>
 
 <script setup lang="ts">
@@ -96,10 +96,10 @@ import { useRoute } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
 import { ExternalPersonResponseDtoTypeEnum } from "@/api/raumreservierung-backend";
-import RbBaseView from "@/components/common/RbBaseView.vue";
-import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
-import RbButton from "@/components/common/buttons/RbButton.vue";
-import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
+import BaseView from "@/components/common/BaseView.vue";
+import RbIconButton from "@/components/common/RbIconButton.vue";
+import RbButton from "@/components/common/RbButton.vue";
+import RbButtonGroup from "@/components/common/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import ExternalPersonForm from "@/components/forms/ExternalPersonForm.vue";
 import {
