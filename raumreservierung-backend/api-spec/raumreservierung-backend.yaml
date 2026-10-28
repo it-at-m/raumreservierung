@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: raumreservierung-backend
   description: This is the backend-project of the renewal of the raumreservierung
-  version: 0.10.2-SNAPSHOT
+  version: 0.11.1-SNAPSHOT
 servers:
 - url: http://localhost:8086
   description: Generated server url
@@ -488,6 +488,11 @@ paths:
           enum:
           - INTERNAL
           - EXTERNAL
+      - name: ldapOnly
+        in: query
+        required: false
+        schema:
+          type: boolean
       responses:
         "200":
           description: OK
@@ -1397,6 +1402,16 @@ components:
           type: string
         isActive:
           type: boolean
+    BookedForDto:
+      type: object
+      properties:
+        id:
+          type: string
+        personType:
+          type: string
+          enum:
+          - INTERNAL
+          - EXTERNAL
     BookingRequestDTO:
       required:
       - schedule
@@ -1433,9 +1448,8 @@ components:
           format: uuid
         schedule:
           $ref: "#/components/schemas/ScheduleTemplate"
-        bookedForId:
-          type: string
-          format: uuid
+        bookedFor:
+          $ref: "#/components/schemas/BookedForDto"
         seatingTypeId:
           type: string
           format: uuid

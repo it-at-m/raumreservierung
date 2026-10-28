@@ -20,10 +20,10 @@ spring:
       - classpath:db/migration/schema
       - classpath:db/migration/testdata
   ldap:
-    urls: ldap://localhost:8389
-    username: cn=readonly,dc=example,dc=org
-    password: readonly
-    base: o=users,dc=example,dc=org
+    urls: ldaps://muenchen.de:636
+    username: cn=svc-raumbuchung-p-p,OU=Dienstkonten,OU=Infrastrukturverwaltung,DC=muenchen,DC=de
+    password: fPB8QwJCNvzFz7dXC4u7rd98
+    base: OU=Bereiche,DC=muenchen,DC=de
   security:
     oauth2:
       resourceserver:
