@@ -1,8 +1,5 @@
 <template>
-  <card-form
-    :subtitle="t('components.rruleEditorCard.seriesPattern')"
-    class="mb-4"
-  >
+  <card-form :subtitle="t('components.rruleEditorCard.seriesPattern')" class="mb-4">
     <template #text>
       <v-row>
         <v-col
@@ -11,12 +8,7 @@
           class="pb-2"
           :class="{ 'border-e-sm': mdAndUp, 'border-b-sm': !mdAndUp }"
         >
-          <v-radio-group
-            v-model="frequency"
-            color="accent"
-            :disabled="disabled"
-            hide-details
-          >
+          <v-radio-group v-model="frequency" color="accent" :disabled="disabled" hide-details>
             <v-radio
               v-for="freq in frequencyOptions"
               :key="freq.value"
@@ -26,16 +18,9 @@
           </v-radio-group>
         </v-col>
 
-        <v-col
-          cols="12"
-          md="9"
-        >
+        <v-col cols="12" md="9">
           <template v-if="frequency === 'daily'">
-            <v-radio-group
-              v-model="dailyOption"
-              :disabled="disabled"
-              color="accent"
-            >
+            <v-radio-group v-model="dailyOption" :disabled="disabled" color="accent">
               <v-radio value="every">
                 <template #label>
                   <i18n-t
@@ -63,10 +48,7 @@
                   </i18n-t>
                 </template>
               </v-radio>
-              <v-radio
-                value="workdays"
-                :label="t('components.rruleEditorCard.daily.workdays')"
-              />
+              <v-radio value="workdays" :label="t('components.rruleEditorCard.daily.workdays')" />
             </v-radio-group>
           </template>
 
@@ -96,13 +78,7 @@
             </i18n-t>
 
             <v-row gap="0">
-              <v-col
-                v-for="weekday in weekdays"
-                :key="weekday.value"
-                cols="12"
-                sm="4"
-                md="3"
-              >
+              <v-col v-for="weekday in weekdays" :key="weekday.value" cols="12" sm="4" md="3">
                 <v-checkbox
                   v-model="weeklyDays"
                   :disabled="disabled"
@@ -117,11 +93,7 @@
           </template>
 
           <template v-if="frequency === 'monthly'">
-            <v-radio-group
-              v-model="monthlyOption"
-              :disabled="disabled"
-              color="accent"
-            >
+            <v-radio-group v-model="monthlyOption" :disabled="disabled" color="accent">
               <v-radio value="specific_day">
                 <template #label>
                   <i18n-t
@@ -165,10 +137,7 @@
                 </template>
               </v-radio>
 
-              <v-radio
-                value="relative_day"
-                class="mt-2"
-              >
+              <v-radio value="relative_day" class="mt-2">
                 <template #label>
                   <i18n-t
                     scope="global"
@@ -230,12 +199,7 @@
 
   <card-form :subtitle="t('components.rruleEditorCard.seriesDuration')">
     <template #text>
-      <v-radio-group
-        v-model="endOption"
-        :disabled="disabled"
-        color="accent"
-        hide-details
-      >
+      <v-radio-group v-model="endOption" :disabled="disabled" color="accent" hide-details>
         <v-radio value="count">
           <template #label>
             <i18n-t
@@ -264,10 +228,7 @@
           </template>
         </v-radio>
 
-        <v-radio
-          value="until"
-          class="mt-2"
-        >
+        <v-radio value="until" class="mt-2">
           <template #label>
             <i18n-t
               scope="global"
@@ -276,7 +237,7 @@
               class="d-flex align-center"
             >
               <template #date>
-                <date-time-text-field
+                <rb-date-time-text-field
                   v-model="endDate"
                   :disabled="disabled || endOption !== 'until'"
                   color="accent"
@@ -301,7 +262,7 @@ import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify/framework";
 
 import CardForm from "@/components/common/CardForm.vue";
-import DateTimeTextField from "@/components/common/date/DateTimeTextField.vue";
+import RbDateTimeTextField from "@/components/common/RbDateTimeTextField.vue";
 
 const { t } = useI18n();
 
@@ -466,21 +427,13 @@ const generateRRule = () => {
             ];
             break;
           case "WORKDAY":
-            options.byweekday = [
-              RRule.MO,
-              RRule.TU,
-              RRule.WE,
-              RRule.TH,
-              RRule.FR,
-            ];
+            options.byweekday = [RRule.MO, RRule.TU, RRule.WE, RRule.TH, RRule.FR];
             break;
           case "WEEKENDDAY":
             options.byweekday = [RRule.SA, RRule.SU];
             break;
           default:
-            options.byweekday = [
-              rruleWeekdayMap[monthlyRelativeDay.value as DayType],
-            ];
+            options.byweekday = [rruleWeekdayMap[monthlyRelativeDay.value as DayType]];
         }
       }
       break;
@@ -488,8 +441,7 @@ const generateRRule = () => {
 
   switch (endOption.value) {
     case "count":
-      endCount.value =
-        !endCount.value || endCount.value < 1 ? 1 : endCount.value;
+      endCount.value = !endCount.value || endCount.value < 1 ? 1 : endCount.value;
       options.count = endCount.value;
       break;
     case "until":
@@ -527,13 +479,10 @@ const parseIncomingRRule = (rruleString: string) => {
             : [orig.byweekday]
           : [];
         const weekdayNums = byweekdayArray.map(extractWeekdayNumber).sort();
-        const isWorkdays =
-          weekdayNums.length === 5 && weekdayNums.every((v, i) => v === i);
+        const isWorkdays = weekdayNums.length === 5 && weekdayNums.every((v, i) => v === i);
 
         frequency.value =
-          isWorkdays && (!orig.interval || orig.interval === 1)
-            ? "daily"
-            : "weekly";
+          isWorkdays && (!orig.interval || orig.interval === 1) ? "daily" : "weekly";
 
         if (frequency.value === "daily") {
           dailyOption.value = "workdays";
@@ -553,15 +502,11 @@ const parseIncomingRRule = (rruleString: string) => {
           monthlyOption.value = "relative_day";
           monthlyIntervalOption2.value = orig.interval || 1;
           monthlyRelativePosition.value = orig.bysetpos
-            ? String(
-                Array.isArray(orig.bysetpos) ? orig.bysetpos[0] : orig.bysetpos
-              )
+            ? String(Array.isArray(orig.bysetpos) ? orig.bysetpos[0] : orig.bysetpos)
             : "1";
 
           if (orig.byweekday) {
-            const bwArray = Array.isArray(orig.byweekday)
-              ? orig.byweekday
-              : [orig.byweekday];
+            const bwArray = Array.isArray(orig.byweekday) ? orig.byweekday : [orig.byweekday];
             const wNums = bwArray.map(extractWeekdayNumber).sort();
 
             if (wNums.length === 7) monthlyRelativeDay.value = "DAY";
@@ -570,8 +515,7 @@ const parseIncomingRRule = (rruleString: string) => {
             else if (wNums.length === 2 && wNums[0] === 5 && wNums[1] === 6)
               monthlyRelativeDay.value = "WEEKENDDAY";
             else if (wNums.length === 1)
-              monthlyRelativeDay.value =
-                numToDayStr[wNums[0] as number] || "MO";
+              monthlyRelativeDay.value = numToDayStr[wNums[0] as number] || "MO";
           }
         } else {
           monthlyOption.value = "specific_day";
@@ -625,7 +569,7 @@ watch(
     if (isParsing.value) return;
     generateRRule();
   },
-  { deep: true }
+  { deep: true },
 );
 
 watch(
@@ -637,7 +581,7 @@ watch(
     }
     parseIncomingRRule(newValue || "");
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 onMounted(() => {

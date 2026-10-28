@@ -29,7 +29,7 @@
 
   <v-row>
     <v-col>
-      <date-time-text-field
+      <rb-date-time-text-field
         v-model="occupancyStart"
         color="accent"
         :disabled="disabled"
@@ -41,7 +41,7 @@
       />
     </v-col>
     <v-col v-if="multiDay">
-      <date-time-text-field
+      <rb-date-time-text-field
         v-model="occupancyEnd"
         color="accent"
         hide-details="auto"
@@ -56,7 +56,7 @@
 
   <v-row>
     <v-col>
-      <date-time-text-field
+      <rb-date-time-text-field
         v-model="occupancyStart"
         :append-inner-icon="mdiClockOutline"
         color="accent"
@@ -68,7 +68,7 @@
       />
     </v-col>
     <v-col>
-      <date-time-text-field
+      <rb-date-time-text-field
         v-model="occupancyEnd"
         :append-inner-icon="mdiClockOutline"
         color="accent"
@@ -97,7 +97,7 @@
 
   <v-row v-if="appointmentDiffers">
     <v-col>
-      <date-time-text-field
+      <rb-date-time-text-field
         v-model="appointmentStart"
         color="accent"
         :disabled="disabled"
@@ -109,7 +109,7 @@
       />
     </v-col>
     <v-col>
-      <date-time-text-field
+      <rb-date-time-text-field
         v-model="appointmentEnd"
         color="accent"
         :disabled="disabled"
@@ -130,15 +130,11 @@ import { mdiClockOutline } from "@mdi/js";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import DateTimeTextField from "@/components/common/date/DateTimeTextField.vue";
+import RbDateTimeTextField from "@/components/common/RbDateTimeTextField.vue";
 import { useGetHolidays } from "@/composables/api/useHolidayApi.ts";
 import { useRules } from "@/composables/useRules";
 import { SCHEDULE_DEFAULT_DURATION } from "@/constants.ts";
-import {
-  dateEquals,
-  dateRangesOverlap,
-  formatDateShort,
-} from "@/util/timeUtil.ts";
+import { dateEquals, dateRangesOverlap, formatDateShort } from "@/util/timeUtil.ts";
 
 const { t } = useI18n();
 const rules = useRules();
@@ -153,7 +149,7 @@ const multiDay = computed<boolean>(
   () =>
     occupancyStart.value &&
     occupancyEnd.value &&
-    !dateEquals(modelValue.value.occupancyStart, modelValue.value.occupancyEnd)
+    !dateEquals(modelValue.value.occupancyStart, modelValue.value.occupancyEnd),
 );
 
 const wholeDay = computed<boolean>(
@@ -162,11 +158,11 @@ const wholeDay = computed<boolean>(
     occupancyEnd.value &&
     occupancyEnd.value.getHours() === 23 &&
     occupancyEnd.value.getMinutes() === 59 &&
-    occupancyStart.value.getHours() <= 7
+    occupancyStart.value.getHours() <= 7,
 );
 
 const appointmentDiffers = computed(
-  () => !!modelValue.value.appointmentStart && !!modelValue.value.appointmentEnd
+  () => !!modelValue.value.appointmentStart && !!modelValue.value.appointmentEnd,
 );
 
 const occupancyStart = computed({
@@ -197,14 +193,12 @@ const occupancyEnd = computed({
 
 const appointmentStart = computed({
   get: () => modelValue.value.appointmentStart,
-  set: (val) =>
-    (modelValue.value = { ...modelValue.value, appointmentStart: val }),
+  set: (val) => (modelValue.value = { ...modelValue.value, appointmentStart: val }),
 });
 
 const appointmentEnd = computed({
   get: () => modelValue.value.appointmentEnd,
-  set: (val) =>
-    (modelValue.value = { ...modelValue.value, appointmentEnd: val }),
+  set: (val) => (modelValue.value = { ...modelValue.value, appointmentEnd: val }),
 });
 
 const { data: startYearHolidays } = useGetHolidays(() =>
@@ -212,14 +206,13 @@ const { data: startYearHolidays } = useGetHolidays(() =>
     ? {
         year: occupancyStart.value.getFullYear(),
       }
-    : undefined
+    : undefined,
 );
 
 const { data: endYearHolidays } = useGetHolidays(() =>
-  !multiDay.value ||
-  occupancyStart.value.getFullYear() !== occupancyEnd.value.getFullYear()
+  !multiDay.value || occupancyStart.value.getFullYear() !== occupancyEnd.value.getFullYear()
     ? { year: occupancyEnd.value.getFullYear() }
-    : undefined
+    : undefined,
 );
 
 const syncDatePart = (source: Date, target: Date) => {
@@ -238,9 +231,7 @@ const syncDatePart = (source: Date, target: Date) => {
  */
 const onMultiDayToggle = async (isMulti: boolean | null) => {
   if (isMulti || !occupancyStart.value) {
-    occupancyEnd.value = new Date(
-      occupancyEnd.value.setDate(occupancyEnd.value.getDate() + 1)
-    );
+    occupancyEnd.value = new Date(occupancyEnd.value.setDate(occupancyEnd.value.getDate() + 1));
   } else {
     modelValue.value = {
       ...modelValue.value,
@@ -258,9 +249,7 @@ const onMultiDayToggle = async (isMulti: boolean | null) => {
 };
 
 const onWholeDayToggle = (isWholeDay: boolean | null) => {
-  const referenceDate = occupancyStart.value
-    ? new Date(occupancyStart.value)
-    : new Date();
+  const referenceDate = occupancyStart.value ? new Date(occupancyStart.value) : new Date();
 
   const start = new Date(referenceDate);
   const end = new Date(referenceDate);
@@ -332,12 +321,7 @@ const holidayOverlapMessage = computed(() => {
   }
 
   const overlapResult = allHolidaysInRange.value.find((holyday) =>
-    dateRangesOverlap(
-      holyday.startDate,
-      holyday.endDate,
-      occupancyStart.value,
-      occupancyEnd.value
-    )
+    dateRangesOverlap(holyday.startDate, holyday.endDate, occupancyStart.value, occupancyEnd.value),
   );
 
   return overlapResult
