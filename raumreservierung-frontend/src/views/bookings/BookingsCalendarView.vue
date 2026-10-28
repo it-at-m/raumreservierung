@@ -39,6 +39,15 @@
         :displayed-rooms="selectedRoomDataRef.selectedRoomData"
         @updated-schedule="updateSchedule"
       />
+      <v-alert
+        v-if="isSeriesBooking"
+        border="start"
+        color="warning"
+        variant="tonal"
+        class="mt-4"
+      >
+        {{ t("components.bookingsCalendarView.warning") }}
+      </v-alert>
       <booking-details-summary
         class="mt-4"
         :booking="computedBooking"
@@ -48,27 +57,6 @@
         @cancel="resetBooking"
         @confirm="handleConfirm"
       />
-      <v-dialog
-        v-if="isSeriesBooking"
-        v-model="saveHintOpen"
-        max-width="480"
-      >
-        <confirm-card
-          :title="t('components.bookingsCalendarView.saveHint.title')"
-          :text="t('components.bookingsCalendarView.saveHint.booking')"
-          :loading="updateBookingLoading"
-          @cancel="saveHintOpen = false"
-          @confirm="confirmSave"
-        >
-          <template #confirm="{ props, disabled }">
-            <base-button
-              v-bind="props"
-              :disabled="disabled"
-              :text="t('common.save')"
-            />
-          </template>
-        </confirm-card>
-      </v-dialog>
     </template>
   </base-view>
 </template>
@@ -93,8 +81,6 @@ import BookingDetailsSummary from "@/components/booking/BookingDetailsSummary.vu
 import RrBookingCalendar from "@/components/booking/calendar/rrBookingCalendar.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
-import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import {
   useGetBooking,
   useUpdateBooking,
@@ -198,11 +184,6 @@ const handleConfirm = async () => {
     saveHintOpen.value = true;
     return;
   }
-  await saveBooking();
-};
-
-const confirmSave = async () => {
-  saveHintOpen.value = false;
   await saveBooking();
 };
 
