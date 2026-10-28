@@ -101,7 +101,7 @@
             </template>
             <template #[`item.actions`]="{ item }">
               <rb-button-group>
-                <action-button
+                <rb-icon-button
                   :disabled="!isBookingEditable(item)"
                   type="edit"
                   @click="
@@ -113,7 +113,7 @@
                     })
                   "
                 />
-                <action-button
+                <rb-icon-button
                   :disabled="!isBookingEditable(item)"
                   :icon="mdiCalendarEditOutline"
                   @click="
@@ -150,7 +150,7 @@ import { useRoute, useRouter } from "vue-router";
 import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
-import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
 import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import {

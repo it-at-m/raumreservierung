@@ -28,7 +28,7 @@
         @keyup.enter="handleCreate"
       >
         <template #append-inner>
-          <action-button
+          <rb-icon-button
             type="add"
             color="accent"
             @click="handleCreate"
@@ -53,7 +53,7 @@ import { mdiArrowLeft } from "@mdi/js";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
 
 const { t } = useI18n();

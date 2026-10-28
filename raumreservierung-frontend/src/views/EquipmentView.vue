@@ -33,12 +33,12 @@
           </template>
           <template #[`item.actions`]="{ item }">
             <rb-button-group>
-              <action-button
+              <rb-icon-button
                 type="edit"
                 class="mr-1"
                 @click="openEdit(item)"
               />
-              <action-button
+              <rb-icon-button
                 :disabled="item.isActive"
                 type="delete"
                 @click="openDelete(item)"
@@ -61,7 +61,7 @@ import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
 import BaseView from "@/components/common/BaseView.vue";
-import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
 import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import EquipmentForm from "@/components/forms/EquipmentForm.vue";

@@ -69,13 +69,13 @@
             >
               <slot name="item.actions">
                 <rb-button-group>
-                  <action-button
+                  <rb-icon-button
                     class="mr-1"
                     type="edit"
                     @click="openEdit(item)"
                   />
 
-                  <action-button
+                  <rb-icon-button
                     type="delete"
                     @click="openDelete(item)"
                   />
@@ -107,7 +107,7 @@ import { useRoute } from "vue-router";
 import { Levels } from "@/api/error.ts";
 import { ExternalPersonResponseDtoTypeEnum } from "@/api/raumreservierung-backend";
 import BaseView from "@/components/common/BaseView.vue";
-import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
 import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
