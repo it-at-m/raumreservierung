@@ -4,5 +4,6 @@ import de.muenchen.raumreservierung.person.domain.PersonType;
 
 public record PersonFilterDto(
         String searchName,
-        PersonType personType) {
+        PersonType personType,
+        boolean ldapOnly) {
 }

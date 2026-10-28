@@ -137,6 +137,7 @@ const onSearch = useDebounceFn((searchQuery: string) => {
     page: 0,
     size: 10,
     personType: type,
+    ldapOnly: isInternal.value,
   });
 }, 500);
 </script>

@@ -25,6 +25,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -60,6 +61,15 @@ public class PersonService {
                     .map(externalPerson -> (Person) externalPerson);
         }
         case PersonType.INTERNAL -> {
+            if (personFilterDto.ldapOnly()) {
+                final List<Person> ldapPersonList = ldapService.searchPersonByFilter(personFilterDto, pageable)
+                        .stream()
+                        .map(personMapper::toInternalPerson)
+                        .map(internalPerson -> (Person) internalPerson)
+                        .toList();
+                return new PageImpl<>(ldapPersonList, pageable, ldapPersonList.size());
+            }
+
             final Specification<InternalPerson> internalPersonSpecification = PersonSpecificationBuilder.fromFilter(personFilterDto);
             return internalPersonRepository.findAll(internalPersonSpecification, pageable).map(internalPerson -> (Person) internalPerson);
 
