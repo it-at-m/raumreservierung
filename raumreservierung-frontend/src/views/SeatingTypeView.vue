@@ -33,7 +33,7 @@
               <v-icon :icon="item.isActive ? mdiCheck : mdiMinus" />
             </template>
             <template #[`item.actions`]="{ item }">
-              <rr-button-group>
+              <rb-button-group>
                 <action-button
                   type="edit"
                   class="mr-1"
@@ -44,7 +44,7 @@
                   type="delete"
                   @click="openDelete(item)"
                 />
-              </rr-button-group>
+              </rb-button-group>
             </template>
           </v-data-table>
         </template>
@@ -64,7 +64,7 @@ import { useI18n } from "vue-i18n";
 import { Levels } from "@/api/error.ts";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
+import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import SeatingTypeForm from "@/components/forms/SeatingTypeForm.vue";
 import {

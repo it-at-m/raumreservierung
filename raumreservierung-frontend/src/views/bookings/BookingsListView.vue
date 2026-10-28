@@ -100,7 +100,7 @@
               <v-icon :icon="item.hasNote ? mdiCheck : mdiMinus" />
             </template>
             <template #[`item.actions`]="{ item }">
-              <rr-button-group>
+              <rb-button-group>
                 <action-button
                   :disabled="!isBookingEditable(item)"
                   type="edit"
@@ -123,7 +123,7 @@
                     })
                   "
                 />
-              </rr-button-group>
+              </rb-button-group>
             </template>
           </v-data-table-server>
         </template>
@@ -151,7 +151,7 @@ import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
+import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import {
   useBookingStatusConfig,

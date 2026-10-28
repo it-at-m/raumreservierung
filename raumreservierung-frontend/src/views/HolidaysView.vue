@@ -46,7 +46,7 @@
                 :prompt-delete="openDelete"
                 name="itemActions"
               >
-                <rr-button-group>
+                <rb-button-group>
                   <action-button
                     class="mr-1"
                     type="edit"
@@ -56,7 +56,7 @@
                     type="delete"
                     @click="openDelete(item)"
                   />
-                </rr-button-group>
+                </rb-button-group>
               </slot>
             </template>
           </v-data-table>
@@ -81,7 +81,7 @@ import { useRoute } from "vue-router";
 import { Levels } from "@/api/error.ts";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
+import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import YearSlider from "@/components/common/YearSlider.vue";
 import HolidayForm from "@/components/forms/HolidayForm.vue";
