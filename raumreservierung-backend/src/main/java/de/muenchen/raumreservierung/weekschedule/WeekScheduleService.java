@@ -5,6 +5,7 @@ import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentRepository;
 import de.muenchen.raumreservierung.appointment.AppointmentSpecificationBuilder;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
+import de.muenchen.raumreservierung.booking.BookingStatus;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.room.RoomService;
 import java.io.IOException;
@@ -76,7 +77,7 @@ public class WeekScheduleService {
         final AppointmentFilterDTO filter = new AppointmentFilterDTO(rangeStart, rangeEnd, null, roomIds);
 
         return appointmentRepository.findAll(
-                AppointmentSpecificationBuilder.fromFilter(filter),
+                AppointmentSpecificationBuilder.fromFilterWithStatus(filter, BookingStatus.ORGANIZER_APPROVED),
                 Sort.by("schedule.occupancyStart"));
     }
 
