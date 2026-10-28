@@ -1,23 +1,12 @@
 <template>
-  <v-card
-    class="overflow-hidden"
-    min-width="250px"
-    max-width="600px"
-  >
-    <v-sheet
-      :color="config.color"
-      class="pa-4 d-flex align-center"
-    >
+  <v-card class="overflow-hidden" min-width="250px" max-width="600px">
+    <v-sheet :color="config.color" class="pa-4 d-flex align-center">
       <span class="text-h6">{{ appointment.bookingMinimal.title }}</span>
       <v-spacer />
-      <v-icon
-        :icon="config.icon"
-        size="small"
-        class="ml-2"
-      />
+      <v-icon :icon="config.icon" size="small" class="ml-2" />
     </v-sheet>
     <v-card-text class="pt-4">
-      <icon-information
+      <rb-text-icon-display
         :icon="mdiAccountOutline"
         :text="
           t('common.format.fullName', {
@@ -26,17 +15,14 @@
           })
         "
       />
-      <icon-information
+      <rb-text-icon-display
         v-if="appointment.schedule.occupancyStart"
         class="my-2"
         :icon="mdiCalendarStartOutline"
         :text="toDateString(appointment.schedule.occupancyStart)"
       />
-      <icon-information
-        v-if="
-          appointment.schedule.occupancyStart &&
-          appointment.schedule.occupancyEnd
-        "
+      <rb-text-icon-display
+        v-if="appointment.schedule.occupancyStart && appointment.schedule.occupancyEnd"
         class="my-2"
         :icon="mdiCalendarRangeOutline"
         :text="
@@ -117,11 +103,8 @@ import {
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
-import IconInformation from "@/components/common/IconInformation.vue";
-import {
-  useBookingStatusConfig,
-  useIsBookingEditable,
-} from "@/composables/useBookingStatus.ts";
+import RbTextIconDisplay from "@/components/common/RbTextIconDisplay.vue";
+import { useBookingStatusConfig, useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { toDateString, toTimeString } from "@/util/formatter.ts";
 
@@ -133,13 +116,9 @@ const { appointment } = defineProps<{
   appointment: AppointmentDetailsResponseDTO;
 }>();
 
-const isFeasibleBooking = useIsBookingEditable(
-  () => appointment.bookingMinimal
-);
+const isFeasibleBooking = useIsBookingEditable(() => appointment.bookingMinimal);
 
-const { config } = useBookingStatusConfig(
-  () => appointment.bookingMinimal.status
-);
+const { config } = useBookingStatusConfig(() => appointment.bookingMinimal.status);
 </script>
 
 <style scoped></style>
