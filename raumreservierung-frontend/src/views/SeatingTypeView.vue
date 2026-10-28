@@ -1,9 +1,5 @@
 <template>
-  <base-view
-    :header-text="
-      t('generics.manage', { domain: t('domain.seatingType.header') })
-    "
-  >
+  <rb-base-view :header-text="t('generics.manage', { domain: t('domain.seatingType.header') })">
     <template #default>
       <crud-card
         ref="crudRef"
@@ -34,23 +30,15 @@
             </template>
             <template #[`item.actions`]="{ item }">
               <rb-button-group>
-                <rb-icon-button
-                  type="edit"
-                  class="mr-1"
-                  @click="openEdit(item)"
-                />
-                <rb-icon-button
-                  :disabled="item.isActive"
-                  type="delete"
-                  @click="openDelete(item)"
-                />
+                <rb-icon-button type="edit" class="mr-1" @click="openEdit(item)" />
+                <rb-icon-button :disabled="item.isActive" type="delete" @click="openDelete(item)" />
               </rb-button-group>
             </template>
           </v-data-table>
         </template>
       </crud-card>
     </template>
-  </base-view>
+  </rb-base-view>
 </template>
 
 <script setup lang="ts">
@@ -62,7 +50,7 @@ import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
-import BaseView from "@/components/common/BaseView.vue";
+import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
 import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
@@ -81,8 +69,7 @@ const snackbarStore = useSnackbarStore();
 
 const crudRef = useTemplateRef("crudRef");
 
-const { data: allSeatingTypesData, isPending: getAllSeatingTypeLoading } =
-  useGetAllSeatingTypes();
+const { data: allSeatingTypesData, isPending: getAllSeatingTypeLoading } = useGetAllSeatingTypes();
 
 const {
   mutateAsync: deleteSeatingTypeCall,
@@ -127,9 +114,7 @@ const EMPTY_ITEM_TEMPLATE = {
 const handleCreate = async (newItem: SeatingTypeResponseDto) => {
   await createSeatingTypeCall({ seatingTypeRequestDto: newItem });
   if (!createSeatingTypeError.value) {
-    await onSuccess(
-      t("generics.created", { domain: t("domain.seatingType.header") })
-    );
+    await onSuccess(t("generics.created", { domain: t("domain.seatingType.header") }));
   }
 };
 
@@ -140,9 +125,7 @@ const handleUpdate = async (updatedItem: SeatingTypeResponseDto) => {
       seatingTypeId: updatedItem.id,
     });
     if (!updateSeatingTypeError.value) {
-      await onSuccess(
-        t("generics.updated", { domain: t("domain.seatingType.header") })
-      );
+      await onSuccess(t("generics.updated", { domain: t("domain.seatingType.header") }));
     }
   }
 };
@@ -150,9 +133,7 @@ const handleUpdate = async (updatedItem: SeatingTypeResponseDto) => {
 const handleDelete = async (id: string) => {
   await deleteSeatingTypeCall({ seatingTypeId: id });
   if (!deleteSeatingTypeError.value) {
-    await onSuccess(
-      t("generics.deleted", { domain: t("domain.seatingType.header") })
-    );
+    await onSuccess(t("generics.deleted", { domain: t("domain.seatingType.header") }));
   }
 };
 

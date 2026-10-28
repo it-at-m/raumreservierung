@@ -1,11 +1,7 @@
 <template>
-  <base-view :header-text="t('views.bookingDetailsView.header')">
+  <rb-base-view :header-text="t('views.bookingDetailsView.header')">
     <template #headerPrepend>
-      <v-icon
-        size="30"
-        :icon="mdiArrowLeft"
-        @click="router.back()"
-      />
+      <v-icon size="30" :icon="mdiArrowLeft" @click="router.back()" />
     </template>
     <template #headerActions>
       <rb-button
@@ -22,43 +18,24 @@
       />
     </template>
     <template #default>
-      <v-sheet
-        border
-        class="mb-4"
-        rounded
-        elevation="0"
-      >
+      <v-sheet border class="mb-4" rounded elevation="0">
         <v-row>
-          <v-col
-            cols="12"
-            sm="6"
-          >
-            <v-skeleton-loader
-              :loading="getBookingLoading"
-              type="article"
-            >
+          <v-col cols="12" sm="6">
+            <v-skeleton-loader :loading="getBookingLoading" type="article">
               <v-responsive>
                 <booking-general-info-card
                   :id="getBookingData?.id"
                   :title="getBookingData?.title"
                   :schedule="getBookingData?.schedule"
                   :status="getBookingData?.status"
-                  :reason-for-status-change="
-                    getBookingData?.reasonForStatusChange
-                  "
+                  :reason-for-status-change="getBookingData?.reasonForStatusChange"
                   :booking-type="getBookingData?.bookingType"
                 />
               </v-responsive>
             </v-skeleton-loader>
           </v-col>
-          <v-col
-            cols="12"
-            sm="6"
-          >
-            <v-skeleton-loader
-              :loading="getBookingLoading"
-              type="article"
-            >
+          <v-col cols="12" sm="6">
+            <v-skeleton-loader :loading="getBookingLoading" type="article">
               <v-responsive>
                 <schedule-timeline-card
                   v-if="getBookingData?.schedule"
@@ -69,16 +46,10 @@
           </v-col>
         </v-row>
       </v-sheet>
-      <div
-        class="w-100 masonry-container"
-        :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'"
-      >
+      <div class="w-100 masonry-container" :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'">
         <div class="masonry-item w-100 d-inline-block mb-4">
           <details-card
-            :title="
-              getBookingData?.room?.name ||
-              t('views.bookingDetailsView.noRoomSelected')
-            "
+            :title="getBookingData?.room?.name || t('views.bookingDetailsView.noRoomSelected')"
             :subtitle="getBookingData?.room?.number"
             :icon="mdiDoor"
             :loading="getBookingLoading"
@@ -132,19 +103,12 @@
               v-if="getBookingData?.organisationUnit"
               class="text-medium-emphasis d-flex align-center"
             >
-              <v-icon
-                :icon="mdiDomain"
-                size="small"
-                class="mr-2"
-              />
+              <v-icon :icon="mdiDomain" size="small" class="mr-2" />
               {{ getBookingData.organisationUnit }}
             </div>
           </details-card>
         </div>
-        <div
-          v-if="getBookingData?.recurringRule"
-          class="masonry-item w-100 d-inline-block mb-4"
-        >
+        <div v-if="getBookingData?.recurringRule" class="masonry-item w-100 d-inline-block mb-4">
           <details-card
             :title="t('domain.booking.recurrenceRule')"
             :subtitle="computedRRule"
@@ -179,10 +143,7 @@
               </template>
               <template #load-more="{ props }">
                 <rb-button
-                  v-if="
-                    (appointmentPage.page?.totalPages || 0) >
-                    nextAppointmentPage
-                  "
+                  v-if="(appointmentPage.page?.totalPages || 0) > nextAppointmentPage"
                   secondary
                   text="Weitere Termine laden"
                   v-bind="props"
@@ -192,10 +153,7 @@
           </details-card>
         </div>
 
-        <div
-          v-if="getBookingData?.additionalNotes"
-          class="masonry-item w-100 d-inline-block mb-4"
-        >
+        <div v-if="getBookingData?.additionalNotes" class="masonry-item w-100 d-inline-block mb-4">
           <details-card
             :title="t('views.bookingDetailsView.notes')"
             :icon="mdiFileDocumentOutline"
@@ -209,10 +167,7 @@
             <p></p>
           </details-card>
         </div>
-        <div
-          v-if="getBookingData?.internalNotes"
-          class="masonry-item w-100 d-inline-block mb-4"
-        >
+        <div v-if="getBookingData?.internalNotes" class="masonry-item w-100 d-inline-block mb-4">
           <details-card
             :title="t('views.bookingDetailsView.internalNotes')"
             :icon="mdiFileDocumentAlertOutline"
@@ -227,7 +182,7 @@
         </div>
       </div>
     </template>
-  </base-view>
+  </rb-base-view>
 </template>
 
 <script setup lang="ts">
@@ -256,7 +211,7 @@ import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backen
 import AppointmentListItem from "@/components/booking/AppointmentListItem.vue";
 import BookingGeneralInfoCard from "@/components/booking/BookingGeneralInfoCard.vue";
 import ScheduleTimelineCard from "@/components/booking/ScheduleTimelineCard.vue";
-import BaseView from "@/components/common/BaseView.vue";
+import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetAppointmentsOld } from "@/composables/api/useAppointmentApi.ts";
@@ -287,8 +242,7 @@ const {
   loading: getBookingLoading,
 } = useGetBookingOld();
 
-const { call: getAppointmentPage, data: appointmentPage } =
-  useGetAppointmentsOld();
+const { call: getAppointmentPage, data: appointmentPage } = useGetAppointmentsOld();
 
 const canEditBooking = useIsPrivileged("bookings:manage");
 
@@ -300,9 +254,7 @@ onMounted(async () => {
 
     if (!getBookingData.value || getBookingError.value) {
       await router.replace({
-        name: isMyBooking.value
-          ? ROUTES.MY_BOOKINGS_LIST
-          : ROUTES.BOOKINGS_LIST,
+        name: isMyBooking.value ? ROUTES.MY_BOOKINGS_LIST : ROUTES.BOOKINGS_LIST,
       });
     }
 

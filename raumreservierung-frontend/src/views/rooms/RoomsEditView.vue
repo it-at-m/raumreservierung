@@ -1,5 +1,5 @@
 <template>
-  <base-view
+  <rb-base-view
     :header-text="
       roomId
         ? t('generics.edit', { domain: t('domain.room.header') })
@@ -14,10 +14,7 @@
         :prepend-icon="mdiWindowClose"
         @click="router.back()"
       />
-      <v-dialog
-        max-width="800px"
-        width="90%"
-      >
+      <v-dialog max-width="800px" width="90%">
         <template #activator="{ props }">
           <rb-button
             :disabled="!isDeletable"
@@ -31,9 +28,7 @@
         <template #default="{ isActive }">
           <confirm-card
             :title="t('generics.delete', { domain: t('domain.room.header') })"
-            :text="
-              t('generics.confirmMsg', { domain: t('domain.room.header') })
-            "
+            :text="t('generics.confirmMsg', { domain: t('domain.room.header') })"
             :loading="deleteRoomLoading"
             @cancel="isActive.value = false"
             @confirm="
@@ -78,18 +73,14 @@
               color="accent"
               :label="t('domain.room.name')"
               :rules="[
-                rules.required(
-                  t('common.rules.notEmpty', { field: t('domain.room.name') })
-                ),
+                rules.required(t('common.rules.notEmpty', { field: t('domain.room.name') })),
                 rules.maxLength(
-                  RoomDetailsResponseDTOPropertyValidationAttributesMap.name
-                    ?.maxLength ?? 100,
+                  RoomDetailsResponseDTOPropertyValidationAttributesMap.name?.maxLength ?? 100,
                   t('common.rules.maxLengthError', {
                     field: t('domain.room.name'),
                     num:
-                      RoomDetailsResponseDTOPropertyValidationAttributesMap.name
-                        ?.maxLength ?? 100,
-                  })
+                      RoomDetailsResponseDTOPropertyValidationAttributesMap.name?.maxLength ?? 100,
+                  }),
                 ),
               ]"
             />
@@ -101,17 +92,16 @@
                 rules.required(
                   t('common.rules.notEmpty', {
                     field: t('domain.room.location'),
-                  })
+                  }),
                 ),
                 rules.maxLength(
-                  RoomDetailsResponseDTOPropertyValidationAttributesMap.location
-                    ?.maxLength ?? 255,
+                  RoomDetailsResponseDTOPropertyValidationAttributesMap.location?.maxLength ?? 255,
                   t('common.rules.maxLengthError', {
                     field: t('domain.room.number'),
                     num:
-                      RoomDetailsResponseDTOPropertyValidationAttributesMap
-                        .location?.maxLength ?? 255,
-                  })
+                      RoomDetailsResponseDTOPropertyValidationAttributesMap.location?.maxLength ??
+                      255,
+                  }),
                 ),
               ]"
               color="accent"
@@ -126,18 +116,15 @@
               color="accent"
               :label="t('domain.room.number')"
               :rules="[
-                rules.required(
-                  t('common.rules.notEmpty', { field: t('domain.room.number') })
-                ),
+                rules.required(t('common.rules.notEmpty', { field: t('domain.room.number') })),
                 rules.maxLength(
-                  RoomDetailsResponseDTOPropertyValidationAttributesMap.number
-                    ?.maxLength ?? 100,
+                  RoomDetailsResponseDTOPropertyValidationAttributesMap.number?.maxLength ?? 100,
                   t('common.rules.maxLengthError', {
                     field: t('domain.room.number'),
                     num:
-                      RoomDetailsResponseDTOPropertyValidationAttributesMap
-                        .number?.maxLength ?? 100,
-                  })
+                      RoomDetailsResponseDTOPropertyValidationAttributesMap.number?.maxLength ??
+                      100,
+                  }),
                 ),
               ]"
             />
@@ -165,14 +152,14 @@
               v-model="roomData.locationDescription"
               :rules="[
                 rules.maxLength(
-                  RoomDetailsResponseDTOPropertyValidationAttributesMap
-                    .locationDescription?.maxLength ?? 500,
+                  RoomDetailsResponseDTOPropertyValidationAttributesMap.locationDescription
+                    ?.maxLength ?? 500,
                   t('common.rules.maxLengthError', {
                     field: t('domain.room.number'),
                     num:
-                      RoomDetailsResponseDTOPropertyValidationAttributesMap
-                        .locationDescription?.maxLength ?? 500,
-                  })
+                      RoomDetailsResponseDTOPropertyValidationAttributesMap.locationDescription
+                        ?.maxLength ?? 500,
+                  }),
                 ),
               ]"
               color="accent"
@@ -231,17 +218,10 @@
           <v-col>
             <card-form :subtitle="t('domain.room.isActiveHeader')">
               <template #text>
-                <v-radio-group
-                  v-model="roomData.isActive"
-                  inline
-                  color="accent"
-                  hide-details
-                >
+                <v-radio-group v-model="roomData.isActive" inline color="accent" hide-details>
                   <v-radio
                     :value="true"
-                    :label="
-                      t('generics.active', { domain: t('domain.room.header') })
-                    "
+                    :label="t('generics.active', { domain: t('domain.room.header') })"
                     class="mr-4"
                   />
                   <v-radio
@@ -259,7 +239,7 @@
         </v-row>
       </v-form>
     </template>
-  </base-view>
+  </rb-base-view>
 </template>
 
 <script setup lang="ts">
@@ -286,7 +266,7 @@ import {
   RoomDetailsResponseDTOPropertyValidationAttributesMap,
 } from "@/api/raumreservierung-backend";
 import PersonSelect from "@/components/booking/PersonSelect.vue";
-import BaseView from "@/components/common/BaseView.vue";
+import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
@@ -325,11 +305,7 @@ const { t } = useI18n();
 
 const rules = useRules();
 
-const {
-  data: roomReqData,
-  isLoading: getRoomLoading,
-  error: getRoomError,
-} = useGetRoom(roomId);
+const { data: roomReqData, isLoading: getRoomLoading, error: getRoomError } = useGetRoom(roomId);
 
 const {
   mutateAsync: updateRoom,
@@ -364,13 +340,9 @@ watch(
     if (newId) {
       if (!hasError && roomReqData.value) {
         isDeletable.value = !roomReqData.value.isActive;
-        roomData.value = mapResponseToRequest(
-          toRaw(roomReqData.value) as RoomDetailsResponseDTO
-        );
+        roomData.value = mapResponseToRequest(toRaw(roomReqData.value) as RoomDetailsResponseDTO);
 
-        pictureMetaData.value = mapResponseToFileMock(
-          roomReqData.value.picture
-        );
+        pictureMetaData.value = mapResponseToFileMock(roomReqData.value.picture);
       } else {
         router.push({ name: ROUTES.ROOMS_LIST });
       }
@@ -380,7 +352,7 @@ watch(
       isDeletable.value = false;
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const uploadPicture = async (value: File | File[]) => {
@@ -414,27 +386,18 @@ const handleSave = async () => {
     });
 
     if (!updateRoomError.value && updateRoomData.value) {
-      onSuccess(
-        updateRoomData.value,
-        t("generics.updated", { domain: t("domain.room.header") })
-      );
+      onSuccess(updateRoomData.value, t("generics.updated", { domain: t("domain.room.header") }));
     }
   } else {
     await createRoom({ roomRequestDTO: payload });
 
     if (!createRoomError.value && createRoomData.value) {
-      onSuccess(
-        createRoomData.value,
-        t("generics.created", { domain: t("domain.room.header") })
-      );
+      onSuccess(createRoomData.value, t("generics.created", { domain: t("domain.room.header") }));
     }
   }
 };
 
-const onSuccess = (
-  newRoomData: DeepReadonly<RoomDetailsResponseDTO>,
-  msg: string
-) => {
+const onSuccess = (newRoomData: DeepReadonly<RoomDetailsResponseDTO>, msg: string) => {
   snackbar.add({
     level: Levels.SUCCESS,
     message: msg,

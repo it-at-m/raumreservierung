@@ -1,5 +1,5 @@
 <template>
-  <base-view header-text="Räume und Details">
+  <rb-base-view header-text="Räume und Details">
     <template #headerActions>
       <rb-button
         v-if="canAddNewRoom"
@@ -13,11 +13,7 @@
       />
     </template>
     <template #default>
-      <i18n-t
-        scope="global"
-        keypath="views.roomListView.bookWORoomMsg.sentence"
-        tag="span"
-      >
+      <i18n-t scope="global" keypath="views.roomListView.bookWORoomMsg.sentence" tag="span">
         <template #link>
           <router-link
             :to="{
@@ -30,31 +26,13 @@
       </i18n-t>
       <v-row>
         <template v-if="getAllRoomLoading">
-          <v-col
-            v-for="el in 5"
-            :key="el"
-            cols="12"
-            sm="6"
-            md="4"
-            xxl="3"
-          >
-            <v-skeleton-loader
-              type="card"
-              class="ma-4"
-              elevation="1"
-            />
+          <v-col v-for="el in 5" :key="el" cols="12" sm="6" md="4" xxl="3">
+            <v-skeleton-loader type="card" class="ma-4" elevation="1" />
           </v-col>
         </template>
 
         <template v-else>
-          <v-col
-            v-for="room in computedRooms"
-            :key="room.id"
-            cols="12"
-            sm="6"
-            md="4"
-            xxl="3"
-          >
+          <v-col v-for="room in computedRooms" :key="room.id" cols="12" sm="6" md="4" xxl="3">
             <router-link
               :to="{
                 name: ROUTES.ROOMS_DETAILS,
@@ -62,16 +40,13 @@
               }"
               class="text-decoration-none"
             >
-              <room-thumbnail
-                :room="room"
-                class="ma-4"
-              />
+              <room-thumbnail :room="room" class="ma-4" />
             </router-link>
           </v-col>
         </template>
       </v-row>
     </template>
-  </base-view>
+  </rb-base-view>
 </template>
 
 <script setup lang="ts">
@@ -80,7 +55,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
-import BaseView from "@/components/common/BaseView.vue";
+import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
 import RoomThumbnail from "@/components/rooms/RoomThumbnail.vue";
 import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
@@ -97,9 +72,7 @@ const { data: getAllRoomsData, isPending: getAllRoomLoading } = useGetAllRooms({
 const router = useRouter();
 
 const computedRooms = computed(() =>
-  (getAllRoomsData.value || []).filter(
-    (room) => room.isActive || canAddNewRoom.value
-  )
+  (getAllRoomsData.value || []).filter((room) => room.isActive || canAddNewRoom.value),
 );
 </script>
 

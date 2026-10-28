@@ -1,5 +1,5 @@
 <template>
-  <base-view :header-text="t('generics.manage', { domain: computedTitle })">
+  <rb-base-view :header-text="t('generics.manage', { domain: computedTitle })">
     <template #default>
       <year-slider
         v-model="selectedYear"
@@ -47,15 +47,8 @@
                 name="itemActions"
               >
                 <rb-button-group>
-                  <rb-icon-button
-                    class="mr-1"
-                    type="edit"
-                    @click="openEdit(item)"
-                  />
-                  <rb-icon-button
-                    type="delete"
-                    @click="openDelete(item)"
-                  />
+                  <rb-icon-button class="mr-1" type="edit" @click="openEdit(item)" />
+                  <rb-icon-button type="delete" @click="openDelete(item)" />
                 </rb-button-group>
               </slot>
             </template>
@@ -63,14 +56,11 @@
         </template>
       </crud-card>
     </template>
-  </base-view>
+  </rb-base-view>
 </template>
 
 <script setup lang="ts">
-import type {
-  HolidayRequestDTO,
-  HolidayResponseDTO,
-} from "@/api/raumreservierung-backend";
+import type { HolidayRequestDTO, HolidayResponseDTO } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
 import { useDateFormat } from "@vueuse/core";
@@ -79,7 +69,7 @@ import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
-import BaseView from "@/components/common/BaseView.vue";
+import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
 import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
@@ -111,14 +101,14 @@ const isPublic = computed(() => {
   return route.name === ROUTES.PUBLIC_HOLIDAYS;
 });
 
-const { data: currentHolidays, isLoading: holidaysLoading } = useGetHolidays(
-  () => ({ year: selectedYear.value })
-);
+const { data: currentHolidays, isLoading: holidaysLoading } = useGetHolidays(() => ({
+  year: selectedYear.value,
+}));
 
 const filteredHolidays = computed(() => {
   return (currentHolidays.value ?? []).filter(
     (holiday: HolidayResponseDTO) =>
-      dateEquals(holiday.startDate, holiday.endDate) === isPublic.value
+      dateEquals(holiday.startDate, holiday.endDate) === isPublic.value,
   );
 });
 
@@ -143,13 +133,11 @@ const {
 const computedTitle = computed(() =>
   isPublic.value
     ? t("domain.holidays.public.header", { count: 2 })
-    : t("domain.holidays.school.header")
+    : t("domain.holidays.school.header"),
 );
 
 const computedDomain = computed(() =>
-  isPublic.value
-    ? t("domain.holidays.public.header")
-    : t("domain.holidays.school.header")
+  isPublic.value ? t("domain.holidays.public.header") : t("domain.holidays.school.header"),
 );
 
 const toApiHoliday = (holiday: HolidayResponseDTO): HolidayRequestDTO => {
@@ -173,7 +161,7 @@ const createHoliday = async (holiday: Partial<HolidayResponseDTO>) => {
       t("generics.created", {
         domain: computedDomain.value,
       }),
-      holiday.startDate?.getFullYear()
+      holiday.startDate?.getFullYear(),
     );
   }
 };
@@ -189,7 +177,7 @@ const updateHoliday = async (holiday: Partial<HolidayResponseDTO>) => {
         t("generics.updated", {
           domain: computedDomain.value,
         }),
-        holiday.startDate?.getFullYear()
+        holiday.startDate?.getFullYear(),
       );
     }
   }
@@ -201,7 +189,7 @@ const deleteHoliday = async (id: string) => {
     await onSuccess(
       t("generics.deleted", {
         domain: t("domain.holidays.public.header"),
-      })
+      }),
     );
   }
 };
@@ -229,9 +217,7 @@ const headers = computed((): TableHeader<HolidayResponseDTO>[] => {
       value: "startDate",
       sortable: true,
     },
-    ...(isPublic.value
-      ? []
-      : [{ title: t("domain.holidays.school.endDate"), value: "endDate" }]),
+    ...(isPublic.value ? [] : [{ title: t("domain.holidays.school.endDate"), value: "endDate" }]),
     {
       title: t("common.action", { count: 2 }),
       value: "actions",

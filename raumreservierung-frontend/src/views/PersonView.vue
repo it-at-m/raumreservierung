@@ -1,5 +1,5 @@
 <template>
-  <base-view
+  <rb-base-view
     :header-text="
       t('generics.manage', {
         domain: isInternalPath
@@ -63,22 +63,12 @@
             <template #[`item.fullName`]="{ item }">
               {{ item.firstName }} {{ item.lastName }}
             </template>
-            <template
-              v-if="!isInternalPath"
-              #[`item.actions`]="{ item }"
-            >
+            <template v-if="!isInternalPath" #[`item.actions`]="{ item }">
               <slot name="item.actions">
                 <rb-button-group>
-                  <rb-icon-button
-                    class="mr-1"
-                    type="edit"
-                    @click="openEdit(item)"
-                  />
+                  <rb-icon-button class="mr-1" type="edit" @click="openEdit(item)" />
 
-                  <rb-icon-button
-                    type="delete"
-                    @click="openDelete(item)"
-                  />
+                  <rb-icon-button type="delete" @click="openDelete(item)" />
                 </rb-button-group>
               </slot>
             </template>
@@ -86,7 +76,7 @@
         </template>
       </crud-card>
     </template>
-  </base-view>
+  </rb-base-view>
 </template>
 
 <script setup lang="ts">
@@ -106,7 +96,7 @@ import { useRoute } from "vue-router";
 
 import { Levels } from "@/api/error.ts";
 import { ExternalPersonResponseDtoTypeEnum } from "@/api/raumreservierung-backend";
-import BaseView from "@/components/common/BaseView.vue";
+import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
 import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
@@ -152,7 +142,7 @@ const isInternalPath = computed(() => route.name === ROUTES.INTERNAL_PERSON);
 
 const personType = computed(
   (): ExternalPersonResponseDtoTypeEnum | InternalPersonResponseDtoTypeEnum =>
-    isInternalPath.value ? "INTERNAL" : "EXTERNAL"
+    isInternalPath.value ? "INTERNAL" : "EXTERNAL",
 );
 
 const {
@@ -180,26 +170,19 @@ const {
 } = useDeletePerson();
 
 // --- Functions ---
-const handleCreate = async (
-  newPerson: ExternalPersonResponseDto | InternalPersonResponseDto
-) => {
-  const updatePersonRequest = mapPersonResponseToRequest(
-    newPerson,
-    personType.value
-  );
+const handleCreate = async (newPerson: ExternalPersonResponseDto | InternalPersonResponseDto) => {
+  const updatePersonRequest = mapPersonResponseToRequest(newPerson, personType.value);
   await createPerson({
     updatePersonRequest,
   });
   if (!createPersonError.value) {
-    await onSuccess(
-      t("generics.created", { domain: t("domain.person.header") })
-    );
+    await onSuccess(t("generics.created", { domain: t("domain.person.header") }));
   }
 };
 
 const handleRowClick = (
   event: PointerEvent,
-  { item }: { item: InternalPersonResponseDto | ExternalPersonResponseDto }
+  { item }: { item: InternalPersonResponseDto | ExternalPersonResponseDto },
 ) => {
   if (crudRef.value) {
     crudRef.value.openReadOnly(item);
@@ -207,37 +190,26 @@ const handleRowClick = (
 };
 
 const handleUpdate = async (
-  updatedPerson: ExternalPersonResponseDto | InternalPersonResponseDto
+  updatedPerson: ExternalPersonResponseDto | InternalPersonResponseDto,
 ) => {
-  if (
-    !updatedPerson.id ||
-    !updatedPerson.firstName ||
-    !updatedPerson.lastName
-  ) {
+  if (!updatedPerson.id || !updatedPerson.firstName || !updatedPerson.lastName) {
     return;
   }
 
-  const updatePersonRequest = mapPersonResponseToRequest(
-    updatedPerson,
-    personType.value
-  );
+  const updatePersonRequest = mapPersonResponseToRequest(updatedPerson, personType.value);
   await updatePerson({
     updatePersonRequest,
     personId: updatedPerson.id,
   });
   if (!updatePersonError.value) {
-    await onSuccess(
-      t("generics.updated", { domain: t("domain.person.header") })
-    );
+    await onSuccess(t("generics.updated", { domain: t("domain.person.header") }));
   }
 };
 
 const handleDelete = async (id: string) => {
   await deletePerson({ personId: id });
   if (!deletePersonError.value) {
-    await onSuccess(
-      t("generics.deleted", { domain: t("domain.person.header") })
-    );
+    await onSuccess(t("generics.deleted", { domain: t("domain.person.header") }));
   }
 };
 
@@ -272,9 +244,7 @@ const updateSearchNameAndLoadPage = async (searchName: string | undefined) => {
 const fetchPage = async () => {
   const sort =
     currentPageOptions.value.sortBy.length > 0
-      ? currentPageOptions.value.sortBy.map(
-          (item) => `${item.key},${item.order}`
-        )
+      ? currentPageOptions.value.sortBy.map((item) => `${item.key},${item.order}`)
       : [];
 
   await getPersonPage({
@@ -286,60 +256,60 @@ const fetchPage = async () => {
   });
 };
 
-const headers = computed<
-  TableHeader<ExternalPersonResponseDto | InternalPersonResponseDto>[]
->(() => [
-  {
-    title: "Name",
-    value: "fullName",
-    sortable: true,
-  },
-  {
-    title: "E-Mail",
-    value: "email",
-    sortable: true,
-  },
-  {
-    title: "Telefonnummer",
-    value: "telefonNumber",
-    sortable: true,
-  },
+const headers = computed<TableHeader<ExternalPersonResponseDto | InternalPersonResponseDto>[]>(
+  () => [
+    {
+      title: "Name",
+      value: "fullName",
+      sortable: true,
+    },
+    {
+      title: "E-Mail",
+      value: "email",
+      sortable: true,
+    },
+    {
+      title: "Telefonnummer",
+      value: "telefonNumber",
+      sortable: true,
+    },
 
-  ...(!isInternalPath.value
-    ? [
-        {
-          title: t("domain.externalPerson.company"),
-          value: "company",
-          sortable: true,
-        },
-        {
-          title: t("domain.externalPerson.streetAddress"),
-          value: "streetAddress",
-          sortable: true,
-        },
-        {
-          title: t("domain.externalPerson.postalCodeCity"),
-          value: "postalCodeCity",
-          sortable: true,
-        },
-        {
-          title: t("common.action", { count: 2 }),
-          value: "actions",
-          width: "1%",
-          align: "center" as const,
-        },
-      ]
-    : [
-        {
-          title: t("domain.internalPerson.organisationUnit"),
-          value: "organisationUnit",
-        },
-        {
-          title: t("domain.internalPerson.roleFunction"),
-          value: "roleFunction",
-        },
-      ]),
-]);
+    ...(!isInternalPath.value
+      ? [
+          {
+            title: t("domain.externalPerson.company"),
+            value: "company",
+            sortable: true,
+          },
+          {
+            title: t("domain.externalPerson.streetAddress"),
+            value: "streetAddress",
+            sortable: true,
+          },
+          {
+            title: t("domain.externalPerson.postalCodeCity"),
+            value: "postalCodeCity",
+            sortable: true,
+          },
+          {
+            title: t("common.action", { count: 2 }),
+            value: "actions",
+            width: "1%",
+            align: "center" as const,
+          },
+        ]
+      : [
+          {
+            title: t("domain.internalPerson.organisationUnit"),
+            value: "organisationUnit",
+          },
+          {
+            title: t("domain.internalPerson.roleFunction"),
+            value: "roleFunction",
+          },
+        ]),
+  ],
+);
 </script>
 
 <style scoped></style>

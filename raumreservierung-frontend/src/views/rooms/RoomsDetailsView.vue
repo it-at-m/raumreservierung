@@ -1,11 +1,7 @@
 <template>
-  <base-view :header-text="t('domain.room.details')">
+  <rb-base-view :header-text="t('domain.room.details')">
     <template #headerPrepend>
-      <v-icon
-        size="30"
-        :icon="mdiArrowLeft"
-        @click="router.back()"
-      />
+      <v-icon size="30" :icon="mdiArrowLeft" @click="router.back()" />
     </template>
     <template #headerActions>
       <rb-button
@@ -37,14 +33,8 @@
 
     <template #default>
       <v-row class="mb-4">
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-skeleton-loader
-            :loading="getRoomLoading"
-            type="article"
-          >
+        <v-col cols="12" md="6">
+          <v-skeleton-loader :loading="getRoomLoading" type="article">
             <v-responsive>
               <v-card flat>
                 <v-card-item>
@@ -80,48 +70,20 @@
             </v-responsive>
           </v-skeleton-loader>
         </v-col>
-        <v-col
-          cols="12"
-          md="6"
-        >
-          <v-skeleton-loader
-            :loading="getRoomLoading || pictureLoading"
-            class="mb-4"
-            type="image"
-          >
-            <v-card
-              class="mb-4 bg-grey-lighten-4 overflow-hidden"
-              height="300"
-              flat
-              border
-            >
-              <v-img
-                v-if="pictureUrl"
-                :src="pictureUrl"
-                class="h-100"
-                cover
-              />
+        <v-col cols="12" md="6">
+          <v-skeleton-loader :loading="getRoomLoading || pictureLoading" class="mb-4" type="image">
+            <v-card class="mb-4 bg-grey-lighten-4 overflow-hidden" height="300" flat border>
+              <v-img v-if="pictureUrl" :src="pictureUrl" class="h-100" cover />
 
-              <div
-                v-else
-                class="h-100 d-flex flex-column align-center justify-center"
-              >
-                <v-icon
-                  :icon="mdiImage"
-                  size="64"
-                  color="accent"
-                  class="mb-2"
-                />
+              <div v-else class="h-100 d-flex flex-column align-center justify-center">
+                <v-icon :icon="mdiImage" size="64" color="accent" class="mb-2" />
               </div>
             </v-card>
           </v-skeleton-loader>
         </v-col>
       </v-row>
 
-      <div
-        class="w-100 masonry-container"
-        :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'"
-      >
+      <div class="w-100 masonry-container" :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'">
         <div class="masonry-item w-100 d-inline-block mb-4">
           <details-card
             :title="t('domain.room.contactPerson')"
@@ -133,7 +95,7 @@
                 <v-list-item-title>
                   {{
                     $t(
-                      `views.roomDetailsView.titlePrefix.${(roomData?.contactPerson?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`
+                      `views.roomDetailsView.titlePrefix.${(roomData?.contactPerson?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`,
                     )
                   }}
                   {{ roomData?.contactPerson?.firstName }}
@@ -159,10 +121,7 @@
             :icon="mdiTextureBox"
             :loading="getRoomLoading"
           >
-            <v-list
-              class="mt-0 py-0"
-              density="compact"
-            >
+            <v-list class="mt-0 py-0" density="compact">
               <v-list-item>
                 <v-list-item-title>
                   {{ roomData?.area }} {{ t("common.squareMeterAbr") }}
@@ -174,17 +133,12 @@
         <div class="masonry-item w-100 d-inline-block mb-4">
           <details-card
             :title="t('domain.room.capacity.header')"
-            :subtitle="
-              t('domain.room.capacity.msg', { num: roomData?.capacity })
-            "
+            :subtitle="t('domain.room.capacity.msg', { num: roomData?.capacity })"
             :icon="mdiHumanCapacityIncrease"
             :loading="getRoomLoading"
           >
             <template #default>
-              <v-list
-                class="mt-0 py-0"
-                density="compact"
-              >
+              <v-list class="mt-0 py-0" density="compact">
                 <v-list-item
                   v-for="(capacity, idx) in roomData?.roomSeatingCapacities"
                   :key="idx"
@@ -210,10 +164,7 @@
             :icon="mdiSofaSingleOutline"
             :loading="getRoomLoading"
           >
-            <v-list
-              class="mt-0 py-0"
-              density="compact"
-            >
+            <v-list class="mt-0 py-0" density="compact">
               <v-list-item
                 v-for="(eq, idx) in roomData?.equipment"
                 :key="idx"
@@ -233,7 +184,7 @@
         </div>
       </div>
     </template>
-  </base-view>
+  </rb-base-view>
 </template>
 
 <script setup lang="ts">
@@ -256,7 +207,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify/framework";
 
 import { ExternalPersonResponseDtoTitleEnum } from "@/api/raumreservierung-backend";
-import BaseView from "@/components/common/BaseView.vue";
+import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
@@ -277,9 +228,7 @@ const canEditRoom = useIsPrivileged("rooms:write");
 
 const { data: roomData, isPending: getRoomLoading, error } = useGetRoom(id);
 
-const { data: picture, isLoading: pictureLoading } = useGetFile(
-  () => roomData.value?.picture?.id
-);
+const { data: picture, isLoading: pictureLoading } = useGetFile(() => roomData.value?.picture?.id);
 
 watch([error, () => roomData.value?.id], async () => {
   if (error.value) {

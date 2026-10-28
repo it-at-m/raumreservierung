@@ -1,5 +1,5 @@
 <template>
-  <base-view :header-text="t('views.bookingEditView.header')">
+  <rb-base-view :header-text="t('views.bookingEditView.header')">
     <template #headerActions>
       <rb-button
         class="ml-4"
@@ -16,17 +16,10 @@
         @click="handleStatusChange(BookingRequestDTOStatusEnum.CANCELED)"
       >
         <template #prepend>
-          <v-icon
-            :icon="mdiCalendarRemoveOutline"
-            color="statusCanceled"
-          />
+          <v-icon :icon="mdiCalendarRemoveOutline" color="statusCanceled" />
         </template>
       </rb-button>
-      <v-dialog
-        v-model="isUnfeasibleDialogOpen"
-        max-width="800px"
-        width="90%"
-      >
+      <v-dialog v-model="isUnfeasibleDialogOpen" max-width="800px" width="90%">
         <template #activator>
           <rb-button
             :disabled="!isValid"
@@ -70,17 +63,14 @@
         :readonly="!isBookingEditable"
       >
         <v-row>
-          <v-col
-            cols="12"
-            :md="isPrivileged ? 6 : 12"
-          >
+          <v-col cols="12" :md="isPrivileged ? 6 : 12">
             <v-text-field
               v-model="bookingData.title"
               :rules="[
                 rules.required(
                   t('common.rules.notEmpty', {
                     field: t('views.bookingEditView.eventTitle'),
-                  })
+                  }),
                 ),
               ]"
               :label="t('views.bookingEditView.eventTitle')"
@@ -88,11 +78,7 @@
             />
           </v-col>
 
-          <v-col
-            v-if="isPrivileged"
-            :cols="showStatus ? 6 : 12"
-            :md="showStatus ? 3 : 6"
-          >
+          <v-col v-if="isPrivileged" :cols="showStatus ? 6 : 12" :md="showStatus ? 3 : 6">
             <v-select
               v-model="bookingData.bookingType"
               :items="bookingTypeOptions"
@@ -102,19 +88,11 @@
               hide-details
             />
           </v-col>
-          <v-col
-            v-if="showStatus"
-            cols="6"
-            md="3"
-          >
+          <v-col v-if="showStatus" cols="6" md="3">
             <general-status-select
               v-model="bookingData.status"
               :label="t('domain.booking.statusTitle')"
-              :loading="
-                getBookingLoading ||
-                createBookingLoading ||
-                updateBookingLoading
-              "
+              :loading="getBookingLoading || createBookingLoading || updateBookingLoading"
               :possible-status="statusFull?.nextPossibleStatus"
               :excluded-status="BookingStatusDTOCurrentStatusEnum.CANCELED"
               hide-details
@@ -127,19 +105,14 @@
             <room-selector
               v-model="bookingData.roomId"
               :label="t('views.bookingEditView.roomSelect')"
-              :loading="
-                getRoomLoading || createBookingLoading || updateBookingLoading
-              "
+              :loading="getRoomLoading || createBookingLoading || updateBookingLoading"
               @update:model-value="(newRoomId) => (selectedRoomId = newRoomId)"
             />
           </v-col>
         </v-row>
         <v-row v-if="currentRoom">
           <v-row>
-            <v-col
-              cols="12"
-              md="8"
-            >
+            <v-col cols="12" md="8">
               <seating-type-selector
                 v-model="bookingData.seatingTypeId"
                 :allowed-ids="currentRoomSeatingTypeIds"
@@ -147,10 +120,7 @@
                 :loading="createBookingLoading || updateBookingLoading"
               />
             </v-col>
-            <v-col
-              cols="12"
-              md="4"
-            >
+            <v-col cols="12" md="4">
               <v-number-input
                 v-model="bookingData.participantCount"
                 :label="t('views.bookingEditView.participantsCount')"
@@ -174,10 +144,7 @@
               :filter-ids="currentRoom?.equipmentIds"
               disable-addition
               :loading="
-                getRoomLoading ||
-                getBookingLoading ||
-                createBookingLoading ||
-                updateBookingLoading
+                getRoomLoading || getBookingLoading || createBookingLoading || updateBookingLoading
               "
             />
           </v-col>
@@ -199,24 +166,16 @@
         </v-row>
         <v-row>
           <v-col>
-            <card-form
-              :subtitle="t('views.bookingEditView.bookedForOthersCard')"
-            >
+            <card-form :subtitle="t('views.bookingEditView.bookedForOthersCard')">
               <template #text>
                 <v-row>
-                  <v-col
-                    cols="12"
-                    md="6"
-                  >
+                  <v-col cols="12" md="6">
                     <person-select
                       v-model="bookedFor"
                       :type="InternalPersonRequestDtoTypeEnum.INTERNAL"
                     />
                   </v-col>
-                  <v-col
-                    cols="12"
-                    md="6"
-                  >
+                  <v-col cols="12" md="6">
                     <person-select
                       v-model="bookedFor"
                       :type="InternalPersonRequestDtoTypeEnum.EXTERNAL"
@@ -228,10 +187,7 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col
-            cols="12"
-            :xl="bookingId && bookingData.recurringRule ? 7 : 12"
-          >
+          <v-col cols="12" :xl="bookingId && bookingData.recurringRule ? 7 : 12">
             <card-form
               :subtitle="t('views.bookingEditView.dateTimeCard')"
               :class="{ 'mb-4': isSeriesBooking }"
@@ -260,23 +216,13 @@
               :disabled="createBookingLoading || updateBookingLoading"
             />
           </v-col>
-          <v-col
-            v-if="bookingId && bookingData.recurringRule"
-            cols="12"
-            xl="5"
-          >
-            <appointment-card-list
-              :schedule="bookingData.schedule"
-              :booking-id="bookingId"
-            />
+          <v-col v-if="bookingId && bookingData.recurringRule" cols="12" xl="5">
+            <appointment-card-list :schedule="bookingData.schedule" :booking-id="bookingId" />
           </v-col>
         </v-row>
 
         <v-row>
-          <v-col
-            cols="12"
-            xl="6"
-          >
+          <v-col cols="12" xl="6">
             <v-textarea
               v-model="bookingData.additionalNotes"
               :label="t('domain.booking.notes')"
@@ -284,11 +230,7 @@
               variant="outlined"
             />
           </v-col>
-          <v-col
-            v-if="isPrivileged"
-            cols="12"
-            xl="6"
-          >
+          <v-col v-if="isPrivileged" cols="12" xl="6">
             <v-textarea
               v-model="bookingData.internalNotes"
               :label="t('domain.booking.internalNotes')"
@@ -299,7 +241,7 @@
         </v-row>
       </v-form>
     </template>
-  </base-view>
+  </rb-base-view>
 </template>
 
 <script setup lang="ts">
@@ -310,11 +252,7 @@ import type {
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
-import {
-  mdiCalendarRemoveOutline,
-  mdiContentSaveOutline,
-  mdiWindowClose,
-} from "@mdi/js";
+import { mdiCalendarRemoveOutline, mdiContentSaveOutline, mdiWindowClose } from "@mdi/js";
 import { computed, onMounted, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
@@ -333,7 +271,7 @@ import PersonSelect from "@/components/booking/PersonSelect.vue";
 import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
 import SeatingTypeSelector from "@/components/booking/SeatingTypeParticipantsSelector.vue";
-import BaseView from "@/components/common/BaseView.vue";
+import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
@@ -352,10 +290,7 @@ import { EMPTY_BOOKING_STATUS_DATA } from "@/constants/BookingStatus";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { useUserStore } from "@/stores/user.ts";
 import { ROUTES } from "@/types/Routes.ts";
-import {
-  EMPTY_BOOKING_REQUEST_DATA,
-  mapBookingResponseToRequest,
-} from "@/util/bookingTypeUtil.ts";
+import { EMPTY_BOOKING_REQUEST_DATA, mapBookingResponseToRequest } from "@/util/bookingTypeUtil.ts";
 import { mapResponseToRequest } from "@/util/roomTypeUtil.ts";
 
 const DEFAULT_RRULE = "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO;COUNT=10";
@@ -396,29 +331,26 @@ const isSeriesBooking = computed({
 
 const showStatus = computed(
   () =>
-    isPrivileged.value &&
-    bookingData.value.bookingType == BookingRequestDTOBookingTypeEnum.DEFAULT
+    isPrivileged.value && bookingData.value.bookingType == BookingRequestDTOBookingTypeEnum.DEFAULT,
 );
 
 const bookingId = computed(() => (route.params.id as string) || undefined);
 
 const isMyBooking = computed(
-  () =>
-    route.name === ROUTES.MY_BOOKINGS_EDIT ||
-    route.name === ROUTES.MY_BOOKINGS_CREATE
+  () => route.name === ROUTES.MY_BOOKINGS_EDIT || route.name === ROUTES.MY_BOOKINGS_CREATE,
 );
 
 const currentRoomSeatingTypeIds = computed(() =>
-  currentRoom.value?.roomSeatingCapacities?.map((rSC) => rSC.seatingTypeId)
+  currentRoom.value?.roomSeatingCapacities?.map((rSC) => rSC.seatingTypeId),
 );
 
 const currentRoomSeatingTypeLimit = computed(
   () =>
     currentRoom.value?.roomSeatingCapacities?.find(
-      (rsc) => rsc.seatingTypeId === bookingData.value.seatingTypeId
+      (rsc) => rsc.seatingTypeId === bookingData.value.seatingTypeId,
     )?.capacity ??
     currentRoom.value?.capacity ??
-    0
+    0,
 );
 
 const isPrivileged = useIsPrivileged(["bookings:manage", "bookings:write"]);
@@ -453,7 +385,7 @@ const applyRoomChange = (room: RoomDetailsResponseDTO) => {
   bookingData.value = {
     ...bookingData.value,
     equipmentIds: bookingData.value.equipmentIds?.filter((chosenEq) =>
-      currentRoom.value?.equipmentIds?.includes(chosenEq)
+      currentRoom.value?.equipmentIds?.includes(chosenEq),
     ),
     seatingTypeId:
       bookingData?.value?.seatingTypeId &&
@@ -463,8 +395,7 @@ const applyRoomChange = (room: RoomDetailsResponseDTO) => {
   };
 };
 
-const { isLoading: getRoomLoading, data: roomReqData } =
-  useGetRoom(roomIdToFetch);
+const { isLoading: getRoomLoading, data: roomReqData } = useGetRoom(roomIdToFetch);
 
 const isBookingEditable = useIsBookingEditable(bookingData);
 
@@ -474,7 +405,7 @@ watch(
     if (roomReqData.value) {
       applyRoomChange(roomReqData.value);
     }
-  }
+  },
 );
 
 onMounted(async () => {
@@ -485,9 +416,7 @@ onMounted(async () => {
 
     if (!getBookingData.value || getBookingError.value) {
       await router.replace({
-        name: isMyBooking.value
-          ? ROUTES.MY_BOOKINGS_CREATE
-          : ROUTES.BOOKINGS_CREATE,
+        name: isMyBooking.value ? ROUTES.MY_BOOKINGS_CREATE : ROUTES.BOOKINGS_CREATE,
       });
     }
 
@@ -519,9 +448,7 @@ const saveBooking = async () => {
         bookedForId: bookedFor.value?.id,
         status: bookingData.value.status,
         reasonForStatusChange: bookingData.value.reasonForStatusChange,
-        seatingTypeId: currentRoom.value
-          ? bookingData.value.seatingTypeId
-          : undefined,
+        seatingTypeId: currentRoom.value ? bookingData.value.seatingTypeId : undefined,
       },
     });
 
@@ -534,9 +461,7 @@ const saveBooking = async () => {
         ...bookingData.value,
         bookedForId: bookedFor.value?.id,
         status: bookingData.value.status,
-        seatingTypeId: currentRoom.value
-          ? bookingData.value.seatingTypeId
-          : undefined,
+        seatingTypeId: currentRoom.value ? bookingData.value.seatingTypeId : undefined,
       },
     });
 
@@ -577,9 +502,7 @@ const canCancel = computed(() => {
   const isInternalMatch = (person: FindById200Response) =>
     person?.type === "INTERNAL" && person.organisationId === userOrgId;
 
-  return (
-    isInternalMatch(booking.bookedBy) || isInternalMatch(booking.bookedFor)
-  );
+  return isInternalMatch(booking.bookedBy) || isInternalMatch(booking.bookedFor);
 });
 
 const handleSaveClick = () =>
@@ -587,12 +510,10 @@ const handleSaveClick = () =>
     ? (isUnfeasibleDialogOpen.value = true)
     : saveBooking();
 
-const bookingTypeOptions = Object.values(BookingRequestDTOBookingTypeEnum).map(
-  (value) => ({
-    title: t(`domain.booking.types.${value.toLowerCase()}`),
-    value,
-  })
-);
+const bookingTypeOptions = Object.values(BookingRequestDTOBookingTypeEnum).map((value) => ({
+  title: t(`domain.booking.types.${value.toLowerCase()}`),
+  value,
+}));
 </script>
 
 <style scoped></style>

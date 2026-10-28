@@ -1,8 +1,6 @@
 <template>
-  <base-view
-    :header-text="
-      t('generics.manage', { domain: t('domain.booking.header', { count: 2 }) })
-    "
+  <rb-base-view
+    :header-text="t('generics.manage', { domain: t('domain.booking.header', { count: 2 }) })"
   >
     <template #default>
       <booking-filter-panel
@@ -16,10 +14,7 @@
         :get-status-group-key="getStatusGroupKey"
         @updated:filters="applyFilters"
       />
-      <v-card
-        :title="t('views.bookingListView.tableTitle')"
-        class="mt-6"
-      >
+      <v-card :title="t('views.bookingListView.tableTitle')" class="mt-6">
         <template #text>
           <v-data-table-server
             v-model:sort-by="sortBy"
@@ -33,29 +28,16 @@
             @click:row="handleRowClick"
           >
             <template #[`item.status`]="{ item }">
-              <status-chip
-                :status="item.status?.currentStatus"
-                variant="text"
-              />
+              <status-chip :status="item.status?.currentStatus" variant="text" />
             </template>
             <template #[`item.hasEquipment`]="{ item }">
               <v-icon :icon="item.hasEquipment ? mdiCheck : mdiMinus" />
             </template>
             <template #[`item.schedule.appointmentStart`]="{ item }">
-              <span
-                v-if="
-                  dateEquals(
-                    item.schedule.occupancyStart,
-                    item.schedule.occupancyEnd
-                  )
-                "
-              >
+              <span v-if="dateEquals(item.schedule.occupancyStart, item.schedule.occupancyEnd)">
                 {{
                   t("common.format.dateSingle", {
-                    date: useDateFormat(
-                      item.schedule.occupancyStart,
-                      DATE_FORMAT_DDMMYY
-                    ).value,
+                    date: useDateFormat(item.schedule.occupancyStart, DATE_FORMAT_DDMMYY).value,
                   })
                 }}
               </span>
@@ -63,14 +45,8 @@
               <span v-else>
                 {{
                   t("common.format.dateRange", {
-                    start: useDateFormat(
-                      item.schedule.occupancyStart,
-                      DATE_FORMAT_DDMMYY
-                    ).value,
-                    end: useDateFormat(
-                      item.schedule.occupancyEnd,
-                      DATE_FORMAT_DDMMYY
-                    ).value,
+                    start: useDateFormat(item.schedule.occupancyStart, DATE_FORMAT_DDMMYY).value,
+                    end: useDateFormat(item.schedule.occupancyEnd, DATE_FORMAT_DDMMYY).value,
                   })
                 }}
               </span>
@@ -79,22 +55,14 @@
               <span>
                 {{
                   t("common.format.dateRange", {
-                    start: useDateFormat(
-                      item.schedule.occupancyStart,
-                      TIME_FORMAT_HHMM
-                    ).value,
-                    end: useDateFormat(
-                      item.schedule.occupancyEnd,
-                      TIME_FORMAT_HHMM
-                    ).value,
+                    start: useDateFormat(item.schedule.occupancyStart, TIME_FORMAT_HHMM).value,
+                    end: useDateFormat(item.schedule.occupancyEnd, TIME_FORMAT_HHMM).value,
                   })
                 }}
               </span>
             </template>
             <template #[`item.bookedBy`]="{ item }">
-              <span>
-                {{ item.bookedFor.firstName }} {{ item.bookedFor.lastName }}
-              </span>
+              <span> {{ item.bookedFor.firstName }} {{ item.bookedFor.lastName }} </span>
             </template>
             <template #[`item.hasNote`]="{ item }">
               <v-icon :icon="item.hasNote ? mdiCheck : mdiMinus" />
@@ -106,9 +74,7 @@
                   type="edit"
                   @click="
                     router.push({
-                      name: isMyBooking
-                        ? ROUTES.MY_BOOKINGS_EDIT
-                        : ROUTES.BOOKINGS_EDIT,
+                      name: isMyBooking ? ROUTES.MY_BOOKINGS_EDIT : ROUTES.BOOKINGS_EDIT,
                       params: { id: item.id },
                     })
                   "
@@ -129,7 +95,7 @@
         </template>
       </v-card>
     </template>
-  </base-view>
+  </rb-base-view>
 </template>
 
 <script setup lang="ts">
@@ -149,14 +115,11 @@ import { useRoute, useRouter } from "vue-router";
 
 import BookingFilterPanel from "@/components/booking/BookingFilterPanel.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
-import BaseView from "@/components/common/BaseView.vue";
+import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
 import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
-import {
-  useBookingStatusConfig,
-  useIsBookingEditable,
-} from "@/composables/useBookingStatus.ts";
+import { useBookingStatusConfig, useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
@@ -165,8 +128,7 @@ import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
 const route = useRoute();
 const router = useRouter();
 
-const { getStatusGroupKey, expandStatus, statusGroups } =
-  useBookingStatusConfig();
+const { getStatusGroupKey, expandStatus, statusGroups } = useBookingStatusConfig();
 const isBookingEditable = useIsBookingEditable();
 
 const { t } = useI18n();
@@ -195,73 +157,54 @@ const end = useRouteQuery("end", undefined, {
   transform: dateTransform,
 });
 
-const statusFilter = useRouteQuery<string, BookingStatusDTOCurrentStatusEnum[]>(
-  "status",
-  "",
-  {
-    transform: {
-      get: (v) => {
-        const keys = v ? v.split(",") : [];
-        return keys.flatMap((key) => {
-          const status = statusGroups.value.find((g) => g.key === key)
-            ?.status[0];
-          return status ? [status] : [];
-        });
-      },
-      set: (v) =>
-        [...new Set(v.map((status) => getStatusGroupKey(status)))].join(","),
+const statusFilter = useRouteQuery<string, BookingStatusDTOCurrentStatusEnum[]>("status", "", {
+  transform: {
+    get: (v) => {
+      const keys = v ? v.split(",") : [];
+      return keys.flatMap((key) => {
+        const status = statusGroups.value.find((g) => g.key === key)?.status[0];
+        return status ? [status] : [];
+      });
     },
-  }
-);
+    set: (v) => [...new Set(v.map((status) => getStatusGroupKey(status)))].join(","),
+  },
+});
 
 const requestStatus = computed(() => expandStatus(statusFilter.value));
 
-const sortBy = useRouteQuery<string | undefined, SortItem[]>(
-  "sort",
-  undefined,
-  {
-    transform: {
-      get: (v) => {
-        if (!v) {
-          return [];
-        }
+const sortBy = useRouteQuery<string | undefined, SortItem[]>("sort", undefined, {
+  transform: {
+    get: (v) => {
+      if (!v) {
+        return [];
+      }
 
-        const parts = v.split(",");
-        const key = parts[0];
-        const order = parts[1];
+      const parts = v.split(",");
+      const key = parts[0];
+      const order = parts[1];
 
-        return !key
-          ? []
-          : [
-              {
-                key,
-                order: order === "desc" ? "desc" : "asc",
-              },
-            ];
-      },
-      set: (v) => {
-        return !v[0] ? undefined : `${v[0].key},${v[0].order}`;
-      },
+      return !key
+        ? []
+        : [
+            {
+              key,
+              order: order === "desc" ? "desc" : "asc",
+            },
+          ];
     },
-  }
-);
+    set: (v) => {
+      return !v[0] ? undefined : `${v[0].key},${v[0].order}`;
+    },
+  },
+});
 
 // ####### Page Filter and Options #########
 
-const {
-  call: getBookings,
-  data: bookingsPage,
-  loading: getBookingsLoading,
-} = useGetBookings();
+const { call: getBookings, data: bookingsPage, loading: getBookingsLoading } = useGetBookings();
 
-const handleRowClick = (
-  event: PointerEvent,
-  { item }: { item: BookingListResponseDTO }
-) => {
+const handleRowClick = (event: PointerEvent, { item }: { item: BookingListResponseDTO }) => {
   router.push({
-    name: isMyBooking.value
-      ? ROUTES.MY_BOOKINGS_DETAILS
-      : ROUTES.BOOKINGS_DETAILS,
+    name: isMyBooking.value ? ROUTES.MY_BOOKINGS_DETAILS : ROUTES.BOOKINGS_DETAILS,
     params: { id: item.id },
   });
 };
@@ -321,7 +264,7 @@ const headers = computed(
             },
           ]
         : []),
-    ] as TableHeader<BookingListResponseDTO>[]
+    ] as TableHeader<BookingListResponseDTO>[],
 );
 </script>
 

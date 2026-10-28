@@ -1,9 +1,5 @@
 <template>
-  <base-view
-    :header-text="
-      t('generics.manage', { domain: t('domain.equipment.header') })
-    "
-  >
+  <rb-base-view :header-text="t('generics.manage', { domain: t('domain.equipment.header') })">
     <crud-card
       ref="crudRef"
       :empty-item-template="EMPTY_ITEM_TEMPLATE"
@@ -33,22 +29,14 @@
           </template>
           <template #[`item.actions`]="{ item }">
             <rb-button-group>
-              <rb-icon-button
-                type="edit"
-                class="mr-1"
-                @click="openEdit(item)"
-              />
-              <rb-icon-button
-                :disabled="item.isActive"
-                type="delete"
-                @click="openDelete(item)"
-              />
+              <rb-icon-button type="edit" class="mr-1" @click="openEdit(item)" />
+              <rb-icon-button :disabled="item.isActive" type="delete" @click="openDelete(item)" />
             </rb-button-group>
           </template>
         </v-data-table>
       </template>
     </crud-card>
-  </base-view>
+  </rb-base-view>
 </template>
 
 <script setup lang="ts">
@@ -60,7 +48,7 @@ import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { Levels } from "@/api/error.ts";
-import BaseView from "@/components/common/BaseView.vue";
+import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbIconButton from "@/components/common/buttons/RbIconButton.vue";
 import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
@@ -84,8 +72,7 @@ const snackbarStore = useSnackbarStore();
 
 const crudRef = useTemplateRef("crudRef");
 
-const { data: allEquipmentsData, isPending: getAllEquipmentLoading } =
-  useGetAllEquipments();
+const { data: allEquipmentsData, isPending: getAllEquipmentLoading } = useGetAllEquipments();
 
 const {
   mutateAsync: deleteEquipmentCall,
@@ -125,9 +112,7 @@ const headers: TableHeader<EquipmentResponseDto>[] = [
 const handleCreate = async (newItem: EquipmentResponseDto) => {
   await saveEquipmentCall({ equipmentRequestDto: newItem });
   if (!saveEquipmentError.value) {
-    await onSuccess(
-      t("generics.created", { domain: t("domain.equipment.header") })
-    );
+    await onSuccess(t("generics.created", { domain: t("domain.equipment.header") }));
   }
 };
 
@@ -138,9 +123,7 @@ const handleUpdate = async (updatedItem: EquipmentResponseDto) => {
       equipmentId: updatedItem.id,
     });
     if (!updateEquipmentError.value) {
-      await onSuccess(
-        t("generics.updated", { domain: t("domain.equipment.header") })
-      );
+      await onSuccess(t("generics.updated", { domain: t("domain.equipment.header") }));
     }
   }
 };
@@ -148,9 +131,7 @@ const handleUpdate = async (updatedItem: EquipmentResponseDto) => {
 const handleDelete = async (id: string) => {
   await deleteEquipmentCall({ equipmentId: id });
   if (!deleteEquipmentError.value) {
-    await onSuccess(
-      t("generics.deleted", { domain: t("domain.equipment.header") })
-    );
+    await onSuccess(t("generics.deleted", { domain: t("domain.equipment.header") }));
   }
 };
 
