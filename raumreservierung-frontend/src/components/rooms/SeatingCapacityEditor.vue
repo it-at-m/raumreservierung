@@ -32,7 +32,7 @@
       cols="2"
       align-self="center"
     >
-      <base-button
+      <rb-button
         :disabled="!modelValue?.id"
         :prepend-icon="mdiTrashCanOutline"
         class="w-100"
@@ -52,7 +52,7 @@ import { mdiTrashCanOutline } from "@mdi/js";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 
 const modelValue = defineModel<SeatingTypeWithCapacity>();
 

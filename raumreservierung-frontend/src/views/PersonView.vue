@@ -40,7 +40,7 @@
           />
         </template>
         <template #tableActions="{ openCreate }">
-          <base-button
+          <rb-button
             :append-icon="mdiPlus"
             :disabled="isInternalPath"
             :text="t('common.add')"
@@ -108,7 +108,7 @@ import { Levels } from "@/api/error.ts";
 import { ExternalPersonResponseDtoTypeEnum } from "@/api/raumreservierung-backend";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 import RbButtonGroup from "@/components/common/buttons/RbButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import ExternalPersonForm from "@/components/forms/ExternalPersonForm.vue";

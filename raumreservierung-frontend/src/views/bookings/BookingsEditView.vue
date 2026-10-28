@@ -1,14 +1,14 @@
 <template>
   <base-view :header-text="t('views.bookingEditView.header')">
     <template #headerActions>
-      <base-button
+      <rb-button
         class="ml-4"
         :text="t('common.cancel')"
         :prepend-icon="mdiWindowClose"
         secondary
         @click="router.back()"
       />
-      <base-button
+      <rb-button
         v-if="canCancel && isBookingEditable"
         class="ml-4"
         :text="t('common.rescind')"
@@ -21,14 +21,14 @@
             color="statusCanceled"
           />
         </template>
-      </base-button>
+      </rb-button>
       <v-dialog
         v-model="isUnfeasibleDialogOpen"
         max-width="800px"
         width="90%"
       >
         <template #activator>
-          <base-button
+          <rb-button
             :disabled="!isValid"
             class="ml-4"
             :text="t('common.save')"
@@ -52,7 +52,7 @@
               />
             </template>
             <template #confirm="{ disabled }">
-              <base-button
+              <rb-button
                 :disabled="disabled"
                 :text="t('common.save')"
                 :append-icon="mdiContentSaveOutline"
@@ -334,7 +334,7 @@ import RRuleEditorCard from "@/components/booking/RRuleEditorCard.vue";
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
 import SeatingTypeSelector from "@/components/booking/SeatingTypeParticipantsSelector.vue";
 import BaseView from "@/components/common/BaseView.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";

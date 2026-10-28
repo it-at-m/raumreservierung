@@ -7,7 +7,7 @@
     "
   >
     <template #headerActions>
-      <base-button
+      <rb-button
         class="ml-4"
         :text="t('common.cancel')"
         secondary
@@ -19,7 +19,7 @@
         width="90%"
       >
         <template #activator="{ props }">
-          <base-button
+          <rb-button
             :disabled="!isDeletable"
             v-bind="props"
             class="ml-4"
@@ -42,7 +42,7 @@
             "
           >
             <template #confirm="{ props }">
-              <base-button
+              <rb-button
                 :text="t('common.delete')"
                 :append-icon="mdiTrashCanOutline"
                 v-bind="props"
@@ -51,7 +51,7 @@
           </confirm-card>
         </template>
       </v-dialog>
-      <base-button
+      <rb-button
         class="ml-4"
         :text="t('common.save')"
         :append-icon="mdiContentSaveOutline"
@@ -287,7 +287,7 @@ import {
 } from "@/api/raumreservierung-backend";
 import PersonSelect from "@/components/booking/PersonSelect.vue";
 import BaseView from "@/components/common/BaseView.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";

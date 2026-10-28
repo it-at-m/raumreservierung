@@ -45,7 +45,7 @@
           persistent
         >
           <template #activator="{ props: activatorProps }">
-            <base-button
+            <rb-button
               v-bind="activatorProps"
               class="mb-2 mr-2"
               secondary
@@ -79,7 +79,7 @@ import { mdiPlus } from "@mdi/js";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import RoomResourceManagementCard from "@/components/rooms/RoomResourceManagementCard.vue";
 import {

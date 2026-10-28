@@ -124,7 +124,7 @@
         class="ma-1"
       >
         <v-col cols="auto">
-          <base-button
+          <rb-button
             v-if="isBookingEditable"
             color="statusCanceled"
             :disabled="loading"
@@ -138,7 +138,7 @@
           v-if="!bookingChanged"
           cols="auto"
         >
-          <base-button
+          <rb-button
             secondary
             :text="t('common.edit')"
             :append-icon="mdiPencil"
@@ -150,7 +150,7 @@
               })
             "
           />
-          <base-button
+          <rb-button
             v-if="
               isBookingEditable &&
               (isRO || isRA) &&
@@ -170,7 +170,7 @@
               )
             "
           />
-          <base-button
+          <rb-button
             v-if="
               isBookingEditable &&
               isTO &&
@@ -193,13 +193,13 @@
           v-else
           cols="auto"
         >
-          <base-button
+          <rb-button
             secondary
             :disabled="loading"
             :text="t('common.cancel')"
             @click="emit('cancel')"
           />
-          <base-button
+          <rb-button
             class="ml-2"
             :disabled="loading"
             :text="t('common.save')"
@@ -235,7 +235,7 @@ import {
 import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 import IconInformation from "@/components/common/IconInformation.vue";
 import {
   useBookingStatusConfig,

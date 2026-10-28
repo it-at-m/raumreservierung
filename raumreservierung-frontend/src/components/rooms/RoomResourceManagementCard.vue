@@ -37,7 +37,7 @@
       </v-text-field>
     </template>
     <template #actions>
-      <base-button
+      <rb-button
         class="mb-4 mr-4"
         secondary
         :prepend-icon="mdiArrowLeft"
@@ -54,7 +54,7 @@ import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 
 const { t } = useI18n();
 

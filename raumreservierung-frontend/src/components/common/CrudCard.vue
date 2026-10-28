@@ -30,7 +30,7 @@
           />
         </template>
         <template #cancel="{ props }">
-          <base-button
+          <rb-button
             v-if="dialogMode == 'read'"
             v-bind="props"
             secondary
@@ -39,7 +39,7 @@
           />
         </template>
         <template #confirm="{ props }">
-          <base-button
+          <rb-button
             v-if="dialogMode == 'edit'"
             :text="t('common.save')"
             :append-icon="mdiContentSaveOutline"
@@ -58,7 +58,7 @@
         @confirm="executeDelete"
       >
         <template #confirm="{ props }">
-          <base-button
+          <rb-button
             :text="t('common.delete')"
             :append-icon="mdiTrashCanOutline"
             v-bind="props"
@@ -75,7 +75,7 @@
               name="tableActions"
               :open-create="openCreate"
             >
-              <base-button
+              <rb-button
                 :append-icon="mdiPlus"
                 :text="t('common.add')"
                 @click="openCreate"
@@ -111,7 +111,7 @@ import {
 import { computed, ref, toRaw } from "vue";
 import { useI18n } from "vue-i18n";
 
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 
 const { t } = useI18n();

@@ -8,7 +8,7 @@
       />
     </template>
     <template #headerActions>
-      <base-button
+      <rb-button
         v-if="!isCanceledOrUnfeasible && (canEditBooking || isMyBooking)"
         secondary
         :append-icon="mdiPencil"
@@ -178,7 +178,7 @@
                 />
               </template>
               <template #load-more="{ props }">
-                <base-button
+                <rb-button
                   v-if="
                     (appointmentPage.page?.totalPages || 0) >
                     nextAppointmentPage
@@ -257,7 +257,7 @@ import AppointmentListItem from "@/components/booking/AppointmentListItem.vue";
 import BookingGeneralInfoCard from "@/components/booking/BookingGeneralInfoCard.vue";
 import ScheduleTimelineCard from "@/components/booking/ScheduleTimelineCard.vue";
 import BaseView from "@/components/common/BaseView.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetAppointmentsOld } from "@/composables/api/useAppointmentApi.ts";
 import { useGetBookingOld } from "@/composables/api/useBookingsApi.ts";

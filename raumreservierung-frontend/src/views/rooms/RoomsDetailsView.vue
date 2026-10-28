@@ -8,7 +8,7 @@
       />
     </template>
     <template #headerActions>
-      <base-button
+      <rb-button
         v-if="canEditRoom"
         secondary
         :text="t('common.edit')"
@@ -20,7 +20,7 @@
           })
         "
       />
-      <base-button
+      <rb-button
         v-if="id"
         class="ml-4"
         text="Raum buchen"
@@ -257,7 +257,7 @@ import { useDisplay } from "vuetify/framework";
 
 import { ExternalPersonResponseDtoTitleEnum } from "@/api/raumreservierung-backend";
 import BaseView from "@/components/common/BaseView.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 import DetailsCard from "@/components/common/DetailsCard.vue";
 import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";

@@ -19,7 +19,7 @@
           :props="{ onClick: cancel }"
           :disabled="loading"
         >
-          <base-button
+          <rb-button
             secondary
             class="mr-4"
             :disabled="loading"
@@ -42,7 +42,7 @@
 import { mdiClose } from "@mdi/js";
 import { useI18n } from "vue-i18n";
 
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 
 const { t } = useI18n();
 

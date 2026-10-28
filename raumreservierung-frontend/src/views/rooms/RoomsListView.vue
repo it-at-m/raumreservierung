@@ -1,7 +1,7 @@
 <template>
   <base-view header-text="Räume und Details">
     <template #headerActions>
-      <base-button
+      <rb-button
         v-if="canAddNewRoom"
         text="Hinzufügen"
         :append-icon="mdiPlus"
@@ -81,7 +81,7 @@ import { useI18n } from "vue-i18n";
 import { useRouter } from "vue-router";
 
 import BaseView from "@/components/common/BaseView.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 import RoomThumbnail from "@/components/rooms/RoomThumbnail.vue";
 import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";

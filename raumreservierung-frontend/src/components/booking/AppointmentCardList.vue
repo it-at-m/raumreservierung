@@ -18,7 +18,7 @@
           @cancel="reset"
         >
           <template #confirm="{ disabled }">
-            <base-button
+            <rb-button
               :disabled="disabled"
               text="Speichern"
               @click="saveAppointment"
@@ -56,7 +56,7 @@
                   />
                 </v-col>
                 <v-col cols="auto">
-                  <base-button
+                  <rb-button
                     secondary
                     variant="tonal"
                     :append-icon="mdiPencilOutline"
@@ -69,7 +69,7 @@
           </v-list-item>
         </template>
         <template #load-more="{ props }">
-          <base-button
+          <rb-button
             v-if="nextAppointmentPage < totalPages"
             secondary
             :loading="appointmentsLoading"
@@ -94,7 +94,7 @@ import { ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import RbButton from "@/components/common/buttons/RbButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import DateDisplay from "@/components/common/date/DateDisplay.vue";
