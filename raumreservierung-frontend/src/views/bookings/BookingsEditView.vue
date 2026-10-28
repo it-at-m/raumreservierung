@@ -306,7 +306,8 @@
 import {
   type BookingRequestDTO,
   type FindById200Response,
-  type InternalPersonResponseDto, InternalPersonResponseDtoTypeEnum,
+  type InternalPersonResponseDto,
+  InternalPersonResponseDtoTypeEnum,
   type RoomDetailsResponseDTO,
   type RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
@@ -526,8 +527,11 @@ const saveBooking = async () => {
       bookingRequestDTO: {
         ...bookingData.value,
         bookedFor: {
-          id: bookedFor.value?.type === InternalPersonResponseDtoTypeEnum.INTERNAL ? (bookedFor.value as InternalPersonResponseDto).organisationId : bookedFor.value?.id,
-          personType: bookedFor.value?.type
+          id:
+            bookedFor.value?.type === InternalPersonResponseDtoTypeEnum.INTERNAL
+              ? (bookedFor.value as InternalPersonResponseDto).organisationId
+              : bookedFor.value?.id,
+          personType: bookedFor.value?.type,
         },
         status: bookingData.value.status,
         reasonForStatusChange: bookingData.value.reasonForStatusChange,
@@ -545,8 +549,11 @@ const saveBooking = async () => {
       bookingRequestDTO: {
         ...bookingData.value,
         bookedFor: {
-          id: bookedFor.value?.type === InternalPersonResponseDtoTypeEnum.INTERNAL ? (bookedFor.value as InternalPersonResponseDto).organisationId : bookedFor.value?.id,
-          personType: bookedFor.value?.type
+          id:
+            bookedFor.value?.type === InternalPersonResponseDtoTypeEnum.INTERNAL
+              ? (bookedFor.value as InternalPersonResponseDto).organisationId
+              : bookedFor.value?.id,
+          personType: bookedFor.value?.type,
         },
         status: bookingData.value.status,
         seatingTypeId: currentRoom.value
