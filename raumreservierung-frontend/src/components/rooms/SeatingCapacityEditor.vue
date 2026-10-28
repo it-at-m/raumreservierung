@@ -54,7 +54,7 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
-import { useCheckSeatingTypeDeletableMutation } from "@/composables/api/useSeatingApi.ts";
+import { useCheckSeatingTypeDeletableInRoom } from "@/composables/api/useSeatingApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { STATUS_INDICATORS } from "@/constants.ts";
 
@@ -62,9 +62,14 @@ const modelValue = defineModel<SeatingTypeWithCapacity>();
 
 const { t } = useI18n();
 
-const { maxRoomCapacity, selectableSeatingTypes = [] } = defineProps<{
+const {
+  maxRoomCapacity,
+  selectableSeatingTypes = [],
+  roomId,
+} = defineProps<{
   maxRoomCapacity: number;
   selectableSeatingTypes?: SeatingTypeResponseDto[];
+  roomId?: string;
 }>();
 
 const emit = defineEmits<{
@@ -72,7 +77,7 @@ const emit = defineEmits<{
 }>();
 
 const { mutateAsync: checkDeletable, isPending: deleteCheckLoading } =
-  useCheckSeatingTypeDeletableMutation();
+  useCheckSeatingTypeDeletableInRoom();
 
 // Attaches current element if exist and not yet present inside the list to selectableSeatingTypes
 const availableOptions = computed(() =>
@@ -84,10 +89,18 @@ const availableOptions = computed(() =>
 const snackbarStore = useSnackbarStore();
 
 const handleDelete = async () => {
-  const id = modelValue.value?.id;
-  if (!id || !modelValue.value) return;
+  if (!modelValue.value || !modelValue.value.id) {
+    return;
+  }
+  if (!roomId) {
+    emit("delete", modelValue.value);
+    return;
+  }
 
-  const deletable = await checkDeletable(id);
+  const deletable = await checkDeletable({
+    seatingTypeId: modelValue.value.id,
+    roomId,
+  });
 
   if (deletable) {
     emit("delete", modelValue.value);

@@ -9,6 +9,7 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class FutureAppointmentCheckEvent {
     private final UUID seatingTypeId;
+    private final UUID roomId;
     @Setter
     private boolean futureAppointmentExists;
 }

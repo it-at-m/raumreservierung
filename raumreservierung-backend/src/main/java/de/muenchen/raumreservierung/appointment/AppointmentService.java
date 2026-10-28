@@ -122,8 +122,8 @@ public class AppointmentService {
                 : fullLine;
     }
 
-    boolean existsFutureAppointmentForSeatingType(final UUID seatingTypeId) {
-        final Specification<Appointment> spec = AppointmentSpecificationBuilder.forFutureSeatingTypeUsage(seatingTypeId);
+    boolean existsFutureAppointmentForSeatingTypeAndRoom(final UUID seatingTypeId, final UUID roomId) {
+        final Specification<Appointment> spec = AppointmentSpecificationBuilder.forFutureSeatingTypeUsage(seatingTypeId, roomId);
         return appointmentRepository.exists(spec);
     }
 }

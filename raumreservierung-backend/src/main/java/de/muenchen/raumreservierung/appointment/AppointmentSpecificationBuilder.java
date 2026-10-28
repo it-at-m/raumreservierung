@@ -42,11 +42,19 @@ public final class AppointmentSpecificationBuilder {
         return Specification.allOf(specificationList);
     }
 
-    public static <T extends Appointment> Specification<T> forFutureSeatingTypeUsage(final UUID seatingTypeId) {
-        return Specification.allOf(
-                filterForSeatingTypeId(seatingTypeId),
-                filterForOccupancyEndAfter(OffsetDateTime.now()),
-                filterExcludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
+    public static <T extends Appointment> Specification<T> forFutureSeatingTypeUsage(final UUID seatingTypeId, final UUID roomId) {
+        final List<Specification<T>> specificationList = new ArrayList<>();
+        specificationList.add(filterForSeatingTypeId(seatingTypeId));
+        specificationList.add(filterForOccupancyEndAfter(OffsetDateTime.now()));
+        specificationList.add(filterExcludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
+        if (roomId != null) {
+            specificationList.add(filterForRoomId(roomId));
+        }
+        return Specification.allOf(specificationList);
+    }
+
+    private static <T extends Appointment> Specification<T> filterForRoomId(final UUID roomId) {
+        return (root, query, cb) -> cb.equal(root.get(Appointment_.booking).get(Booking_.room).get(Room_.id), roomId);
     }
 
     private static <T extends Appointment> Specification<T> filterForSeatingTypeId(final UUID seatingTypeId) {

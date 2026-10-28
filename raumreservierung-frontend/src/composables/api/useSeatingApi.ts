@@ -1,6 +1,7 @@
 import type {
   CreateSeatingTypeRequest,
   DeleteSeatingTypeRequest,
+  IsRoomCapacityRemovableRequest,
   UpdateSeatingTypeRequest,
 } from "@/api/raumreservierung-backend";
 
@@ -64,5 +65,13 @@ export const useCheckSeatingTypeDeletableMutation = () => {
   return useMutation({
     mutationFn: (seatingTypeId: string) =>
       api.isSeatingTypeDeletable({ seatingTypeId }),
+  });
+};
+
+export const useCheckSeatingTypeDeletableInRoom = () => {
+  const api = ApiFactory.getInstance(SeatingControllerApi);
+  return useMutation({
+    mutationFn: (params: IsRoomCapacityRemovableRequest) =>
+      api.isRoomCapacityRemovable(params),
   });
 };

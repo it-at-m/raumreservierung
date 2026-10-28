@@ -57,7 +57,7 @@ public class SeatingService {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, seatingTypeId));
         }
 
-        if (existsFutureAppointmentForSeatingType(seatingTypeId)) {
+        if (existsFutureAppointmentForSeatingType(seatingTypeId, null)) {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_IN_FUTURE_BOOKING, seatingTypeId));
         }
 
@@ -74,8 +74,11 @@ public class SeatingService {
                 .orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, seatingTypeId)));
     }
 
-    public boolean existsFutureAppointmentForSeatingType(final UUID seatingTypeId) {
-        final FutureAppointmentCheckEvent event = new FutureAppointmentCheckEvent(seatingTypeId);
+    public boolean existsFutureAppointmentForSeatingType(final UUID seatingTypeId, final UUID roomId) {
+        if (!seatingRepository.existsById(seatingTypeId)) {
+            throw new NotFoundException(String.format(MSG_NOT_FOUND, seatingTypeId));
+        }
+        final FutureAppointmentCheckEvent event = new FutureAppointmentCheckEvent(seatingTypeId, roomId);
         eventPublisher.publishEvent(event);
         return event.isFutureAppointmentExists();
     }

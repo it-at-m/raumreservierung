@@ -15,6 +15,7 @@
             <seating-capacity-editor
               :model-value="seatCap"
               :max-room-capacity="maxRoomCapacity"
+              :room-id="roomId"
               :selectable-seating-types="filteredSeatingTypes"
               @update:model-value="(el) => handleUpdate(el, seatCap.id)"
               @delete="handleRemove"
@@ -28,6 +29,7 @@
             <seating-capacity-editor
               :model-value="newSeatCap"
               :max-room-capacity="maxRoomCapacity"
+              :room-id="roomId"
               :selectable-seating-types="filteredSeatingTypes"
               @update:model-value="(el) => handleUpdate(el, undefined)"
             />
@@ -90,8 +92,9 @@ const modelValue = defineModel<SeatingCapacityRequestDTO[]>({
 
 const newSeatCap = ref<SeatingTypeWithCapacity | undefined>();
 
-const { maxRoomCapacity = -1 } = defineProps<{
+const { maxRoomCapacity = -1, roomId } = defineProps<{
   maxRoomCapacity?: number;
+  roomId?: string;
 }>();
 
 const { data: seatingTypes, isPending: getAllSeatingTypesLoading } =

@@ -13,6 +13,6 @@ public class AppointmentEventListener {
 
     @EventListener
     public void onFutureAppointmentCheck(final FutureAppointmentCheckEvent event) {
-        event.setFutureAppointmentExists(appointmentService.existsFutureAppointmentForSeatingType(event.getSeatingTypeId()));
+        event.setFutureAppointmentExists(appointmentService.existsFutureAppointmentForSeatingTypeAndRoom(event.getSeatingTypeId(), event.getRoomId()));
     }
 }
