@@ -6,7 +6,6 @@ import { ref } from "vue";
 import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 import { SCHEDULE_DEFAULT_DURATION } from "@/constants.ts";
 
-
 export function useCalendarDragAndDrop(
   bookingId: Ref<string | undefined>,
   localEvents: Ref<CalendarAppointmentEvent[]>,
