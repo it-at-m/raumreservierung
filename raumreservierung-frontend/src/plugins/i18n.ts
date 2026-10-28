@@ -44,6 +44,12 @@ const datetimeFormats = {
       minute: "2-digit",
       second: "2-digit",
     },
+    writtenDate: {
+      weekday: "long",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    },
   },
 };
 
@@ -95,15 +101,7 @@ export const rruleGetText = (id: string | number | Weekday): string => {
 };
 
 export const rruleDeLanguage: Language = {
-  dayNames: [
-    "Sonntag",
-    "Montag",
-    "Dienstag",
-    "Mittwoch",
-    "Donnerstag",
-    "Freitag",
-    "Samstag",
-  ],
+  dayNames: ["Sonntag", "Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag"],
   monthNames: [
     "Januar",
     "Februar",

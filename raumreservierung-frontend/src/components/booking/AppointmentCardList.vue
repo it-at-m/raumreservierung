@@ -1,8 +1,6 @@
 <template>
   <card-form
-    :subtitle="
-      t('components.appointmentCardList.editSeriesElement', { count: 2 })
-    "
+    :subtitle="t('components.appointmentCardList.editSeriesElement', { count: 2 })"
     class="h-100"
   >
     <template #text>
@@ -18,11 +16,7 @@
           @cancel="reset"
         >
           <template #confirm="{ disabled }">
-            <rb-button
-              :disabled="disabled"
-              text="Speichern"
-              @click="saveAppointment"
-            />
+            <rb-button :disabled="disabled" text="Speichern" @click="saveAppointment" />
           </template>
           <template #text="{ disabled }">
             <schedule-template-form
@@ -51,8 +45,10 @@
             <v-list-item-title>
               <v-row justify="space-between">
                 <v-col align-self="center">
-                  <date-display
-                    :display-date="appointment.schedule.occupancyStart"
+                  <i18n-d
+                    tag="span"
+                    :value="appointment.schedule.occupancyStart"
+                    format="writtenDate"
                   />
                 </v-col>
                 <v-col cols="auto">
@@ -152,16 +148,14 @@ watch(
     await fetchPage();
 
     if (appointmentPage.value?.content && !appointmentsError.value) {
-      currentAppointments.value = structuredClone(
-        toRaw(appointmentPage.value.content)
-      );
+      currentAppointments.value = structuredClone(toRaw(appointmentPage.value.content));
       totalPages.value = appointmentPage.value.page?.totalPages || 1;
       nextAppointmentPage.value++;
     }
   },
   {
     immediate: true,
-  }
+  },
 );
 
 const onLoadMore = async (event: InfiniteScrollLoad) => {
@@ -186,9 +180,7 @@ const onLoadMore = async (event: InfiniteScrollLoad) => {
 
 // Appointment editing
 const isDialogOpen = ref(false);
-const appointmentToEdit = ref<AppointmentDetailsResponseDTO | undefined>(
-  undefined
-);
+const appointmentToEdit = ref<AppointmentDetailsResponseDTO | undefined>(undefined);
 
 const {
   call: updateAppointment,

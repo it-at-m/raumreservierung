@@ -9,7 +9,7 @@ const instances = new Map<ApiCtor<BaseAPI>, BaseAPI>();
 
 function createConfig(): Configuration {
   return new Configuration({
-    basePath: "/api/backend-service",
+    basePath: "/api/backend",
     credentials: "same-origin",
     headers: convertHeaders(getHeaders()),
   });

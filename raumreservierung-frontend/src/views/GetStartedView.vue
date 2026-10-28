@@ -26,13 +26,6 @@
         </div>
       </v-col>
     </v-row>
-    <yes-no-dialog
-      v-model="saveLeaveDialog"
-      :dialogtitle="t('views.getStarted.saveLeave.title')"
-      :dialogtext="t('views.getStarted.saveLeave.text')"
-      @no="cancel"
-      @yes="leave"
-    />
   </v-container>
 </template>
 
@@ -40,7 +33,6 @@
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import YesNoDialog from "@/components/common/YesNoDialog.vue";
 import { useSaveLeave } from "@/composables/saveLeave";
 
 const { t } = useI18n();

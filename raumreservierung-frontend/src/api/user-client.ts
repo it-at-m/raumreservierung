@@ -1,10 +1,6 @@
 import type { Role } from "@/types/Role.ts";
 
-import {
-  defaultCatchHandler,
-  defaultResponseHandler,
-  getConfig,
-} from "@/api/fetch-utils";
+import { defaultCatchHandler, defaultResponseHandler, getConfig } from "@/api/fetch-utils";
 import { isRole, ROLE_WEIGHTS } from "@/types/Role.ts";
 import User from "@/types/User";
 
@@ -20,10 +16,7 @@ export function getUser(): Promise<User> {
   return fetch("/api/sso/userinfo", getConfig())
     .catch(defaultCatchHandler)
     .then((response) => {
-      defaultResponseHandler(
-        response,
-        "Beim Laden des Users ist ein Fehler aufgetreten."
-      );
+      defaultResponseHandler(response, "Beim Laden des Users ist ein Fehler aufgetreten.");
       return response.json();
     })
     .then((json: Partial<User>) => {
@@ -48,6 +41,7 @@ export function getUser(): Promise<User> {
       u.authorities = json.authorities || [];
       const resourceAccess = json.resource_access || {};
 
+      console.log(resourceAccess);
       const highestValue = Object.values(resourceAccess)
         .flatMap((client) => client?.roles || [])
         .reduce<Role | undefined>((highest: Role | undefined, currentRole) => {
@@ -56,7 +50,7 @@ export function getUser(): Promise<User> {
             ? currentRole
             : highest;
         }, undefined);
-
+      console.log(highestValue);
       u.user_roles = highestValue || undefined;
 
       return u;
