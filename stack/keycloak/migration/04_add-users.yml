@@ -6,13 +6,14 @@ changes:
       name: anwender
       lastName: anwender
       firstName: anwender
-      preferred_username: anwender.anwender
       enabled: true
       emailVerified: true
       email: anwender@anwender.de
       attributes:
         lhmObjectID:
           - "0000001"
+        preferred_username:
+          - "anwender.anwender"
   - updateUserPassword:
       name: anwender
       password: "anwender"
@@ -21,13 +22,14 @@ changes:
       name: leseberechtigt
       lastName: leseberechtigt
       firstName: leseberechtigt
-      preferred_username: leseberechtigt.leseberechtigt
       enabled: true
       emailVerified: true
       email: leseberechtigt@leseberechtigt.de
       attributes:
         lhmObjectID:
           - "0000002"
+        preferred_username:
+          - "leseberechtigt.leseberechtigt"
   - updateUserPassword:
       name: leseberechtigt
       password: "leseberechtigt"
@@ -36,13 +38,14 @@ changes:
       name: terminorganisator
       lastName: terminorganisator
       firstName: terminorganisator
-      preferred_username: terminorganisator.terminorganisator
       enabled: true
       emailVerified: true
       email: terminorganisator@terminorganisator.de
       attributes:
         lhmObjectID:
           - "0000003"
+        preferred_username:
+          - "terminorganisator.terminorganisator"
   - updateUserPassword:
       name: terminorganisator
       password: "terminorganisator"
@@ -51,13 +54,14 @@ changes:
       name: raumbuchung
       lastName: raumbuchung
       firstName: raumbuchung
-      preferred_username: raumbuchung.raumbuchung
       enabled: true
       emailVerified: true
       email: raumbuchung@raumbuchung.de
       attributes:
         lhmObjectID:
           - "0000004"
+        preferred_username:
+          - "raumbuchung.raumbuchung"
   - updateUserPassword:
       name: raumbuchung
       password: "raumbuchung"
@@ -66,13 +70,14 @@ changes:
       name: raumadmin
       lastName: raumadmin
       firstName: raumadmin
-      preferred_username: raumadmin.raumadmin
       enabled: true
       emailVerified: true
       email: raumadmin@raumadmin.de
       attributes:
         lhmObjectID:
           - "0000005"
+        preferred_username:
+          - "raumadmin.raumadmin"
   - updateUserPassword:
       name: raumadmin
       password: "raumadmin"
