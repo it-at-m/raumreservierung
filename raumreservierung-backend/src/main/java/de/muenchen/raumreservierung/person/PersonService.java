@@ -62,7 +62,7 @@ public class PersonService {
         }
         case PersonType.INTERNAL -> {
             if (personFilterDto.ldapOnly()) {
-                List<Person> ldapPersonList = ldapService.searchPersonByFilter(personFilterDto, pageable)
+                final List<Person> ldapPersonList = ldapService.searchPersonByFilter(personFilterDto, pageable)
                         .stream()
                         .map(personMapper::toInternalPerson)
                         .map(internalPerson -> (Person) internalPerson)

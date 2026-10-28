@@ -43,10 +43,10 @@ public class ActiveDirectoryServiceImpl implements LdapService {
             return List.of();
         }
 
-        String escapedSearchText = LdapEncoder.filterEncode(ldapPersonFilterDto.searchName().trim());
-        String ldapFilter = String.format("(&(objectClass=user)(|(givenName=*%1$s*)(sn=*%1$s*)(cn=*%1$s*)(displayName=*%1$s*)))", escapedSearchText);
+        final String escapedSearchText = LdapEncoder.filterEncode(ldapPersonFilterDto.searchName().trim());
+        final String ldapFilter = String.format("(&(objectClass=user)(|(givenName=*%1$s*)(sn=*%1$s*)(cn=*%1$s*)(displayName=*%1$s*)))", escapedSearchText);
 
-        LdapQuery query = LdapQueryBuilder.query()
+        final LdapQuery query = LdapQueryBuilder.query()
                 .searchScope(SearchScope.SUBTREE)
                 .attributes(LdapAttributes.GIVEN_NAME, LdapAttributes.SN, LdapAttributes.TELEPHONE_NUMBER, LdapAttributes.MAIL, LdapAttributes.LHM_OBJECT_ID,
                         LdapAttributes.ORGANISATIONAL_UNIT

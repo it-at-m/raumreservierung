@@ -15,7 +15,7 @@ public class BookedForResolver {
     private final ExternalPersonRepository externalPersonRepository;
 
 
-    public Person resolvePerson(BookedForDto bookedForDto) {
+    public Person resolvePerson(final BookedForDto bookedForDto) {
         if (bookedForDto.personType() == PersonType.INTERNAL) {
             return personService.resolveInternalPersonByOrganisationIDOrThrowException(bookedForDto.id());
         }
