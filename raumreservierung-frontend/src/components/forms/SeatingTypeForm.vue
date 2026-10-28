@@ -1,9 +1,5 @@
 <template>
-  <v-form
-    :model-value="isValid"
-    :disabled="disabled"
-    @update:model-value="updatedValidity"
-  >
+  <v-form :model-value="isValid" :disabled="disabled" @update:model-value="updatedValidity">
     <v-text-field
       v-model="modelValue.name"
       variant="outlined"
@@ -19,7 +15,7 @@
       counter="255"
       :rules="[maxDescriptionLength]"
     />
-    <card-form :subtitle="t('domain.seatingType.isActive')">
+    <rb-card :subtitle="t('domain.seatingType.isActive')">
       <template #text>
         <v-checkbox
           v-model="modelValue.isActive"
@@ -32,7 +28,7 @@
           "
         />
       </template>
-    </card-form>
+    </rb-card>
   </v-form>
 </template>
 
@@ -42,7 +38,7 @@ import type { SeatingTypeResponseDto } from "@/api/raumreservierung-backend";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import CardForm from "@/components/common/CardForm.vue";
+import RbCard from "@/components/common/RbCard.vue";
 
 const MIN_NAME_LENGTH = 2;
 const MAX_DESCRIPTION_LENGTH = 255;

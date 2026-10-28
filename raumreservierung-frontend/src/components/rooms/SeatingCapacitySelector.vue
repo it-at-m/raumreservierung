@@ -1,8 +1,5 @@
 <template>
-  <card-form
-    :subtitle="t('domain.seatingType.header')"
-    :loading="getAllSeatingTypesLoading"
-  >
+  <rb-card :subtitle="t('domain.seatingType.header')" :loading="getAllSeatingTypesLoading">
     <template #text>
       <v-list density="compact">
         <v-list-item
@@ -21,9 +18,7 @@
             />
           </template>
         </v-list-item>
-        <v-list-item
-          v-if="filteredSeatingTypes && filteredSeatingTypes.length > 0"
-        >
+        <v-list-item v-if="filteredSeatingTypes && filteredSeatingTypes.length > 0">
           <template #default>
             <seating-capacity-editor
               :model-value="newSeatCap"
@@ -37,19 +32,14 @@
     </template>
     <template #actions>
       <div class="w-100 d-flex justify-end">
-        <v-dialog
-          max-width="900"
-          persistent
-        >
+        <v-dialog max-width="900" persistent>
           <template #activator="{ props: activatorProps }">
             <rb-button
               v-bind="activatorProps"
               class="mb-2 mr-2"
               secondary
               :prepend-icon="mdiPlus"
-              :text="
-                t('generics.add', { domain: t('domain.seatingType.header') })
-              "
+              :text="t('generics.add', { domain: t('domain.seatingType.header') })"
             />
           </template>
           <template #default="{ isActive }">
@@ -64,7 +54,7 @@
         </v-dialog>
       </div>
     </template>
-  </card-form>
+  </rb-card>
 </template>
 
 <script setup lang="ts">
@@ -76,13 +66,10 @@ import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import RbButton from "@/components/common/buttons/RbButton.vue";
-import CardForm from "@/components/common/CardForm.vue";
+import RbCard from "@/components/common/RbCard.vue";
 import RoomResourceManagementCard from "@/components/rooms/RoomResourceManagementCard.vue";
 import SeatingCapacityEditor from "@/components/rooms/SeatingCapacityEditor.vue";
-import {
-  useCreateSeatingType,
-  useGetAllSeatingTypes,
-} from "@/composables/api/useSeatingApi.ts";
+import { useCreateSeatingType, useGetAllSeatingTypes } from "@/composables/api/useSeatingApi.ts";
 
 const modelValue = defineModel<SeatingCapacityRequestDTO[]>({
   required: true,
@@ -94,8 +81,7 @@ const { maxRoomCapacity = -1 } = defineProps<{
   maxRoomCapacity?: number;
 }>();
 
-const { data: seatingTypes, isPending: getAllSeatingTypesLoading } =
-  useGetAllSeatingTypes();
+const { data: seatingTypes, isPending: getAllSeatingTypesLoading } = useGetAllSeatingTypes();
 
 const { mutateAsync: createSeatingType, isPending: createSeatingTypeLoading } =
   useCreateSeatingType();
@@ -105,9 +91,7 @@ const { t } = useI18n();
 const combinedSeatingTypesCapacities = computed(() => {
   if (seatingTypes.value) {
     return modelValue.value.map((seatCap) => {
-      const seatType = seatingTypes.value?.find(
-        (el) => el.id === seatCap.seatingTypeId
-      );
+      const seatType = seatingTypes.value?.find((el) => el.id === seatCap.seatingTypeId);
 
       return {
         ...seatType,
@@ -122,13 +106,13 @@ const filteredSeatingTypes = computed(() =>
   seatingTypes.value?.filter(
     (seatType) =>
       seatType.isActive &&
-      !modelValue.value.some((seatCap) => seatCap.seatingTypeId === seatType.id)
-  )
+      !modelValue.value.some((seatCap) => seatCap.seatingTypeId === seatType.id),
+  ),
 );
 
 const handleUpdate = (
   value: SeatingTypeWithCapacity | undefined,
-  originalId: string | undefined
+  originalId: string | undefined,
 ) => {
   if (!value?.id) {
     return;
@@ -146,9 +130,7 @@ const handleUpdate = (
     newSeatCap.value = undefined;
   } else {
     // update
-    const index = modelValue.value.findIndex(
-      (el) => el.seatingTypeId === originalId
-    );
+    const index = modelValue.value.findIndex((el) => el.seatingTypeId === originalId);
     const tmpArr = [...modelValue.value];
 
     tmpArr[index] = {
@@ -160,9 +142,7 @@ const handleUpdate = (
 };
 
 const handleRemove = (toRemove: SeatingTypeWithCapacity) => {
-  modelValue.value = modelValue.value.filter(
-    (sc) => sc.seatingTypeId !== toRemove.id
-  );
+  modelValue.value = modelValue.value.filter((sc) => sc.seatingTypeId !== toRemove.id);
 };
 
 const handleCreate = async (newItemName: string) => {

@@ -1,9 +1,5 @@
 <template>
-  <v-form
-    v-model="isValid"
-    :disabled="disabled"
-    @update:model-value="updatedValidity"
-  >
+  <v-form v-model="isValid" :disabled="disabled" @update:model-value="updatedValidity">
     <v-text-field
       v-model="modelValue.name"
       variant="outlined"
@@ -20,7 +16,7 @@
       :rules="[maxDescriptionLength]"
     />
   </v-form>
-  <card-form :subtitle="t('domain.equipment.isActive')">
+  <rb-card :subtitle="t('domain.equipment.isActive')">
     <template #text>
       <v-checkbox
         v-model="modelValue.isActive"
@@ -33,7 +29,7 @@
         "
       />
     </template>
-  </card-form>
+  </rb-card>
 </template>
 
 <script setup lang="ts">
@@ -42,7 +38,7 @@ import type { EquipmentResponseDto } from "@/api/raumreservierung-backend";
 import { ref } from "vue";
 import { useI18n } from "vue-i18n";
 
-import CardForm from "@/components/common/CardForm.vue";
+import RbCard from "@/components/common/RbCard.vue";
 
 const MIN_NAME_LENGTH = 2;
 const MAX_DESCRIPTION_LENGTH = 255;

@@ -1,9 +1,5 @@
 <template>
-  <v-form
-    v-model="isValid"
-    :disabled="disabled"
-    @update:model-value="updatedValidity"
-  >
+  <v-form v-model="isValid" :disabled="disabled" @update:model-value="updatedValidity">
     <v-text-field
       v-model="modelValue.name"
       :label="t('domain.holidays.public.name')"
@@ -11,14 +7,10 @@
       autofocus
       variant="outlined"
     />
-    <card-form :subtitle="t('domain.holidays.public.date')">
+    <rb-card :subtitle="t('domain.holidays.public.date')">
       <template #text>
         <v-row justify="start">
-          <v-col
-            class="pr-10 pb-0"
-            cols="12"
-            sm="6"
-          >
+          <v-col class="pr-10 pb-0" cols="12" sm="6">
             <v-date-input
               ref="startDateInput"
               v-model="modelValue.startDate"
@@ -30,12 +22,7 @@
               @update:model-value="validateDate('endDate')"
             />
           </v-col>
-          <v-col
-            v-if="!isPublic"
-            class="pr-10 pb-0"
-            cols="12"
-            sm="6"
-          >
+          <v-col v-if="!isPublic" class="pr-10 pb-0" cols="12" sm="6">
             <v-date-input
               ref="endDateInput"
               v-model="modelValue.endDate"
@@ -49,7 +36,7 @@
           </v-col>
         </v-row>
       </template>
-    </card-form>
+    </rb-card>
   </v-form>
 </template>
 
@@ -61,17 +48,15 @@ import { mdiCalendar } from "@mdi/js";
 import { ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
-import CardForm from "@/components/common/CardForm.vue";
+import RbCard from "@/components/common/RbCard.vue";
 
 const MIN_NAME_LENGTH = 2;
 const MAX_NAME_LENGTH = 100;
 
 const modelValue = defineModel<Partial<HolidayRequestDTO>>({ required: true });
 const isValid = ref<boolean | null>(false);
-const startDateInput =
-  useTemplateRef<InstanceType<typeof VDateInput>>("startDateInput");
-const endDateInput =
-  useTemplateRef<InstanceType<typeof VDateInput>>("endDateInput");
+const startDateInput = useTemplateRef<InstanceType<typeof VDateInput>>("startDateInput");
+const endDateInput = useTemplateRef<InstanceType<typeof VDateInput>>("endDateInput");
 
 const { t } = useI18n();
 
@@ -98,8 +83,7 @@ const maxNameLength = (value: string) =>
     num: MAX_NAME_LENGTH,
   });
 
-const datePicked = (value: Date) =>
-  value != undefined || t("common.rules.noDateSelected");
+const datePicked = (value: Date) => value != undefined || t("common.rules.noDateSelected");
 
 const updatedValidity = (newIsValid: boolean | null) => {
   isValid.value = newIsValid;
@@ -111,20 +95,14 @@ const applyDateRule = (date: Date, type: dateType) => {
   const other = isStartDate ? "endDate" : "startDate";
   const otherDate = modelValue.value[other];
 
-  return (
-    isPublic ||
-    !otherDate ||
-    (isStartDate ? date < otherDate : date > otherDate)
-  );
+  return isPublic || !otherDate || (isStartDate ? date < otherDate : date > otherDate);
 };
 
 const dateRules = (type: dateType) => {
   return (date: Date) => {
     return (
       applyDateRule(date, type) ||
-      (type === "startDate"
-        ? t("common.rules.startAfterEnd")
-        : t("common.rules.endBeforeStart"))
+      (type === "startDate" ? t("common.rules.startAfterEnd") : t("common.rules.endBeforeStart"))
     );
   };
 };

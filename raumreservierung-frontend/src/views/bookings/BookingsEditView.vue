@@ -151,7 +151,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <card-form>
+            <rb-card>
               <template #text>
                 <v-checkbox
                   v-model="bookingData.cateringNeeded"
@@ -161,12 +161,12 @@
                   :label="t('views.bookingEditView.cateringPlanned')"
                 />
               </template>
-            </card-form>
+            </rb-card>
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <card-form :subtitle="t('views.bookingEditView.bookedForOthersCard')">
+            <rb-card :subtitle="t('views.bookingEditView.bookedForOthersCard')">
               <template #text>
                 <v-row>
                   <v-col cols="12" md="6">
@@ -183,12 +183,12 @@
                   </v-col>
                 </v-row>
               </template>
-            </card-form>
+            </rb-card>
           </v-col>
         </v-row>
         <v-row>
           <v-col cols="12" :xl="bookingId && bookingData.recurringRule ? 7 : 12">
-            <card-form
+            <rb-card
               :subtitle="t('views.bookingEditView.dateTimeCard')"
               :class="{ 'mb-4': isSeriesBooking }"
             >
@@ -209,7 +209,7 @@
                   </template>
                 </schedule-template-form>
               </template>
-            </card-form>
+            </rb-card>
             <r-rule-editor-card
               v-if="isSeriesBooking"
               v-model="bookingData.recurringRule"
@@ -273,7 +273,7 @@ import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue"
 import SeatingTypeSelector from "@/components/booking/SeatingTypeParticipantsSelector.vue";
 import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
-import CardForm from "@/components/common/CardForm.vue";
+import RbCard from "@/components/common/RbCard.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import RoomSelector from "@/components/rooms/RoomSelector.vue";

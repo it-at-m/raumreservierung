@@ -216,7 +216,7 @@
         </v-row>
         <v-row>
           <v-col>
-            <card-form :subtitle="t('domain.room.isActiveHeader')">
+            <rb-card :subtitle="t('domain.room.isActiveHeader')">
               <template #text>
                 <v-radio-group v-model="roomData.isActive" inline color="accent" hide-details>
                   <v-radio
@@ -234,7 +234,7 @@
                   />
                 </v-radio-group>
               </template>
-            </card-form>
+            </rb-card>
           </v-col>
         </v-row>
       </v-form>
@@ -268,7 +268,7 @@ import {
 import PersonSelect from "@/components/booking/PersonSelect.vue";
 import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
-import CardForm from "@/components/common/CardForm.vue";
+import RbCard from "@/components/common/RbCard.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import SeatingCapacityEditor from "@/components/rooms/SeatingCapacitySelector.vue";

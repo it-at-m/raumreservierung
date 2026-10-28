@@ -1,5 +1,5 @@
 <template>
-  <card-form
+  <rb-card
     :subtitle="t('components.appointmentCardList.editSeriesElement', { count: 2 })"
     class="h-100"
   >
@@ -75,7 +75,7 @@
         </template>
       </v-infinite-scroll>
     </template>
-  </card-form>
+  </rb-card>
 </template>
 
 <script setup lang="ts">
@@ -91,7 +91,7 @@ import { useI18n } from "vue-i18n";
 
 import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
-import CardForm from "@/components/common/CardForm.vue";
+import RbCard from "@/components/common/RbCard.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
 import DateDisplay from "@/components/common/date/DateDisplay.vue";
 import {

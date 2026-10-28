@@ -1,5 +1,5 @@
 <template>
-  <card-form :subtitle="t('components.rruleEditorCard.seriesPattern')" class="mb-4">
+  <rb-card :subtitle="t('components.rruleEditorCard.seriesPattern')" class="mb-4">
     <template #text>
       <v-row>
         <v-col
@@ -195,9 +195,9 @@
         </v-col>
       </v-row>
     </template>
-  </card-form>
+  </rb-card>
 
-  <card-form :subtitle="t('components.rruleEditorCard.seriesDuration')">
+  <rb-card :subtitle="t('components.rruleEditorCard.seriesDuration')">
     <template #text>
       <v-radio-group v-model="endOption" :disabled="disabled" color="accent" hide-details>
         <v-radio value="count">
@@ -251,7 +251,7 @@
         </v-radio>
       </v-radio-group>
     </template>
-  </card-form>
+  </rb-card>
 </template>
 <script setup lang="ts">
 import type { Options } from "rrule";
@@ -261,7 +261,7 @@ import { nextTick, onMounted, ref, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useDisplay } from "vuetify/framework";
 
-import CardForm from "@/components/common/CardForm.vue";
+import RbCard from "@/components/common/RbCard.vue";
 import RbDateTimeTextField from "@/components/common/RbDateTimeTextField.vue";
 
 const { t } = useI18n();

@@ -48,7 +48,7 @@
       </v-sheet>
       <div class="w-100 masonry-container" :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'">
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <details-card
+          <rb-information-card
             :title="getBookingData?.room?.name || t('views.bookingDetailsView.noRoomSelected')"
             :subtitle="getBookingData?.room?.number"
             :icon="mdiDoor"
@@ -63,10 +63,10 @@
               >
               </v-list-item>
             </v-list>
-          </details-card>
+          </rb-information-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <details-card
+          <rb-information-card
             :title="t('domain.seatingType.header')"
             :icon="mdiSofaSingleOutline"
             :subtitle="
@@ -85,10 +85,10 @@
                 "
               />
             </v-list>
-          </details-card>
+          </rb-information-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <details-card
+          <rb-information-card
             :title="
               t('views.bookingDetailsView.bookedFor', {
                 firstName: getBookingData?.bookedFor?.firstName,
@@ -106,10 +106,10 @@
               <v-icon :icon="mdiDomain" size="small" class="mr-2" />
               {{ getBookingData.organisationUnit }}
             </div>
-          </details-card>
+          </rb-information-card>
         </div>
         <div v-if="getBookingData?.recurringRule" class="masonry-item w-100 d-inline-block mb-4">
-          <details-card
+          <rb-information-card
             :title="t('domain.booking.recurrenceRule')"
             :subtitle="computedRRule"
             :icon="mdiCalendarSyncOutline"
@@ -120,7 +120,7 @@
           v-if="(appointmentPage?.page?.totalElements || 0) > 1"
           class="masonry-item w-100 d-inline-block mb-4"
         >
-          <details-card
+          <rb-information-card
             :title="t('views.bookingDetailsView.seriesDate')"
             :icon="mdiCalendarRangeOutline"
             :loading="getBookingLoading"
@@ -150,11 +150,11 @@
                 />
               </template>
             </v-infinite-scroll>
-          </details-card>
+          </rb-information-card>
         </div>
 
         <div v-if="getBookingData?.additionalNotes" class="masonry-item w-100 d-inline-block mb-4">
-          <details-card
+          <rb-information-card
             :title="t('views.bookingDetailsView.notes')"
             :icon="mdiFileDocumentOutline"
             :loading="getBookingLoading"
@@ -165,10 +165,10 @@
               </v-list-item>
             </v-list>
             <p></p>
-          </details-card>
+          </rb-information-card>
         </div>
         <div v-if="getBookingData?.internalNotes" class="masonry-item w-100 d-inline-block mb-4">
-          <details-card
+          <rb-information-card
             :title="t('views.bookingDetailsView.internalNotes')"
             :icon="mdiFileDocumentAlertOutline"
             :loading="getBookingLoading"
@@ -178,7 +178,7 @@
                 {{ getBookingData?.internalNotes }}
               </v-list-item>
             </v-list>
-          </details-card>
+          </rb-information-card>
         </div>
       </div>
     </template>
@@ -213,7 +213,7 @@ import BookingGeneralInfoCard from "@/components/booking/BookingGeneralInfoCard.
 import ScheduleTimelineCard from "@/components/booking/ScheduleTimelineCard.vue";
 import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
-import DetailsCard from "@/components/common/DetailsCard.vue";
+import RbInformationCard from "@/components/common/RbInformationCard.vue";
 import { useGetAppointmentsOld } from "@/composables/api/useAppointmentApi.ts";
 import { useGetBookingOld } from "@/composables/api/useBookingsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";

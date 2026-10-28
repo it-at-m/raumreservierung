@@ -85,7 +85,7 @@
 
       <div class="w-100 masonry-container" :class="mdAndUp ? 'masonry-cols-2' : 'masonry-cols-1'">
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <details-card
+          <rb-information-card
             :title="t('domain.room.contactPerson')"
             :icon="mdiAccountOutline"
             :loading="getRoomLoading"
@@ -113,10 +113,10 @@
                 :title="roomData?.contactPerson?.email"
               />
             </v-list>
-          </details-card>
+          </rb-information-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <details-card
+          <rb-information-card
             :title="t('domain.room.usableArea')"
             :icon="mdiTextureBox"
             :loading="getRoomLoading"
@@ -128,10 +128,10 @@
                 </v-list-item-title>
               </v-list-item>
             </v-list>
-          </details-card>
+          </rb-information-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <details-card
+          <rb-information-card
             :title="t('domain.room.capacity.header')"
             :subtitle="t('domain.room.capacity.msg', { num: roomData?.capacity })"
             :icon="mdiHumanCapacityIncrease"
@@ -156,10 +156,10 @@
                 />
               </v-list>
             </template>
-          </details-card>
+          </rb-information-card>
         </div>
         <div class="masonry-item w-100 d-inline-block mb-4">
-          <details-card
+          <rb-information-card
             title="Mögliche Ausstattung"
             :icon="mdiSofaSingleOutline"
             :loading="getRoomLoading"
@@ -180,7 +180,7 @@
                 "
               />
             </v-list>
-          </details-card>
+          </rb-information-card>
         </div>
       </div>
     </template>
@@ -209,7 +209,7 @@ import { useDisplay } from "vuetify/framework";
 import { ExternalPersonResponseDtoTitleEnum } from "@/api/raumreservierung-backend";
 import RbBaseView from "@/components/common/RbBaseView.vue";
 import RbButton from "@/components/common/buttons/RbButton.vue";
-import DetailsCard from "@/components/common/DetailsCard.vue";
+import RbInformationCard from "@/components/common/RbInformationCard.vue";
 import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";

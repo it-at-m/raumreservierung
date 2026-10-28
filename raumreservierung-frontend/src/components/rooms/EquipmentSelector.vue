@@ -1,18 +1,9 @@
 <template>
-  <card-form
-    :subtitle="t('domain.equipment.header')"
-    :loading="allEquipmentLoading || loading"
-  >
+  <rb-card :subtitle="t('domain.equipment.header')" :loading="allEquipmentLoading || loading">
     <template #text>
       <v-row density="compact">
         <template v-if="computedEquipment && !(allEquipmentLoading || loading)">
-          <v-col
-            v-for="equip in computedEquipment"
-            :key="equip.id"
-            cols="12"
-            md="6"
-            lg="4"
-          >
+          <v-col v-for="equip in computedEquipment" :key="equip.id" cols="12" md="6" lg="4">
             <v-checkbox
               v-model="modelValue"
               :value="equip.id"
@@ -23,10 +14,7 @@
               hide-details
             >
               <template #label>
-                <div
-                  v-tooltip:end="equip.description"
-                  :class="{ 'text-grey': !equip.isActive }"
-                >
+                <div v-tooltip:end="equip.description" :class="{ 'text-grey': !equip.isActive }">
                   {{ equip.name }}
                 </div>
               </template>
@@ -35,32 +23,22 @@
         </template>
       </v-row>
     </template>
-    <template
-      v-if="!disableAddition"
-      #actions
-    >
+    <template v-if="!disableAddition" #actions>
       <div class="w-100 d-flex justify-end">
-        <v-dialog
-          max-width="900"
-          persistent
-        >
+        <v-dialog max-width="900" persistent>
           <template #activator="{ props: activatorProps }">
             <rb-button
               v-bind="activatorProps"
               class="mb-2 mr-2"
               secondary
               :prepend-icon="mdiPlus"
-              :text="
-                t('generics.add', { domain: t('domain.equipment.header') })
-              "
+              :text="t('generics.add', { domain: t('domain.equipment.header') })"
             />
           </template>
           <template #default="{ isActive }">
             <room-resource-management-card
               :item-list="allEquipment"
-              :loading="
-                allEquipmentLoading || createEquipmentLoading || loading
-              "
+              :loading="allEquipmentLoading || createEquipmentLoading || loading"
               :domain="t('domain.equipment.header')"
               @close="isActive.value = false"
               @create="handleCreate"
@@ -69,7 +47,7 @@
         </v-dialog>
       </div>
     </template>
-  </card-form>
+  </rb-card>
 </template>
 
 <script setup lang="ts">
@@ -80,12 +58,9 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import RbButton from "@/components/common/buttons/RbButton.vue";
-import CardForm from "@/components/common/CardForm.vue";
+import RbCard from "@/components/common/RbCard.vue";
 import RoomResourceManagementCard from "@/components/rooms/RoomResourceManagementCard.vue";
-import {
-  useCreateEquipment,
-  useGetAllEquipments,
-} from "@/composables/api/useEquipmentApi.ts";
+import { useCreateEquipment, useGetAllEquipments } from "@/composables/api/useEquipmentApi.ts";
 
 const { t } = useI18n();
 
@@ -101,19 +76,17 @@ const {
   loading?: boolean;
 }>();
 
-const { data: allEquipment, isPending: allEquipmentLoading } =
-  useGetAllEquipments();
+const { data: allEquipment, isPending: allEquipmentLoading } = useGetAllEquipments();
 
 const computedEquipment = computed<EquipmentResponseDto[]>(() =>
   (allEquipment.value ?? []).filter(
     (equip) =>
       (filterIds.length === 0 || (equip.id && filterIds.includes(equip.id))) &&
-      (equip.isActive || (equip.id && modelValue.value?.includes(equip.id)))
-  )
+      (equip.isActive || (equip.id && modelValue.value?.includes(equip.id))),
+  ),
 );
 
-const { mutateAsync: createEquipment, isPending: createEquipmentLoading } =
-  useCreateEquipment();
+const { mutateAsync: createEquipment, isPending: createEquipmentLoading } = useCreateEquipment();
 
 const handleCreate = async (newItemName: string) => {
   await createEquipment({
