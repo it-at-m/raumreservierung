@@ -89,21 +89,22 @@ const availableOptions = computed(() =>
 const snackbarStore = useSnackbarStore();
 
 const handleDelete = async () => {
-  if (!modelValue.value || !modelValue.value.id) {
+  const seatingType = modelValue.value;
+  if (!seatingType?.id) {
     return;
   }
   if (!roomId) {
-    emit("delete", modelValue.value);
+    emit("delete", seatingType);
     return;
   }
 
   const deletable = await checkDeletable({
-    seatingTypeId: modelValue.value.id,
+    seatingTypeId: seatingType.id,
     roomId,
   });
 
   if (deletable) {
-    emit("delete", modelValue.value);
+    emit("delete", seatingType);
   } else {
     snackbarStore.push({
       text: t("components.seatingCapacityEditor.futureUsage"),
