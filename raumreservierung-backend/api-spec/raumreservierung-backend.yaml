@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: raumreservierung-backend
   description: This is the backend-project of the renewal of the raumreservierung
-  version: 0.10.2-SNAPSHOT
+  version: 0.11.1-SNAPSHOT
 servers:
 - url: http://localhost:8086
   description: Generated server url
@@ -745,6 +745,33 @@ paths:
               schema:
                 type: string
                 format: byte
+  /export/bookings/pdf:
+    get:
+      tags:
+      - export-controller
+      operationId: weekScheduleAsPDF
+      parameters:
+      - name: date
+        in: query
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: category
+        in: query
+        required: true
+        schema:
+          type: string
+          enum:
+          - ALTES_RATHAUS
+          - NEUES_RATHAUS
+      responses:
+        "200":
+          description: OK
+          content:
+            application/pdf:
+              schema:
+                $ref: "#/components/schemas/StreamingResponseBody"
   /export/bookings/csv:
     get:
       tags:
@@ -1055,6 +1082,11 @@ components:
         pictureId:
           type: string
           format: uuid
+        weekScheduleCategory:
+          type: string
+          enum:
+          - ALTES_RATHAUS
+          - NEUES_RATHAUS
     SeatingCapacityRequestDTO:
       required:
       - capacity
@@ -1249,6 +1281,11 @@ components:
           - $ref: "#/components/schemas/InternalPersonResponseDto"
         picture:
           $ref: "#/components/schemas/FileAttachmentUploadResponse"
+        weekScheduleCategory:
+          type: string
+          enum:
+          - ALTES_RATHAUS
+          - NEUES_RATHAUS
     SeatingCapacityResponseDTO:
       required:
       - capacity

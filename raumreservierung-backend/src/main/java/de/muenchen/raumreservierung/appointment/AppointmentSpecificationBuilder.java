@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.appointment;
 
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
+import de.muenchen.raumreservierung.booking.BookingStatus;
 import de.muenchen.raumreservierung.booking.Booking_;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate_;
 import de.muenchen.raumreservierung.room.Room_;
@@ -18,6 +19,10 @@ public final class AppointmentSpecificationBuilder {
     }
 
     public static <T extends Appointment> Specification<T> fromFilter(final AppointmentFilterDTO appointmentFilterDTO) {
+        return fromFilterWithStatus(appointmentFilterDTO, null);
+    }
+
+    public static <T extends Appointment> Specification<T> fromFilterWithStatus(final AppointmentFilterDTO appointmentFilterDTO, final BookingStatus status) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
         if (appointmentFilterDTO.bookingId() != null) {
@@ -36,8 +41,15 @@ public final class AppointmentSpecificationBuilder {
             log.debug("Appointment start date: {} - {}", end, end.toLocalDate().atStartOfDay(end.getOffset()).toOffsetDateTime());
             specificationList.add(filterForEndDate(end));
         }
+        if(status != null) {
+            specificationList.add(filterForStatus(status));
+        }
 
         return Specification.allOf(specificationList);
+    }
+
+    private static <T extends Appointment> Specification<T> filterForStatus(final BookingStatus status) {
+        return (root, query, cb) -> root.get(Appointment_.booking).get(Booking_.status).in(status);
     }
 
     private static <T extends Appointment> Specification<T> filterForRoomIds(final List<UUID> roomIds) {

@@ -37,10 +37,7 @@
     </template>
     <template #actions>
       <div class="w-100 d-flex justify-end">
-        <v-dialog
-          max-width="900"
-          persistent
-        >
+        <v-dialog persistent>
           <template #activator="{ props: activatorProps }">
             <base-button
               v-bind="activatorProps"

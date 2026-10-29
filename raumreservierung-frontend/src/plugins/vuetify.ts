@@ -11,8 +11,14 @@ import i18n from "@/plugins/i18n";
 
 export default createVuetify({
   defaults: {
+    VDialog: {
+      maxWidth: "800px",
+    },
     VTextField: {
       variant: "outlined",
+    },
+    VDatePicker: {
+      color: "accent",
     },
   },
   icons: {

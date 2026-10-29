@@ -5,22 +5,20 @@
     "
   >
     <template #headerActions>
-      <v-dialog
-        v-if="canEditBookings"
-        :close-delay="1000"
-        max-width="700px"
-      >
-        <template #activator="{ props }">
-          <base-button
-            v-bind="props"
-            :append-icon="mdiExport"
-            :text="t('components.exportBookingsCard.confirm')"
-          />
-        </template>
-        <template #default="{ isActive }">
-          <export-bookings-card @close="isActive.value = false" />
-        </template>
-      </v-dialog>
+      <div class="d-flex ga-2">
+        <rr-dialog-button
+          :icon="mdiExport"
+          :text="t('components.exportBookingsCard.confirm')"
+          :content="ExportBookingsCard"
+          :visible="canEditBookings"
+        />
+        <rr-dialog-button
+          :icon="mdiCalendarExportOutline"
+          :text="t('components.exportWeekScheduleCard.confirm')"
+          :content="ExportWeekScheduleCard"
+          :visible="canEditBookings"
+        />
+      </div>
     </template>
     <template #default>
       <booking-filter-panel
@@ -158,7 +156,13 @@ import type {
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import { mdiCalendarEditOutline, mdiCheck, mdiExport, mdiMinus } from "@mdi/js";
+import {
+  mdiCalendarEditOutline,
+  mdiCalendarExportOutline,
+  mdiCheck,
+  mdiExport,
+  mdiMinus,
+} from "@mdi/js";
 import { useDateFormat } from "@vueuse/core";
 import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
@@ -170,7 +174,6 @@ import ExportBookingsCard from "@/components/booking/ExportBookingsCard.vue";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
-import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import { useGetBookings } from "@/composables/api/useBookingsApi.ts";
 import {
@@ -181,6 +184,8 @@ import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
+import ExportWeekScheduleCard from "@/components/booking/ExportWeekScheduleCard.vue";
+import RrDialogButton from "@/components/common/buttons/rrDialogButton.vue";
 
 const route = useRoute();
 const router = useRouter();

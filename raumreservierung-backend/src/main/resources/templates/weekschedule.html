@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="de">
+<head>
+    <meta charset="UTF-8"/>
+    <title th:text="|Dienstplan KW ${model.week} (${model.year}) ${model.category}|"></title>
+    <style>
+        @page {
+            size: 420mm 297mm;
+            margin: 15mm;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: sans-serif;
+            font-size: 11pt;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            table-layout: fixed;
+            -fs-table-paginate: paginate;
+        }
+        tr  {
+            page-break-inside: avoid;
+            -fs-page-break-min-height: 20pt;
+        }
+        th, td {
+            border: 0.6pt solid #8c8c8c;
+            padding: 2pt 4pt;
+            vertical-align: top;
+            text-align: center;
+            word-wrap: break-word;
+        }
+        th {
+            background-color: #ebebeb;
+            font-weight: bold; }
+        tbody.alt td {
+            background-color: #f2f2f2;
+        }
+        .appointment {
+            text-align: center;
+            margin: 2pt 0 2pt
+        }
+        .appointment + .appointment {
+            margin-top: 8pt;
+        }
+        .appointment .title-row {
+            display: table;
+            width: 100%;
+            margin: 2pt 0 0;
+            border-top: 0.4pt solid #b0b0b0;
+            border-bottom: 1pt solid #333333;
+        }
+        .appointment .title {
+            display: table-cell;
+            vertical-align: middle;
+            text-align: center;
+            height: 30pt;
+            line-height: 13pt;
+        }
+        .appointment .title-text {
+            max-height: 26pt;
+            overflow: hidden;
+            word-wrap: break-word;
+        }
+        .placeholder {
+            visibility: hidden;
+        }
+        .placeholder .title-row {
+            border-color: transparent;
+        }
+        .room-col {
+            width: 90pt;
+            text-align: center;
+            vertical-align: middle; }
+        .room-divider {
+            width: 4pt;
+            margin: 2.8pt auto 5.2pt;
+            border-top: 0.6pt solid #333333;
+        }
+        .year {
+            font-weight: normal;
+        }
+    </style>
+</head>
+<body>
+<table>
+    <thead>
+    <tr>
+        <th class="room-col">
+            <div>KW [[${model.week}]]<span class="year"> - [[${model.year}]]</span></div>
+            <div class="year" th:text="${model.category}"></div>
+        </th>
+        <th th:each="day : ${model.days}">
+            <div th:text="${day.dayName}"></div>
+            <div th:text="${day.dateLabel}"></div>
+        </th>
+    </tr>
+    </thead>
+    <tbody th:each="room, stat : ${model.roomRows}" th:classappend="${stat.index % 2 == 1} ? 'alt'">
+    <tr>
+        <td class="room-col">
+            <div th:text="${room.name}"></div>
+            <div class="room-divider"></div>
+            <div th:text="${room.number}"></div>
+        </td>
+        <td th:each="cell : ${room.cells}">
+            <div class="appointment" th:each="appt : ${cell}">
+                <div th:text="${appt.occupancyTime}"></div>
+                <div th:text="${appt.appointmentTime}"></div>
+                <div class="title-row">
+                    <div class="title">
+                        <div class="title-text" th:text="${appt.title}"></div>
+                    </div>
+                </div>
+            </div>
+            <div class="appointment placeholder" th:if="${cell.isEmpty()}">
+                <div class="time">&#160;</div>
+                <div class="time">&#160;</div>
+                <div class="title-row">
+                    <div class="title">&#160;</div>
+                </div>
+            </div>
+        </td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>

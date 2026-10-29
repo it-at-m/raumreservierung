@@ -14,10 +14,7 @@
         :prepend-icon="mdiWindowClose"
         @click="router.back()"
       />
-      <v-dialog
-        max-width="800px"
-        width="90%"
-      >
+      <v-dialog width="90%">
         <template #activator="{ props }">
           <base-button
             :disabled="!isDeletable"
@@ -120,7 +117,10 @@
           </v-col>
         </v-row>
         <v-row>
-          <v-col>
+          <v-col
+            cols="12"
+            md="3"
+          >
             <v-text-field
               v-model="roomData.number"
               color="accent"
@@ -140,6 +140,18 @@
                   })
                 ),
               ]"
+            />
+          </v-col>
+          <v-col
+            cols="12"
+            md="3"
+          >
+            <v-select
+              v-model="roomData.weekScheduleCategory"
+              :items="weekScheduleCategoryOptions"
+              variant="outlined"
+              :label="t('domain.weekScheduleCategory.title')"
+              hide-details="auto"
             />
           </v-col>
           <v-col>
@@ -304,6 +316,7 @@ import { ROUTES } from "@/types/Routes.ts";
 import { mapResponseToFileMock } from "@/util/fileTypeUtility.ts";
 import { EMPTY_ROOM_DATA, mapResponseToRequest } from "@/util/roomTypeUtil.ts";
 import { STATUS_INDICATORS } from "@/constants.ts";
+import { useWeekScheduleCategory } from "@/composables/useWeekScheduleCategory.ts";
 
 const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
@@ -357,6 +370,8 @@ const {
   data: uploadFileData,
   error: uploadFileError,
 } = useUploadFile();
+
+const { weekScheduleCategoryMap } = useWeekScheduleCategory();
 
 watch(
   [() => roomReqData.value?.id, getRoomError],
@@ -460,6 +475,13 @@ const handleDelete = async () => {
     }
   }
 };
+
+const weekScheduleCategoryOptions = computed(() =>
+  Object.entries(weekScheduleCategoryMap.value).map(([value, title]) => ({
+    value,
+    title,
+  }))
+);
 </script>
 
 <style scoped></style>

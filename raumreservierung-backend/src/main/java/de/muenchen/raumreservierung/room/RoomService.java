@@ -8,6 +8,7 @@ import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.file.FileAttachment;
 import de.muenchen.raumreservierung.file.FileAttachmentService;
 import de.muenchen.raumreservierung.security.Authorities;
+import de.muenchen.raumreservierung.weekschedule.WeekScheduleCategory;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Objects;
@@ -36,6 +37,12 @@ public class RoomService {
                 : roomRepository.findAll();
         log.debug("Found {} equipments", allRooms.size());
         return allRooms;
+    }
+
+    public List<Room> findAllActiveByWeekScheduleCategory(final WeekScheduleCategory category) {
+        final List<Room> rooms = roomRepository.findByIsActiveTrueAndWeekScheduleCategoryOrderByNameAsc(category);
+        log.debug("Found {} active rooms for week schedule category {}", rooms.size(), category);
+        return rooms;
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
