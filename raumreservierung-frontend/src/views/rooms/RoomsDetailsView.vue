@@ -50,16 +50,6 @@
                 <v-card-item>
                   <v-card-title>
                     {{ roomData?.name }}
-                    <span v-if="roomData?.weekScheduleCategory">
-                      {{
-                        t("common.format.braces", {
-                          content:
-                            weekScheduleCategoryMap[
-                              roomData.weekScheduleCategory
-                            ],
-                        })
-                      }}
-                    </span>
                   </v-card-title>
 
                   <v-card-subtitle class="opacity-100">
@@ -76,12 +66,26 @@
                       v-if="!roomData?.isActive"
                       class="ml-2"
                       color="primary"
+                      density="compact"
                       :text="
                         t('generics.inActive', {
                           domain: t('domain.room.header'),
                         })
                       "
                     />
+                    <div
+                      v-if="roomData?.weekScheduleCategory"
+                      class="text-medium-emphasis"
+                    >
+                      {{
+                        t("common.format.braces", {
+                          content:
+                            weekScheduleCategoryMap[
+                              roomData.weekScheduleCategory
+                            ],
+                        })
+                      }}
+                    </div>
                   </v-card-subtitle>
                 </v-card-item>
 

@@ -104,7 +104,6 @@ export function useBookingStatusConfig(
     return { ...config, text: t(config.text) };
   };
 
-  // NEU: Direkte Auflösung der Farbe für einen statischen Status-String
   const resolveColor = (status: string | undefined): string => {
     const group = findGroup(status);
     return group?.config.color ?? FALLBACK_CONFIG.color;
