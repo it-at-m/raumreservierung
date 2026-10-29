@@ -6,8 +6,7 @@ import { computed, toValue } from "vue";
 
 import { FileAttachmentControllerApi } from "@/api/raumreservierung-backend";
 import { ApiFactory } from "@/util/apiFactory.ts";
-
-const FILE_ATTACHMENT_KEY = "fileAttachment";
+import { CACHE_KEYS } from "@/types/CACHE_KEYS.ts";
 
 export const useUploadFile = () => {
   const api = ApiFactory.getInstance(FileAttachmentControllerApi);
@@ -17,7 +16,7 @@ export const useUploadFile = () => {
     mutationFn: (params: UploadFileRequest) => api.uploadFile(params),
     onSuccess: (data) => {
       queryClient.invalidateQueries({
-        queryKey: [FILE_ATTACHMENT_KEY, data.id],
+        queryKey: [CACHE_KEYS.FILE_ATTACHMENT, data.id],
       });
     },
   });
@@ -30,7 +29,7 @@ export const useGetFile = (
   const idRef = computed(() => toValue(fileAttachmentId));
 
   return useQuery({
-    queryKey: [FILE_ATTACHMENT_KEY, idRef],
+    queryKey: [CACHE_KEYS.FILE_ATTACHMENT, idRef],
     queryFn: async () => {
       if (!idRef.value) {
         throw new Error("Room ID is required");

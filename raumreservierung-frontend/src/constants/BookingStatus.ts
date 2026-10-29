@@ -79,7 +79,7 @@ const CANCELED_STATUS_STYLE: ChipConfig = {
 };
 
 export const FALLBACK_CONFIG: ChipConfig = {
-  color: "default",
+  color: "statusDefault",
   text: "domain.booking.status.unknown",
   icon: mdiHelp,
 };

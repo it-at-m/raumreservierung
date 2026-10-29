@@ -87,7 +87,6 @@
               hide-details="auto"
             />
           </v-col>
-
           <v-col
             v-if="isPrivileged"
             :cols="showStatus ? 6 : 12"
@@ -109,6 +108,7 @@
           >
             <general-status-select
               v-model="bookingData.status"
+              density="comfortable"
               :label="t('domain.booking.statusTitle')"
               :loading="
                 getBookingLoading ||
@@ -503,9 +503,17 @@ onMounted(async () => {
     bookingData.value = { ...EMPTY_BOOKING_REQUEST_DATA };
 
     const queryRoomId = route.query.roomId as string | undefined;
+    const queryOccupancyStart = route.query.start as string | undefined;
+    const queryOccupancyEnd = route.query.end as string | undefined;
     if (queryRoomId) {
       bookingData.value.roomId = queryRoomId;
       selectedRoomId.value = queryRoomId;
+    }
+    if (queryOccupancyStart && queryOccupancyEnd) {
+      bookingData.value.schedule = {
+        occupancyStart: new Date(queryOccupancyStart),
+        occupancyEnd: new Date(queryOccupancyEnd),
+      };
     }
   }
 });

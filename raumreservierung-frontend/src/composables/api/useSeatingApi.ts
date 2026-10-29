@@ -8,16 +8,14 @@ import type {
 import { useMutation, useQuery, useQueryClient } from "@tanstack/vue-query";
 
 import { SeatingControllerApi } from "@/api/raumreservierung-backend";
-import { ROOM_KEY } from "@/composables/api/useRoomsApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
-
-const SEATING_TYPE_KEY = "allSeatingTypes";
+import { CACHE_KEYS } from "@/types/CACHE_KEYS.ts";
 
 export const useGetAllSeatingTypes = () => {
   const api = ApiFactory.getInstance(SeatingControllerApi);
 
   return useQuery({
-    queryKey: [SEATING_TYPE_KEY],
+    queryKey: [CACHE_KEYS.SEATING_TYPE],
     queryFn: () => api.getAllSeatingTypes(),
   });
 };
@@ -29,7 +27,7 @@ export const useCreateSeatingType = () => {
     mutationFn: (params: CreateSeatingTypeRequest) =>
       api.createSeatingType(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [SEATING_TYPE_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.SEATING_TYPE] });
     },
   });
 };
@@ -41,8 +39,8 @@ export const useUpdateSeatingType = () => {
     mutationFn: (params: UpdateSeatingTypeRequest) =>
       api.updateSeatingType(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [SEATING_TYPE_KEY] });
-      queryClient.invalidateQueries({ queryKey: [ROOM_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.SEATING_TYPE] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.ROOM] });
     },
   });
 };
@@ -54,8 +52,8 @@ export const useDeleteSeatingType = () => {
     mutationFn: (params: DeleteSeatingTypeRequest) =>
       api.deleteSeatingType(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [SEATING_TYPE_KEY] });
-      queryClient.invalidateQueries({ queryKey: [ROOM_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.SEATING_TYPE] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.ROOM] });
     },
   });
 };

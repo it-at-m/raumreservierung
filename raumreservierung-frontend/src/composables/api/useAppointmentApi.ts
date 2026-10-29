@@ -12,8 +12,7 @@ import { computed, toValue } from "vue";
 import { AppointmentControllerApi } from "@/api/raumreservierung-backend";
 import { useApi } from "@/composables/api/useApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
-
-const APPOINTMENTS_KEY = "appointment";
+import { CACHE_KEYS } from "@/types/CACHE_KEYS.ts";
 
 export const useUpdateAppointment = () => {
   const api = ApiFactory.getInstance(AppointmentControllerApi);
@@ -41,7 +40,7 @@ export const useGetAppointments = (
   const paramsRef = computed(() => toValue(params));
 
   return useQuery({
-    queryKey: [APPOINTMENTS_KEY, paramsRef],
+    queryKey: [CACHE_KEYS.APPOINTMENT, paramsRef],
     queryFn: async () => {
       const currentParams = paramsRef.value;
 
