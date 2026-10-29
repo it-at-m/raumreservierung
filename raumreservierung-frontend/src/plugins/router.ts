@@ -168,6 +168,14 @@ const routes: RouteRecordRaw[] = [
     },
   },
   {
+    path: "/bookings/new/calendar",
+    name: ROUTES.BOOKINGS_CREATE_CALENDAR,
+    component: BookingsCalendarView,
+    meta: {
+      requiredPrivileges: ["bookings:read"],
+    },
+  },
+  {
     path: "/bookings/:id",
     name: ROUTES.BOOKINGS_DETAILS,
     component: BookingsDetailsView,
