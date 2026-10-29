@@ -125,7 +125,7 @@ const onSelect = (value: unknown) => {
 </script>
 
 <style scoped>
-:deep(.v-date-picker-month__day-btn.bg-primary) {
+:deep(.v-date-picker-month__day-btn.v-btn--variant-flat) {
   background-color: transparent !important;
   color: rgb(var(--v-theme-on-surface)) !important;
 }
