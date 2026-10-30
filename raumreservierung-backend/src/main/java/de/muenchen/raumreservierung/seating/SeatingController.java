@@ -80,4 +80,33 @@ public class SeatingController {
         seatingService.deleteSeating(seatingId);
     }
 
+    /**
+     * Check whether a seating type can be deleted.
+     * Returns false if the seating type is still referenced in a booking.
+     *
+     * @param seatingTypeId the UUID of the seating type to check
+     * @return true if the seating type can be safely deleted, false otherwise
+     */
+    @GetMapping("/{seatingTypeId}/deletable")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean isSeatingTypeDeletable(@PathVariable final UUID seatingTypeId) {
+        return !seatingService.existsFutureAppointmentForSeatingType(seatingTypeId, null);
+    }
+
+    /**
+     * Check whether a seating type's capacity can be removed from a specific room.
+     * Returns false if the seating type is still referenced in a future booking
+     * of that room.
+     *
+     * @param seatingTypeId the UUID of the seating type to check
+     * @param roomId        the UUID of the room the capacity belongs to
+     * @return true if the capacity can be safely removed from the room, false otherwise
+     */
+    @GetMapping("/{seatingTypeId}/rooms/{roomId}/capacity-removable")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean isRoomCapacityRemovable(
+            @PathVariable final UUID seatingTypeId,
+            @PathVariable final UUID roomId) {
+        return !seatingService.existsFutureAppointmentForSeatingType(seatingTypeId, roomId);
+    }
 }

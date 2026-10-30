@@ -191,6 +191,7 @@
             <seating-capacity-editor
               v-model="roomData.roomSeatingCapacities!"
               :max-room-capacity="roomData.capacity"
+              :room-id="roomId"
             />
           </v-col>
         </v-row>

@@ -53,15 +53,42 @@
         v-else-if="dialogMode === 'delete'"
         :title="t('generics.delete', { domain })"
         :text="t('generics.confirmDelete', { domain })"
-        :loading="loading"
+        :loading="loading || deleteCheckLoading"
         @cancel="closeDialog"
         @confirm="executeDelete"
       >
+        <template #text>
+          <div v-if="deleteCheckLoading">
+            {{ t("generics.checkDelete") }}
+          </div>
+          <div v-if="!deleteCheckLoading && canDeleteItem">
+            {{ t("generics.confirmDelete", { domain }) }}
+          </div>
+          <v-alert
+            v-if="!canDeleteItem"
+            type="warning"
+            variant="outlined"
+            density="compact"
+          >
+            {{ t("generics.cantDelete") }}
+          </v-alert>
+        </template>
+        <template #cancel="{ props }">
+          <base-button
+            v-bind="props"
+            secondary
+            :class="{ 'mr-4': canDeleteItem }"
+            :text="canDeleteItem ? t('common.cancel') : t('common.close')"
+            :prepend-icon="mdiClose"
+          />
+        </template>
         <template #confirm="{ props }">
           <base-button
+            v-if="canDeleteItem"
             :text="t('common.delete')"
             :append-icon="mdiTrashCanOutline"
             v-bind="props"
+            :disabled="deleteCheckLoading || !canDeleteItem"
           />
         </template>
       </confirm-card>
@@ -124,11 +151,15 @@ const {
   maxDialogWidth = "800px",
   emptyItemTemplate,
   loading = false,
+  canDeleteItem = true,
+  deleteCheckLoading = false,
 } = defineProps<{
   maxDialogWidth?: string;
   emptyItemTemplate: T;
   domain: string;
   loading?: boolean;
+  canDeleteItem?: boolean;
+  deleteCheckLoading?: boolean;
 }>();
 
 const activeItem = ref<T>({ ...emptyItemTemplate } as T);
@@ -139,6 +170,7 @@ const emit = defineEmits<{
   create: [item: T];
   update: [item: T];
   delete: [id: string];
+  "delete-prompt": [id: string];
   // Sadly there is no type for the emit of updatedOptions ...
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   "update:options": [options: any];
@@ -168,9 +200,12 @@ const openRead = (item: T) => {
   dialogMode.value = "read";
 };
 
-const promptDelete = (item: T) => {
+const promptDelete = async (item: T) => {
   activeItem.value = item;
   dialogMode.value = "delete";
+  if (item.id) {
+    emit("delete-prompt", item.id);
+  }
 };
 
 const handleSave = () => {

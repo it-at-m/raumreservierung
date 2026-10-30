@@ -1,6 +1,7 @@
 import type {
   CreateSeatingTypeRequest,
   DeleteSeatingTypeRequest,
+  IsRoomCapacityRemovableRequest,
   UpdateSeatingTypeRequest,
 } from "@/api/raumreservierung-backend";
 
@@ -39,6 +40,7 @@ export const useUpdateSeatingType = () => {
       api.updateSeatingType(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.SEATING_TYPE] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.ROOM] });
     },
   });
 };
@@ -51,6 +53,23 @@ export const useDeleteSeatingType = () => {
       api.deleteSeatingType(params),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.SEATING_TYPE] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.ROOM] });
     },
+  });
+};
+
+export const useCheckSeatingTypeDeletableMutation = () => {
+  const api = ApiFactory.getInstance(SeatingControllerApi);
+  return useMutation({
+    mutationFn: (seatingTypeId: string) =>
+      api.isSeatingTypeDeletable({ seatingTypeId }),
+  });
+};
+
+export const useCheckSeatingTypeDeletableInRoom = () => {
+  const api = ApiFactory.getInstance(SeatingControllerApi);
+  return useMutation({
+    mutationFn: (params: IsRoomCapacityRemovableRequest) =>
+      api.isRoomCapacityRemovable(params),
   });
 };
