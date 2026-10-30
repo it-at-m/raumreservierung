@@ -19,7 +19,7 @@
 import type { RoomListResponseDTO } from "@/api/raumreservierung-backend";
 
 import { mdiDoor } from "@mdi/js";
-import { computed, ref } from "vue";
+import { computed } from "vue";
 
 import { useGetAllRooms } from "@/composables/api/useRoomsApi.ts";
 
@@ -28,8 +28,6 @@ type RoomDataPayload = IsMultiple extends true
   : RoomListResponseDTO | undefined;
 
 const modelValue = defineModel<IsMultiple extends true ? string[] : string>();
-
-const initialRoomIds = ref(modelValue.value);
 
 const {
   loading = false,
@@ -60,11 +58,8 @@ const filteredRooms = computed(() => {
       return true;
     }
 
-    if (isMultipleProp.value && Array.isArray(modelValue.value)) {
-      return room.id
-        ? modelValue.value.includes(room.id) ||
-            initialRoomIds.value.includes(room.id)
-        : false;
+    if (multiple && Array.isArray(modelValue.value)) {
+      return room.id ? modelValue.value.includes(room.id) : false;
     }
 
     return room.id === modelValue.value;
