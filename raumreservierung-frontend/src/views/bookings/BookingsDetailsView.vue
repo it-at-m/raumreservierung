@@ -232,7 +232,6 @@
 
 <script setup lang="ts">
 import type { AppointmentDetailsResponseDTO } from "@/api/raumreservierung-backend";
-import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 import type { InfiniteScrollLoad } from "@/types/InfiniteScroll.ts";
 
 import {
@@ -252,6 +251,8 @@ import { computed, onMounted, ref } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 import { useDisplay } from "vuetify/framework";
+
+import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 import AppointmentListItem from "@/components/booking/AppointmentListItem.vue";
 import BookingGeneralInfoCard from "@/components/booking/BookingGeneralInfoCard.vue";
 import ScheduleTimelineCard from "@/components/booking/ScheduleTimelineCard.vue";
@@ -327,7 +328,6 @@ const fetchPage = async () => {
     bookingId: bookingId.value,
     endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
     size: 5,
-    sort: ["schedule.occupancyStart,asc"],
   });
 };
 
