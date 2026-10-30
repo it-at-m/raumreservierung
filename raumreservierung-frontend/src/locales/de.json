@@ -47,6 +47,9 @@
     }
   },
   "components": {
+    "bookingsCalendarView": {
+      "warning": "Die Änderung bezieht sich auf alle Serientermine in der Zukunft."
+    },
     "exportBookingsCard": {
       "confirm": "Buchungen exportieren",
       "chooseYear": "Wählen Sie den Jahrgang für den Export"
