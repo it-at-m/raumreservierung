@@ -48,7 +48,7 @@
   },
   "components": {
     "bookingsCalendarView": {
-      "warning": "Achtung: Die Änderung bezieht sich auf alle Serientermine in der Zukunft."
+      "warning": "Die Änderung bezieht sich auf alle Serientermine in der Zukunft."
     },
     "exportBookingsCard": {
       "confirm": "Buchungen exportieren",

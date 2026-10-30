@@ -39,7 +39,7 @@
         @updated-schedule="updateSchedule"
       />
       <v-alert
-        v-if="isSeriesBooking"
+        v-if="getBookingData?.recurringRule && eventChanged"
         border="start"
         color="warning"
         variant="tonal"
@@ -55,7 +55,7 @@
         :loading="getBookingLoading || updateBookingLoading"
         @status-action="updateBookingStatus"
         @cancel="resetBooking"
-        @confirm="handleConfirm"
+        @confirm="saveBooking"
       />
       <v-card
         v-else
@@ -178,7 +178,6 @@ const rules = useRules();
 const isBookingEditable = useIsBookingEditable();
 
 const booking = ref<BookingRequestDTO>();
-const saveHintOpen = ref(false);
 
 const bookingId = computed(() => (route.params.id as string) || undefined);
 const selectedRoomDataRef = useTemplateRef<RoomSelectExposed>("roomSelect");
@@ -214,8 +213,6 @@ watch(
   { immediate: true }
 );
 
-const isSeriesBooking = computed(() => !!getBookingData.value?.recurringRule);
-
 const computedBooking = computed(() => {
   if (!booking.value && !getBookingData.value) {
     return undefined;
@@ -248,14 +245,6 @@ const selectedRoomIds = computed({
     manualRoomIds.value = newValue;
   },
 });
-
-const handleConfirm = async () => {
-  if (isSeriesBooking.value) {
-    saveHintOpen.value = true;
-    return;
-  }
-  await saveBooking();
-};
 
 const saveBooking = async () => {
   await updateBookingSchedule();
