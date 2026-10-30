@@ -1,23 +1,11 @@
 package de.muenchen.raumreservierung.appointment;
 
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
-
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.validation.Valid;
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
-import java.util.UUID;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.fortuna.ical4j.model.Recur;
@@ -28,6 +16,19 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 @Service
 @Slf4j
