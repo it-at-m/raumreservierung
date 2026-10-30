@@ -30,9 +30,7 @@ import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.Roles;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -298,7 +296,7 @@ public class BookingControllerIntegrationTest {
     @MethodSource("provideTestData")
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules(String rrule, int expectedSize, List<OffsetDateTime> expectedDates) throws Exception {
-        OffsetDateTime date = ZonedDateTime.of(2026, 3, 2, 13, 45, 0, 0, BERLIN).toOffsetDateTime();
+        OffsetDateTime date = OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2));
         BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(date, rrule, mockPerson.getId());
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL).with(csrf())
@@ -310,8 +308,8 @@ public class BookingControllerIntegrationTest {
                 .getContentAsString();
         BookingDetailResponseDTO responseBody = objectMapper.readValue(responseJson, BookingDetailResponseDTO.class);
 
-        OffsetDateTime start = ZonedDateTime.of(2026, 3, 1, 0, 0, 0, 0, BERLIN).toOffsetDateTime();
-        OffsetDateTime end = ZonedDateTime.of(2027, 2, 2, 0, 0, 0, 0, BERLIN).toOffsetDateTime();
+        OffsetDateTime start = OffsetDateTime.of(2026, 3, 1, 0, 0, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC);
+        OffsetDateTime end = OffsetDateTime.of(2027, 2, 2, 0, 0, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC);
         String appointmentResponseJson = mockMvc.perform(get(APPOINTMENTS_URL).with(csrf())
                 .param("bookingId", responseBody.id().toString())
                 .param("startDate", start.toString())
@@ -336,54 +334,46 @@ public class BookingControllerIntegrationTest {
                 .containsExactlyInAnyOrderElementsOf(expectedDates);
     }
 
-    private static final ZoneId BERLIN = ZoneId.of("Europe/Berlin");
-
-    private static OffsetDateTime utc(int year, int month, int day) {
-        return ZonedDateTime.of(year, month, day, 13, 45, 0, 0, BERLIN)
-                .withZoneSameInstant(ZoneOffset.UTC)
-                .toOffsetDateTime();
-    }
-
     private static Stream<Arguments> provideTestData() {
         return Stream.of(
-                Arguments.of("", 1, List.of(utc(2026,3,2))),
+                Arguments.of("", 1, List.of(OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("RRULE:FREQ=DAILY;COUNT=3", 3, List.of(
-                        utc(2026,3,2),
-                        utc(2026,3,3),
-                        utc(2026,3,4))),
+                        OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 3, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 4, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("RRULE:FREQ=MONTHLY;COUNT=2", 2, List.of(
-                        utc(2026,3,2),
-                        utc(2026,4,2))),
+                        OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 4, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("RRULE:FREQ=WEEKLY;COUNT=5", 5, List.of(
-                        utc(2026,3,2),
-                        utc(2026,3,9),
-                        utc(2026,3,16),
-                        utc(2026,3,23),
-                        utc(2026,3,30))),
+                        OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 9, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 16, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 23, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 30, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("RRULE:FREQ=WEEKLY;BYDAY=TU,WE;INTERVAL=2;COUNT=4", 4, List.of(
-                        utc(2026,3,3),
-                        utc(2026,3,4),
-                        utc(2026,3,17),
-                        utc(2026,3,18))),
+                        OffsetDateTime.of(2026, 3, 3, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 4, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 17, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 3, 18, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("RRULE:FREQ=MONTHLY;BYDAY=2WE;COUNT=3", 3, List.of(
-                        utc(2026,3,11),
-                        utc(2026,4,8),
-                        utc(2026,5,13))),
+                        OffsetDateTime.of(2026, 3, 11, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 4, 8, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 5, 13, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("RRULE:FREQ=MONTHLY;INTERVAL=2;BYMONTHDAY=15;COUNT=4", 4, List.of(
-                        utc(2026,3,15),
-                        utc(2026,5,15),
-                        utc(2026,7,15),
-                        utc(2026,9,15))),
+                        OffsetDateTime.of(2026, 3, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 5, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 7, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 9, 15, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))),
                 Arguments.of("RRULE:FREQ=WEEKLY;INTERVAL=6", 9, List.of(
-                        utc(2026,3,2),
-                        utc(2026,4,13),
-                        utc(2026,5,25),
-                        utc(2026,7,6),
-                        utc(2026,8,17),
-                        utc(2026,9,28),
-                        utc(2026,11,9),
-                        utc(2026,12,21),
-                        utc(2027,2,1))));
+                        OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 4, 13, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 5, 25, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 7, 6, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 8, 17, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 9, 28, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 11, 9, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2026, 12, 21, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC),
+                        OffsetDateTime.of(2027, 2, 1, 13, 45, 0, 0, ZoneOffset.ofHours(2)).withOffsetSameInstant(ZoneOffset.UTC))));
     }
 
     private enum BookedForScenario {
