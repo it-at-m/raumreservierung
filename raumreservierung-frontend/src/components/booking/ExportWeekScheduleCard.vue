@@ -60,12 +60,12 @@ import { ApiFactory } from "@/util/apiFactory.ts";
 import { mdiCalendarExportOutline } from "@mdi/js";
 import { useDate } from "vuetify/framework";
 import { useI18n } from "vue-i18n";
-import { useWeekScheduleCategory } from "@/composables/useWeekScheduleCategory.ts";
+import { weekScheduleCategory } from "@/constants/WeekScheduleCategory.ts";
 
 const router = useRouter();
 const { t } = useI18n();
 const adapter = useDate();
-const { weekScheduleCategoryMap } = useWeekScheduleCategory();
+const { weekScheduleCategoryMap } = weekScheduleCategory();
 
 const emit = defineEmits<{
   close: [];
@@ -77,7 +77,7 @@ const selectedDate = ref<Date>(new Date());
 const selectedCategory = ref<WeekScheduleAsPDFCategoryEnum | null>(null);
 
 const categoryItems = computed(() =>
-  Object.entries(weekScheduleCategoryMap.value).map(([value, title]) => ({
+  Object.entries(weekScheduleCategoryMap).map(([value, title]) => ({
     value,
     title,
   }))

@@ -316,7 +316,7 @@ import { ROUTES } from "@/types/Routes.ts";
 import { mapResponseToFileMock } from "@/util/fileTypeUtility.ts";
 import { EMPTY_ROOM_DATA, mapResponseToRequest } from "@/util/roomTypeUtil.ts";
 import { STATUS_INDICATORS } from "@/constants.ts";
-import { useWeekScheduleCategory } from "@/composables/useWeekScheduleCategory.ts";
+import { weekScheduleCategory } from "@/constants/WeekScheduleCategory.ts";
 
 const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
@@ -371,7 +371,7 @@ const {
   error: uploadFileError,
 } = useUploadFile();
 
-const { weekScheduleCategoryMap } = useWeekScheduleCategory();
+const { weekScheduleCategoryMap } = weekScheduleCategory();
 
 watch(
   [() => roomReqData.value?.id, getRoomError],
@@ -477,7 +477,7 @@ const handleDelete = async () => {
 };
 
 const weekScheduleCategoryOptions = computed(() =>
-  Object.entries(weekScheduleCategoryMap.value).map(([value, title]) => ({
+  Object.entries(weekScheduleCategoryMap).map(([value, title]) => ({
     value,
     title,
   }))

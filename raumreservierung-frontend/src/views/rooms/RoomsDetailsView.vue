@@ -279,7 +279,7 @@ import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
-import { useWeekScheduleCategory } from "@/composables/useWeekScheduleCategory.ts";
+import { weekScheduleCategory } from "@/constants/WeekScheduleCategory.ts";
 
 const router = useRouter();
 const route = useRoute();
@@ -298,7 +298,7 @@ const { data: picture, isLoading: pictureLoading } = useGetFile(
   () => roomData.value?.picture?.id
 );
 
-const { weekScheduleCategoryMap } = useWeekScheduleCategory();
+const { weekScheduleCategoryMap } = weekScheduleCategory();
 
 watch([error, () => roomData.value?.id], async () => {
   if (error.value) {
