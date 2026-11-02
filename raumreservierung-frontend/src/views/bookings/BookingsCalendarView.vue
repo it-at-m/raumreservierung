@@ -38,6 +38,15 @@
         :displayed-rooms="selectedRoomDataRef.selectedRoomData"
         @updated-schedule="updateSchedule"
       />
+      <v-alert
+        v-if="getBookingData?.recurringRule && eventChanged"
+        border="start"
+        color="warning"
+        variant="tonal"
+        class="mt-4"
+      >
+        {{ t("components.bookingsCalendarView.warning") }}
+      </v-alert>
       <booking-details-summary
         v-if="bookingId"
         class="mt-4"
@@ -46,7 +55,7 @@
         :loading="getBookingLoading || updateBookingLoading"
         @status-action="updateBookingStatus"
         @cancel="resetBooking"
-        @confirm="updateBookingSchedule"
+        @confirm="saveBooking"
       />
       <v-card
         v-else
@@ -146,10 +155,12 @@ import {
 } from "@/composables/api/useBookingsApi.ts";
 import { useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { useRules } from "@/composables/useRules.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { mapBookingResponseToRequest } from "@/util/bookingTypeUtil.ts";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import { dateEquals } from "@/util/timeUtil.ts";
+import { useSnackbarStore } from "@/stores/snackbar.ts";
 
 interface RoomSelectExposed extends ComponentPublicInstance {
   selectedRoomData: RoomListResponseDTO[];
@@ -179,8 +190,13 @@ const { data: getBookingData, isLoading: getBookingLoading } = useGetBooking(
   bookingId.value
 );
 
-const { call: updateBooking, loading: updateBookingLoading } =
-  useUpdateBooking();
+const {
+  call: updateBooking,
+  loading: updateBookingLoading,
+  error: updateBookingError,
+} = useUpdateBooking();
+
+const snackbarStore = useSnackbarStore();
 
 watch(
   getBookingData,
@@ -229,6 +245,16 @@ const selectedRoomIds = computed({
     manualRoomIds.value = newValue;
   },
 });
+
+const saveBooking = async () => {
+  await updateBookingSchedule();
+  if (!updateBookingError) {
+    snackbarStore.push({
+      text: t("generics.updated", { domain: t("domain.booking.header") }),
+      color: STATUS_INDICATORS.SUCCESS,
+    });
+  }
+};
 
 /**
  * Updates {@link booking} by calculating the diff from new start and end Date and applying it to the schedule and updating the roomId.
