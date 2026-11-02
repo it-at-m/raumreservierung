@@ -108,7 +108,10 @@
             <v-list>
               <v-list-item
                 :title="t('views.bookingDetailsView.chosenSeatingType')"
-                :subtitle="`${getBookingData?.seatingType?.name ?? t('views.bookingDetailsView.noSeatingSelected')}`"
+                :subtitle="
+                  getBookingData?.seatingType?.name ??
+                  t('views.bookingDetailsView.noSeatingSelected')
+                "
               />
             </v-list>
           </details-card>

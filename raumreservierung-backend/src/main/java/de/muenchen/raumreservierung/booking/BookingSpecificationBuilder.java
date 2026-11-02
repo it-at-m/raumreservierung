@@ -24,6 +24,7 @@ public final class BookingSpecificationBuilder {
     public static <T extends Booking> Specification<T> fromFilterWithPersonOrStatusNew(final BookingFilterDTO bookingFilterDTO, final Person person,
             final boolean statusNew) {
         final List<Specification<T>> specificationList = new ArrayList<>();
+
         specificationList.add(BookingSpecifications.forRoomId(bookingFilterDTO.roomId()));
         specificationList.add(BookingSpecifications.forStart(normalizeStart(bookingFilterDTO.start())));
         specificationList.add(BookingSpecifications.forEnd(normalizeEnd(bookingFilterDTO.end())));

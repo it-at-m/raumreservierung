@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -108,19 +107,6 @@ public class RoomService {
      */
     public boolean existsByFileAttachment(final FileAttachment fileAttachment) {
         return roomRepository.existsByPicture(fileAttachment);
-    }
-
-    /**
-     * Deletes all RoomSeatingCapacity-entries, that have a reference to the seating type.
-     *
-     * @param seatingTypeId id of seating type to remove
-     */
-    @Transactional
-    public void deleteRoomSeatingCapacitiesForSeatingType(final UUID seatingTypeId) {
-        final List<Room> affectedRooms = roomRepository.findByRoomSeatingCapacitiesSeatingTypeId(seatingTypeId);
-        affectedRooms.forEach(room -> room.getRoomSeatingCapacities()
-                .removeIf(rsc -> rsc.getSeatingType().getId().equals(seatingTypeId)));
-        roomRepository.saveAll(affectedRooms);
     }
 
     private Room getEntityOrThrowException(final UUID roomId) {

@@ -10,12 +10,9 @@
         :empty-item-template="EMPTY_ITEM_TEMPLATE"
         :loading="getAllSeatingTypeLoading || deleteSeatingTypeLoading"
         :domain="t('domain.seatingType.header')"
-        :can-delete-item="canDeleteItem"
-        :delete-check-loading="deleteCheckLoading"
         @create="handleCreate"
         @update="handleUpdate"
         @delete="handleDelete"
-        @delete-prompt="handleDeletePrompt"
       >
         <template #form="{ item, updateItem, updateValidity }">
           <seating-type-form
@@ -70,7 +67,6 @@ import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import SeatingTypeForm from "@/components/SeatingTypeForm.vue";
 import {
-  useCheckSeatingTypeDeletableMutation,
   useCreateSeatingType,
   useDeleteSeatingType,
   useGetAllSeatingTypes,
@@ -88,20 +84,23 @@ const crudRef = useTemplateRef("crudRef");
 const { data: allSeatingTypesData, isPending: getAllSeatingTypeLoading } =
   useGetAllSeatingTypes();
 
-const { mutate: deleteSeatingTypeCall, isPending: deleteSeatingTypeLoading } =
-  useDeleteSeatingType();
-
-const { mutate: createSeatingTypeCall, isPending: createSeatingTypeLoading } =
-  useCreateSeatingType();
-
-const { mutate: updateSeatingTypeCall, isPending: updateSeatingTypeLoading } =
-  useUpdateSeatingType();
+const {
+  mutateAsync: deleteSeatingTypeCall,
+  isPending: deleteSeatingTypeLoading,
+  error: deleteSeatingTypeError,
+} = useDeleteSeatingType();
 
 const {
-  mutate: checkDeletable,
-  data: canDeleteItem,
-  isPending: deleteCheckLoading,
-} = useCheckSeatingTypeDeletableMutation();
+  mutateAsync: createSeatingTypeCall,
+  isPending: createSeatingTypeLoading,
+  error: createSeatingTypeError,
+} = useCreateSeatingType();
+
+const {
+  mutateAsync: updateSeatingTypeCall,
+  isPending: updateSeatingTypeLoading,
+  error: updateSeatingTypeError,
+} = useUpdateSeatingType();
 
 const headers: TableHeader<SeatingTypeResponseDto>[] = [
   { title: t("domain.seatingType.name"), value: "name", sortable: true },
@@ -126,51 +125,35 @@ const EMPTY_ITEM_TEMPLATE = {
 } as SeatingTypeResponseDto;
 
 const handleCreate = async (newItem: SeatingTypeResponseDto) => {
-  createSeatingTypeCall(
-    { seatingTypeRequestDto: newItem },
-    {
-      onSuccess: () => {
-        onSuccess(
-          t("generics.created", { domain: t("domain.seatingType.header") })
-        );
-      },
-    }
-  );
-};
-
-const handleUpdate = async (updatedItem: SeatingTypeResponseDto) => {
-  if (updatedItem.id) {
-    updateSeatingTypeCall(
-      {
-        seatingTypeRequestDto: updatedItem,
-        seatingTypeId: updatedItem.id,
-      },
-      {
-        onSuccess: () => {
-          onSuccess(
-            t("generics.updated", { domain: t("domain.seatingType.header") })
-          );
-        },
-      }
+  await createSeatingTypeCall({ seatingTypeRequestDto: newItem });
+  if (!createSeatingTypeError.value) {
+    await onSuccess(
+      t("generics.created", { domain: t("domain.seatingType.header") })
     );
   }
 };
 
-const handleDelete = async (id: string) => {
-  deleteSeatingTypeCall(
-    { seatingTypeId: id },
-    {
-      onSuccess: () => {
-        onSuccess(
-          t("generics.deleted", { domain: t("domain.seatingType.header") })
-        );
-      },
+const handleUpdate = async (updatedItem: SeatingTypeResponseDto) => {
+  if (updatedItem.id) {
+    await updateSeatingTypeCall({
+      seatingTypeRequestDto: updatedItem,
+      seatingTypeId: updatedItem.id,
+    });
+    if (!updateSeatingTypeError.value) {
+      await onSuccess(
+        t("generics.updated", { domain: t("domain.seatingType.header") })
+      );
     }
-  );
+  }
 };
 
-const handleDeletePrompt = (id: string) => {
-  checkDeletable(id);
+const handleDelete = async (id: string) => {
+  await deleteSeatingTypeCall({ seatingTypeId: id });
+  if (!deleteSeatingTypeError.value) {
+    await onSuccess(
+      t("generics.deleted", { domain: t("domain.seatingType.header") })
+    );
+  }
 };
 
 const onSuccess = async (msg: string) => {

@@ -2,8 +2,6 @@ package de.muenchen.raumreservierung.room;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.muenchen.raumreservierung.equipment.Equipment;
@@ -12,7 +10,6 @@ import de.muenchen.raumreservierung.person.domain.Person;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import jakarta.persistence.EntityManager;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
@@ -80,39 +77,6 @@ public class RoomServiceTest {
 
         // Then
         assertThat(result).usingRecursiveComparison().ignoringFields("id").isEqualTo(roomFull);
-    }
-
-    @Test
-    public void givenRoomsWithSeatingCapacities_whenDeleteRoomSeatingCapacitiesForSeatingType_thenOnlyMatchingCapacitiesRemoved() {
-        // Given
-        final UUID seatingTypeIdToDelete = UUID.fromString("123e4567-e89b-12d3-a456-426614174000");
-
-        final Room room1 = getExampleRoom();
-        final RoomSeatingCapacity matchingCapacity = getRoomSeatingCapacity(room1);
-        matchingCapacity.getSeatingType().setId(seatingTypeIdToDelete);
-        final RoomSeatingCapacity nonMatchingCapacity = getRoomSeatingCapacity2(room1);
-        room1.setRoomSeatingCapacities(new HashSet<>(Set.of(matchingCapacity, nonMatchingCapacity)));
-
-        final Room room2 = getExampleRoom();
-        final RoomSeatingCapacity onlyMatchingCapacity = getRoomSeatingCapacity(room2);
-        onlyMatchingCapacity.getSeatingType().setId(seatingTypeIdToDelete);
-        room2.setRoomSeatingCapacities(new HashSet<>(Set.of(onlyMatchingCapacity)));
-
-        final List<Room> affectedRooms = List.of(room1, room2);
-
-        when(roomRepository.findByRoomSeatingCapacitiesSeatingTypeId(seatingTypeIdToDelete)).thenReturn(affectedRooms);
-
-        // When
-        roomService.deleteRoomSeatingCapacitiesForSeatingType(seatingTypeIdToDelete);
-
-        // Then
-        verify(roomRepository).saveAll(anyList());
-
-        assertThat(room1.getRoomSeatingCapacities())
-                .hasSize(1)
-                .containsExactly(nonMatchingCapacity);
-
-        assertThat(room2.getRoomSeatingCapacities()).isEmpty();
     }
 
     private Room buildExampleRoomWithEquipmentAndSeating(Room room, Set<RoomSeatingCapacity> seatingCapacities, Set<Equipment> equipments) {
