@@ -5,7 +5,6 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
-import de.muenchen.raumreservierung.file.FileAttachment;
 import de.muenchen.raumreservierung.file.FileAttachmentService;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.persistence.EntityManager;
@@ -97,16 +96,6 @@ public class RoomService {
 
         log.debug("Deleted room to {}", roomId);
         roomRepository.deleteById(roomId);
-    }
-
-    /**
-     * Returns if a fileAttachment is attached to a room
-     *
-     * @param fileAttachment the fileAttachment to look for
-     * @return if any room is attached to the fileAttachment
-     */
-    public boolean existsByFileAttachment(final FileAttachment fileAttachment) {
-        return roomRepository.existsByPicture(fileAttachment);
     }
 
     private Room getEntityOrThrowException(final UUID roomId) {

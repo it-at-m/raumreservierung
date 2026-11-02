@@ -4,11 +4,9 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 import de.muenchen.raumreservierung.appointment.Appointment;
-import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
-import de.muenchen.raumreservierung.notification.StatusNotificationMailService;
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;
@@ -33,6 +31,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @Slf4j
@@ -42,10 +41,10 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final EntityManager entityManager;
     private final SecurityContextService securityContextService;
-    private final AppointmentService appointmentService;
+    private final RecurrenceExpansionService recurrenceExpansionService;
     private final PersonService personService;
     private final BookingValidationService bookingValidationService;
-    private final StatusNotificationMailService statusNotificationMailService;
+    private final BookingNotificationPort bookingNotificationPort;
 
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking getById(final UUID bookingId) {
@@ -96,7 +95,7 @@ public class BookingService {
 
         applyOrganizerAuthorityRules(booking, BookingType.DEFAULT, null);
 
-        final Set<Appointment> calculatedAppointments = appointmentService.generateAndLinkAppointments(booking);
+        final Set<Appointment> calculatedAppointments = recurrenceExpansionService.generateAndLinkAppointments(booking);
         booking.setAppointments(calculatedAppointments);
 
         assignBookingContext(booking);
@@ -135,8 +134,26 @@ public class BookingService {
 
         saveAndDetach(existingBooking, bookingUpdates);
         log.debug("Updated booking with id {}", existingBooking.getId());
-        statusNotificationMailService.sendStatusNotificationMail(existingBooking, oldStatus);
+        bookingNotificationPort.sendStatusNotificationMail(existingBooking, oldStatus);
         return getSanitizedBooking(existingBooking.getId());
+    }
+
+    /**
+     * Automatically updates and saves a booking's status to {@link BookingStatus#ROOM_CHANGED}
+     * after an associated appointment has changed.
+     *
+     * @param bookingId the id of the booking to process
+     */
+    @Transactional
+    public void handleAppointmentChanged(final UUID bookingId) {
+        final Booking bookingToChange = getEntityOrThrowException(bookingId);
+        if (bookingValidationService.isObligedToAutomaticStatusChange(bookingToChange)) {
+            final Booking bookingChange = new Booking();
+            bookingChange.updateFrom(bookingToChange);
+            bookingChange.setStatus(BookingStatus.ROOM_CHANGED);
+
+            saveAndDetach(bookingToChange, bookingChange);
+        }
     }
 
     @PreAuthorize(Authorities.BOOKING_SELF)
@@ -148,9 +165,13 @@ public class BookingService {
     }
 
     private void checkAuthorityOrThrowException(final Booking booking, final String role) {
-        if (!bookingValidationService.validateBookingAuthority(booking, role)) {
+        if (!bookingValidationService.validateBookingAuthority(booking, role, this::resolveCurrentInternalPerson)) {
             throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
         }
+    }
+
+    private InternalPerson resolveCurrentInternalPerson() {
+        return personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
     }
 
     private boolean isTerminalStatus(final BookingStatus status) {
@@ -218,14 +239,14 @@ public class BookingService {
      * @param existingBooking the current state of the booking
      * @param bookingUpdates the updated booking data
      */
-    public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
+    private void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
         if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())
                 && Objects.equals(existingBooking.getSchedule(), bookingUpdates.getSchedule())) {
             bookingUpdates.setAppointments(new HashSet<>(existingBooking.getAppointments()));
             return;
         }
 
-        final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
+        final Set<Appointment> newAppointments = recurrenceExpansionService.generateAndLinkAppointments(bookingUpdates);
         if (bookingUpdates.getRecurringRule() == null || bookingUpdates.getRecurringRule().isBlank()) {
             bookingUpdates.setAppointments(newAppointments);
             return;

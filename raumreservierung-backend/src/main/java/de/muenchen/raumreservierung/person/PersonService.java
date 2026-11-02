@@ -4,7 +4,6 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND_LDAP;
 
-import de.muenchen.raumreservierung.adapter.ldap.ActiveDirectoryServiceImpl;
 import de.muenchen.raumreservierung.adapter.ldap.LdapPersonDto;
 import de.muenchen.raumreservierung.adapter.ldap.LdapService;
 import de.muenchen.raumreservierung.common.ConflictException;
@@ -23,7 +22,6 @@ import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.NotImplementedException;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -41,7 +39,7 @@ public class PersonService {
     private final ExternalPersonRepository externalPersonRepository;
     private final LdapService ldapService;
     private final PersonMapper personMapper;
-    private final ApplicationEventPublisher eventPublisher;
+    private final PersonDeletionListener personDeletionListener;
 
     // TODO consider returning less information here
     public Person findById(final UUID personId) {
@@ -104,13 +102,13 @@ public class PersonService {
         if (!(person instanceof ExternalPerson)) {
             throw new ConflictException(MSG_CANNOT_DELETE_INTERNAL_PERSON);
         }
-        eventPublisher.publishEvent(new PersonDeleteEvent(personId));
+        personDeletionListener.onPersonDeleted(personId);
         personRepository.deleteById(personId);
     }
 
     /**
      * Resolves an internal person by either looking it up in the {@link InternalPersonRepository} or by
-     * trying to receive it from ldap via {@link ActiveDirectoryServiceImpl}
+     * trying to receive it from ldap via {@link LdapService}
      *
      * @param organisationID the oid of the person to resolve
      * @return the resolved internal person

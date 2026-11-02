@@ -358,7 +358,7 @@ public class BookingServiceIntegrationTest {
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void bookingStatusChanges_afterAppointmentCommit() {
+    void bookingStatusChanges_whenAppointmentScheduleChanged() {
         TransactionTemplate tx = new TransactionTemplate(txManager);
 
         tx.executeWithoutResult(status -> appointmentService.updateAppointment(appointmentUpdate, appointment.getId()));

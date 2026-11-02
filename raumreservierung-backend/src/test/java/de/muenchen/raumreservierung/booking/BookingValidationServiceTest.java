@@ -16,7 +16,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
-import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
 import de.muenchen.raumreservierung.equipment.Equipment;
@@ -75,7 +74,7 @@ public class BookingValidationServiceTest {
     @MockitoBean
     private EntityManager entityManager;
     @MockitoBean
-    private AppointmentService appointmentService;
+    private RecurrenceExpansionService recurrenceExpansionService;
     @MockitoBean
     private PersonService personService;
     @MockitoBean
@@ -428,7 +427,7 @@ public class BookingValidationServiceTest {
         person.setOrganisationId("12345");
         booking.setBookedBy(person);
 
-        assertTrue(bookingValidationService.validateBookingAuthority(booking, Roles.TERMIN_ORGANISATOR));
+        assertTrue(bookingValidationService.validateBookingAuthority(booking, Roles.TERMIN_ORGANISATOR, () -> person));
     }
 
     @Test
@@ -440,10 +439,7 @@ public class BookingValidationServiceTest {
         person.setId(UUID.fromString("12345678-abcd-ef01-2345-6789abcdef01"));
         booking.setBookedBy(person);
 
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
-                .thenReturn(person);
-
-        assertTrue(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_BUCHUNG));
+        assertTrue(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_BUCHUNG, () -> person));
     }
 
     @Test
@@ -460,10 +456,7 @@ public class BookingValidationServiceTest {
         currentUser.setOrganisationId("012345");
         currentUser.setId(UUID.fromString("99999999-aaaa-bbbb-cccc-dddddddddddd"));
 
-        when(personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID()))
-                .thenReturn(currentUser);
-
-        assertFalse(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
+        assertFalse(bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN, () -> currentUser));
     }
 
     @Test
@@ -472,7 +465,7 @@ public class BookingValidationServiceTest {
         Booking booking = new Booking();
         booking.setBookedBy(null);
 
-        assertThrows(NullPointerException.class, () -> bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
+        assertThrows(NullPointerException.class, () -> bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN, () -> null));
     }
 
     @ParameterizedTest

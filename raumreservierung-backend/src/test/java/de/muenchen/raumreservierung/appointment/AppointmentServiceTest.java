@@ -6,6 +6,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import de.muenchen.raumreservierung.booking.Booking;
+import de.muenchen.raumreservierung.booking.BookingService;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -17,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class AppointmentServiceTest {
@@ -25,7 +25,7 @@ class AppointmentServiceTest {
     @Mock
     private AppointmentRepository appointmentRepository;
     @Mock
-    private ApplicationEventPublisher publisher;
+    private BookingService bookingService;
     @InjectMocks
     private AppointmentService appointmentService;
 
@@ -65,24 +65,24 @@ class AppointmentServiceTest {
     }
 
     @Test
-    void publishesEvent_whenScheduleChanged() {
+    void notifiesBookingService_whenScheduleChanged() {
 
         when(appointmentRepository.findById(any())).thenReturn(Optional.of(appointment));
         when(appointmentRepository.save(any())).thenReturn(appointment);
 
         appointmentService.updateAppointment(appointmentChanged, appointment.getId());
 
-        verify(publisher).publishEvent(bookingId);
+        verify(bookingService).handleAppointmentChanged(bookingId);
     }
 
     @Test
-    void doesNotPublishEvent_whenScheduleUnchanged() {
+    void doesNotNotifyBookingService_whenScheduleUnchanged() {
 
         when(appointmentRepository.findById(any())).thenReturn(Optional.of(appointment));
         when(appointmentRepository.save(any())).thenReturn(appointment);
 
         appointmentService.updateAppointment(appointment, appointment.getId());
 
-        verify(publisher, never()).publishEvent(any());
+        verify(bookingService, never()).handleAppointmentChanged(any());
     }
 }

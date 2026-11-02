@@ -3,25 +3,19 @@ package de.muenchen.raumreservierung.appointment;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
-import de.muenchen.raumreservierung.booking.Booking;
-import de.muenchen.raumreservierung.booking.ScheduleTemplate;
+import de.muenchen.raumreservierung.booking.BookingService;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.validation.Valid;
-import java.time.Duration;
-import java.time.OffsetDateTime;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.fortuna.ical4j.model.Recur;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.repository.query.FluentQuery;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -31,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
-    private final ApplicationEventPublisher publisher;
+    private final BookingService bookingService;
 
     @PreAuthorize(Authorities.APPOINTMENT_SELF)
     public Page<Appointment> getAppointmentsByPageableAndFilter(final Pageable pageable, @Valid final AppointmentFilterDTO appointmentFilterDTO) {
@@ -53,7 +47,7 @@ public class AppointmentService {
 
         if (appointmentChanged) {
             final UUID bookingId = existingAppointment.getBooking().getId();
-            publisher.publishEvent(bookingId);
+            bookingService.handleAppointmentChanged(bookingId);
         }
 
         return savedAppointment;
@@ -67,57 +61,18 @@ public class AppointmentService {
     }
 
     /**
-     * Calculates the individual appointments for a booking based on its schedule
-     * and an optional recurrence rule and linking them to the booking.
+     * Streams all appointments matching the given filter.
      *
-     * @param booking The booking entity containing the base schedule and recurrence rule.
-     * @return A Set of Appointment instances representing the calculated dates.
+     * @param appointmentFilterDTO the filter to apply.
+     * @return a stream of all matching appointments.
      */
-    public Set<Appointment> generateAndLinkAppointments(final Booking booking) {
-        final ScheduleTemplate base = booking.getSchedule();
-
-        if (booking.getRecurringRule() == null || booking.getRecurringRule().isBlank()) {
-            final Appointment app = new Appointment();
-            app.setBooking(booking);
-            app.setSchedule(base);
-            return Set.of(app);
-        }
-
-        final Duration offsetOccupancyStart = Duration.between(base.appointmentStart(), base.occupancyStart());
-        final Duration offsetOccupancyEnd = Duration.between(base.appointmentStart(), base.occupancyEnd());
-        final Duration offsetAppointmentEnd = Duration.between(base.appointmentStart(), base.appointmentEnd());
-
-        final String rrule = parse(booking.getRecurringRule());
-        final Recur<OffsetDateTime> recur = new Recur<>(rrule);
-
-        final OffsetDateTime seed = base.appointmentStart();
-        final OffsetDateTime limit = recur.getUntil() != null
-                ? recur.getUntil()
-                : seed.plusYears(1);
-
-        final List<OffsetDateTime> dates = recur.getDates(seed, seed, limit);
-
-        return dates.stream().map(date -> {
-            final ScheduleTemplate newSchedule = new ScheduleTemplate(
-                    date.plus(offsetOccupancyStart),
-                    date.plus(offsetOccupancyEnd),
-                    date,
-                    date.plus(offsetAppointmentEnd));
-
-            final Appointment app = new Appointment();
-            app.setBooking(booking);
-            app.setSchedule(newSchedule);
-            return app;
-        }).collect(Collectors.toSet());
+    @Transactional(readOnly = true)
+    public Stream<Appointment> streamAppointmentsByFilter(final AppointmentFilterDTO appointmentFilterDTO) {
+        final Specification<Appointment> appointmentSpecification = AppointmentSpecificationBuilder.fromFilter(appointmentFilterDTO);
+        return appointmentRepository.findBy(appointmentSpecification, FluentQuery.FetchableFluentQuery::stream);
     }
 
     private Appointment getEntityOrThrowException(final UUID appointmentId) {
         return appointmentRepository.findById(appointmentId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, appointmentId)));
-    }
-
-    private String parse(final String fullLine) {
-        return fullLine.regionMatches(true, 0, "RRULE:", 0, 6)
-                ? fullLine.substring(6).trim()
-                : fullLine;
     }
 }

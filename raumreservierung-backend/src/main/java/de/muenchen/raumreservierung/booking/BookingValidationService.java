@@ -10,7 +10,6 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 
 import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.equipment.Equipment;
-import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
@@ -22,6 +21,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Supplier;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -31,7 +31,6 @@ public class BookingValidationService {
     private final RoomService roomService;
     private final BookingTransitionService bookingTransitionService;
     private final SecurityContextService securityContextService;
-    private final PersonService personService;
 
     /**
      *
@@ -122,10 +121,12 @@ public class BookingValidationService {
      *
      * @param booking The booking entity to validate access against.
      * @param role The specific security role that grants overriding access.
+     * @param currentPersonSupplier Supplies the internal person of the current user, resolved
+     *            lazily as it is only needed when the role check fails.
      * @return true if the user is authorized; false otherwise.
      */
-    public boolean validateBookingAuthority(final Booking booking, final String role) {
-        return securityContextService.hasAuthority(role) || isOwner(booking);
+    public boolean validateBookingAuthority(final Booking booking, final String role, final Supplier<InternalPerson> currentPersonSupplier) {
+        return securityContextService.hasAuthority(role) || isOwner(booking, currentPersonSupplier.get());
     }
 
     /**
@@ -253,9 +254,8 @@ public class BookingValidationService {
                 && seatingTypeUpdate.filter(s -> !s.isActive()).isPresent();
     }
 
-    private boolean isOwner(final Booking booking) {
-        final InternalPerson internalPerson = personService.getInternalPersonByOrganisationIDOrThrowException(securityContextService.getCurrentOID());
-        return booking.getBookedBy().getId().equals(internalPerson.getId()) || booking.getBookedFor().getId().equals(internalPerson.getId());
+    private boolean isOwner(final Booking booking, final InternalPerson currentPerson) {
+        return booking.getBookedBy().getId().equals(currentPerson.getId()) || booking.getBookedFor().getId().equals(currentPerson.getId());
     }
 
 }

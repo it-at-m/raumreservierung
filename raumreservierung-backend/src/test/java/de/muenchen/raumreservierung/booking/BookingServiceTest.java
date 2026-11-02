@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
-import de.muenchen.raumreservierung.appointment.AppointmentService;
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.configuration.security.SecurityConfiguration;
@@ -59,7 +58,7 @@ public class BookingServiceTest {
     @MockitoBean
     private EntityManager entityManager;
     @MockitoBean
-    private AppointmentService appointmentService;
+    private RecurrenceExpansionService recurrenceExpansionService;
     @MockitoBean
     private PersonService personService;
     @MockitoBean

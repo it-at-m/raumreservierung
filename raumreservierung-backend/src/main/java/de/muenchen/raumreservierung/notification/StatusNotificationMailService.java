@@ -3,6 +3,7 @@ package de.muenchen.raumreservierung.notification;
 import de.muenchen.oss.refarch.integration.email.application.port.out.MailOutPort;
 import de.muenchen.oss.refarch.integration.email.domain.model.TemplateMail;
 import de.muenchen.raumreservierung.booking.Booking;
+import de.muenchen.raumreservierung.booking.BookingNotificationPort;
 import de.muenchen.raumreservierung.booking.BookingStatus;
 import de.muenchen.raumreservierung.booking.BookingStatusAnwenderFrontend;
 import de.muenchen.raumreservierung.configuration.MailInfoProperties;
@@ -25,7 +26,7 @@ import org.springframework.stereotype.Service;
         value = "TEMPLATE_INJECTION_FREEMARKER",
         justification = "Templates are loaded from classpath"
 )
-public class StatusNotificationMailService {
+public class StatusNotificationMailService implements BookingNotificationPort {
 
     private static final String DEFAULT_SUBJECT = "Es gibt Neuigkeiten zu ihrer Buchung";
     private static final String GENERIC_MAIL_TEMPLATE_NAME = "%s-mail-template.ftl";
@@ -36,6 +37,7 @@ public class StatusNotificationMailService {
     private final MailInfoProperties mailInfoProperties;
 
     @Async("mailExecutor")
+    @Override
     public void sendStatusNotificationMail(final Booking booking, final BookingStatus oldStatus) {
         final BookingStatusAnwenderFrontend newStatus = booking.getStatus().getFrontendAnwenderStatus();
         if (newStatus == oldStatus.getFrontendAnwenderStatus()) {

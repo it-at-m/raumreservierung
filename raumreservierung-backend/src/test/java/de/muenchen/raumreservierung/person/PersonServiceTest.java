@@ -23,7 +23,6 @@ import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.context.ApplicationEventPublisher;
 
 @ExtendWith(MockitoExtension.class)
 class PersonServiceTest {
@@ -35,7 +34,7 @@ class PersonServiceTest {
     private PersonRepository personRepository;
 
     @Mock
-    private ApplicationEventPublisher eventPublisher;
+    private PersonDeletionListener personDeletionListener;
 
     @InjectMocks
     private PersonService personService;
@@ -81,7 +80,7 @@ class PersonServiceTest {
     }
 
     @Test
-    void deletesPersonAndPublishesEvent_whenPersonIsExternal() {
+    void deletesPersonAndNotifiesListener_whenPersonIsExternal() {
         UUID personId = UUID.randomUUID();
 
         ExternalPerson externalPerson = new ExternalPerson();
@@ -91,12 +90,12 @@ class PersonServiceTest {
 
         personService.deletePerson(personId);
 
-        verify(eventPublisher).publishEvent(new PersonDeleteEvent(personId));
+        verify(personDeletionListener).onPersonDeleted(personId);
         verify(personRepository).deleteById(personId);
     }
 
     @Test
-    void throwsException_andDoesNotDeleteOrPublish_whenPersonIsInternal() {
+    void throwsException_andDoesNotDeleteOrNotify_whenPersonIsInternal() {
         UUID personId = UUID.randomUUID();
 
         InternalPerson internalPerson = new InternalPerson();
@@ -107,7 +106,7 @@ class PersonServiceTest {
         assertThatThrownBy(() -> personService.deletePerson(personId))
                 .isInstanceOf(ConflictException.class);
 
-        verify(eventPublisher, never()).publishEvent(any());
+        verify(personDeletionListener, never()).onPersonDeleted(any());
         verify(personRepository, never()).deleteById(any());
     }
 }
