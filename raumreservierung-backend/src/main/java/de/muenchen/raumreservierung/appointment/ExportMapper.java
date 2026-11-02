@@ -1,9 +1,9 @@
-package de.muenchen.raumreservierung.export;
+package de.muenchen.raumreservierung.appointment;
 
-import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.booking.Booking;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.equipment.Equipment;
+import de.muenchen.raumreservierung.export.BookingExportDto;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.person.domain.Person;

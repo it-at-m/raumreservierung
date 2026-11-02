@@ -16,7 +16,6 @@ import de.muenchen.raumreservierung.person.domain.InternalPerson;
 import de.muenchen.raumreservierung.room.RoomService;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
-import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -39,6 +38,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
         classes = {
                 BookingService.class,
                 BookingValidationService.class,
+                BookingDomainService.class,
                 BookingTransitionService.class,
                 SecurityConfiguration.class,
                 SecurityContextService.class
@@ -55,8 +55,6 @@ public class BookingServiceTest {
     private BookingRepository bookingRepository;
     @MockitoBean
     private JwtDecoder jwtDecoder;
-    @MockitoBean
-    private EntityManager entityManager;
     @MockitoBean
     private RecurrenceExpansionService recurrenceExpansionService;
     @MockitoBean

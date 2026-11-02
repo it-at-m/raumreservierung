@@ -28,7 +28,6 @@ import de.muenchen.raumreservierung.room.RoomService;
 import de.muenchen.raumreservierung.seating.SeatingType;
 import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
-import jakarta.persistence.EntityManager;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -54,6 +53,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
         classes = {
                 BookingService.class,
                 BookingValidationService.class,
+                BookingDomainService.class,
                 BookingTransitionService.class,
                 SecurityConfiguration.class,
                 SecurityContextService.class
@@ -64,6 +64,8 @@ public class BookingValidationServiceTest {
     @Autowired
     private BookingValidationService bookingValidationService;
     @Autowired
+    private BookingDomainService bookingDomainService;
+    @Autowired
     private SecurityContextService securityContextService;
     @MockitoBean
     private StatusNotificationMailService statusNotificationMailService;
@@ -71,8 +73,6 @@ public class BookingValidationServiceTest {
     private BookingRepository bookingRepository;
     @MockitoBean
     private JwtDecoder jwtDecoder;
-    @MockitoBean
-    private EntityManager entityManager;
     @MockitoBean
     private RecurrenceExpansionService recurrenceExpansionService;
     @MockitoBean
@@ -475,10 +475,10 @@ public class BookingValidationServiceTest {
         setup.accept(baseBooking, baseBookingExisting);
 
         if (expectedErrorMsg == null) {
-            assertDoesNotThrow(() -> bookingValidationService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
+            assertDoesNotThrow(() -> bookingDomainService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
         } else {
             BadRequestException exception = assertThrows(BadRequestException.class,
-                    () -> bookingValidationService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
+                    () -> bookingDomainService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
             assertEquals(HttpStatus.BAD_REQUEST + " \"" + expectedErrorMsg + "\"", exception.getMessage());
         }
     }
@@ -532,7 +532,7 @@ public class BookingValidationServiceTest {
         baseBooking.setReasonForStatusChange("REASON_FOR_REJECTION");
 
         BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingValidationService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
+                () -> bookingDomainService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
 
         assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_UPDATE_OF_FIELDS_NOT_ALLOWED + "\"", exception.getMessage());
     }
@@ -544,7 +544,7 @@ public class BookingValidationServiceTest {
         baseBooking.setStatus(BookingStatus.UNFEASIBLE);
 
         BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingValidationService.validateBookingStatusTransitionOrThrowException(baseBookingExisting, baseBooking));
+                () -> bookingDomainService.validateBookingStatusTransitionOrThrowException(baseBookingExisting, baseBooking));
 
         assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_STATUS_CHANGE_NOT_POSSIBLE + "\"", exception.getMessage());
     }
@@ -555,7 +555,7 @@ public class BookingValidationServiceTest {
         baseBooking.setId(baseBookingExisting.getId());
         baseBooking.setStatus(BookingStatus.CANCELED);
 
-        assertDoesNotThrow(() -> bookingValidationService.validateBookingStatusTransitionOrThrowException(baseBookingExisting, baseBooking));
+        assertDoesNotThrow(() -> bookingDomainService.validateBookingStatusTransitionOrThrowException(baseBookingExisting, baseBooking));
 
     }
 

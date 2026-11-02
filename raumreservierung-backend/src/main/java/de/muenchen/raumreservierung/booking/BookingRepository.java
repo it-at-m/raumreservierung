@@ -12,7 +12,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-public interface BookingRepository extends JpaRepository<Booking, UUID>, JpaSpecificationExecutor<Booking> {
+public interface BookingRepository extends JpaRepository<Booking, UUID>, JpaSpecificationExecutor<Booking>, BookingRepositoryCustom {
     @Override
     @NonNull @EntityGraph(attributePaths = { "appointments", "equipment", "bookedBy", "bookedFor", "room" })
     Page<Booking> findAll(@Nullable Specification<Booking> spec, @NonNull Pageable pageable);
