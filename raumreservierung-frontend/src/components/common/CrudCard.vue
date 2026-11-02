@@ -59,7 +59,7 @@
       >
         <template #text>
           <div v-if="deleteCheckLoading">
-            {{ t("generics.checkDelete") }}
+            {{ t("generics.checkDelete", { domain }) }}
           </div>
           <div v-if="!deleteCheckLoading && canDeleteItem">
             {{ t("generics.confirmDelete", { domain }) }}
@@ -70,7 +70,7 @@
             variant="outlined"
             density="compact"
           >
-            {{ t("generics.cantDelete") }}
+            {{ t("generics.cantDelete", { domain }) }}
           </v-alert>
         </template>
         <template #cancel="{ props }">
