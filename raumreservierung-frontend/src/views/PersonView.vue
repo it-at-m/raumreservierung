@@ -283,6 +283,7 @@ const fetchPage = async () => {
     searchName: currentPageOptions.value.searchName,
     size: currentPageOptions.value.itemsPerPage,
     personType: personType.value,
+    ldapOnly: false
   });
 };
 
