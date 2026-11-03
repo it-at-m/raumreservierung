@@ -488,7 +488,7 @@ paths:
           enum:
           - INTERNAL
           - EXTERNAL
-      - name: ldapOnly
+      - name: searchLdap
         in: query
         required: false
         schema:

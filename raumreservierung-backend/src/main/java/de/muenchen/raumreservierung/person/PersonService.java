@@ -50,7 +50,7 @@ public class PersonService {
     }
 
     @PreAuthorize(Authorities.USERS_READ)
-    public Page<Person> getPersonsByPageableAndFilter(final Pageable pageable, final PersonFilterDto personFilterDto) {
+    public Page<Person> getPersonsByPageableAndFilter(final Pageable pageable, final PersonFilterDto personFilterDto, boolean searchLdap) {
         // Persontype differentiation will be done without specs as this saves an inner join!
         switch (personFilterDto.personType()) {
         case PersonType.EXTERNAL -> {
@@ -61,7 +61,7 @@ public class PersonService {
                     .map(externalPerson -> (Person) externalPerson);
         }
         case PersonType.INTERNAL -> {
-            if (personFilterDto.ldapOnly()) {
+            if (searchLdap) {
                 final List<Person> ldapPersonList = ldapService.searchPersonByFilter(personFilterDto, pageable)
                         .stream()
                         .map(personMapper::toInternalPerson)
