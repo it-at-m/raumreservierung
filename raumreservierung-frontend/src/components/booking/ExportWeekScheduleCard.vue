@@ -78,7 +78,7 @@ const selectedCategory = ref<WeekScheduleAsPDFCategoryEnum | null>(null);
 const categoryItems = computed(() =>
   Object.entries(weekScheduleCategoryMap).map(([value, title]) => ({
     value,
-    title: t(title),
+    title,
   }))
 );
 

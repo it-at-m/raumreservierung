@@ -42,7 +42,6 @@ export default defineConfigWithVueTs(
             "/^navigationDrawer\\./",
             "/^domain\\.booking\\.status\\./",
             "/^domain\\.booking\\.types\\./",
-            "/^domain\\.weekScheduleCategory\\./",
             "/^views\\.roomDetailsView\\.titlePrefix\\./",
           ],
         },
