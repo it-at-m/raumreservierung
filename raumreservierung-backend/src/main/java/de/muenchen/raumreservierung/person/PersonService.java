@@ -50,7 +50,7 @@ public class PersonService {
     }
 
     @PreAuthorize(Authorities.USERS_READ)
-    public Page<Person> getPersonsByPageableAndFilter(final Pageable pageable, final PersonFilterDto personFilterDto, boolean searchLdap) {
+    public Page<Person> getPersonsByPageableAndFilter(final Pageable pageable, final PersonFilterDto personFilterDto, final boolean searchLdap) {
         // Persontype differentiation will be done without specs as this saves an inner join!
         switch (personFilterDto.personType()) {
         case PersonType.EXTERNAL -> {

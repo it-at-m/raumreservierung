@@ -6,4 +6,3 @@ public record PersonFilterDto(
         String searchName,
         PersonType personType) {
 }
-
