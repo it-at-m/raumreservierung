@@ -93,7 +93,7 @@ export const useCheckRoomHasFutureBookings = (
 ) => {
   const api = ApiFactory.getInstance(RoomControllerApi);
   return useQuery({
-    queryKey: [ROOM_KEY, "hasFutureBookings", roomId],
+    queryKey: [CACHE_KEYS.ROOM, "hasFutureBookings", roomId],
     queryFn: () => {
       if (!roomId.value) {
         throw new Error("Room ID is required");

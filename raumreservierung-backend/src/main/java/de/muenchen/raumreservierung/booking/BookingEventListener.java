@@ -1,11 +1,10 @@
 package de.muenchen.raumreservierung.booking;
 
-import de.muenchen.raumreservierung.booking.events.RemoveSeatingTypeFromBookingsEvent;
+import de.muenchen.raumreservierung.booking.events.FutureBookingCheckEvent;
+import de.muenchen.raumreservierung.booking.events.RemoveRoomFromBookingsEvent;
 import de.muenchen.raumreservierung.person.PersonDeleteEvent;
 import java.util.List;
 import java.util.UUID;
-import de.muenchen.raumreservierung.booking.events.FutureBookingCheckEvent;
-import de.muenchen.raumreservierung.booking.events.RemoveRoomFromBookingsEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;

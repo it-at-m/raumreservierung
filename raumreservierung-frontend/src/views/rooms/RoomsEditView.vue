@@ -450,11 +450,6 @@ const uploadPicture = async (value: File | File[]) => {
   };
 };
 
-const handleSave = async () => {
-  const payload: RoomRequestDTO = {
-    ...roomData.value,
-    contactPersonId: contactPersonObject.value?.id,
-  };
 const handleSave = () => {
   if (roomData.value.isActive === true || !roomId.value) {
     performSave();
@@ -529,8 +524,10 @@ const handleDelete = async () => {
       {
         onSuccess: () => {
           snackbar.push({
-            level: STATUS_INDICATORS.SUCCESS,
-            message: t("generics.deleted", { domain: t("domain.room.header") }),
+            color: STATUS_INDICATORS.SUCCESS,
+            text: t("generics.deleted", {
+              domain: t("domain.room.header"),
+            }),
           });
           router.push({ name: ROUTES.ROOMS_LIST });
         },
@@ -538,7 +535,6 @@ const handleDelete = async () => {
     );
   }
 };
-}
 </script>
 
 <style scoped></style>
