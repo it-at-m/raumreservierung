@@ -46,7 +46,7 @@
               <div v-if="deleteCheckLoading">
                 {{ t("generics.checkDelete") }}
               </div>
-              <div v-if="!deleteCheckLoading && canDeleteItem === true">
+              <div v-if="!deleteCheckLoading && canDeleteItem">
                 {{
                   t("generics.confirmDelete", {
                     domain: t("domain.room.header"),
@@ -54,7 +54,7 @@
                 }}
               </div>
               <v-alert
-                v-if="canDeleteItem === false"
+                v-if="!canDeleteItem"
                 type="warning"
                 variant="outlined"
                 density="compact"
@@ -109,7 +109,8 @@
           !isValid ||
           uploadFileLoading ||
           updateRoomLoading ||
-          createRoomLoading
+          createRoomLoading ||
+          uploadFileLoading
         "
         @click="handleSave"
       />
@@ -240,6 +241,7 @@
             <seating-capacity-editor
               v-model="roomData.roomSeatingCapacities!"
               :max-room-capacity="roomData.capacity"
+              :room-id="roomId"
             />
           </v-col>
         </v-row>
@@ -269,10 +271,9 @@
         </v-row>
         <v-row>
           <v-col>
-            <v-text-field
-              v-model="roomData.contactPersonId"
-              color="accent"
-              readonly
+            <person-select
+              v-model="contactPersonObject"
+              :type="InternalPersonRequestDtoTypeEnum.INTERNAL"
               :label="t('domain.room.contactPerson')"
             />
           </v-col>
@@ -314,6 +315,7 @@
 
 <script setup lang="ts">
 import type {
+  FindById200Response,
   RoomDetailsResponseDTO,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
@@ -329,8 +331,11 @@ import { computed, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import { Levels } from "@/api/error.ts";
-import { RoomDetailsResponseDTOPropertyValidationAttributesMap } from "@/api/raumreservierung-backend";
+import {
+  InternalPersonRequestDtoTypeEnum,
+  RoomDetailsResponseDTOPropertyValidationAttributesMap,
+} from "@/api/raumreservierung-backend";
+import PersonSelect from "@/components/booking/PersonSelect.vue";
 import BaseView from "@/components/common/BaseView.vue";
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
@@ -350,6 +355,7 @@ import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { mapResponseToFileMock } from "@/util/fileTypeUtility.ts";
 import { EMPTY_ROOM_DATA, mapResponseToRequest } from "@/util/roomTypeUtil.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
@@ -368,6 +374,8 @@ const pictureMetaData = ref<File>();
 
 const isDeletable = ref<boolean>(false);
 const deleteRoomId = ref<string>();
+
+const contactPersonObject = ref<FindById200Response>();
 
 const { t } = useI18n();
 
@@ -413,8 +421,11 @@ watch(
         );
       } else {
         router.push({ name: ROUTES.ROOMS_LIST });
-        return;
       }
+    } else {
+      roomData.value = { ...EMPTY_ROOM_DATA };
+      pictureMetaData.value = undefined;
+      isDeletable.value = false;
     }
   },
   { immediate: true }
@@ -439,6 +450,11 @@ const uploadPicture = async (value: File | File[]) => {
   };
 };
 
+const handleSave = async () => {
+  const payload: RoomRequestDTO = {
+    ...roomData.value,
+    contactPersonId: contactPersonObject.value?.id,
+  };
 const handleSave = () => {
   if (roomData.value.isActive === true || !roomId.value) {
     performSave();
@@ -495,9 +511,9 @@ const onSuccess = (
   newRoomData: DeepReadonly<RoomDetailsResponseDTO>,
   msg: string
 ) => {
-  snackbar.add({
-    level: Levels.SUCCESS,
-    message: msg,
+  snackbar.push({
+    color: STATUS_INDICATORS.SUCCESS,
+    text: msg,
   });
 
   router.replace({
@@ -512,8 +528,8 @@ const handleDelete = async () => {
       { roomId: roomId.value },
       {
         onSuccess: () => {
-          snackbar.add({
-            level: Levels.SUCCESS,
+          snackbar.push({
+            level: STATUS_INDICATORS.SUCCESS,
             message: t("generics.deleted", { domain: t("domain.room.header") }),
           });
           router.push({ name: ROUTES.ROOMS_LIST });
@@ -522,6 +538,7 @@ const handleDelete = async () => {
     );
   }
 };
+}
 </script>
 
 <style scoped></style>

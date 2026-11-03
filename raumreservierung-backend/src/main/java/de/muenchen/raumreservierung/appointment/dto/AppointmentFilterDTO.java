@@ -1,6 +1,7 @@
 package de.muenchen.raumreservierung.appointment.dto;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import io.swagger.v3.oas.annotations.Parameter;
 import jakarta.validation.constraints.NotNull;
 import java.time.OffsetDateTime;
 import java.util.List;
@@ -11,5 +12,5 @@ public record AppointmentFilterDTO(
         @NotNull OffsetDateTime startDate,
         @NotNull OffsetDateTime endDate,
         UUID bookingId,
-        List<UUID> roomIds) {
+        @Parameter(hidden = true) List<UUID> roomIds) {
 }

@@ -1,6 +1,6 @@
 export const AD2IMAGE_URL = import.meta.env.VITE_AD2IMAGE_URL;
 export const APPSWITCHER_URL = import.meta.env.VITE_APPSWITCHER_URL;
-
+export const BASE_PATH = "/api/backend-service";
 export const SNACKBAR_DEFAULT_TIMEOUT = 5000;
 
 export const enum STATUS_INDICATORS {
@@ -9,6 +9,11 @@ export const enum STATUS_INDICATORS {
   WARNING = "warning",
   ERROR = "error",
 }
+
+export const FALLBACK_CATEGORY_ROOM = {
+  name: "Ohne Raum",
+  categoryName: "unassigned",
+};
 
 export const DATE_FORMAT_DDMMYY = "DD.MM.YY";
 export const DATE_FORMAT_YYYYMMDD = "YYYY-MM-DD";

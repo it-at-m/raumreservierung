@@ -35,6 +35,11 @@ const datetimeFormats = {
       hour: "2-digit",
       minute: "2-digit",
     },
+    // HH24:MM
+    time: {
+      hour: "2-digit",
+      minute: "2-digit",
+    },
     // TT.MM.JJJJ HH24:MM:SS
     timestamp: {
       year: "numeric",

@@ -18,6 +18,7 @@ import de.muenchen.raumreservierung.security.Roles;
 import de.muenchen.raumreservierung.security.SecurityContextService;
 import jakarta.persistence.EntityManager;
 import java.time.OffsetDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -242,11 +243,18 @@ public class BookingService {
      * @param bookingUpdates the updated booking data
      */
     public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
-        if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())) {
+        if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())
+                && Objects.equals(existingBooking.getSchedule(), bookingUpdates.getSchedule())) {
+            bookingUpdates.setAppointments(new HashSet<>(existingBooking.getAppointments()));
             return;
         }
 
         final Set<Appointment> newAppointments = appointmentService.generateAndLinkAppointments(bookingUpdates);
+        if (bookingUpdates.getRecurringRule() == null || bookingUpdates.getRecurringRule().isBlank()) {
+            bookingUpdates.setAppointments(newAppointments);
+            return;
+        }
+
         final OffsetDateTime now = OffsetDateTime.now();
 
         final Set<Appointment> pastAppointments = existingBooking.getAppointments().stream()
@@ -270,11 +278,11 @@ public class BookingService {
         return booking;
     }
 
-    private Booking getEntityOrThrowException(final UUID bookingId) {
+    Booking getEntityOrThrowException(final UUID bookingId) {
         return bookingRepository.findById(bookingId).orElseThrow(() -> new NotFoundException(String.format(MSG_NOT_FOUND, bookingId)));
     }
 
-    private Booking saveAndDetach(final Booking bookingToUpdate, final Booking sourceData) {
+    Booking saveAndDetach(final Booking bookingToUpdate, final Booking sourceData) {
         bookingToUpdate.updateFrom(sourceData);
 
         final Booking savedBooking = bookingRepository.saveAndFlush(bookingToUpdate);
@@ -339,6 +347,12 @@ public class BookingService {
         } else {
             booking.setStatus(BookingStatus.ORGANIZER_APPROVED);
         }
+    }
+
+    void removeSeatingTypeFromBookings(final UUID seatingTypeId) {
+        final List<Booking> affectedBookings = bookingRepository.findBySeatingTypeId(seatingTypeId);
+        affectedBookings.forEach(booking -> booking.setSeatingType(null));
+        bookingRepository.saveAll(affectedBookings);
     }
 
     boolean existsFutureBookingForRoom(final UUID roomId) {

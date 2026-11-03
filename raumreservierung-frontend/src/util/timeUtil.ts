@@ -25,8 +25,14 @@ export const toApiDate = <T extends Date | undefined>(date: T): T =>
 /**
  * Transforms given date to same date with time set to 00:00:00
  */
-export const toStartOfDay = (date: Date | string): number =>
+export const toStartOfDay = (date: Date): number =>
   new Date(date).setHours(0, 0, 0, 0);
+
+/**
+ * Transforms given date to same date with time set to 00:00:00
+ */
+export const toEndofDay = (date: Date): number =>
+  new Date(date).setHours(23, 59, 59, 999);
 
 /**
  * Compares two date ranges while ignoring time via toStartOfDay

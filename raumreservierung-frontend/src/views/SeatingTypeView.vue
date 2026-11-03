@@ -10,9 +10,12 @@
         :empty-item-template="EMPTY_ITEM_TEMPLATE"
         :loading="getAllSeatingTypeLoading || deleteSeatingTypeLoading"
         :domain="t('domain.seatingType.header')"
+        :can-delete-item="canDeleteItem"
+        :delete-check-loading="deleteCheckLoading"
         @create="handleCreate"
         @update="handleUpdate"
         @delete="handleDelete"
+        @delete-prompt="handleDeletePrompt"
       >
         <template #form="{ item, updateItem, updateValidity }">
           <seating-type-form
@@ -30,38 +33,21 @@
             items-per-page="-1"
           >
             <template #[`item.isActive`]="{ item }">
-              <v-checkbox-btn
-                readonly
-                hide-details
-                :model-value="item.isActive"
-                class="pointer-events-none"
-              />
+              <v-icon :icon="item.isActive ? mdiCheck : mdiMinus" />
             </template>
             <template #[`item.actions`]="{ item }">
-              <v-row align-content="center">
-                <v-col
-                  class="pa-0"
-                  cols="12"
-                  sm="6"
-                >
-                  <action-button
-                    type="edit"
-                    class="mr-1"
-                    @click="openEdit(item)"
-                  />
-                </v-col>
-                <v-col
-                  class="pa-0"
-                  cols="12"
-                  sm="6"
-                >
-                  <action-button
-                    :disabled="item.isActive"
-                    type="delete"
-                    @click="openDelete(item)"
-                  />
-                </v-col>
-              </v-row>
+              <rr-button-group>
+                <action-button
+                  type="edit"
+                  class="mr-1"
+                  @click="openEdit(item)"
+                />
+                <action-button
+                  :disabled="item.isActive"
+                  type="delete"
+                  @click="openDelete(item)"
+                />
+              </rr-button-group>
             </template>
           </v-data-table>
         </template>
@@ -74,21 +60,24 @@
 import type { SeatingTypeResponseDto } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
+import { mdiCheck, mdiMinus } from "@mdi/js";
 import { useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 
-import { Levels } from "@/api/error.ts";
 import BaseView from "@/components/common/BaseView.vue";
 import ActionButton from "@/components/common/buttons/ActionButton.vue";
+import RrButtonGroup from "@/components/common/buttons/rrButtonGroup.vue";
 import CrudCard from "@/components/common/CrudCard.vue";
 import SeatingTypeForm from "@/components/SeatingTypeForm.vue";
 import {
+  useCheckSeatingTypeDeletableMutation,
   useCreateSeatingType,
   useDeleteSeatingType,
   useGetAllSeatingTypes,
   useUpdateSeatingType,
 } from "@/composables/api/useSeatingApi.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 const { t } = useI18n();
 
@@ -99,23 +88,20 @@ const crudRef = useTemplateRef("crudRef");
 const { data: allSeatingTypesData, isPending: getAllSeatingTypeLoading } =
   useGetAllSeatingTypes();
 
-const {
-  mutateAsync: deleteSeatingTypeCall,
-  isPending: deleteSeatingTypeLoading,
-  error: deleteSeatingTypeError,
-} = useDeleteSeatingType();
+const { mutate: deleteSeatingTypeCall, isPending: deleteSeatingTypeLoading } =
+  useDeleteSeatingType();
+
+const { mutate: createSeatingTypeCall, isPending: createSeatingTypeLoading } =
+  useCreateSeatingType();
+
+const { mutate: updateSeatingTypeCall, isPending: updateSeatingTypeLoading } =
+  useUpdateSeatingType();
 
 const {
-  mutateAsync: createSeatingTypeCall,
-  isPending: createSeatingTypeLoading,
-  error: createSeatingTypeError,
-} = useCreateSeatingType();
-
-const {
-  mutateAsync: updateSeatingTypeCall,
-  isPending: updateSeatingTypeLoading,
-  error: updateSeatingTypeError,
-} = useUpdateSeatingType();
+  mutate: checkDeletable,
+  data: canDeleteItem,
+  isPending: deleteCheckLoading,
+} = useCheckSeatingTypeDeletableMutation();
 
 const headers: TableHeader<SeatingTypeResponseDto>[] = [
   { title: t("domain.seatingType.name"), value: "name", sortable: true },
@@ -123,9 +109,15 @@ const headers: TableHeader<SeatingTypeResponseDto>[] = [
   {
     title: t("domain.seatingType.isActive"),
     value: "isActive",
+    align: "center",
     sortable: true,
   },
-  { title: t("common.action", { count: 2 }), value: "actions" },
+  {
+    title: t("common.action", { count: 2 }),
+    value: "actions",
+    width: "1%",
+    align: "center",
+  },
 ];
 
 const EMPTY_ITEM_TEMPLATE = {
@@ -134,42 +126,58 @@ const EMPTY_ITEM_TEMPLATE = {
 } as SeatingTypeResponseDto;
 
 const handleCreate = async (newItem: SeatingTypeResponseDto) => {
-  await createSeatingTypeCall({ seatingTypeRequestDto: newItem });
-  if (!createSeatingTypeError.value) {
-    await onSuccess(
-      t("generics.created", { domain: t("domain.seatingType.header") })
-    );
-  }
+  createSeatingTypeCall(
+    { seatingTypeRequestDto: newItem },
+    {
+      onSuccess: () => {
+        onSuccess(
+          t("generics.created", { domain: t("domain.seatingType.header") })
+        );
+      },
+    }
+  );
 };
 
 const handleUpdate = async (updatedItem: SeatingTypeResponseDto) => {
   if (updatedItem.id) {
-    await updateSeatingTypeCall({
-      seatingTypeRequestDto: updatedItem,
-      seatingTypeId: updatedItem.id,
-    });
-    if (!updateSeatingTypeError.value) {
-      await onSuccess(
-        t("generics.updated", { domain: t("domain.seatingType.header") })
-      );
-    }
+    updateSeatingTypeCall(
+      {
+        seatingTypeRequestDto: updatedItem,
+        seatingTypeId: updatedItem.id,
+      },
+      {
+        onSuccess: () => {
+          onSuccess(
+            t("generics.updated", { domain: t("domain.seatingType.header") })
+          );
+        },
+      }
+    );
   }
 };
 
 const handleDelete = async (id: string) => {
-  await deleteSeatingTypeCall({ seatingTypeId: id });
-  if (!deleteSeatingTypeError.value) {
-    await onSuccess(
-      t("generics.deleted", { domain: t("domain.seatingType.header") })
-    );
-  }
+  deleteSeatingTypeCall(
+    { seatingTypeId: id },
+    {
+      onSuccess: () => {
+        onSuccess(
+          t("generics.deleted", { domain: t("domain.seatingType.header") })
+        );
+      },
+    }
+  );
+};
+
+const handleDeletePrompt = (id: string) => {
+  checkDeletable(id);
 };
 
 const onSuccess = async (msg: string) => {
   if (crudRef.value) {
     crudRef.value.closeDialog();
   }
-  snackbarStore.add({ message: msg, level: Levels.SUCCESS });
+  snackbarStore.push({ text: msg, color: STATUS_INDICATORS.SUCCESS });
 };
 </script>
 

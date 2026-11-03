@@ -11,8 +11,7 @@ import { computed, toValue } from "vue";
 
 import { HolidayControllerApi } from "@/api/raumreservierung-backend/apis/HolidayControllerApi";
 import { ApiFactory } from "@/util/apiFactory.ts";
-
-const HOLIDAY_KEY = "holiday";
+import { CACHE_KEYS } from "@/types/CACHE_KEYS.ts";
 
 export const useGetHolidays = (
   params: MaybeRefOrGetter<GetHolidaysRequest | undefined>
@@ -21,7 +20,7 @@ export const useGetHolidays = (
   const paramsRef = computed(() => toValue(params));
 
   return useQuery({
-    queryKey: [HOLIDAY_KEY, paramsRef],
+    queryKey: [CACHE_KEYS.HOLIDAY, paramsRef],
     queryFn: () => {
       if (!paramsRef.value) {
         throw new Error("Holiday year is required");
@@ -39,7 +38,7 @@ export const useDeleteHoliday = () => {
   return useMutation({
     mutationFn: (params: DeleteHolidayRequest) => api.deleteHoliday(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [HOLIDAY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.HOLIDAY] });
     },
   });
 };
@@ -51,7 +50,7 @@ export const useCreateHoliday = () => {
   return useMutation({
     mutationFn: (params: CreateHolidayRequest) => api.createHoliday(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [HOLIDAY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.HOLIDAY] });
     },
   });
 };
@@ -63,7 +62,7 @@ export const useUpdateHoliday = () => {
   return useMutation({
     mutationFn: (params: UpdateHolidayRequest) => api.updateHoliday(params),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [HOLIDAY_KEY] });
+      queryClient.invalidateQueries({ queryKey: [CACHE_KEYS.HOLIDAY] });
     },
   });
 };

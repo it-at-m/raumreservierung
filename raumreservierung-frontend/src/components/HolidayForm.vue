@@ -55,7 +55,7 @@
 
 <script setup lang="ts">
 import type { HolidayRequestDTO } from "@/api/raumreservierung-backend";
-import type { VDateInput } from "vuetify/labs/VDateInput";
+import type { VDateInput } from "vuetify/components";
 
 import { mdiCalendar } from "@mdi/js";
 import { ref, useTemplateRef } from "vue";

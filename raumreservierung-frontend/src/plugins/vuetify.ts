@@ -5,7 +5,6 @@ import type { VueI18nAdapterParams } from "vuetify/locale/adapters/vue-i18n";
 import { useI18n } from "vue-i18n";
 import { createVuetify } from "vuetify";
 import { aliases, mdi } from "vuetify/iconsets/mdi-svg";
-import { VDateInput } from "vuetify/labs/VDateInput";
 import { createVueI18nAdapter } from "vuetify/locale/adapters/vue-i18n";
 
 import i18n from "@/plugins/i18n";
@@ -15,9 +14,6 @@ export default createVuetify({
     VTextField: {
       variant: "outlined",
     },
-  },
-  components: {
-    VDateInput,
   },
   icons: {
     defaultSet: "mdi",
@@ -50,6 +46,11 @@ export default createVuetify({
           statusApproved: "#809C00",
           statusCoordination: "#af64d4",
           statusCanceled: "#D54234",
+          statusDefault: "#1A3DA5",
+          //Calendar
+          weekendColor: "#c8c8c844",
+          publicHolidayColor: "#F6D69666",
+          schoolHolidayColor: "#A8DCD966",
         },
       },
       dark: {
@@ -60,6 +61,10 @@ export default createVuetify({
           statusApproved: "#809C00",
           statusCoordination: "#af64d4",
           statusCanceled: "#D54234",
+          //Calendar
+          weekendColor: "#73737333",
+          publicHolidayColor: "#6E562633",
+          schoolHolidayColor: "#2B5B5833",
         },
       },
     },

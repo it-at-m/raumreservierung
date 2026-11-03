@@ -1,16 +1,19 @@
 package de.muenchen.raumreservierung.appointment;
 
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
+import de.muenchen.raumreservierung.booking.BookingStatus;
 import de.muenchen.raumreservierung.booking.Booking_;
 import de.muenchen.raumreservierung.booking.ScheduleTemplate_;
 import de.muenchen.raumreservierung.room.Room_;
-import java.time.LocalTime;
+import de.muenchen.raumreservierung.seating.SeatingType_;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 
+@Slf4j
 public final class AppointmentSpecificationBuilder {
 
     private AppointmentSpecificationBuilder() {
@@ -27,14 +30,36 @@ public final class AppointmentSpecificationBuilder {
         }
         final OffsetDateTime start = appointmentFilterDTO.startDate();
         if (start != null) {
-            specificationList.add(filterForStartDate(start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime()));
+            specificationList.add(filterForStartDate(start));
         }
         final OffsetDateTime end = appointmentFilterDTO.endDate();
         if (end != null) {
-            specificationList.add(filterForEndDate(end.toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime()));
+            specificationList.add(filterForEndDate(end));
         }
 
         return Specification.allOf(specificationList);
+    }
+    public static <T extends Appointment> Specification<T> forFutureSeatingTypeUsage(final UUID seatingTypeId, final UUID roomId) {
+        final List<Specification<T>> specificationList = new ArrayList<>();
+        specificationList.add(filterForSeatingTypeId(seatingTypeId));
+        specificationList.add(filterForOccupancyEndAfter(OffsetDateTime.now()));
+        specificationList.add(filterExcludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
+        if (roomId != null) {
+            specificationList.add(filterForRoomId(roomId));
+        }
+        return Specification.allOf(specificationList);
+    }
+
+    private static <T extends Appointment> Specification<T> filterForRoomId(final UUID roomId) {
+        return (root, query, cb) -> cb.equal(root.get(Appointment_.booking).get(Booking_.room).get(Room_.id), roomId);
+    }
+
+    private static <T extends Appointment> Specification<T> filterForSeatingTypeId(final UUID seatingTypeId) {
+        return (root, query, cb) -> cb.equal(root.get(Appointment_.booking).get(Booking_.seatingType).get(SeatingType_.id), seatingTypeId);
+    }
+
+    private static <T extends Appointment> Specification<T> filterExcludingStatus(final BookingStatus... status) {
+        return (root, query, cb) -> cb.not(root.get(Appointment_.booking).get(Booking_.status).in(List.of(status)));
     }
 
     private static <T extends Appointment> Specification<T> filterForRoomIds(final List<UUID> roomIds) {

@@ -1,7 +1,8 @@
 import type { Privilege } from "@/types/Privilege.ts";
-import type { ComputedRef } from "vue";
+import type { Role } from "@/types/Role.ts";
+import type { ComputedRef, MaybeRefOrGetter } from "vue";
 
-import { computed, unref } from "vue";
+import { computed, toValue, unref } from "vue";
 
 import { useUserStore } from "@/stores/user.ts";
 import { hasPrivileges } from "@/util/privilegeUtility.ts";
@@ -30,4 +31,10 @@ export function useIsPrivileged(requiredPrivileges?: Privilege | Privilege[]) {
   }
 
   return check;
+}
+
+export function useHasRole(reqRole: MaybeRefOrGetter<Role>) {
+  const userStore = useUserStore();
+
+  return computed(() => userStore.user.user_roles === toValue(reqRole));
 }

@@ -9,7 +9,7 @@
         @click="router.back()"
       />
       <base-button
-        v-if="canCancel && !isCanceledOrUnfeasible"
+        v-if="canCancel && isBookingEditable"
         class="ml-4"
         :text="t('common.rescind')"
         secondary
@@ -67,7 +67,7 @@
       <v-form
         v-model="isValid"
         :disabled="createBookingLoading || updateBookingLoading"
-        :readonly="isCanceledOrUnfeasible"
+        :readonly="!isBookingEditable"
       >
         <v-row>
           <v-col
@@ -87,7 +87,6 @@
               hide-details="auto"
             />
           </v-col>
-
           <v-col
             v-if="isPrivileged"
             :cols="showStatus ? 6 : 12"
@@ -109,6 +108,7 @@
           >
             <general-status-select
               v-model="bookingData.status"
+              density="comfortable"
               :label="t('domain.booking.statusTitle')"
               :loading="
                 getBookingLoading ||
@@ -118,7 +118,7 @@
               :possible-status="statusFull?.nextPossibleStatus"
               :excluded-status="BookingStatusDTOCurrentStatusEnum.CANCELED"
               hide-details
-              :readonly="isCanceledOrUnfeasible && !isPrivileged"
+              :readonly="!isBookingEditable && !isPrivileged"
             />
           </v-col>
         </v-row>
@@ -130,7 +130,7 @@
               :loading="
                 getRoomLoading || createBookingLoading || updateBookingLoading
               "
-              @update:model-value="updateRoom"
+              @update:model-value="(newRoomId) => (selectedRoomId = newRoomId)"
             />
           </v-col>
         </v-row>
@@ -306,6 +306,7 @@
 import type {
   BookingRequestDTO,
   FindById200Response,
+  RoomDetailsResponseDTO,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
@@ -318,7 +319,6 @@ import { computed, onMounted, ref, toRaw, watch } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute, useRouter } from "vue-router";
 
-import { Levels } from "@/api/error.ts";
 import {
   BookingRequestDTOBookingTypeEnum,
   BookingRequestDTOStatusEnum,
@@ -340,10 +340,11 @@ import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import RoomSelect from "@/components/rooms/RoomSelect.vue";
 import {
   useCreateBooking,
-  useGetBooking,
+  useGetBookingOld,
   useUpdateBooking,
 } from "@/composables/api/useBookingsApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
+import { useIsBookingEditable } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { useRules } from "@/composables/useRules.ts";
 import { EMPTY_BOOKING_STATUS_DATA } from "@/constants/BookingStatus";
@@ -355,6 +356,7 @@ import {
   mapBookingResponseToRequest,
 } from "@/util/bookingTypeUtil.ts";
 import { mapResponseToRequest } from "@/util/roomTypeUtil.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 const DEFAULT_RRULE = "FREQ=WEEKLY;INTERVAL=1;BYDAY=MO;COUNT=10";
 
@@ -368,6 +370,7 @@ const isValid = ref<boolean>();
 const isUnfeasibleDialogOpen = ref(false);
 
 const currentRoom = ref<RoomRequestDTO>();
+const selectedRoomId = ref<string>();
 const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
 const bookedFor = ref<FindById200Response>();
 const statusFull = ref<BookingStatusFull>(EMPTY_BOOKING_STATUS_DATA);
@@ -425,7 +428,7 @@ const {
   data: getBookingData,
   error: getBookingError,
   loading: getBookingLoading,
-} = useGetBooking();
+} = useGetBookingOld();
 
 const {
   call: createBooking,
@@ -442,16 +445,34 @@ useUpdateBooking();
 
 const snackbarStore = useSnackbarStore();
 
-const roomIdToFetch = computed(() => getBookingData.value?.room?.id);
+const roomIdToFetch = computed(() => selectedRoomId.value);
+
+const applyRoomChange = (room: RoomDetailsResponseDTO) => {
+  currentRoom.value = mapResponseToRequest(room);
+
+  bookingData.value = {
+    ...bookingData.value,
+    equipmentIds: bookingData.value.equipmentIds?.filter((chosenEq) =>
+      currentRoom.value?.equipmentIds?.includes(chosenEq)
+    ),
+    seatingTypeId:
+      bookingData?.value?.seatingTypeId &&
+      currentRoomSeatingTypeIds.value?.includes(bookingData.value.seatingTypeId)
+        ? bookingData.value.seatingTypeId
+        : undefined,
+  };
+};
 
 const { isLoading: getRoomLoading, data: roomReqData } =
   useGetRoom(roomIdToFetch);
+
+const isBookingEditable = useIsBookingEditable(bookingData);
 
 watch(
   () => roomReqData.value?.id,
   () => {
     if (roomReqData.value) {
-      currentRoom.value = mapResponseToRequest(roomReqData.value);
+      applyRoomChange(roomReqData.value);
     }
   }
 );
@@ -475,41 +496,27 @@ onMounted(async () => {
     statusFull.value = getBookingData.value.status;
 
     if (getBookingData.value.room?.id) {
-      await updateRoom(getBookingData.value.room?.id);
+      selectedRoomId.value = getBookingData.value.room?.id;
     }
   } else {
     // reset to clear maybe filled out data away
     bookingData.value = { ...EMPTY_BOOKING_REQUEST_DATA };
 
     const queryRoomId = route.query.roomId as string | undefined;
+    const queryOccupancyStart = route.query.start as string | undefined;
+    const queryOccupancyEnd = route.query.end as string | undefined;
     if (queryRoomId) {
       bookingData.value.roomId = queryRoomId;
-      await updateRoom(queryRoomId);
+      selectedRoomId.value = queryRoomId;
     }
-  }
-});
-
-const updateRoom = async (roomId: string | undefined) => {
-  if (roomId) {
-    if (bookingData?.value.equipmentIds) {
-      const filteredEquipmentIds = bookingData.value.equipmentIds.filter(
-        (chosenEq) => currentRoom.value?.equipmentIds?.includes(chosenEq)
-      );
-
-      bookingData.value = {
-        ...bookingData.value,
-        equipmentIds: filteredEquipmentIds,
-        seatingTypeId:
-          bookingData?.value?.seatingTypeId &&
-          currentRoomSeatingTypeIds.value?.includes(
-            bookingData.value.seatingTypeId
-          )
-            ? bookingData.value.seatingTypeId
-            : undefined,
+    if (queryOccupancyStart && queryOccupancyEnd) {
+      bookingData.value.schedule = {
+        occupancyStart: new Date(queryOccupancyStart),
+        occupancyEnd: new Date(queryOccupancyEnd),
       };
     }
   }
-};
+});
 
 const saveBooking = async () => {
   if (bookingId.value) {
@@ -548,7 +555,7 @@ const saveBooking = async () => {
 };
 
 const onSuccess = (msg: string) => {
-  snackbarStore.add({ message: msg, level: Levels.SUCCESS });
+  snackbarStore.push({ text: msg, color: STATUS_INDICATORS.SUCCESS });
 
   router.replace({
     name: isMyBooking.value ? ROUTES.MY_BOOKINGS_LIST : ROUTES.BOOKINGS_LIST,
@@ -563,11 +570,6 @@ const updateRRule = (value: boolean | null) => {
     };
   }
 };
-const isCanceledOrUnfeasible = computed(
-  () =>
-    bookingData.value.status === BookingStatusDTOCurrentStatusEnum.CANCELED ||
-    bookingData.value.status === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE
-);
 
 const canCancel = computed(() => {
   const booking = getBookingData.value;

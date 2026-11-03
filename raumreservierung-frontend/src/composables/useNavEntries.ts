@@ -35,7 +35,7 @@ const NAV_ENTRIES: readonly NavEntry[] = [
       {
         kind: "item",
         textKey: "navigationDrawer.bookingGroup.bookCalendar",
-        to: { name: ROUTES.GETSTARTED },
+        to: { name: ROUTES.BOOKINGS_CREATE_CALENDAR },
         requiredPrivilege: "calendar:write",
       },
     ],

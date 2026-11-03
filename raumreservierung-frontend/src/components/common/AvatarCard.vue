@@ -4,7 +4,7 @@
     :loading="isLoading"
   >
     <template #prepend>
-      <ad2-image-avatar username="" />
+      <ad2-image-avatar :username="preferredUsername" />
     </template>
     <template #title>
       <span class="text-capitalize">
@@ -28,6 +28,8 @@ import { useUserStore } from "@/stores/user.ts";
 const userStore = useUserStore();
 
 const isLoading = computed(() => userStore.user == null);
+
+const preferredUsername = computed(() => userStore.user?.preferred_username);
 </script>
 
 <style scoped>

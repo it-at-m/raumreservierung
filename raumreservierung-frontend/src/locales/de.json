@@ -4,6 +4,9 @@
     "no": "Nein",
     "cancel": "Abbrechen",
     "rescind": "Stornieren",
+    "reserve": "Vormerken",
+    "refuse": "Ablehnen",
+    "book": "Buchen",
     "delete": "Löschen",
     "save": "Speichern",
     "edit": "Bearbeiten",
@@ -14,7 +17,6 @@
     "action": "Aktion | Aktionen",
     "messages": {},
     "squareMeterAbr": "qm",
-    "todo": "TODO",
     "rules": {
       "notEmpty": "{field} darf nicht leer sein.",
       "minLengthError": "{field} benötigt mindestens {num} Zeichen.",
@@ -45,10 +47,21 @@
     }
   },
   "components": {
+    "bookingsCalendarView": {
+      "warning": "Die Änderung bezieht sich auf alle Serientermine in der Zukunft."
+    },
+    "exportBookingsCard": {
+      "confirm": "Buchungen exportieren",
+      "chooseYear": "Wählen Sie den Jahrgang für den Export"
+    },
     "roomResourceManagementCard": {
       "subtitle": "Neue {domain} zu bestehender Liste hinzufügen."
     },
     "dateDisplay": "{day}, {date}",
+    "bookingDetailsSummary": {
+      "annotation": "Anmerkung",
+      "selectedEquipment": "Gewählte Ausstattung"
+    },
     "scheduleTimelineCard": {
       "header": "Zeitlicher Ablauf",
       "end": "Ende",
@@ -85,6 +98,9 @@
     "seatingTypeParticipantsSelector": {
       "suffix": "Maximale Kapazität {count}"
     },
+    "seatingCapacityEditor": {
+      "futureUsage": "Bestuhlung kann nicht gelöscht werden: Verwendung in zukünftiger Buchung."
+    },
     "personSelect": {
       "personNotFound": "Person nicht gefunden",
       "coveredBy": "Wird durch {type} Person abgedeckt",
@@ -107,6 +123,9 @@
     },
     "filterPanel": {
       "bookedFor": "Gebucht für"
+    },
+    "rrBookingCalendar": {
+      "toBooking": "Zum Termin"
     }
   },
   "views": {
@@ -136,20 +155,28 @@
         "link": "Anfrage ohne Raumauswahl"
       }
     },
+    "roomDetailsView": {
+      "titlePrefix": {
+        "mr": "@:domain.person.titles.mr",
+        "ms": "@:domain.person.titles.ms",
+        "diverse": "",
+        "none": ""
+      }
+    },
     "roomEditView": {
       "deactivationConfirmTitle": "Raum deaktivieren",
       "deactivationFutureBookingsWarning": "Dieser Raum wird in zukünftigen Buchungen verwendet. Sie können den Raum dennoch deaktivieren."
     },
     "bookingDetailsView": {
       "header": "Buchungsdetails",
-      "participants": "Teilnehmende {count}",
       "chosenSeatingType": "Gewählte Bestuhlung",
       "bookedBy": "Gebucht von @:common.format.fullName",
       "bookedFor": "@:components.filterPanel.bookedFor @:common.format.fullName",
       "seriesDate": "Serientermin",
       "notes": "Notizen",
       "internalNotes": "Interne Notizen",
-      "noRoomSelected": "Kein Raum gewählt"
+      "noRoomSelected": "Kein Raum gewählt",
+      "noSeatingSelected": "Keine Bestuhlung ausgewählt"
     },
     "bookingEditView": {
       "header": "Buchung bearbeiten",
@@ -159,6 +186,11 @@
       "cateringPlanned": "Catering geplant",
       "bookedForOthersCard": "Buchung für andere Person",
       "dateTimeCard": "Datum und Uhrzeit"
+    },
+    "bookingsCalendarView": {
+      "createInDateRangeSameDay": "Möchten Sie einen Termin am {date} von {start} bis {end} Uhr erstellen?",
+      "createInDateRangeMultiDay": "Möchten Sie einen Termin vom {start} bis {end} erstellen?",
+      "drawNewDateRange": "Markieren Sie einen Zeitraum für einen neuen Termin."
     },
     "bookingListView": {
       "periodFrom": "Zeitraum von",
@@ -170,7 +202,9 @@
     "manage": "{domain} verwalten",
     "filter": "{domain} filtern",
     "delete": "{domain} löschen",
+    "view": "{domain} im Detail betrachten",
     "edit": "{domain} bearbeiten",
+    "calendarEdit": "{domain} im Kalender bearbeiten",
     "add": "{domain} hinzufügen",
     "create": "{domain} erstellen",
     "active": "{domain} aktiv",
@@ -178,8 +212,8 @@
     "inActive": "{domain} inaktiv",
     "confirmMsg": "Möchten Sie den \"{domain}\" endgültig löschen?",
     "confirmDelete": "Möchten Sie den Eintrag aus \"{domain}\" endgültig löschen?",
-    "checkDelete": "Es wird geprüft, ob Entität gelöscht werden kann",
-    "cantDelete": "Das Löschen ist nicht möglich – die Entität wird in einer aktuellen oder zukünftigen Buchung verwendet. Bitte stattdessen deaktivieren.",
+    "checkDelete": "Es wird geprüft, ob \"{domain}\" gelöscht werden kann",
+    "cantDelete": "\"{domain}\" löschen ist nicht möglich: Verwendung in einer aktuellen oder zukünftigen Buchung. Bitte stattdessen deaktivieren.",
     "deleted": "{domain} wurde gelöscht.",
     "updated": "{domain} wurde aktualisiert.",
     "created": "{domain} wurde erstellt.",
@@ -217,6 +251,7 @@
     "booking": {
       "header": "Buchung | Buchungen",
       "participants": "Teilnehmende | Teilnehmenden",
+      "participantCount": "{count} Teilnehmende",
       "bookingTitle": "Veranstaltungstitel",
       "statusTitle": "Status",
       "date": "Datum",
@@ -225,6 +260,10 @@
       "internalNotes": "Interne Notizen",
       "appointment": "Veranstaltungszeit",
       "occupancy": "Belegungszeit",
+      "appointmentType": {
+        "single": "Einzeltermin",
+        "series": "Serientermin"
+      },
       "statusChange": {
         "noReasonForStatusChange": "Kein Grund angegeben",
         "enterReason": "Begründung eingeben",
@@ -263,7 +302,7 @@
       "appointmentEnd": "Veranstaltungsende"
     },
     "room": {
-      "header": "Raum",
+      "header": "Raum | Räume",
       "details": "Raumdetails",
       "contactPerson": "Kontaktperson",
       "capacity": {

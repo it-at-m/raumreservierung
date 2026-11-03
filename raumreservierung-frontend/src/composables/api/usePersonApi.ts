@@ -14,14 +14,13 @@ import { computed } from "vue";
 import { PersonControllerApi } from "@/api/raumreservierung-backend";
 import { useApi } from "@/composables/api/useApi.ts";
 import { ApiFactory } from "@/util/apiFactory.ts";
-
-const PERSON_KEY = "person";
+import { CACHE_KEYS } from "@/types/CACHE_KEYS.ts";
 
 export const useFindPerson = (personId: Ref<string | undefined>) => {
   const api = ApiFactory.getInstance(PersonControllerApi);
 
   return useQuery({
-    queryKey: [PERSON_KEY, personId],
+    queryKey: [CACHE_KEYS.PERSON, personId],
     queryFn: () => {
       if (!personId.value) {
         throw new Error("Person ID is required");

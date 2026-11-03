@@ -59,22 +59,32 @@
       >
         <template #text>
           <div v-if="deleteCheckLoading">
-            {{ t("generics.checkDelete") }}
+            {{ t("generics.checkDelete", { domain }) }}
           </div>
-          <div v-if="!deleteCheckLoading && canDeleteItem === true">
+          <div v-if="!deleteCheckLoading && canDeleteItem">
             {{ t("generics.confirmDelete", { domain }) }}
           </div>
           <v-alert
-            v-if="canDeleteItem === false"
+            v-if="!canDeleteItem"
             type="warning"
             variant="outlined"
             density="compact"
           >
-            {{ t("generics.cantDelete") }}
+            {{ t("generics.cantDelete", { domain }) }}
           </v-alert>
+        </template>
+        <template #cancel="{ props }">
+          <base-button
+            v-bind="props"
+            secondary
+            :class="{ 'mr-4': canDeleteItem }"
+            :text="canDeleteItem ? t('common.cancel') : t('common.close')"
+            :prepend-icon="mdiClose"
+          />
         </template>
         <template #confirm="{ props }">
           <base-button
+            v-if="canDeleteItem"
             :text="t('common.delete')"
             :append-icon="mdiTrashCanOutline"
             v-bind="props"

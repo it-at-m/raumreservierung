@@ -41,11 +41,11 @@ describe("TheSnackbarQueue.vue", () => {
 
     const store = useSnackbarStore(pinia);
 
-    const message = "Hello_World";
-    store.add({ message }); // level/timeout/icon optional -> Defaults greifen
+    const text = "Hello_World";
+    store.push({ text }); // color/timeout/icon optional -> defaults apply
 
     await nextTick();
 
-    expect(wrapper.text()).toContain(message);
+    expect(wrapper.text()).toContain(text);
   });
 });

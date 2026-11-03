@@ -1,5 +1,11 @@
 <template>
-  <v-snackbar-queue v-model="snackbareStore.queue">
+  <v-snackbar-queue
+    v-model="snackbarStore.queue"
+    data-test="snackbar"
+    :timeout="5000"
+    :color="STATUS_INDICATORS.INFO"
+    closable
+  >
     <template #text="textData">
       <v-layout class="align-center">
         <v-icon
@@ -7,16 +13,15 @@
           size="25"
           :icon="textData.item.icon"
         />
-        <p class="text-body-1">{{ textData.item.text }}</p>
+        <p class="my-0 text-body-large">{{ textData.item.text }}</p>
       </v-layout>
     </template>
   </v-snackbar-queue>
 </template>
 
 <script setup lang="ts">
-import { useSnackbarStore } from "@/stores/snackbar.ts";
+import { STATUS_INDICATORS } from "@/constants";
+import { useSnackbarStore } from "@/stores/snackbar";
 
-const snackbareStore = useSnackbarStore();
+const snackbarStore = useSnackbarStore();
 </script>
-
-<style scoped></style>

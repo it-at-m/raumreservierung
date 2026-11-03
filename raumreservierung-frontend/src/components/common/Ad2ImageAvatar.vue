@@ -14,7 +14,7 @@ import { DefaultLhmAvatarService } from "@/api/ad2image-avatar-client";
 const {
   username,
   avatarMode = "fallbackGeneric",
-  avatarSize = "64",
+  avatarSize = "42",
 } = defineProps<{
   username: string;
   avatarMode?: string;
