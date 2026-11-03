@@ -22,4 +22,7 @@ public interface RoomRepository extends JpaRepository<Room, UUID> {
     List<Room> findByPicture(FileAttachment picture);
 
     boolean existsByPicture(FileAttachment picture);
+
+    @EntityGraph(attributePaths = "roomSeatingCapacities")
+    List<Room> findByRoomSeatingCapacitiesSeatingTypeId(UUID seatingTypeId);
 }
