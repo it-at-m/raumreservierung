@@ -32,8 +32,8 @@ jobs:
       with:
         filters: |
           docs: docs/**
-          backend: raumreservierung-backend/**
-          frontend: raumreservierung-frontend/**
+          raumreservierung-backend: raumreservierung-backend/**
+          raumreservierung-frontend: raumreservierung-frontend/**
     - run: |
         echo ${{ toJSON(steps.filter.outputs.changes) }}
 
