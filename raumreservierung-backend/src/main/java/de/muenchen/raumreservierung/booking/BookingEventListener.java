@@ -1,5 +1,6 @@
 package de.muenchen.raumreservierung.booking;
 
+import de.muenchen.raumreservierung.booking.events.RemoveSeatingTypeFromBookingsEvent;
 import de.muenchen.raumreservierung.person.PersonDeleteEvent;
 import java.util.List;
 import java.util.UUID;
@@ -36,6 +37,12 @@ public class BookingEventListener {
 
             bookingService.saveAndDetach(bookingToChange, bookingChange);
         }
+    }
+
+    @Transactional
+    @EventListener
+    public void onRemoveRoomFromBookings(final RemoveSeatingTypeFromBookingsEvent event) {
+        bookingService.removeSeatingTypeFromBookings(event.getSeatingTypeId());
     }
 
     /**

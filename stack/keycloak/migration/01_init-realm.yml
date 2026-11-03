@@ -24,3 +24,14 @@ changes:
           - admin
         edit:
           - admin
+
+  - addRealmProfileAttribute:
+      realm: local_realm
+      name: preferred_username
+      displayName: Preferred Username
+      multivalued: false
+      permissions:
+        view:
+          - admin
+        edit:
+          - admin
