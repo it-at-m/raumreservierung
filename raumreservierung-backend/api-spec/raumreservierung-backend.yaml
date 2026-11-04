@@ -725,6 +725,64 @@ paths:
             '*/*':
               schema:
                 $ref: "#/components/schemas/BookingDetailResponseDTO"
+  /seating/{seatingTypeId}/rooms/{roomId}/capacity-removable:
+    get:
+      tags:
+      - seating-controller
+      summary: Check whether a seating type's capacity can be removed from a specific
+        room.
+      description: |-
+        Check whether a seating type's capacity can be removed from a specific room.
+         Returns false if the seating type is still referenced in a future booking
+         of that room.
+      operationId: isRoomCapacityRemovable
+      parameters:
+      - name: seatingTypeId
+        in: path
+        description: the UUID of the seating type to check
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: roomId
+        in: path
+        description: the UUID of the room the capacity belongs to
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: "true if the capacity can be safely removed from the room,\
+            \ false otherwise"
+          content:
+            '*/*':
+              schema:
+                type: boolean
+  /seating/{seatingTypeId}/deletable:
+    get:
+      tags:
+      - seating-controller
+      summary: Check whether a seating type can be deleted.
+      description: |-
+        Check whether a seating type can be deleted.
+         Returns false if the seating type is still referenced in a booking.
+      operationId: isSeatingTypeDeletable
+      parameters:
+      - name: seatingTypeId
+        in: path
+        description: the UUID of the seating type to check
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: "true if the seating type can be safely deleted, false otherwise"
+          content:
+            '*/*':
+              schema:
+                type: boolean
   /file/{fileId}:
     get:
       tags:

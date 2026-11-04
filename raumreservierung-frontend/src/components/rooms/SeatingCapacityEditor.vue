@@ -35,6 +35,7 @@
       <base-button
         :disabled="!modelValue?.id"
         :prepend-icon="mdiTrashCanOutline"
+        :loading="deleteCheckLoading"
         class="w-100"
         secondary
         text="Entfernen"
@@ -53,19 +54,30 @@ import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
+import { useCheckSeatingTypeDeletableInRoom } from "@/composables/api/useSeatingApi.ts";
+import { useSnackbarStore } from "@/stores/snackbar.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 
 const modelValue = defineModel<SeatingTypeWithCapacity>();
 
 const { t } = useI18n();
 
-const { maxRoomCapacity, selectableSeatingTypes = [] } = defineProps<{
+const {
+  maxRoomCapacity,
+  selectableSeatingTypes = [],
+  roomId,
+} = defineProps<{
   maxRoomCapacity: number;
   selectableSeatingTypes?: SeatingTypeResponseDto[];
+  roomId?: string;
 }>();
 
 const emit = defineEmits<{
   delete: [value: SeatingTypeWithCapacity];
 }>();
+
+const { mutateAsync: checkDeletable, isPending: deleteCheckLoading } =
+  useCheckSeatingTypeDeletableInRoom();
 
 // Attaches current element if exist and not yet present inside the list to selectableSeatingTypes
 const availableOptions = computed(() =>
@@ -74,10 +86,30 @@ const availableOptions = computed(() =>
     ? [...selectableSeatingTypes, modelValue.value]
     : selectableSeatingTypes
 );
+const snackbarStore = useSnackbarStore();
 
-const handleDelete = () => {
-  if (modelValue.value) {
-    emit("delete", modelValue.value);
+const handleDelete = async () => {
+  const seatingType = modelValue.value;
+  if (!seatingType?.id) {
+    return;
+  }
+  if (!roomId) {
+    emit("delete", seatingType);
+    return;
+  }
+
+  const deletable = await checkDeletable({
+    seatingTypeId: seatingType.id,
+    roomId,
+  });
+
+  if (deletable) {
+    emit("delete", seatingType);
+  } else {
+    snackbarStore.push({
+      text: t("components.seatingCapacityEditor.futureUsage"),
+      color: STATUS_INDICATORS.WARNING,
+    });
   }
 };
 
