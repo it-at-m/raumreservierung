@@ -2,13 +2,14 @@
 import type { Weekday } from "rrule";
 import type { Language } from "rrule/dist/esm/nlp/i18n";
 
-import { createI18n } from "vue-i18n";
+import {
+  createI18n,
+  type I18nOptions,
+  type IntlDateTimeFormats,
+} from "vue-i18n";
 import { de as deVuetify } from "vuetify/locale";
 
 import deApp from "@/locales/de.json";
-
-type MessageSchema = typeof deApp;
-type Locales = "de";
 
 const messages = {
   de: {
@@ -50,19 +51,19 @@ const datetimeFormats = {
       second: "2-digit",
     },
   },
-};
+} satisfies IntlDateTimeFormats;
 
-export default createI18n<[MessageSchema], Locales>({
-  legacy: false,
+const options = {
   locale: "de",
   fallbackLocale: "de",
   messages,
-  // @ts-expect-error false positive for type mismatch (no tsc compilation error)
   datetimeFormats,
   modifiers: {
     trim: (str) => (typeof str === "string" ? str.trim() : str),
   },
-});
+} satisfies I18nOptions;
+
+export default createI18n<false, typeof options>(options);
 
 const germanStrings: Record<string, string> = {
   every: "jeden",

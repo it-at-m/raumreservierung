@@ -1,8 +1,12 @@
-import type { WeekScheduleAsPDFCategoryEnum } from "@/api/raumreservierung-backend";
+import { WeekScheduleAsPDFCategoryEnum } from "@/api/raumreservierung-backend";
 import i18n from "@/plugins/i18n.ts";
-import type { Composer } from "vue-i18n";
 
-const { t } = i18n.global as unknown as Composer;
+const { t } = i18n.global;
+
+export interface CategorySelectItem {
+  value: WeekScheduleAsPDFCategoryEnum;
+  title: string;
+}
 
 export const weekScheduleCategoryMap: Record<
   WeekScheduleAsPDFCategoryEnum,
@@ -11,3 +15,7 @@ export const weekScheduleCategoryMap: Record<
   ALTES_RATHAUS: t("domain.weekScheduleCategory.altesRathaus"),
   NEUES_RATHAUS: t("domain.weekScheduleCategory.neuesRathaus"),
 };
+
+export const weekScheduleCategoryItems: CategorySelectItem[] = (
+  Object.keys(weekScheduleCategoryMap) as WeekScheduleAsPDFCategoryEnum[]
+).map((value) => ({ value, title: weekScheduleCategoryMap[value] }));

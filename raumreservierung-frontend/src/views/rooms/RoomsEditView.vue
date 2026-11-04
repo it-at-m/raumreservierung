@@ -148,7 +148,7 @@
           >
             <v-select
               v-model="roomData.weekScheduleCategory"
-              :items="weekScheduleCategoryOptions"
+              :items="weekScheduleCategoryItems"
               variant="outlined"
               :label="t('domain.weekScheduleCategory.title')"
               hide-details="auto"
@@ -317,7 +317,7 @@ import { ROUTES } from "@/types/Routes.ts";
 import { mapResponseToFileMock } from "@/util/fileTypeUtility.ts";
 import { EMPTY_ROOM_DATA, mapResponseToRequest } from "@/util/roomTypeUtil.ts";
 import { STATUS_INDICATORS } from "@/constants.ts";
-import { weekScheduleCategoryMap } from "@/constants/WeekScheduleCategory.ts";
+import { weekScheduleCategoryItems } from "@/constants/WeekScheduleCategory.ts";
 
 const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
@@ -474,13 +474,6 @@ const handleDelete = async () => {
     }
   }
 };
-
-const weekScheduleCategoryOptions = computed(() =>
-  Object.entries(weekScheduleCategoryMap).map(([value, title]) => ({
-    value,
-    title: t(title),
-  }))
-);
 </script>
 
 <style scoped></style>
