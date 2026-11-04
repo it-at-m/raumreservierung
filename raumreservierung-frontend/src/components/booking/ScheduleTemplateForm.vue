@@ -166,19 +166,12 @@ const wholeDay = computed<boolean>(
     occupancyStart.value.getHours() <= 7
 );
 
-const appointmentDiffersChecked = ref(false);
-
-const appointmentTimesDiffer = computed(
-  () =>
-    !timeEquals(
-      modelValue.value.appointmentStart,
-      modelValue.value.occupancyStart
-    ) ||
+const appointmentDiffers = ref(
+  !timeEquals(
+    modelValue.value.appointmentStart,
+    modelValue.value.occupancyStart
+  ) ||
     !timeEquals(modelValue.value.appointmentEnd, modelValue.value.occupancyEnd)
-);
-
-const appointmentDiffers = computed(
-  () => appointmentDiffersChecked.value || appointmentTimesDiffer.value
 );
 
 const occupancyStart = computed({
@@ -275,7 +268,7 @@ const onWholeDayToggle = (isWholeDay: boolean | null) => {
     : new Date();
 
   const start = new Date(referenceDate);
-  const end = new Date(referenceDate);
+  const end = new Date(occupancyEnd.value ?? referenceDate);
 
   if (isWholeDay) {
     start.setHours(7, 0, 0, 0);
@@ -290,16 +283,22 @@ const onWholeDayToggle = (isWholeDay: boolean | null) => {
     ...modelValue.value,
     occupancyStart: start,
     occupancyEnd: end,
+    appointmentStart: new Date(start),
+    appointmentEnd: new Date(end),
   };
 };
 
 const onAppointmentDiffers = (apptDiffers: boolean | null) => {
-  appointmentDiffersChecked.value = !!apptDiffers;
+  appointmentDiffers.value = !!apptDiffers;
 
   modelValue.value = {
     ...modelValue.value,
-    appointmentStart: occupancyStart.value ?? new Date(),
-    appointmentEnd: occupancyEnd.value ?? new Date(),
+    appointmentStart: apptDiffers
+      ? (occupancyStart.value ?? new Date())
+      : undefined,
+    appointmentEnd: apptDiffers
+      ? (occupancyEnd.value ?? new Date())
+      : undefined,
   };
 };
 
