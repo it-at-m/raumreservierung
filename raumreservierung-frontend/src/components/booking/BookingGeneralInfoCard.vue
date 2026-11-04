@@ -24,24 +24,33 @@
               </v-list-item-subtitle>
               <v-list-item-title class="font-weight-medium mt-1">
                 <template v-if="isMultiDay">
-                  {{
-                    t("common.format.dateRange", {
-                      start: useDateFormat(
-                        schedule?.occupancyStart,
-                        DATE_FORMAT_DDMMYY
-                      ).value,
-                      end: useDateFormat(
-                        schedule?.occupancyEnd,
-                        DATE_FORMAT_DDMMYY
-                      ).value,
-                    })
-                  }}
+                  <i18n-t
+                    v-if="schedule"
+                    keypath="common.format.dateRange"
+                    tag="span"
+                    scope="global"
+                  >
+                    <template #start>
+                      <i18n-d
+                        :value="schedule?.occupancyStart"
+                        format="short"
+                      />
+                    </template>
+                    <template #end>
+                      <i18n-d
+                        :value="schedule?.occupancyEnd"
+                        format="short /"
+                      />
+                    </template>
+                  </i18n-t>
                 </template>
                 <template v-else>
-                  {{
-                    useDateFormat(schedule?.occupancyStart, DATE_FORMAT_DDMMYY)
-                      .value
-                  }}
+                  <i18n-d
+                    v-if="schedule"
+                    :value="schedule?.occupancyStart"
+                    format="short"
+                    tag="span"
+                  />
                 </template>
               </v-list-item-title>
             </v-list-item>
@@ -96,14 +105,12 @@ import type {
   ScheduleTemplate,
 } from "@/api/raumreservierung-backend";
 
-import { useDateFormat } from "@vueuse/core";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
 
 import { BookingStatusDTOCurrentStatusEnum } from "@/api/raumreservierung-backend";
 import StatusChip from "@/components/booking/StatusChip.vue";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
-import { DATE_FORMAT_DDMMYY } from "@/constants.ts";
 
 const { t } = useI18n();
 

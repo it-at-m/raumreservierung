@@ -21,9 +21,9 @@ const messages = {
 
 const datetimeFormats = {
   de: {
-    // TT.MM.JJJJ
+    // TT.MM.JJ
     short: {
-      year: "numeric",
+      year: "2-digit",
       month: "2-digit",
       day: "2-digit",
     },
@@ -40,14 +40,19 @@ const datetimeFormats = {
       hour: "2-digit",
       minute: "2-digit",
     },
-    // TT.MM.JJJJ HH24:MM:SS
+    // TT.MM.JJJJ HH24:MM
     timestamp: {
       year: "numeric",
       month: "2-digit",
       day: "2-digit",
       hour: "2-digit",
       minute: "2-digit",
-      second: "2-digit",
+    },
+    writtenDate: {
+      weekday: "long",
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
     },
   },
 };

@@ -13,9 +13,13 @@
           dot-color="accent"
           size="x-small"
         >
-          <span class="font-weight-bold me-2">
-            {{ useDateFormat(schedule?.occupancyStart, TIME_FORMAT_HHMM) }}
-          </span>
+          <i18n-d
+            v-if="schedule"
+            :value="schedule?.occupancyStart"
+            format="time"
+            class="font-weight-bold me-2"
+            tag="span"
+          />
           <span>{{ t("components.scheduleTimelineCard.start") }}</span>
         </v-timeline-item>
 
@@ -24,18 +28,26 @@
           dot-color="tertiary"
           size="small"
         >
-          <span class="font-weight-bold me-2">
-            {{
-              t("common.format.dateRange", {
-                start: useDateFormat(
-                  schedule?.appointmentStart,
-                  TIME_FORMAT_HHMM
-                ).value,
-                end: useDateFormat(schedule?.appointmentEnd, TIME_FORMAT_HHMM)
-                  .value,
-              })
-            }}
-          </span>
+          <i18n-t
+            v-if="schedule"
+            keypath="common.format.dateRange"
+            scope="global"
+            tag="span"
+            class="font-weight-bold me-2"
+          >
+            <template #start>
+              <i18n-d
+                :value="schedule.appointmentStart"
+                format="time"
+              />
+            </template>
+            <template #end>
+              <i18n-d
+                :value="schedule.appointmentEnd"
+                format="time"
+              />
+            </template>
+          </i18n-t>
           <span> {{ t("components.scheduleTimelineCard.event") }} </span>
         </v-timeline-item>
 
@@ -43,9 +55,13 @@
           dot-color="accent"
           size="x-small"
         >
-          <span class="font-weight-bold me-2">
-            {{ useDateFormat(schedule?.occupancyEnd, TIME_FORMAT_HHMM) }}
-          </span>
+          <i18n-d
+            v-if="schedule"
+            :value="schedule?.occupancyEnd"
+            format="time"
+            class="font-weight-bold me-2"
+            tag="span"
+          />
           <span>{{ t("components.scheduleTimelineCard.end") }}</span>
         </v-timeline-item>
       </v-timeline>
@@ -56,10 +72,7 @@
 <script setup lang="ts">
 import type { ScheduleTemplate } from "@/api/raumreservierung-backend";
 
-import { useDateFormat } from "@vueuse/core";
 import { useI18n } from "vue-i18n";
-
-import { TIME_FORMAT_HHMM } from "@/constants.ts";
 
 const { t } = useI18n();
 

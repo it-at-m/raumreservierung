@@ -51,8 +51,10 @@
             <v-list-item-title>
               <v-row justify="space-between">
                 <v-col align-self="center">
-                  <date-display
-                    :display-date="appointment.schedule.occupancyStart"
+                  <i18n-d
+                    tag="span"
+                    :value="appointment.schedule.occupancyStart"
+                    format="writtenDate"
                   />
                 </v-col>
                 <v-col cols="auto">
@@ -97,7 +99,6 @@ import ScheduleTemplateForm from "@/components/booking/ScheduleTemplateForm.vue"
 import BaseButton from "@/components/common/buttons/BaseButton.vue";
 import CardForm from "@/components/common/CardForm.vue";
 import ConfirmCard from "@/components/common/ConfirmCard.vue";
-import DateDisplay from "@/components/common/date/DateDisplay.vue";
 import {
   useGetAppointmentsOld,
   useUpdateAppointment,
