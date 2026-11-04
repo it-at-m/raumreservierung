@@ -70,6 +70,12 @@
             :icon="mdiSofaSingleOutline"
             :text="booking?.seatingType?.name"
           />
+          <icon-information
+            v-if="booking?.room"
+            class="my-2"
+            :icon="mdiDoor"
+            :text="booking?.room?.name"
+          />
         </v-col>
         <v-col
           cols="12"
@@ -228,6 +234,7 @@ import {
   mdiCalendarRemoveOutline,
   mdiCalendarStartOutline,
   mdiCommentTextOutline,
+  mdiDoor,
   mdiPencil,
   mdiSofaSingleOutline,
   mdiStoreCheckOutline,
