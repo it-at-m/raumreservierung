@@ -127,7 +127,7 @@
 import type { ScheduleTemplate } from "@/api/raumreservierung-backend";
 
 import { mdiClockOutline } from "@mdi/js";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import DateTimeTextField from "@/components/common/date/DateTimeTextField.vue";
@@ -138,6 +138,7 @@ import {
   dateEquals,
   dateRangesOverlap,
   formatDateShort,
+  timeEquals,
 } from "@/util/timeUtil.ts";
 
 const { t } = useI18n();
@@ -165,8 +166,19 @@ const wholeDay = computed<boolean>(
     occupancyStart.value.getHours() <= 7
 );
 
+const appointmentDiffersChecked = ref(false);
+
+const appointmentTimesDiffer = computed(
+  () =>
+    !timeEquals(
+      modelValue.value.appointmentStart,
+      modelValue.value.occupancyStart
+    ) ||
+    !timeEquals(modelValue.value.appointmentEnd, modelValue.value.occupancyEnd)
+);
+
 const appointmentDiffers = computed(
-  () => !!modelValue.value.appointmentStart && !!modelValue.value.appointmentEnd
+  () => appointmentDiffersChecked.value || appointmentTimesDiffer.value
 );
 
 const occupancyStart = computed({
@@ -282,22 +294,12 @@ const onWholeDayToggle = (isWholeDay: boolean | null) => {
 };
 
 const onAppointmentDiffers = (apptDiffers: boolean | null) => {
-  const apptStart = !apptDiffers
-    ? undefined
-    : occupancyStart.value
-      ? occupancyStart.value
-      : new Date();
-
-  const apptEnd = !apptDiffers
-    ? undefined
-    : occupancyStart.value
-      ? occupancyStart.value
-      : new Date();
+  appointmentDiffersChecked.value = !!apptDiffers;
 
   modelValue.value = {
     ...modelValue.value,
-    appointmentStart: apptStart,
-    appointmentEnd: apptEnd,
+    appointmentStart: occupancyStart.value ?? new Date(),
+    appointmentEnd: occupancyEnd.value ?? new Date(),
   };
 };
 
