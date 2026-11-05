@@ -9,7 +9,6 @@
       <v-dialog
         v-model="isDialogOpen"
         persistent
-        max-width="600px"
         @after-leave="clearAppointmentData"
       >
         <confirm-card

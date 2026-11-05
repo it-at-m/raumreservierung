@@ -112,6 +112,11 @@ public class AppointmentService {
         }).collect(Collectors.toSet());
     }
 
+    public List<Appointment> findAppointmentsInRange(final OffsetDateTime rangeStart, final OffsetDateTime rangeEnd) {
+        final AppointmentFilterDTO filter = new AppointmentFilterDTO(rangeStart, rangeEnd, null, null);
+        return appointmentRepository.findAll(AppointmentSpecificationBuilder.fromFilter(filter));
+    }
+
     public boolean existsFutureAppointmentForRoom(final UUID roomId) {
         final Specification<Appointment> spec = AppointmentSpecificationBuilder.filterForFutureRoomUsage(roomId);
         return appointmentRepository.exists(spec);
