@@ -79,10 +79,11 @@
                     >
                       {{
                         t("common.format.braces", {
-                          content:
+                          content: t(
                             weekScheduleCategoryMap[
                               roomData.weekScheduleCategory
-                            ],
+                            ]
+                          ),
                         })
                       }}
                     </div>
