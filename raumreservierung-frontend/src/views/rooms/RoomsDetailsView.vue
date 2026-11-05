@@ -79,11 +79,10 @@
                     >
                       {{
                         t("common.format.braces", {
-                          content: t(
-                            weekScheduleCategoryMap[
-                              roomData.weekScheduleCategory
-                            ]
-                          ),
+                          content: weekScheduleCategories.find(
+                            (item) =>
+                              item.value === roomData?.weekScheduleCategory
+                          )?.title,
                         })
                       }}
                     </div>
@@ -280,7 +279,7 @@ import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
-import { weekScheduleCategoryMap } from "@/constants/WeekScheduleCategory.ts";
+import { weekScheduleCategories } from "@/constants/WeekScheduleCategory.ts";
 
 const router = useRouter();
 const route = useRoute();

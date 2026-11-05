@@ -11,7 +11,7 @@
         variant="outlined"
         hide-details
         :label="t('components.exportWeekScheduleCard.chooseCategory')"
-        :items="categoryItems"
+        :items="weekScheduleCategories"
       />
       <v-field
         variant="outlined"
@@ -60,7 +60,7 @@ import { ApiFactory } from "@/util/apiFactory.ts";
 import { mdiCalendarExportOutline } from "@mdi/js";
 import { useDate } from "vuetify/framework";
 import { useI18n } from "vue-i18n";
-import { weekScheduleCategoryMap } from "@/constants/WeekScheduleCategory.ts";
+import { weekScheduleCategories } from "@/constants/WeekScheduleCategory.ts";
 
 const router = useRouter();
 const { t } = useI18n();
@@ -74,13 +74,6 @@ const MONDAY = 1;
 
 const selectedDate = ref<Date>(new Date());
 const selectedCategory = ref<WeekScheduleAsPDFCategoryEnum | null>(null);
-
-const categoryItems = computed(() =>
-  Object.entries(weekScheduleCategoryMap).map(([value, title]) => ({
-    value,
-    title,
-  }))
-);
 
 const canExport = computed(() => selectedCategory.value !== null);
 
