@@ -50,14 +50,13 @@ const datetimeFormats = {
       second: "2-digit",
     },
   },
-};
+} as const;
 
-export default createI18n<[MessageSchema], Locales>({
+export default createI18n<[MessageSchema], Locales, false>({
   legacy: false,
   locale: "de",
   fallbackLocale: "de",
   messages,
-  // @ts-expect-error false positive for type mismatch (no tsc compilation error)
   datetimeFormats,
   modifiers: {
     trim: (str) => (typeof str === "string" ? str.trim() : str),

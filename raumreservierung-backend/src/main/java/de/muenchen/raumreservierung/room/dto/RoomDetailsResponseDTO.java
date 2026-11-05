@@ -3,6 +3,7 @@ package de.muenchen.raumreservierung.room.dto;
 import de.muenchen.raumreservierung.equipment.dto.EquipmentResponseDto;
 import de.muenchen.raumreservierung.file.dto.FileAttachmentUploadResponse;
 import de.muenchen.raumreservierung.person.dto.PersonResponseDto;
+import de.muenchen.raumreservierung.weekschedule.WeekScheduleCategory;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -22,5 +23,6 @@ public record RoomDetailsResponseDTO(
         @NotNull List<SeatingCapacityResponseDTO> roomSeatingCapacities,
         @NotNull List<EquipmentResponseDto> equipment,
         PersonResponseDto contactPerson,
-        FileAttachmentUploadResponse picture) {
+        FileAttachmentUploadResponse picture,
+        WeekScheduleCategory weekScheduleCategory) {
 }

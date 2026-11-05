@@ -47,6 +47,11 @@
     }
   },
   "components": {
+    "exportWeekScheduleCard": {
+      "chooseWeek": "Woche wählen",
+      "chooseCategory": "Kategorie wählen",
+      "confirm": "Dienstplan erstellen"
+    },
     "bookingsCalendarView": {
       "warning": "Die Änderung bezieht sich auf alle Serientermine in der Zukunft."
     },
@@ -363,6 +368,11 @@
       "header": "Interne Person | Interne Personen",
       "organisationUnit": "Organisationseinheit",
       "roleFunction": "Rollenfunktion"
+    },
+    "weekScheduleCategory": {
+      "title": "Dienstplankategorie",
+      "altesRathaus": "Altes Rathaus",
+      "neuesRathaus": "Neues Rathaus"
     }
   }
 }

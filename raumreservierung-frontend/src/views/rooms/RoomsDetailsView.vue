@@ -48,7 +48,9 @@
             <v-responsive>
               <v-card flat>
                 <v-card-item>
-                  <v-card-title>{{ roomData?.name }}</v-card-title>
+                  <v-card-title>
+                    {{ roomData?.name }}
+                  </v-card-title>
 
                   <v-card-subtitle class="opacity-100">
                     <span class="text-medium-emphasis">
@@ -64,12 +66,26 @@
                       v-if="!roomData?.isActive"
                       class="ml-2"
                       color="primary"
+                      density="compact"
                       :text="
                         t('generics.inActive', {
                           domain: t('domain.room.header'),
                         })
                       "
                     />
+                    <div
+                      v-if="roomData?.weekScheduleCategory"
+                      class="text-medium-emphasis"
+                    >
+                      {{
+                        t("common.format.braces", {
+                          content: weekScheduleCategories.find(
+                            (item) =>
+                              item.value === roomData?.weekScheduleCategory
+                          )?.title,
+                        })
+                      }}
+                    </div>
                   </v-card-subtitle>
                 </v-card-item>
 
@@ -263,6 +279,7 @@ import { useGetFile } from "@/composables/api/useFileAttachmentApi.ts";
 import { useGetRoom } from "@/composables/api/useRoomsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
+import { weekScheduleCategories } from "@/constants/WeekScheduleCategory.ts";
 
 const router = useRouter();
 const route = useRoute();
