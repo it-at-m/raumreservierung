@@ -138,7 +138,6 @@ import {
   dateEquals,
   dateRangesOverlap,
   formatDateShort,
-  timeEquals,
 } from "@/util/timeUtil.ts";
 
 const { t } = useI18n();
@@ -166,12 +165,17 @@ const wholeDay = computed<boolean>(
     occupancyStart.value.getHours() <= 7
 );
 
-const appointmentDiffers = ref(
-  !timeEquals(
-    modelValue.value.appointmentStart,
-    modelValue.value.occupancyStart
-  ) ||
-    !timeEquals(modelValue.value.appointmentEnd, modelValue.value.occupancyEnd)
+const appointmentDiffersState = ref<boolean | null>(null);
+
+const appointmentDiffers = computed(
+  () =>
+    appointmentDiffersState.value ??
+    (!!modelValue.value.appointmentStart &&
+      !!modelValue.value.appointmentEnd &&
+      (modelValue.value.appointmentStart.getTime() !==
+        modelValue.value.occupancyStart.getTime() ||
+        modelValue.value.appointmentEnd.getTime() !==
+          modelValue.value.occupancyEnd.getTime()))
 );
 
 const occupancyStart = computed({
@@ -276,7 +280,12 @@ const onWholeDayToggle = (isWholeDay: boolean | null) => {
   } else {
     const now = new Date();
     start.setHours(now.getHours(), now.getMinutes(), 0, 0);
-    end.setTime(start.getTime() + SCHEDULE_DEFAULT_DURATION);
+    if (multiDay.value) {
+      end.setHours(now.getHours(), now.getMinutes(), 0, 0);
+      end.setTime(end.getTime() + SCHEDULE_DEFAULT_DURATION);
+    } else {
+      end.setTime(start.getTime() + SCHEDULE_DEFAULT_DURATION);
+    }
   }
 
   modelValue.value = {
@@ -289,7 +298,7 @@ const onWholeDayToggle = (isWholeDay: boolean | null) => {
 };
 
 const onAppointmentDiffers = (apptDiffers: boolean | null) => {
-  appointmentDiffers.value = !!apptDiffers;
+  appointmentDiffersState.value = !!apptDiffers;
 
   modelValue.value = {
     ...modelValue.value,
