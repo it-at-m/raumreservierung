@@ -788,6 +788,28 @@ paths:
             '*/*':
               schema:
                 type: boolean
+  /rooms/{roomId}/has-no-future-bookings:
+    get:
+      tags:
+      - room-controller
+      summary: Check whether a future booking exists for the given room.
+      description: Check whether a future booking exists for the given room.
+      operationId: hasNoFutureBookingsForRoom
+      parameters:
+      - name: roomId
+        in: path
+        description: the UUID of the room to check
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: "true if no future booking exists for the room, false otherwise"
+          content:
+            '*/*':
+              schema:
+                type: boolean
   /file/{fileId}:
     get:
       tags:
