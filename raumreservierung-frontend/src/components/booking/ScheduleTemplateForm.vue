@@ -127,7 +127,7 @@
 import type { ScheduleTemplate } from "@/api/raumreservierung-backend";
 
 import { mdiClockOutline } from "@mdi/js";
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useI18n } from "vue-i18n";
 
 import DateTimeTextField from "@/components/common/date/DateTimeTextField.vue";
@@ -165,8 +165,17 @@ const wholeDay = computed<boolean>(
     occupancyStart.value.getHours() <= 7
 );
 
+const appointmentDiffersState = ref<boolean | null>(null);
+
 const appointmentDiffers = computed(
-  () => !!modelValue.value.appointmentStart && !!modelValue.value.appointmentEnd
+  () =>
+    appointmentDiffersState.value ??
+    (!!modelValue.value.appointmentStart &&
+      !!modelValue.value.appointmentEnd &&
+      (modelValue.value.appointmentStart.getTime() !==
+        modelValue.value.occupancyStart.getTime() ||
+        modelValue.value.appointmentEnd.getTime() !==
+          modelValue.value.occupancyEnd.getTime()))
 );
 
 const occupancyStart = computed({
@@ -263,7 +272,7 @@ const onWholeDayToggle = (isWholeDay: boolean | null) => {
     : new Date();
 
   const start = new Date(referenceDate);
-  const end = new Date(referenceDate);
+  const end = new Date(occupancyEnd.value ?? referenceDate);
 
   if (isWholeDay) {
     start.setHours(7, 0, 0, 0);
@@ -271,33 +280,34 @@ const onWholeDayToggle = (isWholeDay: boolean | null) => {
   } else {
     const now = new Date();
     start.setHours(now.getHours(), now.getMinutes(), 0, 0);
-    end.setTime(start.getTime() + SCHEDULE_DEFAULT_DURATION);
+    if (multiDay.value) {
+      end.setHours(now.getHours(), now.getMinutes(), 0, 0);
+      end.setTime(end.getTime() + SCHEDULE_DEFAULT_DURATION);
+    } else {
+      end.setTime(start.getTime() + SCHEDULE_DEFAULT_DURATION);
+    }
   }
 
   modelValue.value = {
     ...modelValue.value,
     occupancyStart: start,
     occupancyEnd: end,
+    appointmentStart: new Date(start),
+    appointmentEnd: new Date(end),
   };
 };
 
 const onAppointmentDiffers = (apptDiffers: boolean | null) => {
-  const apptStart = !apptDiffers
-    ? undefined
-    : occupancyStart.value
-      ? occupancyStart.value
-      : new Date();
-
-  const apptEnd = !apptDiffers
-    ? undefined
-    : occupancyStart.value
-      ? occupancyStart.value
-      : new Date();
+  appointmentDiffersState.value = !!apptDiffers;
 
   modelValue.value = {
     ...modelValue.value,
-    appointmentStart: apptStart,
-    appointmentEnd: apptEnd,
+    appointmentStart: apptDiffers
+      ? (occupancyStart.value ?? new Date())
+      : undefined,
+    appointmentEnd: apptDiffers
+      ? (occupancyEnd.value ?? new Date())
+      : undefined,
   };
 };
 
