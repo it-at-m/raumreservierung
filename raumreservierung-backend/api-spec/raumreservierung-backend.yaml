@@ -800,7 +800,7 @@ paths:
           format: uuid
       responses:
         "200":
-          description: "true if a future booking exists for the room, false otherwise"
+          description: "true if no future booking exists for the room, false otherwise"
           content:
             '*/*':
               schema:
