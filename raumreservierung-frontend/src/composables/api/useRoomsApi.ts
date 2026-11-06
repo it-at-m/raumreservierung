@@ -88,7 +88,7 @@ export const useCreateRoom = () => {
   });
 };
 
-export const useCheckRoomHasFutureBookings = (
+export const useCheckRoomHasNoFutureBookings = (
   roomId: Ref<string | undefined>
 ) => {
   const api = ApiFactory.getInstance(RoomControllerApi);
@@ -98,7 +98,7 @@ export const useCheckRoomHasFutureBookings = (
       if (!roomId.value) {
         throw new Error("Room ID is required");
       }
-      return api.hasFutureBookingsForRoom({
+      return api.hasNoFutureBookingsForRoom({
         roomId: roomId.value,
       });
     },

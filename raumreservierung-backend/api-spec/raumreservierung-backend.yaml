@@ -783,13 +783,13 @@ paths:
             '*/*':
               schema:
                 type: boolean
-  /rooms/{roomId}/has-future-bookings:
+  /rooms/{roomId}/has-no-future-bookings:
     get:
       tags:
       - room-controller
       summary: Check whether a future booking exists for the given room.
       description: Check whether a future booking exists for the given room.
-      operationId: hasFutureBookingsForRoom
+      operationId: hasNoFutureBookingsForRoom
       parameters:
       - name: roomId
         in: path

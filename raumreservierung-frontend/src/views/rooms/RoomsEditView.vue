@@ -56,7 +56,9 @@
                 variant="outlined"
                 density="compact"
               >
-                {{ t("generics.cantDelete") }}
+                {{
+                  t("generics.cantDelete", { domain: t("domain.room.header") })
+                }}
               </v-alert>
             </template>
             <template #confirm="{ props }">
@@ -356,7 +358,7 @@ import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import SeatingCapacityEditor from "@/components/rooms/SeatingCapacitySelector.vue";
 import { useUploadFile } from "@/composables/api/useFileAttachmentApi.ts";
 import {
-  useCheckRoomHasFutureBookings,
+  useCheckRoomHasNoFutureBookings,
   useCreateRoom,
   useDeleteRoom,
   useGetRoom,
@@ -371,7 +373,7 @@ import { STATUS_INDICATORS } from "@/constants.ts";
 import { weekScheduleCategories } from "@/constants/WeekScheduleCategory.ts";
 
 const isValid = ref<boolean>(false);
-const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
+const roomData = ref<RoomRequestDTO>({ ...EMPTY_ROOM_DATA });
 
 const showDeactivateConfirm = ref<boolean>(false);
 const deactivateCheckId = ref<string>();
@@ -388,7 +390,7 @@ const pictureMetaData = ref<File>();
 const isDeletable = ref<boolean>(false);
 const deleteRoomId = ref<string>();
 
-const contactPersonObject = ref<FindById200Response>();
+const contactPersonObject = ref<FindById200Response | string>();
 
 const { t } = useI18n();
 
@@ -414,10 +416,10 @@ const {
 } = useUploadFile();
 
 const { data: canDeleteItem, isFetching: deleteCheckLoading } =
-  useCheckRoomHasFutureBookings(deleteRoomId);
+  useCheckRoomHasNoFutureBookings(deleteRoomId);
 
 const { data: canDeactivate, refetch: refetchDeactivateCheck } =
-  useCheckRoomHasFutureBookings(deactivateCheckId);
+  useCheckRoomHasNoFutureBookings(deactivateCheckId);
 
 watch(
   [() => roomReqData.value?.id, getRoomError],
@@ -428,7 +430,7 @@ watch(
         roomData.value = mapResponseToRequest(
           toRaw(roomReqData.value) as RoomDetailsResponseDTO
         );
-
+        contactPersonObject.value = roomData.value.contactPersonId ?? undefined;
         pictureMetaData.value = mapResponseToFileMock(
           roomReqData.value.picture
         );
@@ -485,11 +487,19 @@ const handleConfirmedSave = () => {
 };
 
 const performSave = () => {
+  const payload: RoomRequestDTO = {
+    ...roomData.value,
+    contactPersonId:
+      typeof contactPersonObject.value === "string"
+        ? contactPersonObject.value
+        : contactPersonObject.value?.id,
+  };
+
   if (roomId.value) {
     updateRoom(
       {
         roomId: roomId.value,
-        roomRequestDTO: roomData.value,
+        roomRequestDTO: payload,
       },
       {
         onSuccess: (updatedRoom) => {
@@ -502,7 +512,7 @@ const performSave = () => {
     );
   } else {
     createRoom(
-      { roomRequestDTO: roomData.value },
+      { roomRequestDTO: payload },
       {
         onSuccess: (createdRoom) => {
           onSuccess(

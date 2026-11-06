@@ -80,9 +80,9 @@ public class RoomController {
      * @param roomId the UUID of the room to check
      * @return true if a future booking exists for the room, false otherwise
      */
-    @GetMapping("/{roomId}/has-future-bookings")
+    @GetMapping("/{roomId}/has-no-future-bookings")
     @ResponseStatus(HttpStatus.OK)
-    public boolean hasFutureBookingsForRoom(@PathVariable final UUID roomId) {
+    public boolean hasNoFutureBookingsForRoom(@PathVariable final UUID roomId) {
         return !roomService.existsFutureBookingForRoom(roomId);
     }
 }
