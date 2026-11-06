@@ -24,65 +24,74 @@
       />
       <v-dialog :model-value="showDialog">
         <confirm-card
-          v-if="dialogMode === 'delete'"
-          :title="t('generics.delete', { domain: t('domain.room.header') })"
-          :loading="deleteRoomLoading || deleteCheckLoading"
+          :title="
+            dialogMode === 'delete'
+              ? t('generics.delete', { domain: t('domain.room.header') })
+              : t('views.roomEditView.deactivationConfirmTitle')
+          "
+          :loading="
+            dialogMode === 'delete'
+              ? deleteRoomLoading || deleteCheckLoading
+              : updateRoomLoading
+          "
           @cancel="closeDialog"
-          @confirm="handleDelete"
+          @confirm="
+            dialogMode === 'delete' ? handleDelete() : handleConfirmedSave()
+          "
         >
           <template #text>
-            <div v-if="canDeleteItem === undefined && !deleteCheckError">
-              {{
-                t("generics.checkDelete", { domain: t("domain.room.header") })
-              }}
-            </div>
-            <div v-else-if="canDeleteItem === true">
-              {{
-                t("generics.confirmDelete", {
-                  domain: t("domain.room.header"),
-                })
-              }}
-            </div>
-            <div>
-              {{
-                t("generics.cantDelete", { domain: t("domain.room.header") })
-              }}
-            </div>
+            <template v-if="dialogMode === 'delete'">
+              <div v-if="canDeleteItem === undefined && !deleteCheckError">
+                {{
+                  t("generics.checkDelete", { domain: t("domain.room.header") })
+                }}
+              </div>
+              <div v-else-if="canDeleteItem === true">
+                {{
+                  t("generics.confirmDelete", {
+                    domain: t("domain.room.header"),
+                  })
+                }}
+              </div>
+              <div v-else>
+                {{
+                  t("generics.cantDelete", { domain: t("domain.room.header") })
+                }}
+              </div>
+            </template>
+
+            <template v-else-if="dialogMode === 'deactivate'">
+              {{ t("views.roomEditView.deactivationFutureBookingsWarning") }}
+            </template>
           </template>
+
           <template #cancel="{ props }">
             <base-button
               v-bind="props"
               secondary
-              :class="{ 'mr-4': canDeleteItem }"
-              :text="canDeleteItem ? t('common.cancel') : t('common.close')"
+              :text="
+                dialogMode === 'delete' && !canDeleteItem
+                  ? t('common.close')
+                  : t('common.cancel')
+              "
               :prepend-icon="mdiClose"
             />
           </template>
+
           <template #confirm="{ props }">
             <base-button
-              v-if="canDeleteItem"
-              :text="t('common.delete')"
-              :append-icon="mdiTrashCanOutline"
+              v-if="dialogMode === 'deactivate' || canDeleteItem"
+              :text="
+                dialogMode === 'delete' ? t('common.delete') : t('common.save')
+              "
+              class="ml-4"
+              :append-icon="
+                dialogMode === 'delete'
+                  ? mdiTrashCanOutline
+                  : mdiContentSaveOutline
+              "
               v-bind="props"
-              :disabled="deleteCheckLoading"
-            />
-          </template>
-        </confirm-card>
-        <confirm-card
-          v-else-if="dialogMode === 'deactivate'"
-          :title="t('views.roomEditView.deactivationConfirmTitle')"
-          :loading="updateRoomLoading"
-          @cancel="closeDialog"
-          @confirm="handleConfirmedSave"
-        >
-          <template #text>
-            {{ t("views.roomEditView.deactivationFutureBookingsWarning") }}
-          </template>
-          <template #confirm="{ props }">
-            <base-button
-              :text="t('common.save')"
-              v-bind="props"
-              :append-icon="mdiContentSaveOutline"
+              :disabled="dialogMode === 'delete' && deleteCheckLoading"
             />
           </template>
         </confirm-card>
