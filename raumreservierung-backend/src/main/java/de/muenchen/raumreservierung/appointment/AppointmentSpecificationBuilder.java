@@ -96,7 +96,8 @@ public final class AppointmentSpecificationBuilder {
     public static <T extends Appointment> Specification<T> filterForFutureRoomUsage(final UUID roomId) {
         return Specification.allOf(
                 filterForRoomIds(List.of(roomId)),
-                filterForOccupancyEndAfter(OffsetDateTime.now()));
+                filterForOccupancyEndAfter(OffsetDateTime.now()),
+                filterExcludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
     }
 
 }
