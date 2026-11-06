@@ -20,8 +20,6 @@ public class BookedForResolver {
             return personService.resolveInternalPersonByOrganisationIDOrThrowException(bookedForDto.id());
         }
 
-        return externalPersonRepository.findById(UUID.fromString(bookedForDto.id()))
-                .orElseThrow(() ->
-                        new IllegalArgumentException(String.format("No ExternalPerson found for UUID: %s", bookedForDto.id())));
+        return personService.findById(UUID.fromString(bookedForDto.id()));
     }
 }
