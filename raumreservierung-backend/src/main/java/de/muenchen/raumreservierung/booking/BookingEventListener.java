@@ -2,6 +2,7 @@ package de.muenchen.raumreservierung.booking;
 
 import de.muenchen.raumreservierung.booking.events.FutureBookingCheckEvent;
 import de.muenchen.raumreservierung.booking.events.RemoveRoomFromBookingsEvent;
+import de.muenchen.raumreservierung.booking.events.RemoveSeatingTypeFromBookingsEvent;
 import de.muenchen.raumreservierung.person.PersonDeleteEvent;
 import java.util.List;
 import java.util.UUID;
@@ -53,6 +54,12 @@ public class BookingEventListener {
         final List<Booking> affectedBookings = bookingRepository.findAllByBookedForId(event.personId());
         affectedBookings.forEach(booking -> booking.setBookedFor(booking.getBookedBy()));
         bookingRepository.saveAll(affectedBookings);
+    }
+
+    @Transactional
+    @EventListener
+    public void onRemoveSeatingTypeFromBookings(final RemoveSeatingTypeFromBookingsEvent event) {
+        bookingService.removeSeatingTypeFromBookings(event.getSeatingTypeId());
     }
 
     @EventListener
