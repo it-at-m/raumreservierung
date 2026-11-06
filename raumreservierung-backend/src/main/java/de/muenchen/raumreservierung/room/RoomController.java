@@ -1,6 +1,5 @@
 package de.muenchen.raumreservierung.room;
 
-import de.muenchen.raumreservierung.booking.BookingService;
 import de.muenchen.raumreservierung.room.dto.RoomDetailsResponseDTO;
 import de.muenchen.raumreservierung.room.dto.RoomListResponseDTO;
 import de.muenchen.raumreservierung.room.dto.RoomMapper;
@@ -32,7 +31,6 @@ public class RoomController {
     private final RoomService roomService;
 
     private final RoomMapper roomMapper;
-    private final BookingService bookingService;
 
     @Transactional
     @GetMapping
@@ -78,7 +76,7 @@ public class RoomController {
      * Check whether a future booking exists for the given room.
      *
      * @param roomId the UUID of the room to check
-     * @return true if a future booking exists for the room, false otherwise
+     * @return true if no future booking exists for the room, false otherwise
      */
     @GetMapping("/{roomId}/has-no-future-bookings")
     @ResponseStatus(HttpStatus.OK)
