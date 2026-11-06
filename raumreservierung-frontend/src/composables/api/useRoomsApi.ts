@@ -88,20 +88,10 @@ export const useCreateRoom = () => {
   });
 };
 
-export const useCheckRoomHasNoFutureBookings = (
-  roomId: Ref<string | undefined>
-) => {
+export const useCheckRoomHasNoFutureBookingsMutation = () => {
   const api = ApiFactory.getInstance(RoomControllerApi);
-  return useQuery({
-    queryKey: [CACHE_KEYS.ROOM, "hasFutureBookings", roomId],
-    queryFn: () => {
-      if (!roomId.value) {
-        throw new Error("Room ID is required");
-      }
-      return api.hasNoFutureBookingsForRoom({
-        roomId: roomId.value,
-      });
-    },
-    enabled: computed(() => !!roomId.value),
+  return useMutation({
+    mutationFn: (roomId: string) => api.hasNoFutureBookingsForRoom({ roomId }),
+    retry: false,
   });
 };

@@ -14,77 +14,74 @@
         :prepend-icon="mdiWindowClose"
         @click="router.back()"
       />
-      <v-dialog width="90%">
-        <template #activator="{ props }">
-          <base-button
-            :disabled="!isDeletable"
-            v-bind="props"
-            class="ml-4"
-            :text="t('generics.delete', { domain: t('domain.room.header') })"
-            secondary
-            :append-icon="mdiTrashCanOutline"
-            @click="deleteRoomId = roomId"
-          />
-        </template>
-        <template #default="{ isActive }">
-          <confirm-card
-            :title="t('generics.delete', { domain: t('domain.room.header') })"
-            :text="
-              t('generics.confirmMsg', { domain: t('domain.room.header') })
-            "
-            :loading="deleteRoomLoading || deleteCheckLoading"
-            @cancel="isActive.value = false"
-            @confirm="
-              handleDelete();
-              isActive.value = false;
-            "
-          >
-            <template #text>
-              <div v-if="deleteCheckLoading">
-                {{ t("generics.checkDelete") }}
-              </div>
-              <div v-if="!deleteCheckLoading && canDeleteItem">
-                {{
-                  t("generics.confirmDelete", {
-                    domain: t("domain.room.header"),
-                  })
-                }}
-              </div>
-              <v-alert
-                v-if="!canDeleteItem"
-                type="warning"
-                variant="outlined"
-                density="compact"
-              >
-                {{
-                  t("generics.cantDelete", { domain: t("domain.room.header") })
-                }}
-              </v-alert>
-            </template>
-            <template #confirm="{ props }">
-              <base-button
-                :text="t('common.delete')"
-                :append-icon="mdiTrashCanOutline"
-                v-bind="props"
-                :disabled="deleteCheckLoading || !canDeleteItem"
-              />
-            </template>
-          </confirm-card>
-        </template>
-      </v-dialog>
-      <v-dialog
-        v-model="showDeactivateConfirm"
-        max-width="800px"
-        width="90%"
-      >
+      <base-button
+        :disabled="!isDeletable"
+        class="ml-4"
+        :text="t('generics.delete', { domain: t('domain.room.header') })"
+        secondary
+        :append-icon="mdiTrashCanOutline"
+        @click="openDeleteDialog"
+      />
+      <v-dialog :model-value="showDialog">
         <confirm-card
+          v-if="dialogMode === 'delete'"
+          :title="t('generics.delete', { domain: t('domain.room.header') })"
+          :loading="deleteRoomLoading || deleteCheckLoading"
+          @cancel="closeDialog"
+          @confirm="handleDelete"
+        >
+          <template #text>
+            <div v-if="canDeleteItem === undefined && !deleteCheckError">
+              {{
+                t("generics.checkDelete", { domain: t("domain.room.header") })
+              }}
+            </div>
+            <div v-else-if="canDeleteItem === true">
+              {{
+                t("generics.confirmDelete", {
+                  domain: t("domain.room.header"),
+                })
+              }}
+            </div>
+            <v-alert
+              v-else-if="canDeleteItem === false"
+              type="warning"
+              variant="outlined"
+              density="compact"
+            >
+              {{
+                t("generics.cantDelete", { domain: t("domain.room.header") })
+              }}
+            </v-alert>
+          </template>
+          <template #cancel="{ props }">
+            <base-button
+              v-bind="props"
+              secondary
+              :class="{ 'mr-4': canDeleteItem }"
+              :text="canDeleteItem ? t('common.cancel') : t('common.close')"
+              :prepend-icon="mdiClose"
+            />
+          </template>
+          <template #confirm="{ props }">
+            <base-button
+              v-if="canDeleteItem"
+              :text="t('common.delete')"
+              :append-icon="mdiTrashCanOutline"
+              v-bind="props"
+              :disabled="deleteCheckLoading"
+            />
+          </template>
+        </confirm-card>
+        <confirm-card
+          v-else-if="dialogMode === 'deactivate'"
           :title="t('views.roomEditView.deactivationConfirmTitle')"
-          @cancel="showDeactivateConfirm = false"
+          :loading="updateRoomLoading"
+          @cancel="closeDialog"
           @confirm="handleConfirmedSave"
         >
           <template #text>
             <v-alert
-              v-if="canDeactivate === false"
               type="warning"
               variant="outlined"
               density="compact"
@@ -96,10 +93,12 @@
             <base-button
               :text="t('common.save')"
               v-bind="props"
+              :append-icon="mdiContentSaveOutline"
             />
           </template>
         </confirm-card>
       </v-dialog>
+
       <base-button
         class="ml-4"
         :text="t('common.save')"
@@ -109,7 +108,10 @@
           uploadFileLoading ||
           updateRoomLoading ||
           createRoomLoading ||
-          uploadFileLoading
+          deactivateCheckLoading
+        "
+        :loading="
+          updateRoomLoading || createRoomLoading || deactivateCheckLoading
         "
         @click="handleSave"
       />
@@ -333,9 +335,10 @@ import type {
   RoomDetailsResponseDTO,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
-import type { DeepReadonly } from "vue";
+import { type DeepReadonly } from "vue";
 
 import {
+  mdiClose,
   mdiContentSaveOutline,
   mdiImageOutline,
   mdiTrashCanOutline,
@@ -358,7 +361,7 @@ import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import SeatingCapacityEditor from "@/components/rooms/SeatingCapacitySelector.vue";
 import { useUploadFile } from "@/composables/api/useFileAttachmentApi.ts";
 import {
-  useCheckRoomHasNoFutureBookings,
+  useCheckRoomHasNoFutureBookingsMutation,
   useCreateRoom,
   useDeleteRoom,
   useGetRoom,
@@ -375,9 +378,6 @@ import { weekScheduleCategories } from "@/constants/WeekScheduleCategory.ts";
 const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>({ ...EMPTY_ROOM_DATA });
 
-const showDeactivateConfirm = ref<boolean>(false);
-const deactivateCheckId = ref<string>();
-
 const router = useRouter();
 
 const route = useRoute();
@@ -388,9 +388,12 @@ const roomId = computed(() => (route.params.id as string) || undefined);
 const pictureMetaData = ref<File>();
 
 const isDeletable = ref<boolean>(false);
-const deleteRoomId = ref<string>();
 
 const contactPersonObject = ref<FindById200Response | string>();
+
+type DialogMode = "delete" | "deactivate" | null;
+const dialogMode = ref<DialogMode>(null);
+const showDialog = computed(() => dialogMode.value !== null);
 
 const { t } = useI18n();
 
@@ -415,11 +418,16 @@ const {
   error: uploadFileError,
 } = useUploadFile();
 
-const { data: canDeleteItem, isFetching: deleteCheckLoading } =
-  useCheckRoomHasNoFutureBookings(deleteRoomId);
+const { mutate: checkDeactivation, isPending: deactivateCheckLoading } =
+  useCheckRoomHasNoFutureBookingsMutation();
 
-const { data: canDeactivate, refetch: refetchDeactivateCheck } =
-  useCheckRoomHasNoFutureBookings(deactivateCheckId);
+const {
+  mutate: checkDeletable,
+  data: canDeleteItem,
+  isPending: deleteCheckLoading,
+  isError: deleteCheckError,
+  reset: resetDeleteCheck,
+} = useCheckRoomHasNoFutureBookingsMutation();
 
 watch(
   [() => roomReqData.value?.id, getRoomError],
@@ -466,24 +474,20 @@ const uploadPicture = async (value: File | File[]) => {
 };
 
 const handleSave = () => {
-  if (roomData.value.isActive === true || !roomId.value) {
+  if (roomData.value.isActive || !roomId.value) {
     performSave();
     return;
   }
 
-  deactivateCheckId.value = roomId.value;
-  refetchDeactivateCheck().then(({ data }) => {
-    if (data === false) {
-      showDeactivateConfirm.value = true;
-    } else {
-      performSave();
-    }
+  checkDeactivation(roomId.value, {
+    onSuccess: (hasNoFutureBookings) => {
+      if (hasNoFutureBookings) {
+        performSave();
+      } else {
+        dialogMode.value = "deactivate";
+      }
+    },
   });
-};
-
-const handleConfirmedSave = () => {
-  showDeactivateConfirm.value = false;
-  performSave();
 };
 
 const performSave = () => {
@@ -538,6 +542,24 @@ const onSuccess = (
     name: ROUTES.ROOMS_DETAILS,
     params: { id: newRoomData.id },
   });
+};
+
+const handleConfirmedSave = () => {
+  closeDialog();
+  performSave();
+};
+
+const openDeleteDialog = () => {
+  if (roomId.value) {
+    resetDeleteCheck();
+    dialogMode.value = "delete";
+    checkDeletable(roomId.value);
+  }
+};
+
+const closeDialog = () => {
+  dialogMode.value = null;
+  resetDeleteCheck();
 };
 
 const handleDelete = async () => {
