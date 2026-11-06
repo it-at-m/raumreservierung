@@ -20,6 +20,10 @@ public final class AppointmentSpecificationBuilder {
     }
 
     public static <T extends Appointment> Specification<T> fromFilter(final AppointmentFilterDTO appointmentFilterDTO) {
+        return fromFilterWithStatus(appointmentFilterDTO, null);
+    }
+
+    public static <T extends Appointment> Specification<T> fromFilterWithStatus(final AppointmentFilterDTO appointmentFilterDTO, final BookingStatus status) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
         if (appointmentFilterDTO.bookingId() != null) {
@@ -37,6 +41,9 @@ public final class AppointmentSpecificationBuilder {
         if (end != null) {
             log.debug("Appointment start date: {} - {}", end, end.toLocalDate().atStartOfDay(end.getOffset()).toOffsetDateTime());
             specificationList.add(filterForEndDate(end));
+        }
+        if(status != null) {
+            specificationList.add(filterForStatus(status));
         }
 
         return Specification.allOf(specificationList);
@@ -63,6 +70,10 @@ public final class AppointmentSpecificationBuilder {
 
     private static <T extends Appointment> Specification<T> filterExcludingStatus(final BookingStatus... status) {
         return (root, query, cb) -> cb.not(root.get(Appointment_.booking).get(Booking_.status).in(List.of(status)));
+    }
+
+    private static <T extends Appointment> Specification<T> filterForStatus(final BookingStatus status) {
+        return (root, query, cb) -> root.get(Appointment_.booking).get(Booking_.status).in(status);
     }
 
     private static <T extends Appointment> Specification<T> filterForRoomIds(final List<UUID> roomIds) {
