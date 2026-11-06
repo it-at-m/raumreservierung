@@ -92,6 +92,5 @@ export const useCheckRoomHasNoFutureBookingsMutation = () => {
   const api = ApiFactory.getInstance(RoomControllerApi);
   return useMutation({
     mutationFn: (roomId: string) => api.hasNoFutureBookingsForRoom({ roomId }),
-    retry: false,
   });
 };
