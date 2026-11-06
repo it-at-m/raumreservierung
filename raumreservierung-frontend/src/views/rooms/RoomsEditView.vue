@@ -43,16 +43,11 @@
                 })
               }}
             </div>
-            <v-alert
-              v-else-if="canDeleteItem === false"
-              type="warning"
-              variant="outlined"
-              density="compact"
-            >
+            <div>
               {{
                 t("generics.cantDelete", { domain: t("domain.room.header") })
               }}
-            </v-alert>
+            </div>
           </template>
           <template #cancel="{ props }">
             <base-button
@@ -81,13 +76,7 @@
           @confirm="handleConfirmedSave"
         >
           <template #text>
-            <v-alert
-              type="warning"
-              variant="outlined"
-              density="compact"
-            >
-              {{ t("views.roomEditView.deactivationFutureBookingsWarning") }}
-            </v-alert>
+            {{ t("views.roomEditView.deactivationFutureBookingsWarning") }}
           </template>
           <template #confirm="{ props }">
             <base-button
