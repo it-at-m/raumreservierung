@@ -10,7 +10,7 @@ import org.mapstruct.Mapping;
 import org.mapstruct.Named;
 
 @SuppressWarnings("PMD.AvoidDuplicateLiterals")
-@Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class, BookingStatusMapper.class })
+@Mapper(uses = { ReferenceMapper.class, EquipmentMapper.class, PersonMapper.class, RoomMapper.class, BookingStatusMapper.class, BookedForResolver.class })
 public interface BookingMapper {
 
     @Mapping(target = "equipments", source = "equipment")
@@ -27,7 +27,7 @@ public interface BookingMapper {
     BookingMinimalResponseDTO toMinimalDto(Booking booking);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "bookedFor", source = "bookedForId")
+    @Mapping(target = "bookedFor", source = "bookedFor")
     @Mapping(target = "equipment", source = "equipmentIds")
     @Mapping(target = "room", source = "roomId")
     @Mapping(target = "seatingType", source = "seatingTypeId")

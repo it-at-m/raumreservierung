@@ -17,11 +17,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.jayway.jsonpath.JsonPath;
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.appointment.dto.AppointmentDetailsResponseDTO;
+import de.muenchen.raumreservierung.booking.dto.BookedForDto;
 import de.muenchen.raumreservierung.booking.dto.BookingDetailResponseDTO;
 import de.muenchen.raumreservierung.booking.dto.BookingRequestDTO;
 import de.muenchen.raumreservierung.person.PersonRepository;
 import de.muenchen.raumreservierung.person.domain.ExternalPerson;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
+import de.muenchen.raumreservierung.person.domain.PersonType;
 import de.muenchen.raumreservierung.room.Room;
 import de.muenchen.raumreservierung.room.RoomRepository;
 import de.muenchen.raumreservierung.room.RoomSeatingCapacity;
@@ -245,7 +247,7 @@ public class BookingControllerIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_ReturnsCreated_WhenAuthenticatedAndNoRRule() throws Exception {
         OffsetDateTime now = OffsetDateTime.now();
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, mockPerson.getId());
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, mockPerson.getOrganisationId(), PersonType.INTERNAL);
 
         mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -297,7 +299,7 @@ public class BookingControllerIntegrationTest {
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.LESEBERECHTIGT })
     void createBooking_ReturnsCreated_WhenAuthenticatedAndRRules(String rrule, int expectedSize, List<OffsetDateTime> expectedDates) throws Exception {
         OffsetDateTime date = OffsetDateTime.of(2026, 3, 2, 13, 45, 0, 0, ZoneOffset.ofHours(2));
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(date, rrule, mockPerson.getId());
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(date, rrule, mockPerson.getOrganisationId(), PersonType.INTERNAL);
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL).with(csrf())
                 .contentType(MediaType.APPLICATION_JSON)
@@ -386,10 +388,15 @@ public class BookingControllerIntegrationTest {
     @EnumSource(BookedForScenario.class)
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
     void createBooking_AsAnwender_ShouldSetBookedForCorrectly(BookedForScenario scenario) throws Exception {
-        UUID bookedForId = switch (scenario) {
-        case MISSING -> null;
-        case INTERNAL_PERSON -> mockInternalPerson.getId();
-        case EXTERNAL_PERSON -> mockExternalPerson.getId();
+        String bookedForId = switch (scenario) {
+        case MISSING -> mockPerson.getOrganisationId();
+        case INTERNAL_PERSON -> mockInternalPerson.getOrganisationId();
+        case EXTERNAL_PERSON -> mockExternalPerson.getId().toString();
+        };
+        PersonType bookedForType = switch (scenario) {
+            case INTERNAL_PERSON -> PersonType.INTERNAL;
+            case MISSING -> PersonType.INTERNAL;
+            case EXTERNAL_PERSON -> PersonType.EXTERNAL;
         };
 
         UUID expectedBookedForId = switch (scenario) {
@@ -399,7 +406,7 @@ public class BookingControllerIntegrationTest {
         };
 
         OffsetDateTime now = OffsetDateTime.now();
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, bookedForId);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(now, null, bookedForId, bookedForType);
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -431,16 +438,21 @@ public class BookingControllerIntegrationTest {
     @EnumSource(BookedForScenario.class)
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void createBooking_AsRaumAdmin_ShouldSetBookedByCorrectly(BookedForScenario scenario) throws Exception {
-        UUID bookedForId = switch (scenario) {
-        case INTERNAL_PERSON -> mockInternalPerson.getId();
-        case MISSING -> null;
-        case EXTERNAL_PERSON -> mockExternalPerson.getId();
+        String bookedForId = switch (scenario) {
+        case INTERNAL_PERSON -> mockInternalPerson.getOrganisationId();
+        case MISSING -> mockPerson.getOrganisationId();
+        case EXTERNAL_PERSON -> mockExternalPerson.getId().toString();
         };
 
         UUID expectedBookedForId = switch (scenario) {
         case INTERNAL_PERSON -> mockInternalPerson.getId();
         case MISSING -> mockPerson.getId();
         case EXTERNAL_PERSON -> mockExternalPerson.getId();
+        };
+        PersonType bookedForType = switch (scenario) {
+            case INTERNAL_PERSON -> PersonType.INTERNAL;
+            case MISSING -> PersonType.INTERNAL;
+            case EXTERNAL_PERSON -> PersonType.EXTERNAL;
         };
 
         UUID expectedBookedById = switch (scenario) {
@@ -453,7 +465,7 @@ public class BookingControllerIntegrationTest {
         case EXTERNAL_PERSON, MISSING -> mockPerson.getOrganisationUnit();
         };
 
-        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, bookedForId);
+        BookingRequestDTO request = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, bookedForId, bookedForType);
 
         String responseJson = mockMvc.perform(post(BOOKINGS_URL)
                 .with(csrf())
@@ -484,7 +496,7 @@ public class BookingControllerIntegrationTest {
         Booking existingBooking = getExistingBooking(foreignOwner, BookingType.DEFAULT);
         Booking saved = bookingRepository.save(existingBooking);
 
-        BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, null);
+        BookingRequestDTO updates = getBookingRequestDTOWithRruleAndBookedFor(OffsetDateTime.now(), null, foreignOwner.getOrganisationId(), PersonType.INTERNAL);
 
         mockMvc.perform(put(BOOKINGS_URL + "/" + saved.getId())
                 .with(csrf())
@@ -709,7 +721,8 @@ public class BookingControllerIntegrationTest {
     private BookingRequestDTO getBookingRequestDTO(
             UUID roomId,
             UUID seatingTypeId,
-            UUID bookedForId,
+            String bookedForId,
+            PersonType bookedForType,
             int participantCount,
             String note,
             String recurringRule,
@@ -732,7 +745,7 @@ public class BookingControllerIntegrationTest {
                 recurringRule,
                 roomId,
                 schedule,
-                bookedForId,
+                new BookedForDto(bookedForId, bookedForType),
                 seatingTypeId,
                 BookingStatus.ORGANIZER_APPROVED,
                 null,
@@ -740,18 +753,18 @@ public class BookingControllerIntegrationTest {
     }
 
     private BookingRequestDTO getBookingRequestDTOWithRoomAndSeatingAndBookingType(BookingType bookingType) {
-        return getBookingRequestDTO(null, null, mockPerson.getId(), 100,
+        return getBookingRequestDTO(null, null, mockPerson.getOrganisationId(), PersonType.INTERNAL,100,
                 "secret note", null, bookingType, OffsetDateTime.now());
     }
 
     private BookingRequestDTO getBookingRequestDTOWithRoomAndSeatingAndParticipantCount(UUID roomId, UUID seatingTypeId, int participantCount) {
-        return getBookingRequestDTO(roomId, seatingTypeId, mockPerson.getId(), participantCount,
+        return getBookingRequestDTO(roomId, seatingTypeId, mockPerson.getOrganisationId(), PersonType.INTERNAL, participantCount,
                 "secret note", null, BookingType.DEFAULT, OffsetDateTime.now());
     }
 
     private BookingRequestDTO getBookingRequestDTOWithRruleAndBookedFor(
-            OffsetDateTime now, String recurringRule, UUID bookedForId) {
-        return getBookingRequestDTO(null, null, bookedForId, 100,
+            OffsetDateTime now, String recurringRule, String bookedForId, PersonType bookedForType) {
+        return getBookingRequestDTO(null, null, bookedForId, bookedForType,100,
                 "please clean", recurringRule, BookingType.DEFAULT, now);
     }
 }

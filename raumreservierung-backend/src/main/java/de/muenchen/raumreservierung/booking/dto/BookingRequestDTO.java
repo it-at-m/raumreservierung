@@ -21,7 +21,7 @@ public record BookingRequestDTO(
         String recurringRule,
         UUID roomId,
         @NotNull ScheduleTemplate schedule,
-        UUID bookedForId,
+        BookedForDto bookedFor,
         UUID seatingTypeId,
         @NotNull BookingStatus status,
         @Size(max = 255) String reasonForStatusChange,
