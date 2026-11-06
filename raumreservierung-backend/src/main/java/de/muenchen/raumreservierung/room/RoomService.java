@@ -100,6 +100,7 @@ public class RoomService {
         return getEntityOrThrowException(existingRoom.getId());
     }
 
+    @Transactional
     @PreAuthorize(Authorities.ROOM_MANAGE)
     public void deleteRoom(final UUID roomId) {
         final Room toDelete = getEntityOrThrowException(roomId);
