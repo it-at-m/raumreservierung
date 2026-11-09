@@ -24,10 +24,10 @@
             "
           />
           <icon-information
-            v-if="formattedDateText"
+            v-if="booking?.schedule.occupancyStart"
             class="my-2"
             :icon="mdiCalendarStartOutline"
-            :text="formattedDateText"
+            :text="toDateString(booking?.schedule.occupancyStart)"
           />
           <icon-information
             v-if="
@@ -251,8 +251,6 @@ import {
 import { useHasRole } from "@/composables/useIsPrivileged.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { toDateString, toTimeString } from "@/util/formatter.ts";
-import { dateEquals } from "@/util/timeUtil.ts";
-import { computed } from "vue";
 
 const { t } = useI18n();
 
@@ -281,20 +279,6 @@ const emit = defineEmits<{
   confirm: [];
   cancel: [];
 }>();
-
-const formattedDateText = computed(() => {
-  const start = booking?.schedule?.occupancyStart;
-  const end = booking?.schedule?.occupancyEnd;
-  if (!start || !end) {
-    return undefined;
-  }
-  return dateEquals(start, end)
-    ? toDateString(start)
-    : t("common.format.dateRange", {
-        start: toDateString(start),
-        end: toDateString(end),
-      });
-});
 
 const equalsAnyBookingStatus = (
   status:
