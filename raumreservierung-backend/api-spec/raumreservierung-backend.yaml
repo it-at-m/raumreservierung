@@ -488,6 +488,11 @@ paths:
           enum:
           - INTERNAL
           - EXTERNAL
+      - name: searchLdap
+        in: query
+        required: false
+        schema:
+          type: boolean
       responses:
         "200":
           description: OK
@@ -779,6 +784,28 @@ paths:
       responses:
         "200":
           description: "true if the seating type can be safely deleted, false otherwise"
+          content:
+            '*/*':
+              schema:
+                type: boolean
+  /rooms/{roomId}/has-no-future-bookings:
+    get:
+      tags:
+      - room-controller
+      summary: Check whether a future booking exists for the given room.
+      description: Check whether a future booking exists for the given room.
+      operationId: hasNoFutureBookingsForRoom
+      parameters:
+      - name: roomId
+        in: path
+        description: the UUID of the room to check
+        required: true
+        schema:
+          type: string
+          format: uuid
+      responses:
+        "200":
+          description: "true if no future booking exists for the room, false otherwise"
           content:
             '*/*':
               schema:
@@ -1492,6 +1519,16 @@ components:
           type: string
         isActive:
           type: boolean
+    BookedForDto:
+      type: object
+      properties:
+        id:
+          type: string
+        personType:
+          type: string
+          enum:
+          - INTERNAL
+          - EXTERNAL
     BookingRequestDTO:
       required:
       - schedule
@@ -1528,9 +1565,8 @@ components:
           format: uuid
         schedule:
           $ref: "#/components/schemas/ScheduleTemplate"
-        bookedForId:
-          type: string
-          format: uuid
+        bookedFor:
+          $ref: "#/components/schemas/BookedForDto"
         seatingTypeId:
           type: string
           format: uuid

@@ -14,40 +14,89 @@
         :prepend-icon="mdiWindowClose"
         @click="router.back()"
       />
-      <v-dialog width="90%">
-        <template #activator="{ props }">
-          <base-button
-            :disabled="!isDeletable"
-            v-bind="props"
-            class="ml-4"
-            :text="t('generics.delete', { domain: t('domain.room.header') })"
-            secondary
-            :append-icon="mdiTrashCanOutline"
-          />
-        </template>
-        <template #default="{ isActive }">
-          <confirm-card
-            :title="t('generics.delete', { domain: t('domain.room.header') })"
-            :text="
-              t('generics.confirmMsg', { domain: t('domain.room.header') })
-            "
-            :loading="deleteRoomLoading"
-            @cancel="isActive.value = false"
-            @confirm="
-              handleDelete();
-              isActive.value = false;
-            "
-          >
-            <template #confirm="{ props }">
-              <base-button
-                :text="t('common.delete')"
-                :append-icon="mdiTrashCanOutline"
-                v-bind="props"
-              />
+      <base-button
+        :disabled="!isDeletable"
+        class="ml-4"
+        :text="t('generics.delete', { domain: t('domain.room.header') })"
+        secondary
+        :append-icon="mdiTrashCanOutline"
+        @click="openDeleteDialog"
+      />
+      <v-dialog :model-value="showDialog">
+        <confirm-card
+          :title="
+            dialogMode === 'delete'
+              ? t('generics.delete', { domain: t('domain.room.header') })
+              : t('views.roomEditView.deactivationConfirmTitle')
+          "
+          :loading="
+            dialogMode === 'delete'
+              ? deleteRoomLoading || deleteCheckLoading
+              : updateRoomLoading
+          "
+          @cancel="closeDialog"
+          @confirm="
+            dialogMode === 'delete' ? handleDelete() : handleConfirmedSave()
+          "
+        >
+          <template #text>
+            <template v-if="dialogMode === 'delete'">
+              <div v-if="canDeleteItem === undefined && !deleteCheckError">
+                {{
+                  t("generics.checkDelete", { domain: t("domain.room.header") })
+                }}
+              </div>
+              <div v-else-if="canDeleteItem === true">
+                {{
+                  t("generics.confirmDelete", {
+                    domain: t("domain.room.header"),
+                  })
+                }}
+              </div>
+              <div v-else>
+                {{
+                  t("generics.cantDelete", { domain: t("domain.room.header") })
+                }}
+              </div>
             </template>
-          </confirm-card>
-        </template>
+
+            <template v-else-if="dialogMode === 'deactivate'">
+              {{ t("views.roomEditView.deactivationFutureBookingsWarning") }}
+            </template>
+          </template>
+
+          <template #cancel="{ props }">
+            <base-button
+              v-bind="props"
+              secondary
+              :text="
+                dialogMode === 'delete' && !canDeleteItem
+                  ? t('common.close')
+                  : t('common.cancel')
+              "
+              :prepend-icon="mdiClose"
+            />
+          </template>
+
+          <template #confirm="{ props }">
+            <base-button
+              v-if="dialogMode === 'deactivate' || canDeleteItem"
+              :text="
+                dialogMode === 'delete' ? t('common.delete') : t('common.save')
+              "
+              class="ml-4"
+              :append-icon="
+                dialogMode === 'delete'
+                  ? mdiTrashCanOutline
+                  : mdiContentSaveOutline
+              "
+              v-bind="props"
+              :disabled="dialogMode === 'delete' && deleteCheckLoading"
+            />
+          </template>
+        </confirm-card>
       </v-dialog>
+
       <base-button
         class="ml-4"
         :text="t('common.save')"
@@ -57,7 +106,10 @@
           uploadFileLoading ||
           updateRoomLoading ||
           createRoomLoading ||
-          uploadFileLoading
+          deactivateCheckLoading
+        "
+        :loading="
+          updateRoomLoading || createRoomLoading || deactivateCheckLoading
         "
         @click="handleSave"
       />
@@ -281,9 +333,10 @@ import type {
   RoomDetailsResponseDTO,
   RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
-import type { DeepReadonly } from "vue";
+import { type DeepReadonly } from "vue";
 
 import {
+  mdiClose,
   mdiContentSaveOutline,
   mdiImageOutline,
   mdiTrashCanOutline,
@@ -306,6 +359,7 @@ import EquipmentSelector from "@/components/rooms/EquipmentSelector.vue";
 import SeatingCapacityEditor from "@/components/rooms/SeatingCapacitySelector.vue";
 import { useUploadFile } from "@/composables/api/useFileAttachmentApi.ts";
 import {
+  useCheckRoomHasNoFutureBookingsMutation,
   useCreateRoom,
   useDeleteRoom,
   useGetRoom,
@@ -320,7 +374,7 @@ import { STATUS_INDICATORS } from "@/constants.ts";
 import { weekScheduleCategories } from "@/constants/WeekScheduleCategory.ts";
 
 const isValid = ref<boolean>(false);
-const roomData = ref<RoomRequestDTO>(EMPTY_ROOM_DATA);
+const roomData = ref<RoomRequestDTO>({ ...EMPTY_ROOM_DATA });
 
 const router = useRouter();
 
@@ -333,7 +387,11 @@ const pictureMetaData = ref<File>();
 
 const isDeletable = ref<boolean>(false);
 
-const contactPersonObject = ref<FindById200Response>();
+const contactPersonObject = ref<FindById200Response | string>();
+
+type DialogMode = "delete" | "deactivate" | null;
+const dialogMode = ref<DialogMode>(null);
+const showDialog = computed(() => dialogMode.value !== null);
 
 const { t } = useI18n();
 
@@ -345,25 +403,11 @@ const {
   error: getRoomError,
 } = useGetRoom(roomId);
 
-const {
-  mutateAsync: updateRoom,
-  data: updateRoomData,
-  isPending: updateRoomLoading,
-  error: updateRoomError,
-} = useUpdateRoom();
+const { mutate: updateRoom, isPending: updateRoomLoading } = useUpdateRoom();
 
-const {
-  mutateAsync: createRoom,
-  data: createRoomData,
-  isPending: createRoomLoading,
-  error: createRoomError,
-} = useCreateRoom();
+const { mutate: createRoom, isPending: createRoomLoading } = useCreateRoom();
 
-const {
-  mutateAsync: deleteRoom,
-  isPending: deleteRoomLoading,
-  error: deleteRoomError,
-} = useDeleteRoom();
+const { mutate: deleteRoom, isPending: deleteRoomLoading } = useDeleteRoom();
 
 const {
   mutateAsync: uploadFile,
@@ -371,6 +415,17 @@ const {
   data: uploadFileData,
   error: uploadFileError,
 } = useUploadFile();
+
+const { mutate: checkDeactivation, isPending: deactivateCheckLoading } =
+  useCheckRoomHasNoFutureBookingsMutation();
+
+const {
+  mutate: checkDeletable,
+  data: canDeleteItem,
+  isPending: deleteCheckLoading,
+  isError: deleteCheckError,
+  reset: resetDeleteCheck,
+} = useCheckRoomHasNoFutureBookingsMutation();
 
 watch(
   [() => roomReqData.value?.id, getRoomError],
@@ -381,7 +436,7 @@ watch(
         roomData.value = mapResponseToRequest(
           toRaw(roomReqData.value) as RoomDetailsResponseDTO
         );
-
+        contactPersonObject.value = roomData.value.contactPersonId ?? undefined;
         pictureMetaData.value = mapResponseToFileMock(
           roomReqData.value.picture
         );
@@ -416,32 +471,59 @@ const uploadPicture = async (value: File | File[]) => {
   };
 };
 
-const handleSave = async () => {
+const handleSave = () => {
+  if (roomData.value.isActive || !roomId.value) {
+    performSave();
+    return;
+  }
+
+  checkDeactivation(roomId.value, {
+    onSuccess: (hasNoFutureBookings) => {
+      if (hasNoFutureBookings) {
+        performSave();
+      } else {
+        dialogMode.value = "deactivate";
+      }
+    },
+  });
+};
+
+const performSave = () => {
   const payload: RoomRequestDTO = {
     ...roomData.value,
-    contactPersonId: contactPersonObject.value?.id,
+    contactPersonId:
+      typeof contactPersonObject.value === "string"
+        ? contactPersonObject.value
+        : contactPersonObject.value?.id,
   };
+
   if (roomId.value) {
-    await updateRoom({
-      roomId: roomId.value,
-      roomRequestDTO: payload,
-    });
-
-    if (!updateRoomError.value && updateRoomData.value) {
-      onSuccess(
-        updateRoomData.value,
-        t("generics.updated", { domain: t("domain.room.header") })
-      );
-    }
+    updateRoom(
+      {
+        roomId: roomId.value,
+        roomRequestDTO: payload,
+      },
+      {
+        onSuccess: (updatedRoom) => {
+          onSuccess(
+            updatedRoom,
+            t("generics.updated", { domain: t("domain.room.header") })
+          );
+        },
+      }
+    );
   } else {
-    await createRoom({ roomRequestDTO: payload });
-
-    if (!createRoomError.value && createRoomData.value) {
-      onSuccess(
-        createRoomData.value,
-        t("generics.created", { domain: t("domain.room.header") })
-      );
-    }
+    createRoom(
+      { roomRequestDTO: payload },
+      {
+        onSuccess: (createdRoom) => {
+          onSuccess(
+            createdRoom,
+            t("generics.created", { domain: t("domain.room.header") })
+          );
+        },
+      }
+    );
   }
 };
 
@@ -460,18 +542,40 @@ const onSuccess = (
   });
 };
 
+const handleConfirmedSave = () => {
+  closeDialog();
+  performSave();
+};
+
+const openDeleteDialog = () => {
+  if (roomId.value) {
+    resetDeleteCheck();
+    dialogMode.value = "delete";
+    checkDeletable(roomId.value);
+  }
+};
+
+const closeDialog = () => {
+  dialogMode.value = null;
+  resetDeleteCheck();
+};
+
 const handleDelete = async () => {
   if (roomId.value) {
-    await deleteRoom({ roomId: roomId.value });
-
-    if (!deleteRoomError.value) {
-      snackbar.push({
-        color: STATUS_INDICATORS.SUCCESS,
-        text: t("generics.deleted", { domain: t("domain.room.header") }),
-      });
-
-      await router.push({ name: ROUTES.ROOMS_LIST });
-    }
+    deleteRoom(
+      { roomId: roomId.value },
+      {
+        onSuccess: () => {
+          snackbar.push({
+            color: STATUS_INDICATORS.SUCCESS,
+            text: t("generics.deleted", {
+              domain: t("domain.room.header"),
+            }),
+          });
+          router.push({ name: ROUTES.ROOMS_LIST });
+        },
+      }
+    );
   }
 };
 </script>
