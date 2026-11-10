@@ -16,6 +16,9 @@ public class BookedForResolver {
 
 
     public Person resolvePerson(final BookedForDto bookedForDto) {
+        if (bookedForDto.id() == null || bookedForDto.id().isBlank()) {
+            return null;
+        }
         if (bookedForDto.personType() == PersonType.INTERNAL) {
             return personService.resolveInternalPersonByOrganisationIDOrThrowException(bookedForDto.id());
         }
