@@ -13,10 +13,8 @@ import BookingsDetailsView from "@/views/bookings/BookingsDetailsView.vue";
 import BookingsEditView from "@/views/bookings/BookingsEditView.vue";
 import BookingsListView from "@/views/bookings/BookingsListView.vue";
 import EquipmentView from "@/views/EquipmentView.vue";
-import GetStartedView from "@/views/GetStartedView.vue";
 import HelpView from "@/views/HelpView.vue";
 import HolidaysView from "@/views/HolidaysView.vue";
-import HomeView from "@/views/HomeView.vue";
 import PersonView from "@/views/PersonView.vue";
 import RoomsDetailsView from "@/views/rooms/RoomsDetailsView.vue";
 import RoomsEditView from "@/views/rooms/RoomsEditView.vue";
@@ -26,23 +24,15 @@ import SeatingTypeView from "@/views/SeatingTypeView.vue";
 const routes: RouteRecordRaw[] = [
   {
     path: "/",
-    name: ROUTES.HOME,
-    component: HomeView,
-    meta: {},
+    redirect: {
+      name: ROUTES.MY_BOOKINGS_LIST,
+    },
   },
   {
     path: "/help",
     name: ROUTES.HELP,
     component: HelpView,
     meta: {},
-  },
-  {
-    path: "/getstarted",
-    name: ROUTES.GETSTARTED,
-    component: GetStartedView,
-    meta: {
-      requiredPrivileges: ["rooms:write"],
-    },
   },
   {
     path: "/admin/equipment",
@@ -242,7 +232,7 @@ router.beforeEach(async (to) => {
     return;
   }
 
-  return { name: ROUTES.HOME };
+  return { name: ROUTES.HELP };
 });
 
 export default router;
