@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
 import java.util.List;
@@ -100,8 +101,8 @@ public class BookingFilterIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withFilterForTimeRange_shouldReturnBookingInPeriod() throws Exception {
-        OffsetDateTime start = OffsetDateTime.now();
-        OffsetDateTime end = OffsetDateTime.now();
+        OffsetDateTime start = LocalDate.now().atStartOfDay(ZoneId.of("Europe/Berlin")).toOffsetDateTime();
+        OffsetDateTime end = LocalDate.now().atTime(LocalTime.MAX).atZone(ZoneId.of("Europe/Berlin")).toOffsetDateTime();
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
                 .param("start", start.toString())
@@ -213,8 +214,8 @@ public class BookingFilterIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withFilterForTimeAndRoom_shouldReturnOneBooking() throws Exception {
-        OffsetDateTime end = OffsetDateTime.now();
-        OffsetDateTime start = OffsetDateTime.now();
+        OffsetDateTime start = LocalDate.now().atStartOfDay(ZoneId.of("Europe/Berlin")).toOffsetDateTime();
+        OffsetDateTime end = LocalDate.now().atTime(LocalTime.MAX).atZone(ZoneId.of("Europe/Berlin")).toOffsetDateTime();
         UUID roomId = UUID.fromString("770e8400-e29b-41d4-a716-446655440001");
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
