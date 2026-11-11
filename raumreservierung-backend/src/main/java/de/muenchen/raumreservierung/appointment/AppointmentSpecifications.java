@@ -54,14 +54,14 @@ public final class AppointmentSpecifications {
         if (start == null) {
             return null;
         }
-        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyStart), start);
+        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyEnd), start);
     }
 
     static <T extends Appointment> Specification<T> filterForEndDate(final OffsetDateTime end) {
         if (end == null) {
             return null;
         }
-        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyEnd), end);
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyStart), end);
     }
 
     static <T extends Appointment> Specification<T> filterForOccupancyEndAfter(final OffsetDateTime now) {
