@@ -137,6 +137,7 @@ import { SCHEDULE_DEFAULT_DURATION } from "@/constants.ts";
 import {
   dateEquals,
   dateRangesOverlap,
+  dateTimeEquals,
   formatDateShort,
 } from "@/util/timeUtil.ts";
 
@@ -165,18 +166,18 @@ const wholeDay = computed<boolean>(
     occupancyStart.value.getHours() <= 7
 );
 
-const appointmentDiffersState = ref<boolean | null>(null);
+const appointmentDiffersForced = ref(false);
 
 const appointmentDiffers = computed(
   () =>
-    appointmentDiffersState.value ??
-    (!!modelValue.value.appointmentStart &&
-      !!modelValue.value.appointmentEnd &&
-      (modelValue.value.appointmentStart.getTime() !==
-        modelValue.value.occupancyStart.getTime() ||
-        modelValue.value.appointmentEnd.getTime() !==
-          modelValue.value.occupancyEnd.getTime()))
+    appointmentDiffersForced.value || hasDifferingAppointment(modelValue.value)
 );
+
+const hasDifferingAppointment = (template: ScheduleTemplate): boolean =>
+  !!template.appointmentStart &&
+  !!template.appointmentEnd &&
+  (!dateTimeEquals(template.appointmentStart, template.occupancyStart) ||
+    !dateTimeEquals(template.appointmentEnd, template.occupancyEnd));
 
 const occupancyStart = computed({
   get: () => modelValue.value.occupancyStart,
@@ -298,7 +299,7 @@ const onWholeDayToggle = (isWholeDay: boolean | null) => {
 };
 
 const onAppointmentDiffers = (apptDiffers: boolean | null) => {
-  appointmentDiffersState.value = !!apptDiffers;
+  appointmentDiffersForced.value = !!apptDiffers;
 
   modelValue.value = {
     ...modelValue.value,
