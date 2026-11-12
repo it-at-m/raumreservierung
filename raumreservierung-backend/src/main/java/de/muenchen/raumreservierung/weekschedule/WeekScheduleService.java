@@ -48,7 +48,7 @@ public class WeekScheduleService {
         final List<RoomRowExportDto> roomRows = rooms.stream()
                 .map(room -> weekScheduleMapper.toRoomRow(
                         room,
-                        appointmentsByRoom.getOrDefault(room.getId(), List.of())))
+                        appointmentsByRoom.getOrDefault(room.getId(), List.of()), monday))
                 .toList();
 
         final Context context = new Context();

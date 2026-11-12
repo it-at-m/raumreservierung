@@ -98,15 +98,23 @@
     </tr>
     </thead>
     <tbody th:each="room, stat : ${model.roomRows}" th:classappend="${stat.index % 2 == 1} ? 'alt'">
-    <tr>
-        <td class="room-col">
+    <tr th:each="lane, laneStat : ${room.lanes}">
+
+        <!-- Raumzelle nur in der ersten Lane, über alle Lanes des Raums -->
+        <td class="room-col" th:if="${laneStat.first}" th:rowspan="${room.rowCount()}">
             <div th:text="${room.name}"></div>
             <div class="room-divider"></div>
             <div th:text="${room.number}"></div>
         </td>
-        <td th:each="cell : ${room.cells}">
-            <div class="appointment" th:each="appt : ${cell}">
-                <div th:text="${appt.occupancyTime}"></div>
+
+        <!-- Tageszellen: eintägig (colspan 1) oder mehrtägig (colspan > 1) -->
+        <td th:each="cell : ${lane}" th:colspan="${cell.colspan}">
+            <div class="appointment" th:each="appt : ${cell.appointments}">
+                <div>
+                    <span th:if="${cell.continuesBefore}">&lt;</span>
+                    <span th:text="${appt.occupancyTime}"></span>
+                    <span th:if="${cell.continuesAfter}">&gt;</span>
+                </div>
                 <div th:text="${appt.appointmentTime}"></div>
                 <div class="title-row">
                     <div class="title">
@@ -114,9 +122,11 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Leere Zelle behält die Höhe eines Termins -->
             <div class="appointment placeholder" th:if="${cell.isEmpty()}">
-                <div class="time">&#160;</div>
-                <div class="time">&#160;</div>
+                <div>&#160;</div>
+                <div>&#160;</div>
                 <div class="title-row">
                     <div class="title">&#160;</div>
                 </div>
