@@ -3,13 +3,11 @@ package de.muenchen.raumreservierung.booking;
 import static de.muenchen.raumreservierung.TestConstants.SPRING_TEST_PROFILE;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import de.muenchen.raumreservierung.TestConstants;
 import de.muenchen.raumreservierung.appointment.Appointment;
 import de.muenchen.raumreservierung.appointment.AppointmentRepository;
 import de.muenchen.raumreservierung.appointment.AppointmentService;
-import de.muenchen.raumreservierung.common.BadRequestException;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.equipment.EquipmentRepository;
 import de.muenchen.raumreservierung.notification.StatusNotificationMailService;
@@ -327,17 +325,6 @@ public class BookingServiceIntegrationTest {
                                     later.plusMinutes(15),
                                     later.plusHours(1).plusMinutes(30)));
                 }));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000002", authorities = { Roles.RAUM_ADMIN })
-    void updateBooking_shouldThrow_WhenStatusChangedToCANCELEDAndAdditionalChanges() {
-        Booking bookingUpdate = new Booking();
-        bookingUpdate.updateFrom(existingBooking);
-        bookingUpdate.setStatus(BookingStatus.CANCELED);
-        bookingUpdate.setTitle("NEW_TITLE");
-
-        assertThrows(BadRequestException.class, () -> bookingService.updateBooking(bookingUpdate, existingBooking.getId()));
     }
 
     @Test

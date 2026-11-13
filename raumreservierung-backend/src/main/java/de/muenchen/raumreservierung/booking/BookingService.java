@@ -130,13 +130,9 @@ public class BookingService {
         final BookingStatus oldStatus = existingBooking.getStatus();
         bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
         assignBookingContext(bookingUpdates);
-        if (isTerminalStatus(bookingUpdates.getStatus())) {
-            bookingValidationService.validateTerminalStatusOrThrowException(bookingUpdates, existingBooking);
-        } else {
+        if (!isTerminalStatus(bookingUpdates.getStatus())) {
             handleStandardBookingUpdate(bookingUpdates, existingBooking);
         }
-
-        updateBookingAppointments(existingBooking, bookingUpdates);
 
         saveAndDetach(existingBooking, bookingUpdates);
         log.debug("Updated booking with id {}", existingBooking.getId());
