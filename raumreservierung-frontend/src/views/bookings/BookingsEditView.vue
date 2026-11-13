@@ -9,7 +9,7 @@
         @click="router.back()"
       />
       <base-button
-        v-if="canCancel && isBookingEditable"
+        v-if="(canCancel || canEditBooking) && isBookingEditable"
         class="ml-4"
         :text="t('common.rescind')"
         secondary
@@ -468,6 +468,7 @@ const { isLoading: getRoomLoading, data: roomReqData } =
   useGetRoom(roomIdToFetch);
 
 const isBookingEditable = useIsBookingEditable(bookingData);
+const canEditBooking = useIsPrivileged("bookings:manage");
 
 watch(
   () => roomReqData.value?.id,

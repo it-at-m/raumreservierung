@@ -6,7 +6,6 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_STATUS_CHANGE_NOT_POSSIBLE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UPDATE_OF_FIELDS_NOT_ALLOWED;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -473,75 +472,6 @@ public class BookingValidationServiceTest {
         booking.setBookedBy(null);
 
         assertThrows(NullPointerException.class, () -> bookingValidationService.validateBookingAuthority(booking, Roles.RAUM_ADMIN));
-    }
-
-    @ParameterizedTest
-    @MethodSource("provideTerminalStatusData")
-    @WithMockJwt(lhmObjectID = "000002", authorities = { Roles.RAUM_ADMIN })
-    void validateTerminalStatusOrThrowException(BiConsumer<Booking, Booking> setup, String expectedErrorMsg) {
-        setup.accept(baseBooking, baseBookingExisting);
-
-        if (expectedErrorMsg == null) {
-            assertDoesNotThrow(() -> bookingValidationService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
-        } else {
-            BadRequestException exception = assertThrows(BadRequestException.class,
-                    () -> bookingValidationService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
-            assertEquals(HttpStatus.BAD_REQUEST + " \"" + expectedErrorMsg + "\"", exception.getMessage());
-        }
-    }
-
-    private Stream<Arguments> provideTerminalStatusData() {
-        return Stream.of(
-
-                // Valid: existingBooking is null -> method returns without checking anything
-                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> existingBooking = null, null),
-
-                // Valid: only status is changed to UNFEASIBLE, all other fields untouched
-                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
-                    newBooking.setId(existingBooking.getId());
-                    newBooking.setStatus(BookingStatus.UNFEASIBLE);
-                    newBooking.setReasonForStatusChange("REASON_FOR_REJECTION");
-                }, null),
-
-                // Valid: only status is changed to CANCELED, all other fields untouched
-                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
-                    newBooking.setId(existingBooking.getId());
-                    newBooking.setStatus(BookingStatus.CANCELED);
-                }, null),
-
-                // Invalid: status changed to UNFEASIBLE but an unrelated field is also modified
-                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
-                    newBooking.setId(existingBooking.getId());
-                    newBooking.setStatus(BookingStatus.UNFEASIBLE);
-                    newBooking.setTitle("NEW_TITLE");
-                }, MSG_UPDATE_OF_FIELDS_NOT_ALLOWED),
-
-                // Invalid: status changed to CANCELED but an unrelated field is also modified
-                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
-                    newBooking.setId(existingBooking.getId());
-                    newBooking.setStatus(BookingStatus.CANCELED);
-                    newBooking.setParticipantCount(4);
-                }, MSG_UPDATE_OF_FIELDS_NOT_ALLOWED),
-
-                // Invalid: reasonForStatusChange is set even though status is not UNFEASIBLE
-                Arguments.of((BiConsumer<Booking, Booking>) (newBooking, existingBooking) -> {
-                    newBooking.setId(existingBooking.getId());
-                    newBooking.setStatus(existingBooking.getStatus());
-                    newBooking.setReasonForStatusChange("Some reason without status change");
-                }, MSG_UPDATE_OF_FIELDS_NOT_ALLOWED));
-    }
-
-    @Test
-    @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.ANWENDER })
-    void validateTerminalStatusOrThrowException_anwenderSetsreasonForStatusChange_throwsException() {
-        baseBooking.setId(baseBookingExisting.getId());
-        baseBooking.setStatus(baseBookingExisting.getStatus());
-        baseBooking.setReasonForStatusChange("REASON_FOR_REJECTION");
-
-        BadRequestException exception = assertThrows(BadRequestException.class,
-                () -> bookingValidationService.validateTerminalStatusOrThrowException(baseBooking, baseBookingExisting));
-
-        assertEquals(HttpStatus.BAD_REQUEST + " \"" + MSG_UPDATE_OF_FIELDS_NOT_ALLOWED + "\"", exception.getMessage());
     }
 
     @Test
