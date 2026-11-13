@@ -2,7 +2,6 @@ package de.muenchen.raumreservierung.booking;
 
 import de.muenchen.raumreservierung.booking.dto.BookingFilterDTO;
 import de.muenchen.raumreservierung.person.domain.Person;
-import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -26,8 +25,8 @@ public final class BookingSpecificationBuilder {
             final boolean statusNew) {
         final List<Specification<T>> specificationList = new ArrayList<>();
         specificationList.add(BookingSpecifications.forRoomId(bookingFilterDTO.roomId()));
-        specificationList.add(BookingSpecifications.forStart(normalizeStart(bookingFilterDTO.start())));
-        specificationList.add(BookingSpecifications.forEnd(normalizeEnd(bookingFilterDTO.end())));
+        specificationList.add(BookingSpecifications.forStart(bookingFilterDTO.start()));
+        specificationList.add(BookingSpecifications.forEnd(bookingFilterDTO.end()));
         specificationList.add(BookingSpecifications.forStatus(bookingFilterDTO.status()));
         specificationList.add(BookingSpecifications.forPerson(person));
         if (!statusNew) {
@@ -44,13 +43,5 @@ public final class BookingSpecificationBuilder {
                 BookingSpecifications.forRoomId(roomId),
                 BookingSpecifications.forOccupancyEndAfter(OffsetDateTime.now()),
                 BookingSpecifications.excludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
-    }
-
-    private static OffsetDateTime normalizeStart(final OffsetDateTime start) {
-        return start == null ? null : start.toLocalDate().atStartOfDay(start.getOffset()).toOffsetDateTime();
-    }
-
-    private static OffsetDateTime normalizeEnd(final OffsetDateTime end) {
-        return end == null ? null : end.toLocalDate().atTime(LocalTime.MAX).atZone(end.getOffset()).toOffsetDateTime();
     }
 }
