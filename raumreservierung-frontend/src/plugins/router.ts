@@ -23,12 +23,6 @@ import SeatingTypeView from "@/views/SeatingTypeView.vue";
 
 const routes: RouteRecordRaw[] = [
   {
-    path: "/",
-    redirect: {
-      name: ROUTES.MY_BOOKINGS_LIST,
-    },
-  },
-  {
     path: "/help",
     name: ROUTES.HELP,
     component: HelpView,
@@ -197,7 +191,12 @@ const routes: RouteRecordRaw[] = [
       requiredPrivileges: ["seating:write"],
     },
   },
-  { path: "/:catchAll(.*)*", redirect: "/" }, // CatchAll route
+  {
+    path: "/:catchAll(.*)*",
+    redirect: {
+      name: ROUTES.MY_BOOKINGS_LIST,
+    },
+  }, // CatchAll route
 ];
 
 const router = createRouter({
