@@ -20,7 +20,7 @@
     <template #selection="{ item }">
       {{ formatName(item.firstName || item.lastName ? item : initialPerson) }}
       <span
-        v-if="showEmail && getEmail(item)"
+        v-if="showPersonDetails && getEmail(item)"
         class="text-grey ml-1"
       >
         {{ t("common.format.braces", { content: getEmail(item) }) }}
@@ -31,7 +31,9 @@
         v-bind="props"
         :title="formatName(item)"
         :subtitle="
-          showEmail ? t('common.format.braces', { content: item.email }) : ''
+          showPersonDetails
+            ? t('common.format.braces', { content: item.email })
+            : ''
         "
       >
       </v-list-item>
@@ -56,11 +58,11 @@ import {
 const {
   type,
   label,
-  showEmail = false,
+  showPersonDetails = false,
 } = defineProps<{
   type?: InternalPersonRequestDtoTypeEnum;
   label?: string;
-  showEmail?: boolean;
+  showPersonDetails?: boolean;
 }>();
 
 const { t } = useI18n();
