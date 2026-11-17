@@ -20,21 +20,19 @@
     <template #selection="{ item }">
       {{ formatName(item.firstName || item.lastName ? item : initialPerson) }}
       <span
-        v-if="getDetailInformation(item)"
+        v-if="getFormattedDetail(item)"
         class="text-grey ml-1"
       >
-        {{ t("common.format.braces", { content: getDetailInformation(item) }) }}
+        {{ getFormattedDetail(item) }}
       </span>
     </template>
+
     <template #item="{ item, props }">
       <v-list-item
         v-bind="props"
         :title="formatName(item)"
-        :subtitle="
-          t('common.format.braces', { content: getDetailInformation(item) })
-        "
-      >
-      </v-list-item>
+        :subtitle="getFormattedDetail(item)"
+      />
     </template>
   </v-autocomplete>
 </template>
@@ -123,12 +121,14 @@ const formatName = (person: FindById200Response | undefined) =>
     : t("components.personSelect.personNotFound");
 
 /**
- * Retrieves the organization unit for internal persons and the company name for external persons
+ * Retrieves and formats the organization unit or company name.
  */
-const getDetailInformation = (item: FindById200Response) => {
-  return isInternal.value
-    ? (item as InternalPersonResponseDto).organisationUnit
+const getFormattedDetail = (item: FindById200Response): string => {
+  const detail = isInternal.value
+    ? (item as InternalPersonResponseDto).organisationUnit?.toUpperCase()
     : (item as ExternalPersonResponseDto).company;
+
+  return detail ? t("common.format.braces", { content: detail }) : "";
 };
 
 const onSearch = useDebounceFn((searchQuery: string) => {
