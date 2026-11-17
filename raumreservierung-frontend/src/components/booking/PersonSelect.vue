@@ -20,7 +20,7 @@
     <template #selection="{ item }">
       {{ formatName(item.firstName || item.lastName ? item : initialPerson) }}
       <span
-        v-if="showPersonDetails && getDetailInformation(item)"
+        v-if="getDetailInformation(item)"
         class="text-grey ml-1"
       >
         {{ t("common.format.braces", { content: getDetailInformation(item) }) }}
@@ -31,9 +31,7 @@
         v-bind="props"
         :title="formatName(item)"
         :subtitle="
-          showPersonDetails
-            ? t('common.format.braces', { content: getDetailInformation(item) })
-            : ''
+          t('common.format.braces', { content: getDetailInformation(item) })
         "
       >
       </v-list-item>
@@ -59,14 +57,9 @@ import {
   useGetPersonPage,
 } from "@/composables/api/usePersonApi.ts";
 
-const {
-  type,
-  label,
-  showPersonDetails = false,
-} = defineProps<{
+const { type, label } = defineProps<{
   type?: InternalPersonRequestDtoTypeEnum;
   label?: string;
-  showPersonDetails?: boolean;
 }>();
 
 const { t } = useI18n();

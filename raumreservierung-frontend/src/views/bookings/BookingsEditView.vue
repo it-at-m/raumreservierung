@@ -209,7 +209,6 @@
                   >
                     <person-select
                       v-model="bookedFor"
-                      show-person-details
                       :type="InternalPersonRequestDtoTypeEnum.INTERNAL"
                     />
                   </v-col>
@@ -219,7 +218,6 @@
                   >
                     <person-select
                       v-model="bookedFor"
-                      show-person-details
                       :type="InternalPersonRequestDtoTypeEnum.EXTERNAL"
                     />
                   </v-col>
