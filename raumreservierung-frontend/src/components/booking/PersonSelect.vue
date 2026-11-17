@@ -20,10 +20,10 @@
     <template #selection="{ item }">
       {{ formatName(item.firstName || item.lastName ? item : initialPerson) }}
       <span
-        v-if="showPersonDetails && getEmail(item)"
+        v-if="showPersonDetails && getDetailInformation(item)"
         class="text-grey ml-1"
       >
-        {{ t("common.format.braces", { content: getEmail(item) }) }}
+        {{ t("common.format.braces", { content: getDetailInformation(item) }) }}
       </span>
     </template>
     <template #item="{ item, props }">
@@ -32,7 +32,7 @@
         :title="formatName(item)"
         :subtitle="
           showPersonDetails
-            ? t('common.format.braces', { content: item.email })
+            ? t('common.format.braces', { content: getDetailInformation(item) })
             : ''
         "
       >
@@ -42,7 +42,11 @@
 </template>
 
 <script setup lang="ts">
-import type { FindById200Response } from "@/api/raumreservierung-backend";
+import type {
+  ExternalPersonResponseDto,
+  FindById200Response,
+  InternalPersonResponseDto,
+} from "@/api/raumreservierung-backend";
 
 import { mdiAccountSearchOutline } from "@mdi/js";
 import { useDebounceFn } from "@vueuse/core";
@@ -125,8 +129,13 @@ const formatName = (person: FindById200Response | undefined) =>
       })
     : t("components.personSelect.personNotFound");
 
-const getEmail = (item: FindById200Response) => {
-  return item?.email ?? initialPerson.value?.email;
+/**
+ * Retrieves the organization unit for internal persons and the company name for external persons
+ */
+const getDetailInformation = (item: FindById200Response) => {
+  return isInternal.value
+    ? (item as InternalPersonResponseDto).organisationUnit
+    : (item as ExternalPersonResponseDto).company;
 };
 
 const onSearch = useDebounceFn((searchQuery: string) => {
