@@ -17,6 +17,11 @@ export const timeEquals = (
     : date.getMinutes() === otherDate.getMinutes() &&
       date.getHours() === otherDate.getHours();
 
+export const dateTimeEquals = (
+  date: Date | undefined,
+  otherDate: Date | undefined
+) => dateEquals(date, otherDate) && timeEquals(date, otherDate);
+
 export const toApiDate = <T extends Date | undefined>(date: T): T =>
   !date
     ? date

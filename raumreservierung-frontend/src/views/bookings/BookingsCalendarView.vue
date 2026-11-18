@@ -248,7 +248,7 @@ const selectedRoomIds = computed({
 
 const saveBooking = async () => {
   await updateBookingSchedule();
-  if (!updateBookingError) {
+  if (!updateBookingError.value) {
     snackbarStore.push({
       text: t("generics.updated", { domain: t("domain.booking.header") }),
       color: STATUS_INDICATORS.SUCCESS,
