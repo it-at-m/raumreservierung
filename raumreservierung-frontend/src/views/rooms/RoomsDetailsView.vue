@@ -89,7 +89,7 @@
                   </v-card-subtitle>
                 </v-card-item>
 
-                <v-card-text>
+                <v-card-text class="text-pre-wrap">
                   {{ roomData?.locationDescription }}
                 </v-card-text>
               </v-card>

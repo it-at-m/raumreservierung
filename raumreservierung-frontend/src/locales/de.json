@@ -42,8 +42,7 @@
     "name": {
       "part1": "DIR - ",
       "part2": "Raum",
-      "part3": "buchung",
-      "full": "@:app.name.part2@:app.name.part3"
+      "part3": "buchung"
     }
   },
   "components": {
@@ -134,23 +133,6 @@
     }
   },
   "views": {
-    "home": {
-      "header": "Willkommen bei der @:app.name.full von it{'@'}M",
-      "apiGatewayStatus": "Das API-Gateway ist:",
-      "privilegeTest": "Wer das liesst hat die notwendigen Berechtigungen"
-    },
-    "getStarted": {
-      "docsHeader": "Dokumentation",
-      "docsSubtext": "Weiterführende Links sind hier zu finden:",
-      "docsLinks": {
-        "templates": "Dokumentation RefArch-Templates",
-        "main": "Dokumentation RefArch"
-      },
-      "saveLeave": {
-        "title": "Wirklich verlassen?",
-        "text": "Wollen Sie wirklich nicht die Dokumentation anschauen?"
-      }
-    },
     "help": {
       "header": "Hilfeseite"
     },
