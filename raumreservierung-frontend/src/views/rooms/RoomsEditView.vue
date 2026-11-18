@@ -211,7 +211,6 @@
               :loading="uploadFileLoading"
               :disabled="uploadFileLoading"
               :model-value="pictureMetaData"
-              :error-messages="pictureUploadError"
               clearable
               color="accent"
               show-size
@@ -374,8 +373,6 @@ import { EMPTY_ROOM_DATA, mapResponseToRequest } from "@/util/roomTypeUtil.ts";
 import { STATUS_INDICATORS } from "@/constants.ts";
 import { weekScheduleCategories } from "@/constants/WeekScheduleCategory.ts";
 
-const MAX_PICTURE_SIZE_BYTES = 5 * 1024 * 1024;
-
 const isValid = ref<boolean>(false);
 const roomData = ref<RoomRequestDTO>({ ...EMPTY_ROOM_DATA });
 
@@ -391,8 +388,6 @@ const pictureMetaData = ref<File>();
 const isDeletable = ref<boolean>(false);
 
 const contactPersonObject = ref<FindById200Response | string>();
-
-const pictureUploadError = ref<string | undefined>();
 
 type DialogMode = "delete" | "deactivate" | null;
 const dialogMode = ref<DialogMode>(null);
@@ -458,17 +453,11 @@ watch(
 );
 
 const uploadPicture = async (value: File | File[]) => {
-  pictureUploadError.value = undefined;
   const pictureToUpload = Array.isArray(value) ? value[0] : value;
 
   if (pictureToUpload) {
-    if (pictureToUpload.size > MAX_PICTURE_SIZE_BYTES) {
-      pictureUploadError.value = "Das Bild darf maximal 5 MB groß sein.";
-      return;
-    }
     await uploadFile({ file: pictureToUpload });
     if (uploadFileError.value) {
-      pictureUploadError.value = "Das Bild konnte nicht hochgeladen werden.";
       return;
     }
   }
