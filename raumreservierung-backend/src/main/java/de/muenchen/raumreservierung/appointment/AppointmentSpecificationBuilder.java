@@ -20,20 +20,22 @@ public final class AppointmentSpecificationBuilder {
     public static <T extends Appointment> Specification<T> fromFilterWithStatus(final AppointmentFilterDTO appointmentFilterDTO, final BookingStatus status) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 
-            specificationList.add(AppointmentSpecifications.filterForBookingId(appointmentFilterDTO.bookingId()));
-            specificationList.add(AppointmentSpecifications.filterForRoomIds(appointmentFilterDTO.roomIds()));
+        specificationList.add(AppointmentSpecifications.filterForBookingId(appointmentFilterDTO.bookingId()));
+        specificationList.add(AppointmentSpecifications.filterForRoomIds(appointmentFilterDTO.roomIds()));
         specificationList.add(AppointmentSpecifications.filterForStartDate(appointmentFilterDTO.startDate()));
-            specificationList.add(AppointmentSpecifications.filterForEndDate(appointmentFilterDTO.endDate()));
-            specificationList.add(AppointmentSpecifications.filterForStatus(status));
+        specificationList.add(AppointmentSpecifications.filterForEndDate(appointmentFilterDTO.endDate()));
+        specificationList.add(AppointmentSpecifications.filterForStatus(status));
 
         return Specification.allOf(specificationList);
     }
     public static <T extends Appointment> Specification<T> forFutureSeatingTypeUsage(final UUID seatingTypeId, final UUID roomId) {
         final List<Specification<T>> specificationList = new ArrayList<>();
+
         specificationList.add(AppointmentSpecifications.filterForSeatingTypeId(seatingTypeId));
         specificationList.add(AppointmentSpecifications.filterForOccupancyEndAfter(OffsetDateTime.now()));
         specificationList.add(AppointmentSpecifications.filterExcludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
-            specificationList.add(AppointmentSpecifications.filterForRoomId(roomId));
+        specificationList.add(AppointmentSpecifications.filterForRoomId(roomId));
+
         return Specification.allOf(specificationList);
     }
 
