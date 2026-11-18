@@ -1,0 +1,2 @@
+# picomatch: No DoS applicable here as not used inside of Node.js
+CVE-2026-112366
