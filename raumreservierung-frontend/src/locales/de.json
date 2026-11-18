@@ -157,8 +157,8 @@
     "bookingDetailsView": {
       "header": "Buchungsdetails",
       "chosenSeatingType": "Gewählte Bestuhlung",
-      "bookedBy": "Gebucht von @:common.format.fullName",
-      "bookedFor": "@:components.filterPanel.bookedFor @:common.format.fullName",
+      "bookedBy": "Gebucht von {titlePrefix} @:common.format.fullName",
+      "bookedFor": "@:components.filterPanel.bookedFor {titlePrefix} @:common.format.fullName",
       "seriesDate": "Serientermin",
       "notes": "Notizen",
       "internalNotes": "Interne Notizen",

@@ -117,6 +117,9 @@
           <details-card
             :title="
               t('views.bookingDetailsView.bookedFor', {
+                titlePrefix: t(
+                  `views.roomDetailsView.titlePrefix.${(getBookingData?.bookedBy?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`
+                ),
                 firstName: getBookingData?.bookedFor?.firstName,
                 lastName: getBookingData?.bookedFor?.lastName,
               })
@@ -135,6 +138,28 @@
                 class="mr-2"
               />
               {{ getBookingData.organisationUnit }}
+            </div>
+            <div
+              v-if="getBookingData?.bookedFor?.email"
+              class="text-medium-emphasis d-flex align-center"
+            >
+              <v-icon
+                :icon="mdiAt"
+                size="small"
+                class="mr-2"
+              />
+              {{ getBookingData.bookedFor.email }}
+            </div>
+            <div
+              v-if="getBookingData?.bookedFor?.telefonNumber"
+              class="text-medium-emphasis d-flex align-center"
+            >
+              <v-icon
+                :icon="mdiPhoneOutline"
+                size="small"
+                class="mr-2"
+              />
+              {{ getBookingData.bookedFor.telefonNumber }}
             </div>
           </details-card>
         </div>
@@ -228,12 +253,16 @@
 </template>
 
 <script setup lang="ts">
-import type { AppointmentDetailsResponseDTO } from "@/api/raumreservierung-backend";
+import {
+  type AppointmentDetailsResponseDTO,
+  ExternalPersonResponseDtoTitleEnum,
+} from "@/api/raumreservierung-backend";
 import type { InfiniteScrollLoad } from "@/types/InfiniteScroll.ts";
 
 import {
   mdiAccountOutline,
   mdiArrowLeft,
+  mdiAt,
   mdiCalendarRangeOutline,
   mdiCalendarSyncOutline,
   mdiDomain,
@@ -241,6 +270,7 @@ import {
   mdiFileDocumentAlertOutline,
   mdiFileDocumentOutline,
   mdiPencil,
+  mdiPhoneOutline,
   mdiSofaSingleOutline,
 } from "@mdi/js";
 import { RRule } from "rrule";
@@ -352,6 +382,9 @@ const bookedByComputed = computed(() => {
     getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
     ? undefined
     : t("views.bookingDetailsView.bookedBy", {
+        titlePrefix: t(
+          `views.roomDetailsView.titlePrefix.${(getBookingData?.value?.bookedBy?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`
+        ),
         firstName: getBookingData?.value?.bookedBy?.firstName,
         lastName: getBookingData?.value?.bookedBy?.lastName,
       });
