@@ -330,14 +330,40 @@ public class BookingServiceIntegrationTest {
     }
 
     @Test
+    @WithMockJwt(lhmObjectID = "000002", authorities = { Roles.TERMIN_ORGANISATOR })
+    void updateBooking_shouldThrow_WhenStatusChangedToUNFEASIBLEAndWrongRole() {
+        Booking bookingUpdate = new Booking();
+        bookingUpdate.updateFrom(existingBooking);
+        bookingUpdate.setStatus(BookingStatus.UNFEASIBLE);
+
+        assertThrows(BadRequestException.class, () -> bookingService.updateBooking(bookingUpdate, existingBooking.getId()));
+    }
+
+    @Test
     @WithMockJwt(lhmObjectID = "000002", authorities = { Roles.RAUM_ADMIN })
-    void updateBooking_shouldThrow_WhenStatusChangedToCANCELEDAndAdditionalChanges() {
+    void updateBooking_shouldBeValid_WhenStatusChangedToCANCELEDAndAdditionalChanges() {
         Booking bookingUpdate = new Booking();
         bookingUpdate.updateFrom(existingBooking);
         bookingUpdate.setStatus(BookingStatus.CANCELED);
         bookingUpdate.setTitle("NEW_TITLE");
+        bookingUpdate.setReasonForStatusChange("NEW_REASON");
+        bookingUpdate.setSeatingType(seatingType2);
+        bookingUpdate.setAdditionalNotes("NEW_NOTE");
+        bookingUpdate.setCateringNeeded(false);
+        bookingUpdate.setBookingType(BookingType.FREE);
+        bookingUpdate.setRoom(room2);
+        bookingUpdate.setParticipantCount(2);
+        bookingUpdate.setRecurringRule("NEW_RULE");
+        bookingUpdate.setOrganisationUnit("NEW_OU");
+        bookingUpdate.setSchedule(new ScheduleTemplate(OffsetDateTime.now(), OffsetDateTime.now().plusHours(1), OffsetDateTime.now(), OffsetDateTime.now().plusHours(1)));
+        bookingUpdate.setEquipment(new HashSet<>(Set.of(new Equipment())));
+        bookingUpdate.setBookedBy(externalPerson);
+        bookingUpdate.setBookedFor(internalPerson);
 
-        assertThrows(BadRequestException.class, () -> bookingService.updateBooking(bookingUpdate, existingBooking.getId()));
+        Booking result = bookingService.updateBooking(bookingUpdate, existingBooking.getId());
+
+        assertNotNull(result);
+        assertThat(result.getStatus()).isEqualTo(BookingStatus.CANCELED);
     }
 
     @Test
