@@ -101,6 +101,14 @@ const routes: RouteRecordRaw[] = [
       requiredPrivileges: ["rooms:write"],
     },
   },
+  {
+    path: "/rooms/manage",
+    name: ROUTES.ROOMS_MANAGE,
+    component: RoomsListView,
+    meta: {
+      requiredPrivileges: ["rooms:read", "rooms:write"],
+    },
+  },
   // MY BOOKINGS
   {
     path: "/mybookings",
