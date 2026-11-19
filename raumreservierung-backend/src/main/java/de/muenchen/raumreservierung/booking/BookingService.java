@@ -34,6 +34,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.transaction.event.TransactionPhase;
+import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 @Slf4j
@@ -146,6 +150,25 @@ public class BookingService {
         checkAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
         log.debug("Deleted booking with id {}", bookingId);
         bookingRepository.deleteById(bookingId);
+    }
+
+    /**
+     * Automatically updates and saves a booking's status to {@link BookingStatus#ROOM_CHANGED}
+     * after an associated appointment has changed.
+     *
+     * @param bookingId the id of the booking to process
+     */
+    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public void handleAppointmentChange(final UUID bookingId) {
+        final Booking bookingToChange = getEntityOrThrowException(bookingId);
+        if (bookingValidationService.isObligedToAutomaticStatusChange(bookingToChange)) {
+            final Booking bookingChange = new Booking();
+            bookingChange.updateFrom(bookingToChange);
+            bookingChange.setStatus(BookingStatus.ROOM_CHANGED);
+
+            saveAndDetach(bookingToChange, bookingChange);
+        }
     }
 
     private void checkAuthorityOrThrowException(final Booking booking, final String role) {
@@ -329,6 +352,17 @@ public class BookingService {
     void removeSeatingTypeFromBookings(final UUID seatingTypeId) {
         final List<Booking> affectedBookings = bookingRepository.findBySeatingTypeId(seatingTypeId);
         affectedBookings.forEach(booking -> booking.setSeatingType(null));
+        bookingRepository.saveAll(affectedBookings);
+    }
+
+    boolean existsFutureBookingForRoom(final UUID roomId) {
+        final Specification<Booking> spec = BookingSpecificationBuilder.forFutureRoomUsage(roomId);
+        return bookingRepository.exists(spec) || appointmentService.existsFutureAppointmentForRoom(roomId);
+    }
+
+    void removeRoomFromBookings(final UUID roomId) {
+        final List<Booking> affectedBookings = bookingRepository.findByRoomId(roomId);
+        affectedBookings.forEach(booking -> booking.setRoom(null));
         bookingRepository.saveAll(affectedBookings);
     }
 }

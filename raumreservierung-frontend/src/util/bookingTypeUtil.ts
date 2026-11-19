@@ -23,7 +23,7 @@ export const mapBookingResponseToRequest = (
     additionalNotes: response.additionalNotes,
     seatingTypeId: response.seatingType?.id,
     roomId: response.room?.id,
-    bookedForId: response.bookedFor?.id,
+    bookedFor: response.bookedFor,
     schedule: response.schedule,
     recurringRule: response.recurringRule,
     status: response.status.currentStatus,
@@ -42,7 +42,7 @@ export const EMPTY_BOOKING_REQUEST_DATA: BookingRequestDTO = {
   seatingTypeId: "",
   recurringRule: undefined,
   roomId: undefined,
-  bookedForId: undefined,
+  bookedFor: undefined,
   schedule: {
     occupancyStart: new Date(),
     occupancyEnd: new Date(Date.now() + SCHEDULE_DEFAULT_DURATION),

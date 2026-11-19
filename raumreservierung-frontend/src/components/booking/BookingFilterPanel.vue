@@ -102,7 +102,6 @@
               :label="t('components.filterPanel.bookedFor')"
               density="compact"
               hide-details
-              show-email
               :return-object="false"
               @update:model-value="onFiltersChanged"
             />

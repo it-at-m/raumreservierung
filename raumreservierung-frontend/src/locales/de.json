@@ -42,11 +42,15 @@
     "name": {
       "part1": "DIR - ",
       "part2": "Raum",
-      "part3": "buchung",
-      "full": "@:app.name.part2@:app.name.part3"
+      "part3": "buchung"
     }
   },
   "components": {
+    "exportWeekScheduleCard": {
+      "chooseWeek": "Woche wählen",
+      "chooseCategory": "Kategorie wählen",
+      "confirm": "Dienstplan erstellen"
+    },
     "bookingsCalendarView": {
       "warning": "Die Änderung bezieht sich auf alle Serientermine in der Zukunft."
     },
@@ -129,23 +133,6 @@
     }
   },
   "views": {
-    "home": {
-      "header": "Willkommen bei der @:app.name.full von it{'@'}M",
-      "apiGatewayStatus": "Das API-Gateway ist:",
-      "privilegeTest": "Wer das liesst hat die notwendigen Berechtigungen"
-    },
-    "getStarted": {
-      "docsHeader": "Dokumentation",
-      "docsSubtext": "Weiterführende Links sind hier zu finden:",
-      "docsLinks": {
-        "templates": "Dokumentation RefArch-Templates",
-        "main": "Dokumentation RefArch"
-      },
-      "saveLeave": {
-        "title": "Wirklich verlassen?",
-        "text": "Wollen Sie wirklich nicht die Dokumentation anschauen?"
-      }
-    },
     "help": {
       "header": "Hilfeseite"
     },
@@ -162,6 +149,10 @@
         "diverse": "",
         "none": ""
       }
+    },
+    "roomEditView": {
+      "deactivationConfirmTitle": "Raum deaktivieren",
+      "deactivationFutureBookingsWarning": "Dieser Raum wird in zukünftigen Buchungen verwendet. Sie können den Raum dennoch deaktivieren."
     },
     "bookingDetailsView": {
       "header": "Buchungsdetails",
@@ -206,10 +197,9 @@
     "active": "{domain} aktiv",
     "select": "{domain} auswählen",
     "inActive": "{domain} inaktiv",
-    "confirmMsg": "Möchten Sie den \"{domain}\" endgültig löschen?",
     "confirmDelete": "Möchten Sie den Eintrag aus \"{domain}\" endgültig löschen?",
     "checkDelete": "Es wird geprüft, ob \"{domain}\" gelöscht werden kann",
-    "cantDelete": "\"{domain}\" löschen ist nicht möglich: Verwendung in einer aktuellen oder zukünftigen Buchung. Bitte stattdessen deaktivieren.",
+    "cantDelete": "\"{domain}\" löschen ist nicht möglich: Verwendung in einer aktuellen oder zukünftigen Buchung.",
     "deleted": "{domain} wurde gelöscht.",
     "updated": "{domain} wurde aktualisiert.",
     "created": "{domain} wurde erstellt.",
@@ -363,6 +353,11 @@
       "header": "Interne Person | Interne Personen",
       "organisationUnit": "Organisationseinheit",
       "roleFunction": "Rollenfunktion"
+    },
+    "weekScheduleCategory": {
+      "title": "Dienstplankategorie",
+      "altesRathaus": "Altes Rathaus",
+      "neuesRathaus": "Neues Rathaus"
     }
   }
 }

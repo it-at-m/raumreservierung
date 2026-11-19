@@ -39,6 +39,7 @@ export const mapResponseToRequest = (
     equipmentIds: mappedEquipmentIds,
     contactPersonId: response.contactPerson?.id,
     roomSeatingCapacities: mappedSeatingCapacities,
+    weekScheduleCategory: response.weekScheduleCategory,
     pictureId: response.picture?.id,
   };
 };

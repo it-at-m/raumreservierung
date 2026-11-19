@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,8 +41,8 @@ public class PersonController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public Page<PersonResponseDto> getPersonsByPageableAndFilter(@ParameterObject final Pageable pageable,
-            @ParameterObject final PersonFilterDto personFilterDto) {
-        final Page<Person> personPage = personService.getPersonsByPageableAndFilter(pageable, personFilterDto);
+            @ParameterObject final PersonFilterDto personFilterDto, @RequestParam(name = "searchLdap", defaultValue = "false") final boolean searchLdap) {
+        final Page<Person> personPage = personService.getPersonsByPageableAndFilter(pageable, personFilterDto, searchLdap);
 
         return personPage.map(personMapper::toDto);
     }

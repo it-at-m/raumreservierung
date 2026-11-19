@@ -24,7 +24,6 @@
       </base-button>
       <v-dialog
         v-model="isUnfeasibleDialogOpen"
-        max-width="800px"
         width="90%"
       >
         <template #activator>
@@ -303,11 +302,13 @@
 </template>
 
 <script setup lang="ts">
-import type {
-  BookingRequestDTO,
-  FindById200Response,
-  RoomDetailsResponseDTO,
-  RoomRequestDTO,
+import {
+  type BookingRequestDTO,
+  type FindById200Response,
+  type InternalPersonResponseDto,
+  InternalPersonResponseDtoTypeEnum,
+  type RoomDetailsResponseDTO,
+  type RoomRequestDTO,
 } from "@/api/raumreservierung-backend";
 
 import {
@@ -524,7 +525,13 @@ const saveBooking = async () => {
       bookingId: bookingId.value,
       bookingRequestDTO: {
         ...bookingData.value,
-        bookedForId: bookedFor.value?.id,
+        bookedFor: {
+          id:
+            bookedFor.value?.type === InternalPersonResponseDtoTypeEnum.INTERNAL
+              ? (bookedFor.value as InternalPersonResponseDto).organisationId
+              : bookedFor.value?.id,
+          personType: bookedFor.value?.type,
+        },
         status: bookingData.value.status,
         reasonForStatusChange: bookingData.value.reasonForStatusChange,
         seatingTypeId: currentRoom.value
@@ -540,7 +547,13 @@ const saveBooking = async () => {
     await createBooking({
       bookingRequestDTO: {
         ...bookingData.value,
-        bookedForId: bookedFor.value?.id,
+        bookedFor: {
+          id:
+            bookedFor.value?.type === InternalPersonResponseDtoTypeEnum.INTERNAL
+              ? (bookedFor.value as InternalPersonResponseDto).organisationId
+              : bookedFor.value?.id,
+          personType: bookedFor.value?.type,
+        },
         status: bookingData.value.status,
         seatingTypeId: currentRoom.value
           ? bookingData.value.seatingTypeId

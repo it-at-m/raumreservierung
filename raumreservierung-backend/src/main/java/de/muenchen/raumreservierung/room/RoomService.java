@@ -1,19 +1,24 @@
 package de.muenchen.raumreservierung.room;
 
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_ACTIVE;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_CANNOT_DELETE_IN_FUTURE_BOOKING;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_NOT_FOUND;
 
+import de.muenchen.raumreservierung.booking.events.FutureBookingCheckEvent;
+import de.muenchen.raumreservierung.booking.events.RemoveRoomFromBookingsEvent;
 import de.muenchen.raumreservierung.common.ConflictException;
 import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.file.FileAttachment;
 import de.muenchen.raumreservierung.file.FileAttachmentService;
 import de.muenchen.raumreservierung.security.Authorities;
+import de.muenchen.raumreservierung.weekschedule.WeekScheduleCategory;
 import jakarta.persistence.EntityManager;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +31,7 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final EntityManager entityManager;
     private final FileAttachmentService fileAttachmentService;
+    private final ApplicationEventPublisher eventPublisher;
 
     public Room getById(final UUID roomId) {
         return getEntityOrThrowException(roomId);
@@ -37,6 +43,12 @@ public class RoomService {
                 : roomRepository.findAll();
         log.debug("Found {} equipments", allRooms.size());
         return allRooms;
+    }
+
+    public List<Room> findAllActiveByWeekScheduleCategory(final WeekScheduleCategory category) {
+        final List<Room> rooms = roomRepository.findByIsActiveTrueAndWeekScheduleCategoryOrderByNameAsc(category);
+        log.debug("Found {} active rooms for week schedule category {}", rooms.size(), category);
+        return rooms;
     }
 
     @PreAuthorize(Authorities.ROOM_MANAGE)
@@ -88,6 +100,7 @@ public class RoomService {
         return getEntityOrThrowException(existingRoom.getId());
     }
 
+    @Transactional
     @PreAuthorize(Authorities.ROOM_MANAGE)
     public void deleteRoom(final UUID roomId) {
         final Room toDelete = getEntityOrThrowException(roomId);
@@ -95,6 +108,12 @@ public class RoomService {
         if (toDelete.isActive()) {
             throw new ConflictException(String.format(MSG_CANNOT_DELETE_ACTIVE, roomId));
         }
+
+        if (existsFutureBookingForRoom(roomId)) {
+            throw new ConflictException(String.format(MSG_CANNOT_DELETE_IN_FUTURE_BOOKING, roomId));
+        }
+
+        eventPublisher.publishEvent(new RemoveRoomFromBookingsEvent(roomId));
 
         log.debug("Deleted room to {}", roomId);
         roomRepository.deleteById(roomId);
@@ -134,4 +153,9 @@ public class RoomService {
         return roomRepository.findFirstByOrderByCapacityDesc().map(Room::getCapacity).orElse(0);
     }
 
+    public boolean existsFutureBookingForRoom(final UUID roomId) {
+        final FutureBookingCheckEvent event = new FutureBookingCheckEvent(roomId);
+        eventPublisher.publishEvent(event);
+        return event.isFutureBookingExists();
+    }
 }

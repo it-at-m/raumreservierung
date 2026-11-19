@@ -28,4 +28,6 @@ public interface BookingRepository extends JpaRepository<Booking, UUID>, JpaSpec
     List<Booking> findBySeatingTypeId(UUID seatingTypeId);
 
     List<Booking> findAllByBookedForId(UUID personId);
+
+    List<Booking> findByRoomId(UUID roomId);
 }

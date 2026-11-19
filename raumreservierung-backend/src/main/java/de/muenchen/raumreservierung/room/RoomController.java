@@ -71,4 +71,16 @@ public class RoomController {
     public void deleteRoom(@Valid @PathVariable("roomId") final UUID roomId) {
         roomService.deleteRoom(roomId);
     }
+
+    /**
+     * Check whether a future booking exists for the given room.
+     *
+     * @param roomId the UUID of the room to check
+     * @return true if no future booking exists for the room, false otherwise
+     */
+    @GetMapping("/{roomId}/has-no-future-bookings")
+    @ResponseStatus(HttpStatus.OK)
+    public boolean hasNoFutureBookingsForRoom(@PathVariable final UUID roomId) {
+        return !roomService.existsFutureBookingForRoom(roomId);
+    }
 }
