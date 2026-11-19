@@ -34,10 +34,16 @@
             items-per-page="-1"
           >
             <template #[`item.startDate`]="{ item }">
-              {{ useDateFormat(item.startDate, DATE_FORMAT_DDMMYY) }}
+              <i18n-d
+                :value="item.startDate"
+                format="short"
+              />
             </template>
             <template #[`item.endDate`]="{ item }">
-              {{ useDateFormat(item.endDate, DATE_FORMAT_DDMMYY) }}
+              <i18n-d
+                :value="item.endDate"
+                format="short"
+              />
             </template>
             <template #[`item.actions`]="{ item }">
               <slot
@@ -73,7 +79,6 @@ import type {
 } from "@/api/raumreservierung-backend";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import { useDateFormat } from "@vueuse/core";
 import { computed, ref, useTemplateRef } from "vue";
 import { useI18n } from "vue-i18n";
 import { useRoute } from "vue-router";
@@ -90,7 +95,7 @@ import {
   useGetHolidays,
   useUpdateHoliday,
 } from "@/composables/api/useHolidayApi.ts";
-import { DATE_FORMAT_DDMMYY, STATUS_INDICATORS } from "@/constants.ts";
+import { STATUS_INDICATORS } from "@/constants.ts";
 import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { dateEquals, toApiDate } from "@/util/timeUtil.ts";
