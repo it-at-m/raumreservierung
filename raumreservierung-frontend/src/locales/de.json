@@ -152,7 +152,9 @@
     },
     "roomEditView": {
       "deactivationConfirmTitle": "Raum deaktivieren",
-      "deactivationFutureBookingsWarning": "Dieser Raum wird in zukünftigen Buchungen verwendet. Sie können den Raum dennoch deaktivieren."
+      "deactivationFutureBookingsWarning": "Dieser Raum wird in zukünftigen Buchungen verwendet. Sie können den Raum dennoch deaktivieren.",
+      "pictureExceedingMaxSize": "Das Bild darf maximal 5 MB groß sein.",
+      "pictureUploadError": "Das Bild konnte nicht hochgeladen werden."
     },
     "bookingDetailsView": {
       "header": "Buchungsdetails",
