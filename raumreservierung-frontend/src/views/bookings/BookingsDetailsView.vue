@@ -116,26 +116,47 @@
         <div class="masonry-item w-100 d-inline-block mb-4">
           <details-card
             :title="
-              t('views.bookingDetailsView.bookedFor', {
-                firstName: getBookingData?.bookedFor?.firstName,
-                lastName: getBookingData?.bookedFor?.lastName,
-              })
+              isSamePerson
+                ? t('views.bookingDetailsView.bookedForBy')
+                : t('views.bookingDetailsView.bookedFor')
             "
-            :subtitle="bookedByComputed"
             :icon="mdiAccountOutline"
             :loading="getBookingLoading"
           >
-            <div
-              v-if="getBookingData?.organisationUnit"
-              class="text-medium-emphasis d-flex align-center"
-            >
-              <v-icon
-                :icon="mdiDomain"
-                size="small"
-                class="mr-2"
-              />
-              {{ getBookingData.organisationUnit }}
-            </div>
+            <contact-info
+              :name="
+                t('common.format.fullNameWithTitle', {
+                  titlePrefix: t(
+                    `views.roomDetailsView.titlePrefix.${(getBookingData?.bookedBy?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`
+                  ),
+                  firstName: getBookingData?.bookedFor?.firstName,
+                  lastName: getBookingData?.bookedFor?.lastName,
+                })
+              "
+              :email="getBookingData?.bookedFor?.email"
+              :phone="getBookingData?.bookedFor?.telefonNumber"
+            />
+          </details-card>
+          <details-card
+            v-if="canViewBookedBy && !isSamePerson"
+            :title="t('views.bookingDetailsView.bookedBy')"
+            :icon="mdiAccountOutline"
+            :loading="getBookingLoading"
+          >
+            <contact-info
+              :name="
+                t('common.format.fullNameWithTitle', {
+                  title: t(
+                    `views.roomDetailsView.titlePrefix.${(getBookingData?.bookedBy?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`
+                  ),
+                  firstName: getBookingData?.bookedBy?.firstName,
+                  lastName: getBookingData?.bookedBy?.lastName,
+                })
+              "
+              :email="getBookingData?.bookedBy?.email"
+              :phone="getBookingData?.bookedBy?.telefonNumber"
+              :organisation="getBookingData?.organisationUnit"
+            />
           </details-card>
         </div>
         <div
@@ -228,7 +249,10 @@
 </template>
 
 <script setup lang="ts">
-import type { AppointmentDetailsResponseDTO } from "@/api/raumreservierung-backend";
+import {
+  type AppointmentDetailsResponseDTO,
+  ExternalPersonResponseDtoTitleEnum,
+} from "@/api/raumreservierung-backend";
 import type { InfiniteScrollLoad } from "@/types/InfiniteScroll.ts";
 
 import {
@@ -236,7 +260,6 @@ import {
   mdiArrowLeft,
   mdiCalendarRangeOutline,
   mdiCalendarSyncOutline,
-  mdiDomain,
   mdiDoor,
   mdiFileDocumentAlertOutline,
   mdiFileDocumentOutline,
@@ -261,6 +284,7 @@ import { useGetBookingOld } from "@/composables/api/useBookingsApi.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
 import { rruleDeLanguage, rruleGetText } from "@/plugins/i18n.ts";
 import { ROUTES } from "@/types/Routes.ts";
+import ContactInfo from "@/components/booking/ContactInfo.vue";
 
 const { t } = useI18n();
 
@@ -347,16 +371,6 @@ const loadAppointmentPage = async (event: InfiniteScrollLoad) => {
   }
 };
 
-const bookedByComputed = computed(() => {
-  return !canViewBookedBy.value ||
-    getBookingData?.value?.bookedBy?.id === getBookingData?.value?.bookedFor?.id
-    ? undefined
-    : t("views.bookingDetailsView.bookedBy", {
-        firstName: getBookingData?.value?.bookedBy?.firstName,
-        lastName: getBookingData?.value?.bookedBy?.lastName,
-      });
-});
-
 const computedRRule = computed(() => {
   if (getBookingData?.value?.recurringRule) {
     const rrule = RRule.fromString(getBookingData.value.recurringRule);
@@ -371,6 +385,12 @@ const isCanceledOrUnfeasible = computed(() => {
     !!status &&
     (status.currentStatus === BookingStatusDTOCurrentStatusEnum.CANCELED ||
       status.currentStatus === BookingStatusDTOCurrentStatusEnum.UNFEASIBLE)
+  );
+});
+
+const isSamePerson = computed(() => {
+  return (
+    getBookingData.value?.bookedFor?.id === getBookingData.value?.bookedBy?.id
   );
 });
 </script>
