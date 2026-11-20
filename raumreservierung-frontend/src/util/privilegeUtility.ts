@@ -22,6 +22,7 @@ const rolePrivilegeMapping = {
     "days:write",
     "equipment:write",
     "seating:write",
+    "users:write",
     "users:manage",
     "appointments:self",
   ],
@@ -34,6 +35,7 @@ const rolePrivilegeMapping = {
     "calendar:write",
     "rooms:read",
     "appointments:self",
+    "users:write",
   ],
   terminorganisator: [
     "bookings:self",
