@@ -205,7 +205,7 @@
                 <v-row>
                   <v-col
                     cols="12"
-                    md="6"
+                    :md="canAddExternalBookedFor ? 6 : 12"
                   >
                     <person-select
                       v-model="bookedFor"
@@ -213,6 +213,7 @@
                     />
                   </v-col>
                   <v-col
+                    v-if="canAddExternalBookedFor"
                     cols="12"
                     md="6"
                   >
@@ -468,6 +469,8 @@ const { isLoading: getRoomLoading, data: roomReqData } =
   useGetRoom(roomIdToFetch);
 
 const isBookingEditable = useIsBookingEditable(bookingData);
+
+const canAddExternalBookedFor = useIsPrivileged("users:write");
 
 watch(
   () => roomReqData.value?.id,
