@@ -35,7 +35,9 @@
       "dateRange": "{start} - {end}",
       "braces": "({content})",
       "fullNameRaw": "{firstName} {lastName}",
-      "fullName": "@.trim:common.format.fullNameRaw"
+      "fullName": "@.trim:common.format.fullNameRaw",
+      "fullNameWithTitleRaw": "{title} {firstName} {lastName}",
+      "fullNameWithTitle": "@.trim:common.format.fullNameWithTitleRaw"
     }
   },
   "app": {
@@ -126,7 +128,7 @@
       "subtitle": "Datum und Uhrzeit"
     },
     "filterPanel": {
-      "bookedFor": "Gebucht für"
+      "bookedFor": "@:views.bookingDetailsView.bookedFor"
     },
     "rrBookingCalendar": {
       "toBooking": "Zum Termin"
@@ -157,8 +159,9 @@
     "bookingDetailsView": {
       "header": "Buchungsdetails",
       "chosenSeatingType": "Gewählte Bestuhlung",
-      "bookedBy": "Gebucht von {titlePrefix} @:common.format.fullName",
-      "bookedFor": "@:components.filterPanel.bookedFor {titlePrefix} @:common.format.fullName",
+      "bookedBy": "Gebucht von",
+      "bookedFor": "Gebucht für",
+      "bookedForBy": "Gebucht für/von",
       "seriesDate": "Serientermin",
       "notes": "Notizen",
       "internalNotes": "Interne Notizen",
