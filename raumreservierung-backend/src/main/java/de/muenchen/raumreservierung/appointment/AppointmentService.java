@@ -9,7 +9,10 @@ import de.muenchen.raumreservierung.common.NotFoundException;
 import de.muenchen.raumreservierung.security.Authorities;
 import jakarta.validation.Valid;
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -61,12 +64,14 @@ public class AppointmentService {
 
     }
 
+
     @PreAuthorize(Authorities.APPOINTMENT_SELF)
     public void deleteAppointment(final UUID appointmentId) {
         log.debug("Deleted appointment with id {}", appointmentId);
         appointmentRepository.deleteById(appointmentId);
     }
 
+    private static final ZoneId ZONE = ZoneId.of("Europe/Berlin");
     /**
      * Calculates the individual appointments for a booking based on its schedule
      * and an optional recurrence rule and linking them to the booking.
@@ -84,32 +89,44 @@ public class AppointmentService {
             return Set.of(app);
         }
 
-        final Duration offsetOccupancyStart = Duration.between(base.appointmentStart(), base.occupancyStart());
-        final Duration offsetOccupancyEnd = Duration.between(base.appointmentStart(), base.occupancyEnd());
-        final Duration offsetAppointmentEnd = Duration.between(base.appointmentStart(), base.appointmentEnd());
+        final ZonedDateTime apptStart = base.appointmentStart().atZoneSameInstant(ZONE);
+        final ZonedDateTime apptEnd   = base.appointmentEnd().atZoneSameInstant(ZONE);
+        final ZonedDateTime occStart  = base.occupancyStart().atZoneSameInstant(ZONE);
+        final ZonedDateTime occEnd    = base.occupancyEnd().atZoneSameInstant(ZONE);
+
+
+        final Duration offsetOccupancyStart = Duration.between(apptStart.toLocalDateTime(), occStart.toLocalDateTime());
+        final Duration offsetOccupancyEnd = Duration.between(apptStart.toLocalDateTime(), occEnd.toLocalDateTime());
+        final Duration offsetAppointmentEnd = Duration.between(apptStart.toLocalDateTime(), apptEnd.toLocalDateTime());
 
         final String rrule = parse(booking.getRecurringRule());
-        final Recur<OffsetDateTime> recur = new Recur<>(rrule);
+        final Recur<ZonedDateTime> recur = new Recur<>(rrule);
 
-        final OffsetDateTime seed = base.appointmentStart();
-        final OffsetDateTime limit = recur.getUntil() != null
+        final ZonedDateTime limit = recur.getUntil() != null
                 ? recur.getUntil()
-                : seed.plusYears(1);
+                : apptStart.plusYears(1);
 
-        final List<OffsetDateTime> dates = recur.getDates(seed, seed, limit);
+        final List<ZonedDateTime> dates = recur.getDates(apptStart, apptStart, limit);
 
         return dates.stream().map(date -> {
+
+            final LocalDateTime local = date.toLocalDateTime();
+
             final ScheduleTemplate newSchedule = new ScheduleTemplate(
-                    date.plus(offsetOccupancyStart),
-                    date.plus(offsetOccupancyEnd),
-                    date,
-                    date.plus(offsetAppointmentEnd));
+                    toOffset(local.plus(offsetOccupancyStart)),
+                    toOffset(local.plus(offsetOccupancyEnd)),
+                    toOffset(local),
+                    toOffset(local.plus(offsetAppointmentEnd)));
 
             final Appointment app = new Appointment();
             app.setBooking(booking);
             app.setSchedule(newSchedule);
             return app;
         }).collect(Collectors.toSet());
+    }
+
+    private static OffsetDateTime toOffset(final LocalDateTime local) {
+        return local.atZone(ZONE).toOffsetDateTime();
     }
 
     public List<Appointment> findAppointmentsInRange(final OffsetDateTime rangeStart, final OffsetDateTime rangeEnd) {

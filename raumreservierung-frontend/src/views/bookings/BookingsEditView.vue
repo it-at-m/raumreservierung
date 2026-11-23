@@ -436,13 +436,12 @@ const {
   loading: createBookingLoading,
   error: createBookingError,
 } = useCreateBooking();
-useCreateBooking();
+
 const {
   call: updateBooking,
   loading: updateBookingLoading,
   error: updateBookingError,
 } = useUpdateBooking();
-useUpdateBooking();
 
 const snackbarStore = useSnackbarStore();
 
