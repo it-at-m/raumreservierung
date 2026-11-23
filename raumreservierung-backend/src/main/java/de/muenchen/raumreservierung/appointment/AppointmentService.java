@@ -43,6 +43,14 @@ public class AppointmentService {
     }
 
     @PreAuthorize(Authorities.APPOINTMENT_SELF)
+    public Page<Appointment> getAppointmentsByPageableAndFilterOverlappingOccupancy(final Pageable pageable, @Valid final AppointmentFilterDTO appointmentFilterDTO) {
+        final Specification<Appointment> appointmentSpecification = AppointmentSpecificationBuilder.fromFilterForOverlappingOccupancy(appointmentFilterDTO);
+        final Page<Appointment> filteredAppointments = appointmentRepository.findAll(appointmentSpecification, pageable);
+        log.debug("Found {} appointments", filteredAppointments.getTotalElements());
+        return filteredAppointments;
+    }
+
+    @PreAuthorize(Authorities.APPOINTMENT_SELF)
     @Transactional
     public Appointment updateAppointment(final Appointment appointmentUpdates, final UUID appointmentId) {
         final Appointment existingAppointment = getEntityOrThrowException(appointmentId);

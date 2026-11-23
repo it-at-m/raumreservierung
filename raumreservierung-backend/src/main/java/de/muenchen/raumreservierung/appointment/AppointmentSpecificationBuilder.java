@@ -22,12 +22,27 @@ public final class AppointmentSpecificationBuilder {
 
         specificationList.add(AppointmentSpecifications.filterForBookingId(appointmentFilterDTO.bookingId()));
         specificationList.add(AppointmentSpecifications.filterForRoomIds(appointmentFilterDTO.roomIds()));
-        specificationList.add(AppointmentSpecifications.filterForStartDate(appointmentFilterDTO.startDate()));
-        specificationList.add(AppointmentSpecifications.filterForEndDate(appointmentFilterDTO.endDate()));
+        specificationList.add(AppointmentSpecifications.filterForOccupancyStartOnOrAfter(appointmentFilterDTO.startDate()));
+        specificationList.add(AppointmentSpecifications.filterForOccupancyEndOnOrBefore(appointmentFilterDTO.endDate()));
         specificationList.add(AppointmentSpecifications.filterForStatus(status));
 
         return Specification.allOf(specificationList);
     }
+
+    public static <T extends Appointment> Specification<T> fromFilterForOverlappingOccupancy(final AppointmentFilterDTO appointmentFilterDTO) {
+        return fromFilterWithStatusForOverlappingOccupancy(appointmentFilterDTO, null);
+    }
+
+    public static <T extends Appointment> Specification<T> fromFilterWithStatusForOverlappingOccupancy(final AppointmentFilterDTO appointmentFilterDTO, final BookingStatus status) {
+        final List<Specification<T>> specificationList = new ArrayList<>();
+        specificationList.add(AppointmentSpecifications.filterForBookingId(appointmentFilterDTO.bookingId()));
+        specificationList.add(AppointmentSpecifications.filterForRoomIds(appointmentFilterDTO.roomIds()));
+        specificationList.add(AppointmentSpecifications.filterForOccupancyEndOnOrAfter(appointmentFilterDTO.startDate()));
+        specificationList.add(AppointmentSpecifications.filterForOccupancyStartOnOrBefore(appointmentFilterDTO.endDate()));
+        specificationList.add(AppointmentSpecifications.filterForStatus(status));
+        return Specification.allOf(specificationList);
+    }
+
     public static <T extends Appointment> Specification<T> forFutureSeatingTypeUsage(final UUID seatingTypeId, final UUID roomId) {
         final List<Specification<T>> specificationList = new ArrayList<>();
 

@@ -50,14 +50,28 @@ public final class AppointmentSpecifications {
         return (root, query, cb) -> cb.equal(root.get(Appointment_.booking).get(Booking_.id), bookingId);
     }
 
-    static <T extends Appointment> Specification<T> filterForStartDate(final OffsetDateTime start) {
+    static <T extends Appointment> Specification<T> filterForOccupancyStartOnOrAfter(final OffsetDateTime start) {
+        if (start == null) {
+            return null;
+        }
+        return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyStart), start);
+    }
+
+    static <T extends Appointment> Specification<T> filterForOccupancyEndOnOrBefore(final OffsetDateTime end) {
+        if (end == null) {
+            return null;
+        }
+        return (root, query, cb) -> cb.lessThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyEnd), end);
+    }
+
+    static <T extends Appointment> Specification<T> filterForOccupancyEndOnOrAfter(final OffsetDateTime start) {
         if (start == null) {
             return null;
         }
         return (root, query, cb) -> cb.greaterThanOrEqualTo(root.get(Appointment_.schedule).get(ScheduleTemplate_.occupancyEnd), start);
     }
 
-    static <T extends Appointment> Specification<T> filterForEndDate(final OffsetDateTime end) {
+    static <T extends Appointment> Specification<T> filterForOccupancyStartOnOrBefore(final OffsetDateTime end) {
         if (end == null) {
             return null;
         }
