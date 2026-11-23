@@ -252,15 +252,6 @@
         </v-row>
         <v-row>
           <v-col>
-            <seating-capacity-editor
-              v-model="roomData.roomSeatingCapacities!"
-              :max-room-capacity="roomData.capacity"
-              :room-id="roomId"
-            />
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
             <v-number-input
               v-model="roomData.area"
               :min="1"
@@ -280,6 +271,15 @@
               color="accent"
               variant="outlined"
               :label="t('domain.room.capacity.max')"
+            />
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <seating-capacity-editor
+              v-model="roomData.roomSeatingCapacities!"
+              :max-room-capacity="roomData.capacity"
+              :room-id="roomId"
             />
           </v-col>
         </v-row>
