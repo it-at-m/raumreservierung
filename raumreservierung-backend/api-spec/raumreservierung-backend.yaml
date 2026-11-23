@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: raumreservierung-backend
   description: This is the backend-project of the renewal of the raumreservierung
-  version: 1.0.2-SNAPSHOT
+  version: 1.0.0-SNAPSHOT
 servers:
 - url: http://localhost:8086
   description: Generated server url
@@ -929,6 +929,12 @@ paths:
         schema:
           type: string
           format: uuid
+      - name: overlapping
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
       - name: roomIds
         in: query
         style: form
