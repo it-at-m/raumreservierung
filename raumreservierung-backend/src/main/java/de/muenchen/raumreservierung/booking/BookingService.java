@@ -42,7 +42,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings({ "PMD.CommentDefaultAccessModifier", "PMD.CouplingBetweenObjects" })
+@SuppressWarnings({"PMD.CommentDefaultAccessModifier", "PMD.CouplingBetweenObjects"})
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final EntityManager entityManager;
@@ -118,18 +118,17 @@ public class BookingService {
      * it regenerates future appointments while preserving the history of past appointments.
      *
      * @param bookingUpdates The booking object containing the updated data.
-     * @param bookingId The unique identifier of the booking to be updated.
+     * @param bookingId      The unique identifier of the booking to be updated.
      * @return The updated, persisted, and sanitized booking entity.
-     * @throws NotFoundException if no booking with the given ID exists.
+     * @throws NotFoundException           if no booking with the given ID exists.
      * @throws UnauthorizedActionException if the user lacks the required booking self-authority.
-     * @throws IllegalArgumentException if the booking status transition or terminal state is invalid.
+     * @throws IllegalArgumentException    if the booking status transition or terminal state is invalid.
      */
     @PreAuthorize(Authorities.BOOKING_SELF)
     public Booking updateBooking(final Booking bookingUpdates, final UUID bookingId) {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
         final BookingStatus oldStatus = existingBooking.getStatus();
         bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
-        assignBookingContext(bookingUpdates);
         if (isTerminalStatus(bookingUpdates.getStatus())) {
             bookingValidationService.validateTerminalStatusOrThrowException(bookingUpdates, existingBooking);
         } else {
@@ -191,7 +190,7 @@ public class BookingService {
     /**
      * Validates the booking update and checks that the current user is authorized to perform it.
      *
-     * @param bookingUpdates booking data with the requested changes
+     * @param bookingUpdates  booking data with the requested changes
      * @param existingBooking existing booking to be updated
      * @throws RuntimeException if validation fails or the user lacks the required authority
      */
@@ -205,7 +204,7 @@ public class BookingService {
      * appointment, or service has changed, provided the user does not hold the role
      * {@link Roles#TERMIN_ORGANISATOR} or higher.
      *
-     * @param bookingUpdates the updated booking containing the requested changes
+     * @param bookingUpdates  the updated booking containing the requested changes
      * @param existingBooking the current booking
      */
     private void applyAutomaticStatusChangesIfApplicable(final Booking bookingUpdates, final Booking existingBooking) {
@@ -220,9 +219,9 @@ public class BookingService {
      * to the booking details.
      *
      * @param existingBooking the current booking before updates
-     * @param bookingUpdate the updated booking information
+     * @param bookingUpdate   the updated booking information
      * @return true if any of the following have changed: the room, the appointments,
-     *         or the service requirement; false otherwise
+     * or the service requirement; false otherwise
      */
     private boolean needForAutomaticStatusChange(final Booking existingBooking, final Booking bookingUpdate) {
         return !Objects.equals(existingBooking.getRoom(), bookingUpdate.getRoom()) // room changed
@@ -240,7 +239,7 @@ public class BookingService {
      * on the updated rule.
      *
      * @param existingBooking the current state of the booking
-     * @param bookingUpdates the updated booking data
+     * @param bookingUpdates  the updated booking data
      */
     public void updateBookingAppointments(final Booking existingBooking, final Booking bookingUpdates) {
         if (Objects.equals(existingBooking.getRecurringRule(), bookingUpdates.getRecurringRule())
@@ -329,8 +328,8 @@ public class BookingService {
      * Resets bookingType/internalNotes to their previous values if the caller lacks
      * Role TERMIN_ORGANISATOR, then sets the booking status accordingly.
      *
-     * @param booking the booking to update (new or existing)
-     * @param previousType the type to fall back to if unauthorized
+     * @param booking       the booking to update (new or existing)
+     * @param previousType  the type to fall back to if unauthorized
      * @param previousNotes the notes to fall back to if unauthorized
      */
     private void applyOrganizerAuthorityRules(final Booking booking, final BookingType previousType, final String previousNotes) {
