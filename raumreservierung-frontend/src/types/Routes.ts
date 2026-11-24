@@ -13,7 +13,6 @@ export const ROUTES = {
   ROOMS_DETAILS: "rooms_details",
   ROOMS_EDIT: "rooms_edit",
   ROOMS_CREATE: "rooms_create",
-  ROOMS_MANAGE: "rooms_manage",
 
   MY_BOOKINGS_LIST: "MY_BOOKINGS_LIST",
   MY_BOOKINGS_CREATE: "MY_BOOKINGS_CREATE",
