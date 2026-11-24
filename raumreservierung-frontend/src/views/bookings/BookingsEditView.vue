@@ -470,7 +470,7 @@ const { isLoading: getRoomLoading, data: roomReqData } =
 
 const isBookingEditable = useIsBookingEditable(bookingData);
 
-const canAddExternalBookedFor = useIsPrivileged("users:write");
+const canAddExternalBookedFor = useIsPrivileged("users:read");
 
 watch(
   () => roomReqData.value?.id,

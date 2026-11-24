@@ -5,7 +5,7 @@ interface ActionMap {
   equipment: Extract<Action, "write">;
   seating: Extract<Action, "write">;
   days: Extract<Action, "write">;
-  users: Extract<Action, "write" | "manage">;
+  users: Extract<Action, "read" | "manage">;
   bookings: Extract<Action, "read" | "write" | "manage" | "self">;
   appointments: Extract<Action, "self">;
   calendar: Extract<Action, "read" | "write">;
