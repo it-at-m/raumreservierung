@@ -37,6 +37,11 @@ public class StatusNotificationMailService {
 
     @Async("mailExecutor")
     public void sendStatusNotificationMail(final Booking booking, final BookingStatus oldStatus) {
+        if (!this.mailInfoProperties.isEnabled()) {
+            log.debug("Mail sending disabled via configuration");
+            return;
+        }
+
         final BookingStatusAnwenderFrontend newStatus = booking.getStatus().getFrontendAnwenderStatus();
         if (newStatus == oldStatus.getFrontendAnwenderStatus()) {
             log.debug("No status change for booking {} - Skip sending mail", booking.getId());
