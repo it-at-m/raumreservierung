@@ -20,7 +20,7 @@ export const timeEquals = (
 export const dateTimeEquals = (
   date: Date | undefined,
   otherDate: Date | undefined
-) => dateEquals(date, otherDate) && timeEquals(date, otherDate);
+) => date && otherDate && date.getTime() === otherDate.getTime();
 
 export const toApiDate = <T extends Date | undefined>(date: T): T =>
   !date
