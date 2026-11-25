@@ -25,10 +25,10 @@ jobs:
         with:
           base: ${{ github.ref }}
           filters: |
-            backend: 
+            raumreservierung-backend: 
               - raumreservierung-backend/**
               - .github/workflows/build.yml
-            frontend: 
+            raumreservierung-frontend: 
               - raumreservierung-frontend/**
               - raumreservierung-backend/api-spec/**
               - .github/workflows/build.yml
