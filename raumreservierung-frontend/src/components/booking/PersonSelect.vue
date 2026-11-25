@@ -20,27 +20,29 @@
     <template #selection="{ item }">
       {{ formatName(item.firstName || item.lastName ? item : initialPerson) }}
       <span
-        v-if="showEmail && getEmail(item)"
+        v-if="getFormattedDetail(item)"
         class="text-grey ml-1"
       >
-        {{ t("common.format.braces", { content: getEmail(item) }) }}
+        {{ getFormattedDetail(item) }}
       </span>
     </template>
+
     <template #item="{ item, props }">
       <v-list-item
         v-bind="props"
         :title="formatName(item)"
-        :subtitle="
-          showEmail ? t('common.format.braces', { content: item.email }) : ''
-        "
-      >
-      </v-list-item>
+        :subtitle="getFormattedDetail(item)"
+      />
     </template>
   </v-autocomplete>
 </template>
 
 <script setup lang="ts">
-import type { FindById200Response } from "@/api/raumreservierung-backend";
+import type {
+  ExternalPersonResponseDto,
+  FindById200Response,
+  InternalPersonResponseDto,
+} from "@/api/raumreservierung-backend";
 
 import { mdiAccountSearchOutline } from "@mdi/js";
 import { useDebounceFn } from "@vueuse/core";
@@ -53,14 +55,9 @@ import {
   useGetPersonPage,
 } from "@/composables/api/usePersonApi.ts";
 
-const {
-  type,
-  label,
-  showEmail = false,
-} = defineProps<{
+const { type, label } = defineProps<{
   type?: InternalPersonRequestDtoTypeEnum;
   label?: string;
-  showEmail?: boolean;
 }>();
 
 const { t } = useI18n();
@@ -123,8 +120,15 @@ const formatName = (person: FindById200Response | undefined) =>
       })
     : t("components.personSelect.personNotFound");
 
-const getEmail = (item: FindById200Response) => {
-  return item?.email ?? initialPerson.value?.email;
+/**
+ * Retrieves and formats the organization unit or company name.
+ */
+const getFormattedDetail = (item: FindById200Response): string => {
+  const detail = isInternal.value
+    ? (item as InternalPersonResponseDto).organisationUnit?.toUpperCase()
+    : (item as ExternalPersonResponseDto).company;
+
+  return detail ? t("common.format.braces", { content: detail }) : "";
 };
 
 const onSearch = useDebounceFn((searchQuery: string) => {
