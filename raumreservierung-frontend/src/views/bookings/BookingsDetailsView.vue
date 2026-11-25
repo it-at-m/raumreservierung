@@ -127,7 +127,7 @@
               :name="
                 t('common.format.fullNameWithTitle', {
                   titlePrefix: t(
-                    `views.roomDetailsView.titlePrefix.${(getBookingData?.bookedBy?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`
+                    `views.roomDetailsView.titlePrefix.${(getBookingData?.bookedFor?.title ?? ExternalPersonResponseDtoTitleEnum.NONE).toLowerCase()}`
                   ),
                   firstName: getBookingData?.bookedFor?.firstName,
                   lastName: getBookingData?.bookedFor?.lastName,
@@ -135,10 +135,11 @@
               "
               :email="getBookingData?.bookedFor?.email"
               :phone="getBookingData?.bookedFor?.telefonNumber"
+              :organisation="bookedForOrganisation"
             />
           </details-card>
           <details-card
-            v-if="canViewBookedBy && !isSamePerson"
+            v-if="!isSamePerson"
             :title="t('views.bookingDetailsView.bookedBy')"
             :icon="mdiAccountOutline"
             :loading="getBookingLoading"
@@ -252,6 +253,7 @@
 import {
   type AppointmentDetailsResponseDTO,
   ExternalPersonResponseDtoTitleEnum,
+  InternalPersonRequestDtoTypeEnum,
 } from "@/api/raumreservierung-backend";
 import type { InfiniteScrollLoad } from "@/types/InfiniteScroll.ts";
 
@@ -298,8 +300,6 @@ const bookingId = computed(() => (route.params.id as string) || undefined);
 const appointments = ref<AppointmentDetailsResponseDTO[]>([]);
 const nextAppointmentPage = ref<number>(0);
 const totalPages = ref<number>(1);
-
-const canViewBookedBy = useIsPrivileged("bookings:read");
 
 const {
   call: getBooking,
@@ -392,6 +392,16 @@ const isSamePerson = computed(() => {
   return (
     getBookingData.value?.bookedFor?.id === getBookingData.value?.bookedBy?.id
   );
+});
+
+const bookedForOrganisation = computed(() => {
+  const person = getBookingData.value?.bookedFor;
+  if (!person) {
+    return undefined;
+  }
+  return person.type === InternalPersonRequestDtoTypeEnum.INTERNAL
+    ? person.organisationUnit
+    : person.company;
 });
 </script>
 
