@@ -7,6 +7,7 @@ import de.muenchen.raumreservierung.booking.ScheduleTemplate;
 import de.muenchen.raumreservierung.room.Room;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -47,14 +48,14 @@ public interface WeekScheduleMapper {
     default String timeRangeForDay(final OffsetDateTime start, final OffsetDateTime end,
                                    final LocalDate day) {
         final ZonedDateTime dayStart = day.atStartOfDay(ZONE);
-        final ZonedDateTime dayEnd = day.plusDays(1).atStartOfDay(ZONE);
+        final ZonedDateTime dayEnd = day.atTime(LocalTime.MAX).atZone(ZONE);
         final ZonedDateTime startLocal = local(start);
         final ZonedDateTime endLocal = local(end);
 
         final ZonedDateTime from = startLocal.isAfter(dayStart) ? startLocal : dayStart;
         final ZonedDateTime to = endLocal.isBefore(dayEnd) ? endLocal : dayEnd;
 
-        return String.format("%s - %s", from.format(TIME_FORMAT), to.equals(dayEnd) ? "23:59" : to.format(TIME_FORMAT));
+        return String.format("%s - %s", from.format(TIME_FORMAT), to.format(TIME_FORMAT));
     }
 
 
@@ -81,8 +82,8 @@ public interface WeekScheduleMapper {
     }
 
     default WeekScheduleView toView(final LocalDate monday,
-            final WeekScheduleCategory category,
-            final List<RoomRowExportDto> roomRows) {
+                                    final WeekScheduleCategory category,
+                                    final List<RoomRowExportDto> roomRows) {
         return new WeekScheduleView(
                 monday.get(IsoFields.WEEK_OF_WEEK_BASED_YEAR),
                 monday.getYear(),
@@ -102,7 +103,7 @@ public interface WeekScheduleMapper {
 
     default RoomRowExportDto toRoomRow(final Room room, final List<Appointment> appointments,
                                        final LocalDate monday) {
-        final List<List<BookingMinimalExportDto>> days =  IntStream.range(0, 7)
+        final List<List<BookingMinimalExportDto>> days = IntStream.range(0, 7)
                 .mapToObj(monday::plusDays)
                 .map(day -> appointments.stream()
                         .filter(a -> !day.isBefore(startDate(a)) && !day.isAfter(endDate(a)))
