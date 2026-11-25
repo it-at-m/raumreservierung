@@ -169,7 +169,6 @@ public class BookingControllerIntegrationTest {
         mockBooking = new Booking();
         mockBooking.setTitle("TEST_BOOKING_TITLE");
         mockBooking.setBookedBy(mockPerson);
-        mockBooking.setBookedFor(mockExternalPerson);
         mockBooking.setOrganisationUnit("TEST_UNIT");
         mockBooking.setRoom(mockRoom);
         mockBooking.setStatus(BookingStatus.ORGANIZER_APPROVED);
