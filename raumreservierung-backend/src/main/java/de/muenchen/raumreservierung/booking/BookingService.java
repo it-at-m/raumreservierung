@@ -179,6 +179,11 @@ public class BookingService {
             case UNFEASIBLE -> applyUnfeasibleStatus(existingBooking, bookingUpdates);
             default -> handleStandardBookingUpdate(existingBooking, bookingUpdates);
         }
+
+        // an update can never change bookedBy and organisationUnit
+        bookingUpdates.setBookedBy(existingBooking.getBookedBy());
+        bookingUpdates.setOrganisationUnit(existingBooking.getOrganisationUnit());
+
     }
 
     private void applyCancelStatus(
