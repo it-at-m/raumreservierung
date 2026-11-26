@@ -48,7 +48,7 @@
         :disabled="disabled"
         type="date"
         :label="t('domain.scheduleTemplate.endDate')"
-        :rules="[requiredRule]"
+        :rules="[requiredRule, validateOccupancyEndAfterStart]"
         :messages="holidayOverlapMessage"
       />
     </v-col>
