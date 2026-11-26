@@ -96,8 +96,10 @@ public class Booking extends BaseEntity {
         this.internalNotes = booking.getInternalNotes();
         this.additionalNotes = booking.getAdditionalNotes();
         this.schedule = booking.getSchedule();
+        this.bookedBy = booking.getBookedBy();
         this.bookedFor = booking.getBookedFor();
         this.recurringRule = booking.getRecurringRule();
+        this.organisationUnit = booking.getOrganisationUnit();
         this.seatingType = booking.getSeatingType();
         this.status = booking.getStatus();
         this.reasonForStatusChange = booking.getReasonForStatusChange();
