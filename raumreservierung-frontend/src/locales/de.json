@@ -24,8 +24,8 @@
       "noDateSelected": "Bitte wählen Sie ein Datum.",
       "startAfterEnd": "Beginn liegt nach Ende.",
       "endBeforeStart": "Ende liegt vor Beginn.",
-      "apptStartBeforeOccupancy": "Veranstaltungsbeginn vor Terminbeginn",
-      "apptEndAfterOccupancy": "Veranstaltungsende nach Terminende",
+      "apptStartBeforeOccupancy": "Veranstaltungsbeginn außerhalb des Termins",
+      "apptEndAfterOccupancy": "Veranstaltungsende außerhalb des Termins",
       "invalidEmail": "Die E-Mail Adresse ist nicht valide",
       "invalidTelefonNumber": "Diese Telefonnummer ist nicht valide"
     },
