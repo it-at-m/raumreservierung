@@ -46,6 +46,7 @@ public class StatusNotificationMailServiceTest {
         when(freemarkerConfig.getTemplate(anyString())).thenReturn(template);
         when(mailInfoProperties.getAppdomain()).thenReturn("testdomain.de");
         when(mailInfoProperties.getEnvironment()).thenReturn("unit-test");
+        when(mailInfoProperties.isEnabled()).thenReturn(true);
     }
 
     @Test
@@ -76,6 +77,23 @@ public class StatusNotificationMailServiceTest {
         service.sendStatusNotificationMail(booking, BookingStatus.COORDINATION_NEEDED);
 
         verify(mailOutPort, times(1)).sendHtmlMailWithTemplate(any());
+    }
+
+    @Test
+    void testNotSendMail_ConfigDisabled() throws Exception {
+        InternalPerson person = new InternalPerson();
+        person.setEmail("test@test.de");
+        Booking booking = new Booking();
+        booking.setId(UUID.randomUUID());
+        booking.setTitle("Test Booking");
+        booking.setStatus(BookingStatus.ORGANIZER_APPROVED);
+        booking.setBookedBy(person);
+
+        when(mailInfoProperties.isEnabled()).thenReturn(false);
+
+        service.sendStatusNotificationMail(booking, BookingStatus.COORDINATION_NEEDED);
+
+        verify(mailOutPort, times(0)).sendHtmlMailWithTemplate(any());
     }
 
     @Test
