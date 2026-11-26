@@ -131,6 +131,10 @@ public class BookingService {
         bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
         applyBookingUpdate(existingBooking, bookingUpdates);
 
+        // an update can never change bookedBy and organisationUnit
+        bookingUpdates.setBookedBy(existingBooking.getBookedBy());
+        bookingUpdates.setOrganisationUnit(existingBooking.getOrganisationUnit());
+
         saveAndDetach(existingBooking, bookingUpdates);
         log.debug("Updated booking with id {}", existingBooking.getId());
         statusNotificationMailService.sendStatusNotificationMail(existingBooking, oldStatus);
