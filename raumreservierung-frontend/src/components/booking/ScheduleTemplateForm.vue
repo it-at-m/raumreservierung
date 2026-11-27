@@ -48,7 +48,7 @@
         :disabled="disabled"
         type="date"
         :label="t('domain.scheduleTemplate.endDate')"
-        :rules="[requiredRule]"
+        :rules="[requiredRule, validateOccupancyEndAfterStart]"
         :messages="holidayOverlapMessage"
       />
     </v-col>
@@ -312,13 +312,15 @@ const validateOccupancyEndAfterStart = () =>
 const validateApptStartWithinOccupancy = () =>
   !appointmentStart.value ||
   !occupancyStart.value ||
-  appointmentStart.value >= occupancyStart.value ||
+  (appointmentStart.value >= occupancyStart.value &&
+    appointmentStart.value <= occupancyEnd.value) ||
   t("common.rules.apptStartBeforeOccupancy");
 
 const validateApptEndWithinOccupancy = () =>
   !appointmentEnd.value ||
   !occupancyEnd.value ||
-  appointmentEnd.value <= occupancyEnd.value ||
+  (appointmentEnd.value <= occupancyEnd.value &&
+    appointmentEnd.value >= occupancyStart.value) ||
   t("common.rules.apptEndAfterOccupancy");
 
 const allHolidaysInRange = computed(() => [
