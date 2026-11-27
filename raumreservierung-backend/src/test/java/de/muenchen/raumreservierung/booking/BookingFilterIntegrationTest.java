@@ -245,16 +245,15 @@ public class BookingFilterIntegrationTest {
         });
     }
 
-    private OffsetDateTime relativeTimestamp(int dayOffset, int hourOffset, String timeStr) {
+    private OffsetDateTime relativeTimestamp(int dayOffset, String timeStr) {
         return ZonedDateTime.of(LocalDate.now(ZoneOffset.UTC).plusDays(dayOffset), LocalTime.parse(timeStr), ZoneOffset.UTC)
-                .plusHours(hourOffset)
                 .toOffsetDateTime();
     }
 
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withFilterForStartTimeWithDateChangingOffsets_shouldReturnBooking() throws Exception {
-        OffsetDateTime start = relativeTimestamp(600, 1, "00:00");
+        OffsetDateTime start = relativeTimestamp(600,  "00:00:00");
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
                 .param("start", start.toString())
@@ -281,8 +280,8 @@ public class BookingFilterIntegrationTest {
     @Test
     @WithMockJwt(lhmObjectID = "000001", authorities = { Roles.RAUM_ADMIN })
     void getBookings_withFilterForStartTimeAndEndTimeWithDateChangingOffsets_shouldReturnBooking() throws Exception {
-        OffsetDateTime start = relativeTimestamp(600, 1, "00:00");
-        OffsetDateTime end = relativeTimestamp(600, -1, "23:59");
+        OffsetDateTime start = relativeTimestamp(600, "00:00:00");
+        OffsetDateTime end = relativeTimestamp(600, "23:59:59");
 
         String responseJson = mockMvc.perform(get(BOOKINGS_URL)
                 .param("start", start.toString())

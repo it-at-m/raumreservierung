@@ -2,12 +2,10 @@ package de.muenchen.raumreservierung.appointment;
 
 import de.muenchen.raumreservierung.appointment.dto.AppointmentFilterDTO;
 import de.muenchen.raumreservierung.booking.BookingStatus;
-
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import org.springframework.data.jpa.domain.Specification;
 
 public final class AppointmentSpecificationBuilder {
