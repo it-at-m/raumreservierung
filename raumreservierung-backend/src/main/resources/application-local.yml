@@ -63,6 +63,7 @@ raumreservierung:
   mail:
     environment: "LOCAL"
     appdomain: localhost:8083
+    enabled: true
   security:
     logging-mode: all
     client-id: ${sso.client}

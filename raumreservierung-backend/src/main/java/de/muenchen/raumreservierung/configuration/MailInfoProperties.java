@@ -10,4 +10,5 @@ import org.springframework.validation.annotation.Validated;
 public class MailInfoProperties {
     private String appdomain;
     private String environment;
+    private boolean enabled;
 }
