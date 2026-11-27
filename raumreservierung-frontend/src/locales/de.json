@@ -100,7 +100,8 @@
       }
     },
     "seatingTypeParticipantsSelector": {
-      "suffix": "Maximale Kapazität {count}"
+      "roomMaxCap": "Maximale Kapazität: {count}",
+      "seatingMaxCap": "Kapazität: {count}"
     },
     "seatingCapacityEditor": {
       "futureUsage": "Bestuhlung kann nicht gelöscht werden: Verwendung in zukünftiger Buchung."

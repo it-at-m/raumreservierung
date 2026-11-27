@@ -141,7 +141,7 @@
             >
               <seating-type-selector
                 v-model="bookingData.seatingTypeId"
-                :allowed-ids="currentRoomSeatingTypeIds"
+                :room-seating-capacities="currentRoom?.roomSeatingCapacities"
                 :info-max-capacity="currentRoomSeatingTypeLimit"
                 :loading="createBookingLoading || updateBookingLoading"
               />
