@@ -6,9 +6,10 @@ import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_INACTIVE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_SEATINGTYPE_NOT_AVAILABLE;
 import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_STATUS_CHANGE_NOT_POSSIBLE;
-import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UPDATE_OF_FIELDS_NOT_ALLOWED;
+import static de.muenchen.raumreservierung.common.ExceptionMessageConstants.MSG_UNAUTHORIZED_ACTION;
 
 import de.muenchen.raumreservierung.common.BadRequestException;
+import de.muenchen.raumreservierung.common.UnauthorizedActionException;
 import de.muenchen.raumreservierung.equipment.Equipment;
 import de.muenchen.raumreservierung.person.PersonService;
 import de.muenchen.raumreservierung.person.domain.InternalPerson;
@@ -128,6 +129,12 @@ public class BookingValidationService {
         return securityContextService.hasAuthority(role) || isOwner(booking);
     }
 
+    public void checkAuthorityOrThrowException(final Booking booking, final String role) {
+        if (!validateBookingAuthority(booking, role)) {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
+    }
+
     /**
      * Validates the status transition for a booking update.
      *
@@ -185,36 +192,6 @@ public class BookingValidationService {
         }
         if (seatingTypeInactive(bookingUpdates, existingBooking)) {
             throw new BadRequestException(MSG_SEATINGTYPE_INACTIVE);
-        }
-    }
-
-    /**
-     * Validates if the update is restricted solely to a terminal booking status (and its reason if
-     * status is unfeasible).
-     *
-     * @param bookingUpdates the requested booking updates
-     * @param existingBooking the currently existing booking
-     * @throws BadRequestException if other fields are modified
-     */
-    public void validateTerminalStatusOrThrowException(final Booking bookingUpdates, final Booking existingBooking) {
-        if (existingBooking == null) {
-            return;
-        }
-        final Booking expectedBooking = new Booking();
-        expectedBooking.updateFrom(existingBooking);
-        // status is the only field that can be changed by user
-        expectedBooking.setStatus(bookingUpdates.getStatus());
-        // these fields can't be changed by user
-        expectedBooking.setId(bookingUpdates.getId());
-        expectedBooking.setBookedBy(bookingUpdates.getBookedBy());
-        expectedBooking.setOrganisationUnit(bookingUpdates.getOrganisationUnit());
-
-        if (bookingUpdates.getStatus() == BookingStatus.UNFEASIBLE) {
-            expectedBooking.setReasonForStatusChange(bookingUpdates.getReasonForStatusChange());
-        }
-
-        if (!bookingUpdates.equals(expectedBooking)) {
-            throw new BadRequestException(MSG_UPDATE_OF_FIELDS_NOT_ALLOWED);
         }
     }
 

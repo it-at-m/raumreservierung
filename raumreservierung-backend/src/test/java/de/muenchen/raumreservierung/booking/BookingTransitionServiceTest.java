@@ -90,7 +90,7 @@ class BookingTransitionServiceTest {
                                 BookingStatus.CANCELED)),
                 Arguments.of(Roles.RAUM_BUCHUNG, BookingStatus.ROOM_APPROVED,
                         List.of(BookingStatus.ROOM_CHANGED, BookingStatus.CANCELED, BookingStatus.ORGANIZER_APPROVED, BookingStatus.COORDINATION_NEEDED,
-                                BookingStatus.ROOM_APPROVED)),
+                                BookingStatus.ROOM_APPROVED, BookingStatus.UNFEASIBLE)),
                 Arguments.of(Roles.RAUM_ADMIN, BookingStatus.NEW,
                         List.of(BookingStatus.NEW, BookingStatus.ROOM_APPROVED, BookingStatus.UNFEASIBLE, BookingStatus.CANCELED)),
                 Arguments.of(Roles.RAUM_ADMIN, BookingStatus.UNFEASIBLE, List.of(BookingStatus.UNFEASIBLE)),

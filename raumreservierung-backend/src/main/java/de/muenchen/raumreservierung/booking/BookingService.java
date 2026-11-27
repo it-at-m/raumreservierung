@@ -42,7 +42,7 @@ import org.springframework.transaction.event.TransactionalEventListener;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-@SuppressWarnings({"PMD.CommentDefaultAccessModifier", "PMD.CouplingBetweenObjects"})
+@SuppressWarnings({"PMD.CommentDefaultAccessModifier", "PMD.CouplingBetweenObjects", "PMD.GodClass"})
 public class BookingService {
     private final BookingRepository bookingRepository;
     private final EntityManager entityManager;
@@ -129,13 +129,7 @@ public class BookingService {
         final Booking existingBooking = getEntityOrThrowException(bookingId);
         final BookingStatus oldStatus = existingBooking.getStatus();
         bookingValidationService.validateBookingStatusTransitionOrThrowException(existingBooking, bookingUpdates);
-        if (isTerminalStatus(bookingUpdates.getStatus())) {
-            bookingValidationService.validateTerminalStatusOrThrowException(bookingUpdates, existingBooking);
-        } else {
-            handleStandardBookingUpdate(bookingUpdates, existingBooking);
-        }
-
-        updateBookingAppointments(existingBooking, bookingUpdates);
+        applyBookingUpdate(existingBooking, bookingUpdates);
 
         // an update can never change bookedBy and organisationUnit
         bookingUpdates.setBookedBy(existingBooking.getBookedBy());
@@ -180,11 +174,45 @@ public class BookingService {
         }
     }
 
-    private boolean isTerminalStatus(final BookingStatus status) {
-        return status == BookingStatus.CANCELED || status == BookingStatus.UNFEASIBLE;
+    public void applyBookingUpdate(
+            final Booking existingBooking,
+            final Booking bookingUpdates) {
+
+        switch (bookingUpdates.getStatus()) {
+            case CANCELED -> applyCancelStatus(existingBooking, bookingUpdates);
+            case UNFEASIBLE -> applyUnfeasibleStatus(existingBooking, bookingUpdates);
+            default -> handleStandardBookingUpdate(existingBooking, bookingUpdates);
+        }
+
+        // an update can never change bookedBy and organisationUnit
+        bookingUpdates.setBookedBy(existingBooking.getBookedBy());
+        bookingUpdates.setOrganisationUnit(existingBooking.getOrganisationUnit());
+
     }
 
-    private void handleStandardBookingUpdate(final Booking bookingUpdates, final Booking existingBooking) {
+    private void applyCancelStatus(
+            final Booking existingBooking,
+            final Booking bookingUpdates) {
+
+        existingBooking.setStatus(BookingStatus.CANCELED);
+        bookingUpdates.updateFrom(existingBooking);
+    }
+
+    private void applyUnfeasibleStatus(
+            final Booking existingBooking,
+            final Booking bookingUpdates) {
+
+        if (!securityContextService.hasAuthority(Roles.RAUM_BUCHUNG)) {
+            throw new UnauthorizedActionException(MSG_UNAUTHORIZED_ACTION);
+        }
+
+        existingBooking.setStatus(BookingStatus.UNFEASIBLE);
+        existingBooking.setReasonForStatusChange(bookingUpdates.getReasonForStatusChange());
+
+        bookingUpdates.updateFrom(existingBooking);
+    }
+
+    private void handleStandardBookingUpdate(final Booking existingBooking, final Booking bookingUpdates) {
         validateAndAuthorizeUpdate(bookingUpdates, existingBooking);
         applyOrganizerAuthorityRules(bookingUpdates, existingBooking.getBookingType(), existingBooking.getInternalNotes());
         applyAutomaticStatusChangesIfApplicable(bookingUpdates, existingBooking);
@@ -200,7 +228,7 @@ public class BookingService {
      */
     private void validateAndAuthorizeUpdate(final Booking bookingUpdates, final Booking existingBooking) {
         bookingValidationService.bookingIsValidOrThrowException(bookingUpdates, existingBooking);
-        checkAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
+        bookingValidationService.checkAuthorityOrThrowException(existingBooking, Roles.TERMIN_ORGANISATOR);
     }
 
     /**
