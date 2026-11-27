@@ -23,32 +23,36 @@ import org.mapstruct.Context;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.springframework.beans.factory.annotation.Value;
 
 @Mapper
-public interface WeekScheduleMapper {
-    ZoneId ZONE = ZoneId.of("Europe/Berlin");
-    DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
-    DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM");
+@SuppressWarnings({ "PMD.CommentDefaultAccessModifier" })
+public abstract class WeekScheduleMapper {
+    private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ofPattern("HH:mm");
+    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ofPattern("dd.MM");
+
+    @Value("${raumreservierung.time-zone}")
+    private ZoneId zone;
 
     @Mapping(target = "occupancyTime", source = "schedule", qualifiedByName = "occupancyTime")
     @Mapping(target = "appointmentTime", source = "schedule", qualifiedByName = "appointmentTime")
     @Mapping(target = "title", source = "appointment", qualifiedByName = "prefixTitle")
-    BookingMinimalExportDto toBookingMinimalDto(Appointment appointment, @Context LocalDate day);
+    public abstract BookingMinimalExportDto toBookingMinimalDto(Appointment appointment, @Context LocalDate day);
 
     @Named("occupancyTime")
-    default String occupancyTime(final ScheduleTemplate schedule, @Context final LocalDate day) {
+    String occupancyTime(final ScheduleTemplate schedule, @Context final LocalDate day) {
         return timeRangeForDay(schedule.occupancyStart(), schedule.occupancyEnd(), day);
     }
 
     @Named("appointmentTime")
-    default String appointmentTime(final ScheduleTemplate schedule, @Context final LocalDate day) {
+    String appointmentTime(final ScheduleTemplate schedule, @Context final LocalDate day) {
         return String.format("(%s)", timeRangeForDay(schedule.appointmentStart(), schedule.appointmentEnd(), day));
     }
 
-    default String timeRangeForDay(final OffsetDateTime start, final OffsetDateTime end,
+    private String timeRangeForDay(final OffsetDateTime start, final OffsetDateTime end,
                                    final LocalDate day) {
-        final ZonedDateTime dayStart = day.atStartOfDay(ZONE);
-        final ZonedDateTime dayEnd = day.atTime(LocalTime.MAX).atZone(ZONE);
+        final ZonedDateTime dayStart = day.atStartOfDay(zone);
+        final ZonedDateTime dayEnd = day.atTime(LocalTime.MAX).atZone(zone);
         final ZonedDateTime startLocal = local(start);
         final ZonedDateTime endLocal = local(end);
 
@@ -60,7 +64,7 @@ public interface WeekScheduleMapper {
 
 
     @Named("prefixTitle")
-    default String prefixTitle(final Appointment a, @Context final LocalDate day) {
+    String prefixTitle(final Appointment a, @Context final LocalDate day) {
         final String title = prefixType(a.getBooking());
         final LocalDate start = startDate(a);
         final LocalDate end = endDate(a);
@@ -72,7 +76,7 @@ public interface WeekScheduleMapper {
         return String.format("(%d/%d) %s", dayNo, total, title);
     }
 
-    default String prefixType(final Booking booking) {
+    private String prefixType(final Booking booking) {
         final String title = booking.getTitle() == null ? "" : booking.getTitle();
         final BookingType type = booking.getBookingType();
 
@@ -81,7 +85,7 @@ public interface WeekScheduleMapper {
                 : String.join(": ", type.getLabel(), title);
     }
 
-    default WeekScheduleView toView(final LocalDate monday,
+    public WeekScheduleView toView(final LocalDate monday,
                                     final WeekScheduleCategory category,
                                     final List<RoomRowExportDto> roomRows) {
         return new WeekScheduleView(
@@ -92,7 +96,7 @@ public interface WeekScheduleMapper {
                 roomRows);
     }
 
-    default List<DayHeaderExportDto> toDayHeaders(final LocalDate monday) {
+    public List<DayHeaderExportDto> toDayHeaders(final LocalDate monday) {
         return Arrays.stream(DayOfWeek.values())
                 .map(monday::with)
                 .map(day -> new DayHeaderExportDto(
@@ -101,7 +105,7 @@ public interface WeekScheduleMapper {
                 .toList();
     }
 
-    default RoomRowExportDto toRoomRow(final Room room, final List<Appointment> appointments,
+    public RoomRowExportDto toRoomRow(final Room room, final List<Appointment> appointments,
                                        final LocalDate monday) {
         final List<List<BookingMinimalExportDto>> days = IntStream.range(0, 7)
                 .mapToObj(monday::plusDays)
@@ -113,15 +117,15 @@ public interface WeekScheduleMapper {
         return new RoomRowExportDto(room.getName(), room.getNumber(), days);
     }
 
-    default LocalDate startDate(final Appointment a) {
+    private LocalDate startDate(final Appointment a) {
         return local(a.getSchedule().occupancyStart()).toLocalDate();
     }
 
-    default LocalDate endDate(final Appointment a) {
+    private LocalDate endDate(final Appointment a) {
         return local(a.getSchedule().occupancyEnd()).toLocalDate();
     }
 
-    default ZonedDateTime local(final OffsetDateTime dateTime) {
-        return dateTime.atZoneSameInstant(ZONE);
+    private ZonedDateTime local(final OffsetDateTime dateTime) {
+        return dateTime.atZoneSameInstant(zone);
     }
 }
