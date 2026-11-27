@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 @SuppressWarnings({ "PMD.CommentDefaultAccessModifier" })
 public class AppointmentService {
+    private static final ZoneId ZONE = ZoneId.of("Europe/Berlin");
     private final AppointmentRepository appointmentRepository;
     private final ApplicationEventPublisher publisher;
 
@@ -71,7 +72,6 @@ public class AppointmentService {
         appointmentRepository.deleteById(appointmentId);
     }
 
-    private static final ZoneId ZONE = ZoneId.of("Europe/Berlin");
     /**
      * Calculates the individual appointments for a booking based on its schedule
      * and an optional recurrence rule and linking them to the booking.
@@ -125,13 +125,8 @@ public class AppointmentService {
         }).collect(Collectors.toSet());
     }
 
-    private static OffsetDateTime toOffset(final LocalDateTime local) {
+    private OffsetDateTime toOffset(final LocalDateTime local) {
         return local.atZone(ZONE).toOffsetDateTime();
-    }
-
-    public List<Appointment> findAppointmentsInRange(final OffsetDateTime rangeStart, final OffsetDateTime rangeEnd) {
-        final AppointmentFilterDTO filter = new AppointmentFilterDTO(rangeStart, rangeEnd, null, null);
-        return appointmentRepository.findAll(AppointmentSpecificationBuilder.fromFilter(filter));
     }
 
     public boolean existsFutureAppointmentForRoom(final UUID roomId) {
