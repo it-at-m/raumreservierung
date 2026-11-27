@@ -25,7 +25,7 @@ const NAV_ENTRIES: readonly NavEntry[] = [
   {
     kind: "group",
     textKey: "navigationDrawer.bookingGroup.groupTitle",
-    requiredPrivilege: "bookings:manage",
+    requiredPrivilege: "bookings:self",
     children: [
       {
         kind: "item",
@@ -79,12 +79,6 @@ const NAV_ENTRIES: readonly NavEntry[] = [
         to: { name: ROUTES.SCHOOL_HOLIDAYS },
       },
     ],
-  },
-  {
-    kind: "item",
-    textKey: "navigationDrawer.viewRoomsAndDetails",
-    to: { name: ROUTES.ROOMS_LIST },
-    requiredPrivilege: "rooms:read",
   },
   {
     kind: "item",
