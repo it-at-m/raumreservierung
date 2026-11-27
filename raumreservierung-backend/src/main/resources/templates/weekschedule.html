@@ -104,8 +104,8 @@
             <div class="room-divider"></div>
             <div th:text="${room.number}"></div>
         </td>
-        <td th:each="cell : ${room.cells}">
-            <div class="appointment" th:each="appt : ${cell}">
+        <td th:each="day : ${room.days}">
+            <div class="appointment" th:each="appt : ${day}">
                 <div th:text="${appt.occupancyTime}"></div>
                 <div th:text="${appt.appointmentTime}"></div>
                 <div class="title-row">
@@ -114,7 +114,7 @@
                     </div>
                 </div>
             </div>
-            <div class="appointment placeholder" th:if="${cell.isEmpty()}">
+            <div class="appointment placeholder" th:if="${day.isEmpty()}">
                 <div class="time">&#160;</div>
                 <div class="time">&#160;</div>
                 <div class="title-row">

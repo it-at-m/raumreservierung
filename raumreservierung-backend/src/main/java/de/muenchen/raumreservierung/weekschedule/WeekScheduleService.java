@@ -48,7 +48,8 @@ public class WeekScheduleService {
         final List<RoomRowExportDto> roomRows = rooms.stream()
                 .map(room -> weekScheduleMapper.toRoomRow(
                         room,
-                        appointmentsByRoom.getOrDefault(room.getId(), List.of())))
+                        appointmentsByRoom.getOrDefault(room.getId(), List.of()),
+                        monday))
                 .toList();
 
         final Context context = new Context();
@@ -77,7 +78,7 @@ public class WeekScheduleService {
         final AppointmentFilterDTO filter = new AppointmentFilterDTO(rangeStart, rangeEnd, null, roomIds);
 
         return appointmentRepository.findAll(
-                AppointmentSpecificationBuilder.fromFilterWithStatus(filter, BookingStatus.ORGANIZER_APPROVED),
+                AppointmentSpecificationBuilder.fromFilterWithStatusForOverlappingOccupancy(filter, BookingStatus.ORGANIZER_APPROVED),
                 Sort.by("schedule.occupancyStart"));
     }
 
