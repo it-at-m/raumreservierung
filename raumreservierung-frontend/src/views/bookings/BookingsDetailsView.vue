@@ -325,6 +325,8 @@ const fetchPage = async () => {
     bookingId: bookingId.value,
     endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)),
     size: 5,
+    sort: ["schedule.occupancyStart,asc"],
+    overlapping: true,
   });
 };
 

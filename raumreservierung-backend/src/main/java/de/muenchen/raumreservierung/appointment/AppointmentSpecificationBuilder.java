@@ -18,26 +18,43 @@ public final class AppointmentSpecificationBuilder {
     }
 
     public static <T extends Appointment> Specification<T> fromFilterWithStatus(final AppointmentFilterDTO appointmentFilterDTO, final BookingStatus status) {
-        final List<Specification<T>> specificationList = new ArrayList<>();
-
-            specificationList.add(AppointmentSpecifications.filterForBookingId(appointmentFilterDTO.bookingId()));
-            specificationList.add(AppointmentSpecifications.filterForRoomIds(appointmentFilterDTO.roomIds()));
-        specificationList.add(AppointmentSpecifications.filterForStartDate(appointmentFilterDTO.startDate()));
-            specificationList.add(AppointmentSpecifications.filterForEndDate(appointmentFilterDTO.endDate()));
-            specificationList.add(AppointmentSpecifications.filterForStatus(status));
-
-        return Specification.allOf(specificationList);
+        return Specification.allOf(
+                commonSpecifications(appointmentFilterDTO, status),
+                AppointmentSpecifications.filterForOccupancyStartOnOrAfter(appointmentFilterDTO.startDate()),
+                AppointmentSpecifications.filterForOccupancyEndOnOrBefore(appointmentFilterDTO.endDate())
+        );
     }
+
+    public static <T extends Appointment> Specification<T> fromFilterForOverlappingOccupancy(final AppointmentFilterDTO appointmentFilterDTO) {
+        return fromFilterWithStatusForOverlappingOccupancy(appointmentFilterDTO, null);
+    }
+
+    public static <T extends Appointment> Specification<T> fromFilterWithStatusForOverlappingOccupancy(final AppointmentFilterDTO appointmentFilterDTO, final BookingStatus status) {
+        return Specification.allOf(
+                commonSpecifications(appointmentFilterDTO, status),
+                AppointmentSpecifications.filterForOccupancyEndOnOrAfter(appointmentFilterDTO.startDate()),
+                AppointmentSpecifications.filterForOccupancyStartOnOrBefore(appointmentFilterDTO.endDate())
+        );
+    }
+
     public static <T extends Appointment> Specification<T> forFutureSeatingTypeUsage(final UUID seatingTypeId, final UUID roomId) {
         final List<Specification<T>> specificationList = new ArrayList<>();
+
         specificationList.add(AppointmentSpecifications.filterForSeatingTypeId(seatingTypeId));
         specificationList.add(AppointmentSpecifications.filterForOccupancyEndAfter(OffsetDateTime.now()));
         specificationList.add(AppointmentSpecifications.filterExcludingStatus(BookingStatus.CANCELED, BookingStatus.UNFEASIBLE, BookingStatus.NEW));
-            specificationList.add(AppointmentSpecifications.filterForRoomId(roomId));
+        specificationList.add(AppointmentSpecifications.filterForRoomId(roomId));
+
         return Specification.allOf(specificationList);
     }
 
-
+    private static <T extends Appointment> Specification<T> commonSpecifications(final AppointmentFilterDTO filter, final BookingStatus status) {
+        return Specification.allOf(
+                AppointmentSpecifications.filterForBookingId(filter.bookingId()),
+                AppointmentSpecifications.filterForRoomIds(filter.roomIds()),
+                AppointmentSpecifications.filterForStatus(status)
+        );
+    }
 
     public static <T extends Appointment> Specification<T> filterForFutureRoomUsage(final UUID roomId) {
         return Specification.allOf(

@@ -929,6 +929,12 @@ paths:
         schema:
           type: string
           format: uuid
+      - name: overlapping
+        in: query
+        required: false
+        schema:
+          type: boolean
+          default: false
       - name: roomIds
         in: query
         style: form

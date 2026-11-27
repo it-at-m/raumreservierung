@@ -169,6 +169,7 @@ const { data: appointments, refetch: resetAppointments } = useGetAppointments(
         .map((roomData) => roomData.id)
         .filter((id) => id !== undefined),
       size: 20,
+      overlapping: true,
     };
   }
 );
@@ -186,6 +187,7 @@ const { data: bookingAppointments } = useGetAppointments(() => {
         bookingId: bookingId,
         startDate: new Date(toStartOfDay(startDate.value)),
         endDate: new Date(toEndofDay(endDate.value)),
+        overlapping: true,
       };
 });
 

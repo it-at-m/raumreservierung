@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -47,9 +48,14 @@ public class AppointmentController {
             explode = Explode.FALSE,
             array = @ArraySchema(schema = @Schema(implementation = UUID.class))
     )
-    public Page<AppointmentDetailsResponseDTO> getAppointmentsByPageableAndFilter(@ParameterObject final Pageable pageable,
-            @Valid @ParameterObject final AppointmentFilterDTO appointmentFilterDTO) {
-        final Page<Appointment> appointmentPage = appointmentService.getAppointmentsByPageableAndFilter(pageable, appointmentFilterDTO);
+    public Page<AppointmentDetailsResponseDTO> getAppointmentsByPageableAndFilter(
+            @ParameterObject final Pageable pageable,
+            @Valid @ParameterObject final AppointmentFilterDTO appointmentFilterDTO,
+            @RequestParam(name = "overlapping", defaultValue = "false") final boolean overlapping)
+    {
+        final Page<Appointment> appointmentPage = overlapping
+                ? appointmentService.getAppointmentsByPageableAndFilterOverlappingOccupancy(pageable, appointmentFilterDTO)
+                : appointmentService.getAppointmentsByPageableAndFilter(pageable, appointmentFilterDTO);
         return appointmentPage.map(appointmentMapper::toDetailsDto);
     }
 
