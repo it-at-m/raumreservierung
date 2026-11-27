@@ -68,10 +68,7 @@
               >
                 {{
                   t("common.format.dateSingle", {
-                    date: useDateFormat(
-                      item.schedule.occupancyStart,
-                      DATE_FORMAT_DDMMYY
-                    ).value,
+                    date: d(item.schedule.occupancyStart, "short"),
                   })
                 }}
               </span>
@@ -79,14 +76,8 @@
               <span v-else>
                 {{
                   t("common.format.dateRange", {
-                    start: useDateFormat(
-                      item.schedule.occupancyStart,
-                      DATE_FORMAT_DDMMYY
-                    ).value,
-                    end: useDateFormat(
-                      item.schedule.occupancyEnd,
-                      DATE_FORMAT_DDMMYY
-                    ).value,
+                    start: d(item.schedule.occupancyStart, "short"),
+                    end: d(item.schedule.occupancyEnd, "short"),
                   })
                 }}
               </span>
@@ -95,14 +86,8 @@
               <span>
                 {{
                   t("common.format.dateRange", {
-                    start: useDateFormat(
-                      item.schedule.occupancyStart,
-                      TIME_FORMAT_HHMM
-                    ).value,
-                    end: useDateFormat(
-                      item.schedule.occupancyEnd,
-                      TIME_FORMAT_HHMM
-                    ).value,
+                    start: d(item.schedule.occupancyStart, "time"),
+                    end: d(item.schedule.occupancyEnd, "time"),
                   })
                 }}
               </span>
@@ -156,14 +141,7 @@ import type {
 import type { SortItem } from "@/types/SortItem";
 import type { TableHeader } from "@/types/TableHeader.ts";
 
-import {
-  mdiCalendarEditOutline,
-  mdiCalendarExportOutline,
-  mdiCheck,
-  mdiExport,
-  mdiMinus,
-} from "@mdi/js";
-import { useDateFormat } from "@vueuse/core";
+import { mdiCalendarEditOutline, mdiCalendarExportOutline, mdiCheck, mdiExport, mdiMinus } from "@mdi/js";
 import { useRouteQuery } from "@vueuse/router";
 import { computed } from "vue";
 import { useI18n } from "vue-i18n";
@@ -181,7 +159,6 @@ import {
   useIsBookingEditable,
 } from "@/composables/useBookingStatus.ts";
 import { useIsPrivileged } from "@/composables/useIsPrivileged.ts";
-import { DATE_FORMAT_DDMMYY, TIME_FORMAT_HHMM } from "@/constants.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import { dateEquals, toEndofDay, toStartOfDay } from "@/util/timeUtil.ts";
 import ExportWeekScheduleCard from "@/components/booking/ExportWeekScheduleCard.vue";
@@ -194,7 +171,7 @@ const { getStatusGroupKey, expandStatus, statusGroups } =
   useBookingStatusConfig();
 const isBookingEditable = useIsBookingEditable();
 
-const { t } = useI18n();
+const { t, d } = useI18n();
 
 const isMyBooking = computed(() => route.name === ROUTES.MY_BOOKINGS_LIST);
 
