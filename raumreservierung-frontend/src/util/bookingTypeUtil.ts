@@ -32,7 +32,7 @@ export const mapBookingResponseToRequest = (
   };
 };
 
-export const EMPTY_BOOKING_REQUEST_DATA: BookingRequestDTO = {
+export const createEmptyBookingRequestData = (): BookingRequestDTO => ({
   title: "",
   participantCount: 1,
   equipmentIds: [],
@@ -52,4 +52,4 @@ export const EMPTY_BOOKING_REQUEST_DATA: BookingRequestDTO = {
   status: "NEW",
   reasonForStatusChange: undefined,
   bookingType: "DEFAULT",
-};
+});

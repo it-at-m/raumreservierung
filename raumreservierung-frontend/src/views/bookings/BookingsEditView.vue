@@ -353,7 +353,7 @@ import { useSnackbarStore } from "@/stores/snackbar.ts";
 import { useUserStore } from "@/stores/user.ts";
 import { ROUTES } from "@/types/Routes.ts";
 import {
-  EMPTY_BOOKING_REQUEST_DATA,
+  createEmptyBookingRequestData,
   mapBookingResponseToRequest,
 } from "@/util/bookingTypeUtil.ts";
 import { mapResponseToRequest } from "@/util/roomTypeUtil.ts";
@@ -372,7 +372,7 @@ const isUnfeasibleDialogOpen = ref(false);
 
 const currentRoom = ref<RoomRequestDTO>();
 const selectedRoomId = ref<string>();
-const bookingData = ref<BookingRequestDTO>(EMPTY_BOOKING_REQUEST_DATA);
+const bookingData = ref<BookingRequestDTO>(createEmptyBookingRequestData());
 const bookedFor = ref<FindById200Response>();
 const statusFull = ref<BookingStatusFull>(EMPTY_BOOKING_STATUS_DATA);
 
@@ -501,7 +501,7 @@ onMounted(async () => {
     }
   } else {
     // reset to clear maybe filled out data away
-    bookingData.value = { ...EMPTY_BOOKING_REQUEST_DATA };
+    bookingData.value = createEmptyBookingRequestData();
 
     const queryRoomId = route.query.roomId as string | undefined;
     const queryOccupancyStart = route.query.start as string | undefined;
